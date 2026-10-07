@@ -17,19 +17,18 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
   Brain,
-  CheckCircle2,
+  CheckCircle,
   XCircle,
   ArrowRight,
-  Sparkles,
-  HelpCircle,
-  ChevronDown,
-  ChevronUp,
-  Layers,
+  Question as QuestionIcon,
+  CaretDown,
+  CaretUp,
+  Stack,
   GraduationCap,
-  AlertTriangle,
-  RotateCcw,
+  Warning,
+  ArrowCounterClockwise,
   Check,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import {
   initAssessmentAgent,
   evaluateAndDecideStep,
@@ -269,13 +268,13 @@ export function AdaptiveAssessmentView({
       {/* SCREEN 1: PRE-ASSESSMENT SETUP SCREEN                          */}
       {/* ============================================================== */}
       {!isStarted ? (
-        <div className="neo-panel p-6 sm:p-8 space-y-6">
-          <div className="border-b-[1.5px] border-[#172033]/15 pb-5">
-            <span className="editorial-meta text-[#3156D3]">DIAGNOSTIC AGENT INITIALIZATION</span>
-            <h2 className="editorial-title text-2xl sm:text-3xl text-[#171717] mt-1">
+        <div className="neo-panel p-6 sm:p-8 space-y-6 rounded-[2px] border border-[#432623]/25 bg-[var(--surface)]">
+          <div className="border-b border-[#432623]/20 pb-5">
+            <span className="editorial-meta text-[#432623]/80">DIAGNOSTIC AGENT INITIALIZATION</span>
+            <h2 className="editorial-title text-2xl sm:text-3xl text-[#432623] mt-1">
               Mathematics Diagnostic Assessment
             </h2>
-            <p className="text-xs sm:text-sm text-[#64748B] mt-1 leading-relaxed max-w-2xl">
+            <p className="text-xs sm:text-sm text-[#432623]/80 mt-1 leading-relaxed max-w-2xl">
               A calm, adaptive diagnostic interview across all 4 Class 5 mathematics strands.
               When gaps are observed, the system seamlessly checks foundational prerequisites to isolate the true root cause.
             </p>
@@ -283,15 +282,15 @@ export function AdaptiveAssessmentView({
 
           {/* Student Selector */}
           <div className="space-y-2">
-            <label className="editorial-meta text-[#171717]">SELECT STUDENT TO ASSESS</label>
+            <label className="editorial-meta text-[#432623]">SELECT STUDENT TO ASSESS</label>
             <select
               value={selectedStudentId}
               onChange={(e) => setSelectedStudentId(e.target.value)}
-              className="w-full h-11 px-3 text-sm font-semibold bg-[#F7F6F2] border-[1.5px] border-[#172033] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3156D3]"
+              className="w-full h-11 px-3 text-sm font-semibold bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623] focus:outline-none focus:ring-1 focus:ring-[#432623]"
             >
               {students.map((s) => (
                 <option key={s.student.id} value={s.student.id}>
-                  {s.student.name} (Roll #{s.student.rollNo}) — {s.profile.status.toUpperCase().replace("_", " ")}
+                  {s.student.name} (Roll #{s.student.rollNo}) | {s.profile.status.toUpperCase().replace("_", " ")}
                 </option>
               ))}
             </select>
@@ -299,43 +298,43 @@ export function AdaptiveAssessmentView({
 
           {/* Curriculum Scope Overview */}
           <div className="space-y-2.5">
-            <span className="editorial-meta text-[#171717]">CURRICULUM ASSESSMENT SCOPE</span>
+            <span className="editorial-meta text-[#432623]">CURRICULUM ASSESSMENT SCOPE</span>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {CURRICULUM_TOPICS.map((tId: TopicId, idx: number) => (
                 <div
                   key={tId}
-                  className="p-3 bg-[#F7F6F2] border-[1.5px] border-[#172033]/20 rounded-lg text-left"
+                  className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-left"
                 >
-                  <div className="text-[10px] font-mono font-bold text-[#64748B] uppercase">
+                  <div className="text-[10px] font-mono font-bold text-[#432623]/70 uppercase">
                     STAGE 0{idx + 1}
                   </div>
-                  <div className="text-xs font-bold text-[#171717] mt-0.5">
+                  <div className="text-xs font-bold text-[#432623] mt-0.5">
                     {TOPIC_DISPLAY_NAMES[tId]?.en}
                   </div>
-                  <div className="text-[10px] text-[#64748B] mt-1 truncate">
+                  <div className="text-[10px] text-[#432623]/70 mt-1 truncate">
                     {TOPICS[tId]?.targets.map((c: ConceptId) => t(`c_${c}`) || c).join(", ")}
                   </div>
                 </div>
               ))}
             </div>
-            <p className="text-xs text-[#64748B] pt-1">
+            <p className="text-xs text-[#432623]/80 pt-1">
               The agent starts with Number Operations and tests each topic adaptively. During testing, the student experiences a calm, unpressured diagnostic without visible scores or timer stress.
             </p>
           </div>
 
           {/* Start CTA */}
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#172033]/15">
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#432623]/20">
             <button
               onClick={onCancel}
-              className="neo-btn neo-btn-secondary px-5 py-2.5 text-xs font-bold w-full sm:w-auto"
+              className="neo-btn neo-btn-secondary px-5 py-2.5 text-xs font-bold w-full sm:w-auto rounded-[2px]"
             >
               Back to Dashboard
             </button>
             <button
               onClick={handleStart}
-              className="neo-btn neo-btn-primary px-6 py-3 text-sm font-bold flex items-center justify-center gap-2 w-full sm:w-auto"
+              className="neo-btn neo-btn-primary px-6 py-3 text-sm font-bold flex items-center justify-center gap-2 w-full sm:w-auto rounded-[2px]"
             >
-              <Sparkles className="w-4 h-4 text-blue-300" />
+              <Brain className="w-4 h-4 text-[#F5F1BC]" />
               <span>START DIAGNOSTIC ASSESSMENT</span>
               <ArrowRight className="w-4 h-4" />
             </button>
@@ -345,37 +344,37 @@ export function AdaptiveAssessmentView({
         /* ============================================================== */
         /* SCREEN 3: ASSESSMENT COMPLETE SCREEN (DIAGNOSTIC REPORT)       */
         /* ============================================================== */
-        <div className="neo-panel overflow-hidden space-y-6 p-6 sm:p-8">
+        <div className="neo-panel overflow-hidden space-y-6 p-6 sm:p-8 rounded-[2px] border border-[#432623]/25 bg-[var(--surface)]">
           {/* Editorial Header */}
-          <div className="border-b-[1.5px] border-[#172033]/15 pb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="border-b border-[#432623]/20 pb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <span className="editorial-meta text-[#2F855A]">DIAGNOSTIC COMPLETE</span>
-                <span className="text-[#64748B] text-xs">•</span>
-                <span className="text-xs font-mono font-bold text-[#3156D3]">
+                <span className="editorial-meta text-[#432623] font-bold">DIAGNOSTIC COMPLETE</span>
+                <span className="text-[#432623]/40 text-xs">•</span>
+                <span className="text-xs font-mono font-bold text-[#432623]">
                   {activeStudent?.student.name} • CLASS 5A
                 </span>
               </div>
-              <h2 className="editorial-title text-2xl sm:text-3xl text-[#171717] mt-1">
+              <h2 className="editorial-title text-2xl sm:text-3xl text-[#432623] mt-1">
                 Assessment Complete
               </h2>
-              <p className="text-xs sm:text-sm text-[#64748B] mt-0.5">
+              <p className="text-xs sm:text-sm text-[#432623]/80 mt-0.5">
                 We&apos;ve synthesized the responses and isolated the concepts that need pedagogical attention.
               </p>
             </div>
 
             {/* Quick Metrics */}
-            <div className="flex items-center gap-4 bg-[#F7F6F2] p-3 rounded-lg border-[1.5px] border-[#172033]/20">
+            <div className="flex items-center gap-4 bg-[#FAF8E8] dark:bg-[#432623]/30 p-3 rounded-[2px] border border-[#432623]/25">
               <div className="text-right">
-                <div className="editorial-meta text-[#64748B]">OVERALL MASTERY</div>
-                <div className="font-serif text-3xl font-black text-[#171717]">
+                <div className="editorial-meta text-[#432623]/70">OVERALL MASTERY</div>
+                <div className="font-serif text-3xl font-black text-[#432623]">
                   {Math.round((completedProfile?.overallMastery ?? 0) * 100)}%
                 </div>
               </div>
-              <div className="w-[1px] h-8 bg-[#172033]/20" />
+              <div className="w-[1px] h-8 bg-[#432623]/20" />
               <div className="text-right">
-                <div className="editorial-meta text-[#64748B]">CONFIDENCE</div>
-                <div className="font-mono text-xl font-bold text-[#2F855A]">
+                <div className="editorial-meta text-[#432623]/70">CONFIDENCE</div>
+                <div className="font-mono text-xl font-bold text-[#432623]">
                   {Math.round((completedProfile?.overallConfidence ?? 0) * 100)}%
                 </div>
               </div>
@@ -384,25 +383,25 @@ export function AdaptiveAssessmentView({
 
           {/* Clean 4-Metric Summary Line */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="p-3 bg-[#F7F6F2] rounded-lg border-[1.5px] border-[#172033]/20 text-center">
-              <div className="editorial-meta text-[#64748B]">TOPICS ASSESSED</div>
-              <div className="font-serif text-2xl font-bold text-[#171717] mt-1">4 Topics</div>
+            <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#432623]/25 text-center">
+              <div className="editorial-meta text-[#432623]/70">TOPICS ASSESSED</div>
+              <div className="font-serif text-2xl font-bold text-[#432623] mt-1">4 Topics</div>
             </div>
-            <div className="p-3 bg-[#F7F6F2] rounded-lg border-[1.5px] border-[#172033]/20 text-center">
-              <div className="editorial-meta text-[#64748B]">QUESTIONS ASKED</div>
-              <div className="font-serif text-2xl font-bold text-[#171717] mt-1">
+            <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#432623]/25 text-center">
+              <div className="editorial-meta text-[#432623]/70">QUESTIONS ASKED</div>
+              <div className="font-serif text-2xl font-bold text-[#432623] mt-1">
                 {agentState?.responses.length || 14}
               </div>
             </div>
-            <div className="p-3 bg-[#F7F6F2] rounded-lg border-[1.5px] border-[#172033]/20 text-center">
-              <div className="editorial-meta text-[#64748B]">PREREQUISITE CHECKS</div>
-              <div className="font-serif text-2xl font-bold text-[#3156D3] mt-1">
+            <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#432623]/25 text-center">
+              <div className="editorial-meta text-[#432623]/70">PREREQUISITE CHECKS</div>
+              <div className="font-serif text-2xl font-bold text-[#432623] mt-1">
                 {agentState?.decisions.filter((d) => d.action === "PROBE_PREREQUISITE").length || 3}
               </div>
             </div>
-            <div className="p-3 bg-[#F7F6F2] rounded-lg border-[1.5px] border-[#172033]/20 text-center">
-              <div className="editorial-meta text-[#64748B]">GAPS ISOLATED</div>
-              <div className="font-serif text-2xl font-bold text-[#C53030] mt-1">
+            <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#432623]/25 text-center">
+              <div className="editorial-meta text-[#DE2A35]">GAPS ISOLATED</div>
+              <div className="font-serif text-2xl font-bold text-[#DE2A35] mt-1">
                 {completedProfile?.rootCauses.length || 1}
               </div>
             </div>
@@ -410,46 +409,46 @@ export function AdaptiveAssessmentView({
 
           {/* Primary Gap Highlight Callout */}
           {completedProfile && completedProfile.rootCauses.length > 0 ? (
-            <div className="p-5 bg-white border-[2px] border-[#172033] rounded-xl shadow-[3px_3px_0px_#172033] space-y-3">
+            <div className="p-5 bg-[var(--surface)] border border-[#DE2A35]/40 rounded-[2px] space-y-3">
               <div className="flex items-center justify-between">
-                <span className="editorial-meta text-[#C53030]">PRIMARY LEARNING GAP DETECTED</span>
-                <span className="text-[10px] font-mono font-bold uppercase bg-[#FFF5F5] text-[#C53030] px-2 py-0.5 rounded border border-[#C53030]/30">
+                <span className="editorial-meta text-[#DE2A35]">PRIMARY LEARNING GAP DETECTED</span>
+                <span className="text-[10px] font-mono font-bold uppercase bg-[#DE2A35]/15 text-[#DE2A35] px-2 py-0.5 rounded-[2px] border border-[#DE2A35]/30">
                   REQUIRES PREREQUISITE REMEDIATION
                 </span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                <div className="p-3 bg-[#F7F6F2] rounded border border-[#172033]/15">
-                  <div className="text-[10px] font-mono font-bold text-[#64748B] uppercase">ROOT GAP:</div>
-                  <div className="font-serif text-lg font-bold text-[#C53030] mt-0.5">
+                <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#432623]/20">
+                  <div className="text-[10px] font-mono font-bold text-[#432623]/70 uppercase">ROOT GAP:</div>
+                  <div className="font-serif text-lg font-bold text-[#DE2A35] mt-0.5">
                     {t(`c_${completedProfile.rootCauses[0].rootId}`) || completedProfile.rootCauses[0].rootId}
                   </div>
-                  <p className="text-xs text-[#64748B] mt-1">
+                  <p className="text-xs text-[#432623]/80 mt-1">
                     Missing prerequisite fluency that restricts higher-order performance.
                   </p>
                 </div>
 
-                <div className="p-3 bg-[#F7F6F2] rounded border border-[#172033]/15">
-                  <div className="text-[10px] font-mono font-bold text-[#64748B] uppercase">AFFECTING CONCEPTS:</div>
-                  <div className="font-serif text-lg font-bold text-[#171717] mt-0.5">
+                <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#432623]/20">
+                  <div className="text-[10px] font-mono font-bold text-[#432623]/70 uppercase">AFFECTING CONCEPTS:</div>
+                  <div className="font-serif text-lg font-bold text-[#432623] mt-0.5">
                     {completedProfile.rootCauses[0].symptomIds
                       .map((s) => t(`c_${s}`) || s)
                       .join(", ")}
                   </div>
-                  <p className="text-xs text-[#64748B] mt-1">
+                  <p className="text-xs text-[#432623]/80 mt-1">
                     Visible struggle points in Class 5 curriculum tasks.
                   </p>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="p-5 bg-[#F0FFF4] border-[1.5px] border-[#2F855A] rounded-xl flex items-center gap-3">
-              <CheckCircle2 className="w-6 h-6 text-[#2F855A] shrink-0" />
+            <div className="p-5 bg-[#8ABB93]/15 border border-[#8ABB93] rounded-[2px] flex items-center gap-3">
+              <CheckCircle className="w-6 h-6 text-[#8ABB93] shrink-0" />
               <div>
-                <h4 className="font-serif font-bold text-base text-[#171717]">
+                <h4 className="font-serif font-bold text-base text-[#432623]">
                   All Evaluated Strands Fluent
                 </h4>
-                <p className="text-xs text-[#64748B] mt-0.5">
+                <p className="text-xs text-[#432623]/80 mt-0.5">
                   Student demonstrates conceptual mastery across all tested Class 5 mathematics strands.
                 </p>
               </div>
@@ -458,29 +457,29 @@ export function AdaptiveAssessmentView({
 
           {/* 4 Topic Performance Horizontal Bars */}
           <div className="space-y-3">
-            <span className="editorial-meta text-[#171717]">TOPIC MASTERY BREAKDOWN</span>
+            <span className="editorial-meta text-[#432623]">TOPIC MASTERY BREAKDOWN</span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {completedProfile?.topics.map((tSummary) => {
                 const pct = Math.round(tSummary.mastery * 100);
                 const isMastered = tSummary.status === "mastered";
                 const isDev = tSummary.status === "developing";
-                const color = isMastered ? "bg-[#2F855A]" : isDev ? "bg-[#B7791F]" : "bg-[#C53030]";
+                const color = isMastered ? "bg-[#8ABB93]" : isDev ? "bg-[#DFA06E]" : "bg-[#DE2A35]";
 
                 return (
                   <div
                     key={tSummary.topicId}
-                    className="p-3 bg-[#F7F6F2] border-[1.5px] border-[#172033]/20 rounded-lg space-y-1.5"
+                    className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] space-y-1.5"
                   >
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-[#171717]">
+                      <span className="font-bold text-[#432623]">
                         {TOPIC_DISPLAY_NAMES[tSummary.topicId]?.en}
                       </span>
-                      <span className="font-mono font-bold text-[#171717]">
+                      <span className="font-mono font-bold text-[#432623]">
                         {pct}% ({tSummary.status.toUpperCase().replace("_", " ")})
                       </span>
                     </div>
-                    <div className="w-full bg-[#E2E2DC] h-2 rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
+                    <div className="w-full bg-[#F5F1BC] h-2 rounded-[2px] overflow-hidden">
+                      <div className={`h-full rounded-[2px] ${color}`} style={{ width: `${pct}%` }} />
                     </div>
                   </div>
                 );
@@ -489,20 +488,20 @@ export function AdaptiveAssessmentView({
           </div>
 
           {/* Actions */}
-          <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#172033]/15">
+          <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#432623]/20">
             <button
               onClick={() => {
                 setIsStarted(false);
                 setIsFinished(false);
               }}
-              className="neo-btn neo-btn-secondary px-4 py-2.5 text-xs font-bold flex items-center gap-1.5"
+              className="neo-btn neo-btn-secondary px-4 py-2.5 text-xs font-bold flex items-center gap-1.5 rounded-[2px]"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
+              <ArrowCounterClockwise className="w-3.5 h-3.5" />
               <span>Assess Another Student</span>
             </button>
             <button
               onClick={handleSaveAndFinish}
-              className="neo-btn neo-btn-primary px-6 py-2.5 text-xs sm:text-sm font-bold flex items-center gap-2"
+              className="neo-btn neo-btn-primary px-6 py-2.5 text-xs sm:text-sm font-bold flex items-center gap-2 rounded-[2px]"
             >
               <span>VIEW LEARNING PROFILE &amp; SAVE</span>
               <ArrowRight className="w-4 h-4" />
@@ -515,25 +514,25 @@ export function AdaptiveAssessmentView({
         /* ============================================================== */
         <div className="space-y-4">
           {/* Top Editorial Diagnostic Bar */}
-          <div className="bg-white border-[1.5px] border-[#172033] rounded-xl p-4 sm:p-5 shadow-[2px_3px_0px_rgba(23,32,51,0.08)] space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b-[1.5px] border-[#172033]/10 pb-3">
+          <div className="bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] p-4 sm:p-5 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#432623]/20 pb-3">
               <div>
-                <span className="editorial-meta text-[#3156D3]">MATHEMATICS DIAGNOSTIC</span>
-                <div className="font-serif font-bold text-base sm:text-lg text-[#171717]">
+                <span className="editorial-meta text-[#432623]/80">MATHEMATICS DIAGNOSTIC</span>
+                <div className="font-serif font-bold text-base sm:text-lg text-[#432623]">
                   {activeStudent?.student.name} • Class 5
                 </div>
               </div>
 
               {/* Compact Assessment Status */}
               <div className="text-right">
-                <span className="editorial-meta text-[#64748B]">CURRENTLY ASSESSING</span>
-                <div className="font-mono text-xs font-bold text-[#171717] mt-0.5">
+                <span className="editorial-meta text-[#432623]/70">CURRENTLY ASSESSING</span>
+                <div className="font-mono text-xs font-bold text-[#432623] mt-0.5">
                   {currentTopicName} • Evidence: {agentState?.responses.length || 0} items
                 </div>
               </div>
             </div>
 
-            {/* Assessment Progress Breadcrumbs: Number Operations ✓ | Multiplication ● | Division ○ | Fractions ○ */}
+            {/* Assessment Progress Breadcrumbs */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
               {CURRICULUM_TOPICS.map((tId: TopicId, idx: number) => {
                 const currentIdx = agentState?.currentTopicIndex ?? 0;
@@ -543,12 +542,12 @@ export function AdaptiveAssessmentView({
                 return (
                   <div
                     key={tId}
-                    className={`px-3 py-1.5 rounded-lg border-[1.5px] text-xs font-semibold flex items-center justify-between transition-all ${
+                    className={`px-3 py-1.5 rounded-[2px] border text-xs font-semibold flex items-center justify-between ${
                       isCurrent
-                        ? "bg-[#172033] text-white border-[#172033] shadow-[1.5px_1.5px_0px_#172033]"
+                        ? "bg-[#432623] text-[#F5F1BC] border-[#432623]"
                         : isPast
-                        ? "bg-[#F0FFF4] text-[#2F855A] border-[#2F855A]/40"
-                        : "bg-[#F7F6F2] text-[#64748B] border-[#172033]/15 opacity-70"
+                        ? "bg-[#8ABB93]/20 text-[#432623] border-[#8ABB93]/40"
+                        : "bg-[#FAF8E8] dark:bg-[#432623]/30 text-[#432623]/70 border-[#432623]/20 opacity-70"
                     }`}
                   >
                     <span className="truncate">{TOPIC_DISPLAY_NAMES[tId]?.en}</span>
@@ -561,11 +560,11 @@ export function AdaptiveAssessmentView({
             </div>
           </div>
 
-          {/* Compact System Status Prompt (Simple, Non-AI-slop language) */}
+          {/* Compact System Status Prompt */}
           <div className="flex items-center justify-between px-1 text-xs">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#3156D3] animate-pulse" />
-              <span className="font-medium text-[#171717]">
+              <span className="w-2 h-2 rounded-[2px] bg-[#432623]" />
+              <span className="font-medium text-[#432623]">
                 {isPrereqProbe
                   ? "Checking a related skill..."
                   : currentDecision?.studentFeedbackPrompt || "Let's try this question."}
@@ -575,30 +574,30 @@ export function AdaptiveAssessmentView({
             {/* Collapsible Teacher Intelligence Trigger */}
             <button
               onClick={() => setShowTeacherTrace(!showTeacherTrace)}
-              className="text-xs text-[#3156D3] font-semibold flex items-center gap-1 hover:underline"
+              className="text-xs text-[#432623] font-semibold flex items-center gap-1 hover:underline"
             >
               <Brain className="w-3.5 h-3.5" />
               <span>{showTeacherTrace ? "Hide Teacher Trace" : "Teacher Trace"}</span>
-              {showTeacherTrace ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              {showTeacherTrace ? <CaretUp className="w-3 h-3" /> : <CaretDown className="w-3 h-3" />}
             </button>
           </div>
 
-          {/* Teacher Trace (Hidden from student unless toggled) */}
+          {/* Teacher Trace */}
           {showTeacherTrace && currentDecision && (
-            <div className="bg-[#EBF0FF] border-[1.5px] border-[#3156D3]/40 rounded-xl p-3.5 text-xs space-y-2">
+            <div className="bg-[#F5F1BC]/70 border border-[#432623]/30 rounded-[2px] p-3.5 text-xs space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-[#172033] flex items-center gap-1.5">
-                  <Brain className="w-3.5 h-3.5 text-[#3156D3]" />
+                <span className="font-bold text-[#432623] flex items-center gap-1.5">
+                  <Brain className="w-3.5 h-3.5 text-[#432623]" />
                   Live Diagnostic Engine Trace
                 </span>
-                <span className="font-mono text-[10px] font-bold bg-white px-2 py-0.5 rounded border border-[#3156D3]/30">
+                <span className="font-mono text-[10px] font-bold bg-[var(--surface)] text-[#432623] px-2 py-0.5 rounded-[2px] border border-[#432623]/30">
                   {currentDecision.action.toUpperCase()}
                 </span>
               </div>
-              <p className="text-[#172033] leading-relaxed">
+              <p className="text-[#432623] leading-relaxed">
                 {currentDecision.reason}
               </p>
-              <div className="flex items-center gap-4 text-[10px] font-mono text-[#64748B]">
+              <div className="flex items-center gap-4 text-[10px] font-mono text-[#432623]/70">
                 <span>Target: {currentDecision.conceptId}</span>
                 <span>Difficulty: Level {currentDecision.difficulty}</span>
                 <span>Confidence: {Math.round(currentDecision.confidence * 100)}%</span>
@@ -608,18 +607,18 @@ export function AdaptiveAssessmentView({
 
           {/* Large Prominent Question Card */}
           {currentQuestion && (
-            <div className="bg-white border-[2px] border-[#172033] rounded-xl p-6 sm:p-8 shadow-[3px_4px_0px_#172033] space-y-6">
+            <div className="bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] p-6 sm:p-8 space-y-6">
               {/* Question Eyebrow */}
-              <div className="flex items-center justify-between border-b-[1.5px] border-[#172033]/15 pb-3">
+              <div className="flex items-center justify-between border-b border-[#432623]/20 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="editorial-meta text-[#64748B]">
+                  <span className="editorial-meta text-[#432623]/70">
                     QUESTION {((agentState?.responses.length || 0) + 1)}
                   </span>
-                  <span className="text-xs text-[#64748B]">•</span>
-                  <span className="text-xs font-semibold text-[#171717]">{currentTopicName}</span>
+                  <span className="text-xs text-[#432623]/40">•</span>
+                  <span className="text-xs font-semibold text-[#432623]">{currentTopicName}</span>
                 </div>
                 {isPrereqProbe && (
-                  <span className="bg-[#FFFDF5] text-[#B7791F] text-[10px] font-mono font-bold px-2 py-0.5 rounded border border-[#B7791F]/30 uppercase">
+                  <span className="bg-[#DFA06E]/20 text-[#432623] text-[10px] font-mono font-bold px-2 py-0.5 rounded-[2px] border border-[#DFA06E]/40 uppercase">
                     Related Concept Check
                   </span>
                 )}
@@ -627,13 +626,13 @@ export function AdaptiveAssessmentView({
 
               {/* Large Question Text */}
               <div className="space-y-4">
-                <h3 className="font-serif font-bold text-xl sm:text-2xl text-[#171717] leading-snug">
+                <h3 className="font-serif font-bold text-xl sm:text-2xl text-[#432623] leading-snug">
                   {formatTxt(currentQuestion.prompt)}
                 </h3>
 
                 {currentQuestion.expression && (
-                  <div className="py-5 text-center bg-[#F7F6F2] rounded-xl border-[1.5px] border-[#172033]/20">
-                    <span className="font-mono text-3xl sm:text-4xl font-extrabold text-[#172033] tracking-wider">
+                  <div className="py-5 text-center bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#432623]/20">
+                    <span className="font-mono text-3xl sm:text-4xl font-extrabold text-[#432623] tracking-wider">
                       {currentQuestion.expression}
                     </span>
                   </div>
@@ -650,10 +649,10 @@ export function AdaptiveAssessmentView({
                           key={opt.id}
                           onClick={() => handleSubmit(opt.value)}
                           disabled={isEvaluating}
-                          className="neo-btn neo-btn-secondary p-4 text-left text-base sm:text-lg font-bold flex items-center justify-between group"
+                          className="neo-btn neo-btn-secondary p-4 text-left text-base sm:text-lg font-bold flex items-center justify-between rounded-[2px] group"
                         >
                           <span className="font-mono">{formatTxt(opt.label)}</span>
-                          <span className="text-xs font-mono text-[#64748B] group-hover:text-[#171717]">
+                          <span className="text-xs font-mono text-[#432623]/70 group-hover:text-[#432623]">
                             [Select]
                           </span>
                         </button>
@@ -667,12 +666,12 @@ export function AdaptiveAssessmentView({
                         onChange={(e) => setUserAnswer(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSubmit(userAnswer)}
                         disabled={isEvaluating}
-                        className="h-12 font-mono text-lg bg-[#F7F6F2] border-[1.5px] border-[#172033] rounded-lg"
+                        className="h-12 font-mono text-lg bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623]"
                       />
                       <button
                         onClick={() => handleSubmit(userAnswer)}
                         disabled={isEvaluating}
-                        className="neo-btn neo-btn-primary px-6 h-12 text-sm font-bold shrink-0"
+                        className="neo-btn neo-btn-primary px-6 h-12 text-sm font-bold shrink-0 rounded-[2px]"
                       >
                         {dict.submitAnswer}
                       </button>
@@ -686,14 +685,14 @@ export function AdaptiveAssessmentView({
                         <button
                           type="button"
                           onClick={() => setShowHint(true)}
-                          className="text-xs text-[#3156D3] font-semibold flex items-center gap-1 hover:underline"
+                          className="text-xs text-[#432623] font-semibold flex items-center gap-1 hover:underline"
                         >
-                          <HelpCircle className="w-3.5 h-3.5" />
+                          <QuestionIcon className="w-3.5 h-3.5" />
                           <span>Need a hint?</span>
                         </button>
                       ) : (
-                        <div className="bg-[#FFFDF5] border-[1.5px] border-[#B7791F]/30 p-3 rounded-lg text-xs text-[#171717]">
-                          <strong className="text-[#B7791F]">Hint:</strong> {formatTxt(currentQuestion.hint)}
+                        <div className="bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#DFA06E]/40 p-3 rounded-[2px] text-xs text-[#432623]">
+                          <strong className="text-[#DFA06E]">Hint:</strong> {formatTxt(currentQuestion.hint)}
                         </div>
                       )}
                     </div>
@@ -703,25 +702,25 @@ export function AdaptiveAssessmentView({
                 /* Calm Post-Submission Feedback */
                 <div className="space-y-4 pt-2">
                   <div
-                    className={`p-4 rounded-xl border-[1.5px] flex items-center justify-between gap-4 ${
+                    className={`p-4 rounded-[2px] border flex items-center justify-between gap-4 ${
                       feedback.isCorrect
-                        ? "bg-[#F0FFF4] border-[#2F855A] text-[#2F855A]"
-                        : "bg-[#FFF5F5] border-[#C53030] text-[#C53030]"
+                        ? "bg-[#8ABB93]/15 border-[#8ABB93] text-[#432623]"
+                        : "bg-[#DE2A35]/15 border-[#DE2A35] text-[#432623]"
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       {feedback.isCorrect ? (
-                        <CheckCircle2 className="w-5 h-5 shrink-0" />
+                        <CheckCircle className="w-5 h-5 shrink-0 text-[#8ABB93]" />
                       ) : (
-                        <XCircle className="w-5 h-5 shrink-0" />
+                        <XCircle className="w-5 h-5 shrink-0 text-[#DE2A35]" />
                       )}
-                      <span className="text-sm font-bold text-[#171717]">{feedback.message}</span>
+                      <span className="text-sm font-bold text-[#432623]">{feedback.message}</span>
                     </div>
 
                     <button
                       onClick={handleNextStep}
                       disabled={isEvaluating}
-                      className="neo-btn neo-btn-primary px-5 py-2 text-xs font-bold flex items-center gap-1.5 shrink-0"
+                      className="neo-btn neo-btn-primary px-5 py-2 text-xs font-bold flex items-center gap-1.5 shrink-0 rounded-[2px]"
                     >
                       <span>Continue</span>
                       <ArrowRight className="w-3.5 h-3.5" />

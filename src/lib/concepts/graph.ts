@@ -57,7 +57,7 @@ export function dependentsOf(id: ConceptId): ConceptId[] {
   return CONCEPT_IDS.filter((c) => CONCEPTS[c].prerequisites.includes(id));
 }
 
-/** Topological order (prerequisites first) — stable, used for learning maps. */
+/** Topological order (prerequisites first): stable, used for learning maps. */
 export const TOPO_ORDER: ConceptId[] = (() => {
   const seen = new Set<ConceptId>();
   const order: ConceptId[] = [];

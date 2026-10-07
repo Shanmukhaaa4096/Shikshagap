@@ -7,21 +7,18 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-serif: var(--font-fraunces), Georgia, Cambria, serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, Menlo, Monaco, Consolas, monospace;
+  --font-sans: var(--font-sans), var(--font-devanagari), var(--font-telugu), system-ui, sans-serif;
+  --font-serif: var(--font-serif), Georgia, Cambria, serif;
+  --font-mono: ui-monospace, Menlo, Monaco, Consolas, monospace;
   --font-heading: var(--font-serif);
-  
-  --color-editorial-bg: #F7F6F2;
-  --color-editorial-surface: #FFFFFF;
-  --color-editorial-ink: #171717;
-  --color-editorial-slate: #64748B;
-  --color-editorial-dark: #172033;
-  --color-editorial-blue: #3156D3;
-  
-  --color-status-mastered: #2F855A;
-  --color-status-developing: #B7791F;
-  --color-status-support: #C53030;
+
+  --color-sg-red: #DE2A35;
+  --color-sg-red-dark: #B51E28;
+  --color-sg-sage: #8ABB93;
+  --color-sg-cream: #F5F1BC;
+  --color-sg-cream-light: #FAF8E8;
+  --color-sg-clay: #DFA06E;
+  --color-sg-brown: #432623;
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -47,148 +44,101 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 14px;
+
+  --radius-xs: 2px;
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+  --radius-xl: 2px;
 }
 
 :root {
-  --background: #F7F6F2;
-  --foreground: #171717;
-  --card: #FFFFFF;
-  --card-foreground: #171717;
-  --popover: #FFFFFF;
-  --popover-foreground: #171717;
-  --primary: #172033;
-  --primary-foreground: #FFFFFF;
-  --secondary: #F0EFEA;
-  --secondary-foreground: #171717;
-  --muted: #EFEFE9;
-  --muted-foreground: #64748B;
-  --accent: #EBF0FF;
-  --accent-foreground: #3156D3;
-  --destructive: #C53030;
-  --border: #E2E2DC;
-  --input: #E2E2DC;
-  --ring: #3156D3;
-  --radius: 0.625rem;
+  /* Light mode: Cream background tint, brown text */
+  --background: #FAF8E8;
+  --foreground: #432623;
+  --card: #F5F1BC;
+  --card-foreground: #432623;
+  --popover: #FAF8E8;
+  --popover-foreground: #432623;
+  --primary: #DE2A35;
+  --primary-foreground: #FAF8E8;
+  --secondary: #F5F1BC;
+  --secondary-foreground: #432623;
+  --muted: #EFEBC0;
+  --muted-foreground: rgba(67, 38, 35, 0.7);
+  --accent: #DFA06E;
+  --accent-foreground: #432623;
+  --destructive: #DE2A35;
+  --border: rgba(67, 38, 35, 0.25);
+  --input: rgba(67, 38, 35, 0.25);
+  --ring: #DE2A35;
+  --radius: 2px;
 }
 
 .dark {
-  --background: #12141A;
-  --foreground: #F7F6F2;
-  --card: #181B22;
-  --card-foreground: #F7F6F2;
-  --popover: #181B22;
-  --popover-foreground: #F7F6F2;
-  --primary: #F7F6F2;
-  --primary-foreground: #172033;
-  --secondary: #212530;
-  --secondary-foreground: #F7F6F2;
-  --muted: #212530;
-  --muted-foreground: #94A3B8;
-  --accent: #212842;
-  --accent-foreground: #81A1FF;
-  --destructive: #EF4444;
-  --border: #2C3242;
-  --input: #2C3242;
-  --ring: #81A1FF;
+  /* Dark mode: Brown background, cream text */
+  --background: #432623;
+  --foreground: #F5F1BC;
+  --card: #4E2E2A;
+  --card-foreground: #F5F1BC;
+  --popover: #432623;
+  --popover-foreground: #F5F1BC;
+  --primary: #DE2A35;
+  --primary-foreground: #FAF8E8;
+  --secondary: #3D221F;
+  --secondary-foreground: #F5F1BC;
+  --muted: #3B201E;
+  --muted-foreground: rgba(245, 241, 188, 0.7);
+  --accent: #DFA06E;
+  --accent-foreground: #432623;
+  --destructive: #DE2A35;
+  --border: rgba(245, 241, 188, 0.25);
+  --input: rgba(245, 241, 188, 0.25);
+  --ring: #DFA06E;
 }
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: var(--border);
+    box-shadow: none !important;
   }
+
   body {
     background-color: var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);
+    letter-spacing: -0.01em;
+    line-height: 1.5;
   }
-  h1, h2, h3, .font-serif {
-    font-family: var(--font-fraunces), Georgia, serif;
-    letter-spacing: -0.015em;
+
+  h1, h2, h3, h4, .font-serif {
+    font-family: var(--font-serif);
+    letter-spacing: -0.02em;
   }
-  button:not(:disabled), [role="button"]:not(:disabled) {
-    cursor: pointer;
+
+  /* Design ban enforcement: instant hover/focus, no easing transitions */
+  button, a, input, select, textarea {
+    transition: none !important;
+    border-radius: 2px;
+  }
+
+  /* Keyboard focus ring */
+  *:focus-visible {
+    outline: 2px solid var(--primary) !important;
+    outline-offset: 1px !important;
   }
 }
 
-/* Swiss Editorial & Soft Neo-Brutalist utility classes */
-.editorial-title {
-  font-family: var(--font-fraunces), Georgia, serif;
-  letter-spacing: -0.025em;
-  font-weight: 700;
-  line-height: 1.15;
-}
-
-.editorial-meta {
-  font-family: var(--font-inter), sans-serif;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #64748B;
-}
-
-.neo-panel {
-  background: #FFFFFF;
-  border: 1.5px solid #172033;
-  box-shadow: 2px 3px 0px rgba(23, 32, 51, 0.08);
-  border-radius: 12px;
-}
-
-.neo-panel-solid {
-  background: #FFFFFF;
-  border: 1.5px solid #172033;
-  box-shadow: 3px 3px 0px #172033;
-  border-radius: 12px;
-}
-
-.neo-btn {
-  font-family: var(--font-inter), sans-serif;
-  font-weight: 700;
-  border-radius: 10px;
-  border: 1.5px solid #172033;
-  box-shadow: 2px 2px 0px #172033;
-  transition: all 0.12s ease;
-}
-
-.neo-btn:hover:not(:disabled) {
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px #172033;
-}
-
-.neo-btn:active:not(:disabled) {
-  transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0px #172033;
-}
-
-.neo-btn-primary {
-  background: #172033;
-  color: #FFFFFF;
-  border: 1.5px solid #172033;
-  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3);
-}
-
-.neo-btn-primary:hover:not(:disabled) {
-  background: #0F1624;
-  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.4);
-}
-
-.neo-btn-secondary {
-  background: #FFFFFF;
-  color: #172033;
-}
-
-.neo-btn-accent {
-  background: #3156D3;
-  color: #FFFFFF;
-  border: 1.5px solid #172033;
-  box-shadow: 2px 2px 0px #172033;
-}
-
-.neo-btn-accent:hover:not(:disabled) {
-  background: #2544B0;
+/* Print Stylesheet (Phase E rule: white paper allowed only in print) */
+@media print {
+  body {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  .no-print, header, nav, footer, button {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
 }

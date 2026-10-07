@@ -10,20 +10,19 @@ import { Progress } from "@/components/ui/progress";
 import {
   Users,
   CheckCircle,
-  AlertTriangle,
-  Flame,
-  Search,
+  Warning,
+  Fire,
+  MagnifyingGlass,
   ArrowRight,
   Brain,
-  Sparkles,
   ArrowDown,
-  Layers,
-  Activity,
-  FileSpreadsheet,
-  Network,
+  Stack,
+  ChartLineUp,
+  Table,
+  TreeStructure,
   Printer,
-  ChevronRight,
-} from "lucide-react";
+  CaretRight,
+} from "@phosphor-icons/react";
 import { CONCEPTS, CONCEPT_IDS, prerequisitesOf, dependentsOf } from "@/lib/concepts/graph";
 import type { ConceptId } from "@/lib/types";
 
@@ -119,21 +118,21 @@ export function TeacherDashboard({
       {/* ============================================================== */}
       {/* 1. FIRST VIEWPORT: WHO NEEDS MY ATTENTION? (SWISS EDITORIAL)   */}
       {/* ============================================================== */}
-      <section className="bg-white border-[1.5px] border-[#172033] rounded-xl p-5 sm:p-6 shadow-[2px_3px_0px_rgba(23,32,51,0.08)]">
+      <section className="bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] p-5 sm:p-6">
         {/* Editorial Masthead Bar */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b-[1.5px] border-[#172033]/15">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-[#432623]/20">
           <div>
             <div className="flex items-center gap-2">
-              <span className="editorial-meta">ACADEMIC DIAGNOSTICS</span>
-              <span className="text-[#64748B] text-xs">•</span>
-              <span className="text-xs font-mono font-semibold text-[#3156D3]">PM SHRI CLASS 5 — SEC A</span>
+              <span className="editorial-meta text-[#432623]/80">ACADEMIC DIAGNOSTICS</span>
+              <span className="text-[#432623]/40 text-xs">•</span>
+              <span className="text-xs font-mono font-semibold text-[#432623]">CLASS 5 : SECTION A (SAMPLE COHORT)</span>
             </div>
-            <h1 className="editorial-title text-2xl sm:text-3xl text-[#171717] mt-0.5">
+            <h1 className="editorial-title text-2xl sm:text-3xl text-[#432623] mt-0.5">
               Teacher Intelligence Dashboard
             </h1>
-            <p className="text-xs sm:text-sm text-[#64748B] font-sans mt-0.5">
-              Mathematics Diagnostic Status • Real-time pedagogical overview answering:{" "}
-              <strong className="text-[#171717] font-semibold">Who needs my attention today?</strong>
+            <p className="text-xs sm:text-sm text-[#432623]/80 font-sans mt-0.5">
+              Mathematics diagnostic status and pedagogical overview answering:{" "}
+              <strong className="text-[#432623] font-semibold">Who needs attention today?</strong>
             </p>
           </div>
 
@@ -143,90 +142,101 @@ export function TeacherDashboard({
                 const firstCritical = students.find((s) => s.profile.status === "critical");
                 onOpenAssessment(firstCritical?.student.id || students[0]?.student.id || "student_1", "math");
               }}
-              className="neo-btn neo-btn-primary px-4 py-2.5 text-xs sm:text-sm flex items-center gap-2 font-bold"
+              className="neo-btn neo-btn-primary px-4 py-2.5 text-xs sm:text-sm flex items-center gap-2 font-bold rounded-[2px]"
             >
-              <Sparkles className="w-4 h-4 text-blue-300" />
+              <Brain className="w-4 h-4 text-[#F5F1BC]" />
               <span>START AI DIAGNOSTIC</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* 4 Swiss Metric Figures (Compact, No card-in-card bloat) */}
+        {/* AI Decision Support Disclaimer */}
+        <div className="mt-4 p-3 bg-[#F5F1BC]/60 border border-[#432623]/25 rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#432623]">
+          <div className="flex items-center gap-2">
+            <Warning className="w-4 h-4 text-[#DE2A35] shrink-0" />
+            <span>
+              <strong>Pedagogical Decision Support:</strong> Diagnostic outputs are AI-assisted recommendations. Teacher judgement is final.
+            </span>
+          </div>
+          <span className="font-mono text-[10px] text-[#432623]/70 shrink-0">SAMPLE DATA COHORT</span>
+        </div>
+
+        {/* 4 Swiss Metric Figures */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 pt-5">
           {/* Total */}
-          <div className="p-3.5 bg-[#F7F6F2] rounded-lg border-[1.5px] border-[#172033]/20 flex flex-col justify-between">
-            <span className="editorial-meta text-[#64748B]">{dict.totalStudents}</span>
+          <div className="p-3.5 bg-[#FAF8E8] dark:bg-[#432623]/40 rounded-[2px] border border-[#432623]/25 flex flex-col justify-between">
+            <span className="editorial-meta text-[#432623]/70">{dict.totalStudents}</span>
             <div className="mt-1 flex items-baseline justify-between">
-              <span className="font-serif text-3xl font-extrabold text-[#171717]">{total}</span>
-              <span className="text-[11px] font-mono text-[#64748B]">Class 5A</span>
+              <span className="font-serif text-3xl font-extrabold text-[#432623]">{total}</span>
+              <span className="text-[11px] font-mono text-[#432623]/70">Class 5A</span>
             </div>
-            <div className="text-[11px] text-[#64748B] mt-1">100% evaluated</div>
+            <div className="text-[11px] text-[#432623]/70 mt-1">15 learners assessed (Sample data)</div>
           </div>
 
           {/* On Track */}
-          <div className="p-3.5 bg-[#F0FFF4] rounded-lg border-[1.5px] border-[#2F855A] flex flex-col justify-between">
+          <div className="p-3.5 bg-[#8ABB93]/15 rounded-[2px] border border-[#8ABB93] flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="editorial-meta text-[#2F855A]">{dict.onTrack}</span>
-              <span className="w-2 h-2 rounded-full bg-[#2F855A]" />
+              <span className="editorial-meta text-[#432623] font-bold">{dict.onTrack}</span>
+              <span className="w-2.5 h-2.5 rounded-[2px] bg-[#8ABB93]" />
             </div>
             <div className="mt-1 flex items-baseline justify-between">
-              <span className="font-serif text-3xl font-extrabold text-[#2F855A]">{onTrackCount}</span>
-              <span className="text-[11px] font-mono font-bold text-[#2F855A]">
+              <span className="font-serif text-3xl font-extrabold text-[#432623]">{onTrackCount}</span>
+              <span className="text-[11px] font-mono font-bold text-[#432623]">
                 {Math.round((onTrackCount / (total || 1)) * 100)}%
               </span>
             </div>
-            <div className="text-[11px] text-[#2F855A]/90 mt-1">Fluent across prerequisites</div>
+            <div className="text-[11px] text-[#432623]/80 mt-1">Fluent across prerequisites</div>
           </div>
 
           {/* Developing */}
-          <div className="p-3.5 bg-[#FFFDF5] rounded-lg border-[1.5px] border-[#B7791F] flex flex-col justify-between">
+          <div className="p-3.5 bg-[#DFA06E]/15 rounded-[2px] border border-[#DFA06E] flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="editorial-meta text-[#B7791F]">{dict.needPractice}</span>
-              <span className="w-2 h-2 rounded-full bg-[#B7791F]" />
+              <span className="editorial-meta text-[#432623] font-bold">{dict.needPractice}</span>
+              <span className="w-2.5 h-2.5 rounded-[2px] bg-[#DFA06E]" />
             </div>
             <div className="mt-1 flex items-baseline justify-between">
-              <span className="font-serif text-3xl font-extrabold text-[#B7791F]">{needPracticeCount}</span>
-              <span className="text-[11px] font-mono font-bold text-[#B7791F]">
+              <span className="font-serif text-3xl font-extrabold text-[#432623]">{needPracticeCount}</span>
+              <span className="text-[11px] font-mono font-bold text-[#432623]">
                 {Math.round((needPracticeCount / (total || 1)) * 100)}%
               </span>
             </div>
-            <div className="text-[11px] text-[#B7791F]/90 mt-1">Needs targeted practice</div>
+            <div className="text-[11px] text-[#432623]/80 mt-1">Needs targeted practice</div>
           </div>
 
           {/* Need Support */}
-          <div className="p-3.5 bg-[#FFF5F5] rounded-lg border-[1.5px] border-[#C53030] flex flex-col justify-between">
+          <div className="p-3.5 bg-[#DE2A35]/15 rounded-[2px] border border-[#DE2A35] flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="editorial-meta text-[#C53030]">{dict.criticalGaps}</span>
-              <span className="w-2 h-2 rounded-full bg-[#C53030]" />
+              <span className="editorial-meta text-[#DE2A35] font-bold">{dict.criticalGaps}</span>
+              <span className="w-2.5 h-2.5 rounded-[2px] bg-[#DE2A35]" />
             </div>
             <div className="mt-1 flex items-baseline justify-between">
-              <span className="font-serif text-3xl font-extrabold text-[#C53030]">{criticalCount}</span>
-              <span className="text-[11px] font-mono font-bold text-[#C53030]">
+              <span className="font-serif text-3xl font-extrabold text-[#DE2A35]">{criticalCount}</span>
+              <span className="text-[11px] font-mono font-bold text-[#DE2A35]">
                 {Math.round((criticalCount / (total || 1)) * 100)}%
               </span>
             </div>
-            <div className="text-[11px] text-[#C53030]/90 mt-1">Blocked by root cause</div>
+            <div className="text-[11px] text-[#DE2A35]/90 mt-1">Blocked by root cause</div>
           </div>
         </div>
 
         {/* Viewport Sub-Grid: Learning Gaps Distribution vs Priority Interventions */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 pt-6 mt-6 border-t-[1.5px] border-[#172033]/15">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 pt-6 mt-6 border-t border-[#432623]/20">
           {/* Left Column (5 cols): LEARNING GAPS THIS WEEK */}
           <div className="lg:col-span-5 space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <span className="editorial-meta">CURRICULUM BOTTLENECK DISTRIBUTION</span>
-                <h3 className="font-serif font-bold text-base text-[#171717] mt-0.5">
+                <span className="editorial-meta text-[#432623]/80">CURRICULUM BOTTLENECK DISTRIBUTION</span>
+                <h3 className="font-serif font-bold text-base text-[#432623] mt-0.5">
                   Most Common Gaps This Week
                 </h3>
               </div>
-              <Badge variant="outline" className="font-mono text-[10px] border-[#172033]/20">
+              <Badge variant="outline" className="font-mono text-[10px] border-[#432623]/30 text-[#432623] rounded-[2px]">
                 CLASS 5A
               </Badge>
             </div>
 
-            <p className="text-xs text-[#64748B]">
+            <p className="text-xs text-[#432623]/80">
               Aggregated root-cause isolation identifying missing prerequisite skills blocking class progress.
             </p>
 
@@ -234,30 +244,30 @@ export function TeacherDashboard({
               {sortedGaps.slice(0, 4).map((gap, idx) => (
                 <div
                   key={gap.conceptId}
-                  className="p-3 bg-[#F7F6F2] border-[1.5px] border-[#172033]/20 rounded-lg hover:border-[#172033] transition-colors"
+                  className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] hover:border-[#432623]"
                 >
                   <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5 font-bold text-[#171717]">
-                      <span className="font-mono text-[10px] text-[#64748B]">0{idx + 1}</span>
+                    <div className="flex items-center gap-1.5 font-bold text-[#432623]">
+                      <span className="font-mono text-[10px] text-[#432623]/70">0{idx + 1}</span>
                       <span>{t(`c_${gap.conceptId}`)}</span>
                     </div>
-                    <span className="font-mono font-bold text-[#172033]">
+                    <span className="font-mono font-bold text-[#432623]">
                       {gap.count} learners ({gap.pct}%)
                     </span>
                   </div>
 
                   {/* Clean Minimal Progress Bar */}
-                  <div className="w-full bg-[#E2E2DC] h-2 rounded-full overflow-hidden mt-2">
+                  <div className="w-full bg-[#F5F1BC] h-2 rounded-[2px] overflow-hidden mt-2">
                     <div
-                      className={`h-full rounded-full ${
-                        gap.severity === "high" ? "bg-[#C53030]" : "bg-[#B7791F]"
+                      className={`h-full rounded-[2px] ${
+                        gap.severity === "high" ? "bg-[#DE2A35]" : "bg-[#DFA06E]"
                       }`}
                       style={{ width: `${Math.min(gap.pct, 100)}%` }}
                     />
                   </div>
-                  <div className="flex items-center justify-between mt-1 text-[10px] text-[#64748B]">
+                  <div className="flex items-center justify-between mt-1 text-[10px] text-[#432623]/80">
                     <span>Affects division &amp; fractions</span>
-                    <span className="uppercase font-semibold text-[#172033]">
+                    <span className="uppercase font-semibold text-[#432623]">
                       {gap.severity === "high" ? "Urgent Remediation" : "Targeted Drill"}
                     </span>
                   </div>
@@ -266,29 +276,29 @@ export function TeacherDashboard({
             </div>
           </div>
 
-          {/* Right Column (7 cols): PRIORITY INTERVENTIONS (Immediate teacher focus) */}
+          {/* Right Column (7 cols): PRIORITY INTERVENTIONS */}
           <div className="lg:col-span-7 space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <span className="editorial-meta">ACTION REQUIRED</span>
-                <h3 className="font-serif font-bold text-base text-[#171717] mt-0.5">
+                <span className="editorial-meta text-[#432623]/80">ACTION REQUIRED</span>
+                <h3 className="font-serif font-bold text-base text-[#432623] mt-0.5">
                   Priority Interventions (Who Needs Support)
                 </h3>
               </div>
-              <span className="text-[11px] font-mono font-semibold text-[#C53030] bg-[#FFF5F5] px-2 py-0.5 rounded border border-[#C53030]/30">
+              <span className="text-[11px] font-mono font-semibold text-[#DE2A35] bg-[#DE2A35]/10 px-2 py-0.5 rounded-[2px] border border-[#DE2A35]/30">
                 {criticalCount + needPracticeCount} Learners
               </span>
             </div>
 
-            <p className="text-xs text-[#64748B]">
+            <p className="text-xs text-[#432623]/80">
               Sorted by diagnostic urgency. Each student has a diagnosed prerequisite root cause.
             </p>
 
             {/* Compact Swiss Table */}
-            <div className="border-[1.5px] border-[#172033] rounded-lg overflow-hidden bg-white shadow-[1.5px_2px_0px_rgba(23,32,51,0.06)]">
+            <div className="border border-[#432623]/25 rounded-[2px] overflow-hidden bg-[var(--surface)]">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#F7F6F2] text-[#171717] font-bold border-b-[1.5px] border-[#172033]/20">
+                  <thead className="bg-[#F5F1BC]/50 text-[#432623] font-bold border-b border-[#432623]/20">
                     <tr>
                       <th className="py-2.5 px-3">Student</th>
                       <th className="py-2.5 px-3">Diagnosed Root Gap</th>
@@ -296,41 +306,41 @@ export function TeacherDashboard({
                       <th className="py-2.5 px-3 text-right">Pedagogical Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#172033]/10">
+                  <tbody className="divide-y divide-[#432623]/15">
                     {urgentStudents.map((s) => {
                       const root = s.profile.rootCauses[0];
                       const isCritical = s.profile.status === "critical";
                       return (
                         <tr
                           key={s.student.id}
-                          className="hover:bg-[#F7F6F2]/80 transition-colors"
+                          className="hover:bg-[#F5F1BC]/30"
                         >
-                          <td className="py-2.5 px-3 font-semibold text-[#171717]">
+                          <td className="py-2.5 px-3 font-semibold text-[#432623]">
                             <div className="font-bold">{s.student.name}</div>
-                            <div className="text-[10px] text-[#64748B] font-mono">
+                            <div className="text-[10px] text-[#432623]/70 font-mono">
                               Roll #{s.student.rollNo} • {Math.round((s.profile.overallMastery ?? 0) * 100)}% Mastery
                             </div>
                           </td>
                           <td className="py-2.5 px-3">
                             {root ? (
                               <div>
-                                <span className="font-bold text-[#C53030]">
+                                <span className="font-bold text-[#DE2A35]">
                                   {t(`c_${root.rootId}`)}
                                 </span>
-                                <div className="text-[10px] text-[#64748B]">
+                                <div className="text-[10px] text-[#432623]/70">
                                   Affecting: {root.symptomIds.map((sym) => t(`c_${sym}`)).join(", ")}
                                 </div>
                               </div>
                             ) : (
-                              <span className="text-[#64748B] italic">Prerequisite check</span>
+                              <span className="text-[#432623]/70 italic">Prerequisite check</span>
                             )}
                           </td>
                           <td className="py-2.5 px-2">
                             <span
-                              className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
+                              className={`inline-block px-1.5 py-0.5 rounded-[2px] text-[10px] font-mono font-bold uppercase ${
                                 isCritical
-                                  ? "bg-[#FFF5F5] text-[#C53030] border border-[#C53030]/30"
-                                  : "bg-[#FFFDF5] text-[#B7791F] border border-[#B7791F]/30"
+                                  ? "bg-[#DE2A35]/15 text-[#DE2A35] border border-[#DE2A35]/30"
+                                  : "bg-[#DFA06E]/20 text-[#432623] border border-[#DFA06E]/40"
                               }`}
                             >
                               {isCritical ? "HIGH" : "MEDIUM"}
@@ -340,14 +350,14 @@ export function TeacherDashboard({
                             <div className="flex items-center justify-end gap-1.5">
                               <button
                                 onClick={() => onSelectStudent(s)}
-                                className="neo-btn neo-btn-secondary px-2.5 py-1 text-[11px] font-bold"
+                                className="neo-btn neo-btn-secondary px-2.5 py-1 text-[11px] font-bold rounded-[2px]"
                               >
                                 View Report
                               </button>
                               {root && (
                                 <button
                                   onClick={() => onOpenAssessment(s.student.id, root.rootId)}
-                                  className="neo-btn neo-btn-primary px-2.5 py-1 text-[11px] font-bold flex items-center gap-1"
+                                  className="neo-btn neo-btn-primary px-2.5 py-1 text-[11px] font-bold flex items-center gap-1 rounded-[2px]"
                                 >
                                   <span>Reassess</span>
                                 </button>
@@ -369,15 +379,15 @@ export function TeacherDashboard({
       {/* 2. DEEP INTELLIGENCE TABS                                      */}
       {/* ============================================================== */}
       <div className="space-y-4">
-        {/* Soft Neo-Brutalist Tab Controls */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b-[1.5px] border-[#172033]/20 pb-2">
+        {/* Tab Controls */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#432623]/20 pb-2">
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setActiveTab("interventions")}
-              className={`h-9 px-3.5 text-xs font-bold rounded-lg border-[1.5px] transition-all flex items-center gap-1.5 ${
+              className={`h-9 px-3.5 text-xs font-bold rounded-[2px] border flex items-center gap-1.5 ${
                 activeTab === "interventions"
-                  ? "bg-[#172033] text-white border-[#172033] shadow-[2px_2px_0px_#172033]"
-                  : "bg-white text-[#171717] border-[#172033]/20 hover:border-[#172033]"
+                  ? "bg-[#432623] text-[#F5F1BC] border-[#432623]"
+                  : "bg-[var(--surface)] text-[#432623] border-[#432623]/25 hover:bg-[#F5F1BC]/40"
               }`}
             >
               <Users className="w-3.5 h-3.5" />
@@ -386,37 +396,37 @@ export function TeacherDashboard({
 
             <button
               onClick={() => setActiveTab("map")}
-              className={`h-9 px-3.5 text-xs font-bold rounded-lg border-[1.5px] transition-all flex items-center gap-1.5 ${
+              className={`h-9 px-3.5 text-xs font-bold rounded-[2px] border flex items-center gap-1.5 ${
                 activeTab === "map"
-                  ? "bg-[#172033] text-white border-[#172033] shadow-[2px_2px_0px_#172033]"
-                  : "bg-white text-[#171717] border-[#172033]/20 hover:border-[#172033]"
+                  ? "bg-[#432623] text-[#F5F1BC] border-[#432623]"
+                  : "bg-[var(--surface)] text-[#432623] border-[#432623]/25 hover:bg-[#F5F1BC]/40"
               }`}
             >
-              <Network className="w-3.5 h-3.5" />
+              <TreeStructure className="w-3.5 h-3.5" />
               <span>Learning Dependency Map</span>
             </button>
 
             <button
               onClick={() => setActiveTab("matrix")}
-              className={`h-9 px-3.5 text-xs font-bold rounded-lg border-[1.5px] transition-all flex items-center gap-1.5 ${
+              className={`h-9 px-3.5 text-xs font-bold rounded-[2px] border flex items-center gap-1.5 ${
                 activeTab === "matrix"
-                  ? "bg-[#172033] text-white border-[#172033] shadow-[2px_2px_0px_#172033]"
-                  : "bg-white text-[#171717] border-[#172033]/20 hover:border-[#172033]"
+                  ? "bg-[#432623] text-[#F5F1BC] border-[#432623]"
+                  : "bg-[var(--surface)] text-[#432623] border-[#432623]/25 hover:bg-[#F5F1BC]/40"
               }`}
             >
-              <FileSpreadsheet className="w-3.5 h-3.5" />
+              <Table className="w-3.5 h-3.5" />
               <span>Mastery Matrix</span>
             </button>
 
             <button
               onClick={() => setActiveTab("gaps")}
-              className={`h-9 px-3.5 text-xs font-bold rounded-lg border-[1.5px] transition-all flex items-center gap-1.5 ${
+              className={`h-9 px-3.5 text-xs font-bold rounded-[2px] border flex items-center gap-1.5 ${
                 activeTab === "gaps"
-                  ? "bg-[#172033] text-white border-[#172033] shadow-[2px_2px_0px_#172033]"
-                  : "bg-white text-[#171717] border-[#172033]/20 hover:border-[#172033]"
+                  ? "bg-[#432623] text-[#F5F1BC] border-[#432623]"
+                  : "bg-[var(--surface)] text-[#432623] border-[#432623]/25 hover:bg-[#F5F1BC]/40"
               }`}
             >
-              <Activity className="w-3.5 h-3.5" />
+              <ChartLineUp className="w-3.5 h-3.5" />
               <span>Remediation Insights</span>
             </button>
           </div>
@@ -425,18 +435,18 @@ export function TeacherDashboard({
           {activeTab === "interventions" && (
             <div className="flex items-center gap-2">
               <div className="relative w-48 sm:w-60">
-                <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-[#64748B]" />
+                <MagnifyingGlass className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-[#432623]/60" />
                 <Input
                   placeholder="Search name or roll no..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8 h-8 text-xs bg-white border-[1.5px] border-[#172033]/20 focus-visible:border-[#172033] rounded-lg"
+                  className="pl-8 h-8 text-xs bg-[var(--surface)] border border-[#432623]/25 focus-visible:border-[#432623] rounded-[2px] text-[#432623]"
                 />
               </div>
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="text-xs bg-white border-[1.5px] border-[#172033]/20 rounded-lg h-8 px-2 font-medium"
+                className="text-xs bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] h-8 px-2 font-medium text-[#432623]"
               >
                 <option value="all">All Status</option>
                 <option value="critical">Critical Support</option>
@@ -451,10 +461,10 @@ export function TeacherDashboard({
         {/* TAB 1: ALL STUDENTS LIST                                     */}
         {/* ------------------------------------------------------------- */}
         {activeTab === "interventions" && (
-          <div className="neo-panel overflow-hidden">
+          <div className="neo-panel overflow-hidden rounded-[2px]">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs sm:text-sm">
-                <thead className="bg-[#F7F6F2] text-[#171717] font-bold text-xs border-b-[1.5px] border-[#172033]/20">
+                <thead className="bg-[#F5F1BC]/50 text-[#432623] font-bold text-xs border-b border-[#432623]/20">
                   <tr>
                     <th className="py-3 px-4">{dict.studentName}</th>
                     <th className="py-3 px-4">{dict.symptomConcept}</th>
@@ -463,51 +473,51 @@ export function TeacherDashboard({
                     <th className="py-3 px-4 text-right">{dict.action}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#172033]/10">
+                <tbody className="divide-y divide-[#432623]/15">
                   {filteredStudents.map((s) => {
                     const root = s.profile.rootCauses[0];
                     return (
                       <tr
                         key={s.student.id}
-                        className="hover:bg-[#F7F6F2]/80 transition-colors"
+                        className="hover:bg-[#F5F1BC]/30"
                       >
                         <td className="py-3 px-4">
-                          <div className="font-bold text-[#171717]">
+                          <div className="font-bold text-[#432623]">
                             {s.student.name}
                           </div>
-                          <div className="text-xs text-[#64748B] font-mono">
+                          <div className="text-xs text-[#432623]/70 font-mono">
                             Roll #{s.student.rollNo} • Mastery: {Math.round((s.profile.overallMastery ?? 0) * 100)}%
                           </div>
                         </td>
-                        <td className="py-3 px-4 text-[#64748B]">
+                        <td className="py-3 px-4 text-[#432623]/80">
                           {root && root.symptomIds.length > 0 ? (
-                            <span className="font-medium text-[#171717]">
+                            <span className="font-medium text-[#432623]">
                               {root.symptomIds.map((sym) => t(`c_${sym}`)).join(", ")}
                             </span>
                           ) : (
-                            <span className="text-[#64748B] italic">None (On Track)</span>
+                            <span className="text-[#432623]/60 italic">None (On Track)</span>
                           )}
                         </td>
                         <td className="py-3 px-4">
                           {root ? (
-                            <div className="font-bold text-[#C53030]">
+                            <div className="font-bold text-[#DE2A35]">
                               {t(`c_${root.rootId}`)}
                             </div>
                           ) : (
-                            <span className="text-[#2F855A] font-semibold flex items-center gap-1 text-xs">
-                              <CheckCircle className="w-3.5 h-3.5" />
+                            <span className="text-[#432623] font-semibold flex items-center gap-1 text-xs">
+                              <CheckCircle className="w-3.5 h-3.5 text-[#8ABB93]" />
                               Fluent Prerequisite
                             </span>
                           )}
                         </td>
                         <td className="py-3 px-4">
                           <span
-                            className={`inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase border ${
+                            className={`inline-block px-2 py-0.5 rounded-[2px] text-[10px] font-mono font-bold uppercase border ${
                               s.profile.status === "critical"
-                                ? "bg-[#FFF5F5] text-[#C53030] border-[#C53030]/40"
+                                ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]/40"
                                 : s.profile.status === "need_practice"
-                                ? "bg-[#FFFDF5] text-[#B7791F] border-[#B7791F]/40"
-                                : "bg-[#F0FFF4] text-[#2F855A] border-[#2F855A]/40"
+                                ? "bg-[#DFA06E]/20 text-[#432623] border-[#DFA06E]/40"
+                                : "bg-[#8ABB93]/20 text-[#432623] border-[#8ABB93]/40"
                             }`}
                           >
                             {s.profile.status === "critical"
@@ -521,17 +531,16 @@ export function TeacherDashboard({
                           <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => onSelectStudent(s)}
-                              className="neo-btn neo-btn-secondary px-3 py-1 text-xs font-semibold"
+                              className="neo-btn neo-btn-secondary px-3 py-1 text-xs font-semibold rounded-[2px]"
                             >
                               {dict.diagnoseBtn}
                             </button>
                             {root && (
                               <button
                                 onClick={() => onOpenAssessment(s.student.id, root.rootId)}
-                                className="neo-btn neo-btn-primary px-3 py-1 text-xs font-semibold flex items-center gap-1"
+                                className="neo-btn neo-btn-primary px-3 py-1 text-xs font-semibold flex items-center gap-1 rounded-[2px]"
                               >
-                                <Sparkles className="w-3 h-3" />
-                                {dict.practiceBtn}
+                                <span>{dict.practiceBtn}</span>
                               </button>
                             )}
                           </div>
@@ -549,30 +558,30 @@ export function TeacherDashboard({
         {/* TAB 2: ACADEMIC LEARNING DEPENDENCY MAP                       */}
         {/* ------------------------------------------------------------- */}
         {activeTab === "map" && (
-          <div className="neo-panel p-6 space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b-[1.5px] border-[#172033]/15">
+          <div className="neo-panel p-6 space-y-6 rounded-[2px] border border-[#432623]/25 bg-[var(--surface)]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#432623]/20">
               <div>
-                <span className="editorial-meta">SIGNATURE ACADEMIC INTELLIGENCE</span>
-                <h3 className="editorial-title text-xl text-[#171717]">
-                  Mathematics Concept Dependency Graph (Class 3–5)
+                <span className="editorial-meta text-[#432623]/80">SIGNATURE ACADEMIC INTELLIGENCE</span>
+                <h3 className="editorial-title text-xl text-[#432623]">
+                  Mathematics Concept Dependency Graph (Class 3-5)
                 </h3>
-                <p className="text-xs text-[#64748B] mt-0.5 max-w-2xl">
-                  Prerequisites cascade downwards. When students stumble on upper-tier concepts (e.g., Division or Fractions), the diagnostic engine traces prerequisite lineages to isolate the exact foundation gap.
+                <p className="text-xs text-[#432623]/80 mt-0.5 max-w-2xl">
+                  Prerequisites cascade downwards. When students stumble on upper-tier concepts (such as Division or Fractions), the diagnostic engine traces prerequisite lineages to isolate the exact foundation gap.
                 </p>
               </div>
 
               {/* Status Legend */}
-              <div className="flex flex-wrap items-center gap-3 text-xs bg-[#F7F6F2] p-2.5 rounded-lg border-[1.5px] border-[#172033]/20">
-                <span className="flex items-center gap-1.5 font-semibold text-[#171717]">
-                  <span className="w-2.5 h-2.5 rounded bg-[#2F855A]" />
+              <div className="flex flex-wrap items-center gap-3 text-xs bg-[#FAF8E8] dark:bg-[#432623]/30 p-2.5 rounded-[2px] border border-[#432623]/25">
+                <span className="flex items-center gap-1.5 font-semibold text-[#432623]">
+                  <span className="w-2.5 h-2.5 rounded-[2px] bg-[#8ABB93]" />
                   Mastered (≥75%)
                 </span>
-                <span className="flex items-center gap-1.5 font-semibold text-[#171717]">
-                  <span className="w-2.5 h-2.5 rounded bg-[#B7791F]" />
-                  Developing (50–74%)
+                <span className="flex items-center gap-1.5 font-semibold text-[#432623]">
+                  <span className="w-2.5 h-2.5 rounded-[2px] bg-[#DFA06E]" />
+                  Developing (50-74%)
                 </span>
-                <span className="flex items-center gap-1.5 font-semibold text-[#171717]">
-                  <span className="w-2.5 h-2.5 rounded bg-[#C53030]" />
+                <span className="flex items-center gap-1.5 font-semibold text-[#432623]">
+                  <span className="w-2.5 h-2.5 rounded-[2px] bg-[#DE2A35]" />
                   Needs Support (&lt;50%)
                 </span>
               </div>
@@ -582,7 +591,7 @@ export function TeacherDashboard({
             <div className="space-y-6">
               {/* Level 1: Foundational Number Sense */}
               <div className="space-y-2">
-                <div className="editorial-meta text-[#64748B]">STAGE 1: FOUNDATIONAL NUMBER SENSE</div>
+                <div className="editorial-meta text-[#432623]/70">STAGE 1: FOUNDATIONAL NUMBER SENSE</div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {(["number_sense", "place_value", "addition"] as ConceptId[]).map((cId) => {
                     const st = conceptStats[cId];
@@ -591,27 +600,27 @@ export function TeacherDashboard({
                       <div
                         key={cId}
                         onClick={() => setSelectedConceptForMap(cId)}
-                        className={`p-3.5 rounded-lg border-[1.5px] cursor-pointer transition-all ${
+                        className={`p-3.5 rounded-[2px] border cursor-pointer ${
                           isSelected
-                            ? "border-[#172033] bg-[#EBF0FF] shadow-[2px_2px_0px_#172033]"
-                            : "border-[#172033]/20 bg-white hover:border-[#172033]"
+                            ? "border-[#432623] bg-[#F5F1BC]/70"
+                            : "border-[#432623]/25 bg-[var(--surface)] hover:border-[#432623]"
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-[#171717]">{t(`c_${cId}`)}</span>
+                          <span className="text-xs font-bold text-[#432623]">{t(`c_${cId}`)}</span>
                           <span
-                            className={`w-2 h-2 rounded-full ${
+                            className={`w-2.5 h-2.5 rounded-[2px] ${
                               st.status === "mastered"
-                                ? "bg-[#2F855A]"
+                                ? "bg-[#8ABB93]"
                                 : st.status === "developing"
-                                ? "bg-[#B7791F]"
-                                : "bg-[#C53030]"
+                                ? "bg-[#DFA06E]"
+                                : "bg-[#DE2A35]"
                             }`}
                           />
                         </div>
                         <div className="mt-2 flex items-baseline justify-between text-xs">
-                          <span className="font-mono font-bold text-sm text-[#171717]">{st.avg}%</span>
-                          <span className="text-[10px] text-[#64748B]">Grade {CONCEPTS[cId].grade}</span>
+                          <span className="font-mono font-bold text-sm text-[#432623]">{st.avg}%</span>
+                          <span className="text-[10px] text-[#432623]/70">Grade {CONCEPTS[cId].grade}</span>
                         </div>
                       </div>
                     );
@@ -621,15 +630,15 @@ export function TeacherDashboard({
 
               {/* Dependency Flow Arrow */}
               <div className="flex justify-center">
-                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#64748B] bg-[#F7F6F2] px-3 py-1 rounded border border-[#172033]/20">
+                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#432623] bg-[#FAF8E8] dark:bg-[#432623]/40 px-3 py-1 rounded-[2px] border border-[#432623]/25">
                   <span>PREREQUISITE DEPENDENCY FLOW</span>
-                  <ArrowDown className="w-3.5 h-3.5 text-[#172033]" />
+                  <ArrowDown className="w-3.5 h-3.5 text-[#432623]" />
                 </div>
               </div>
 
               {/* Level 2: Subtraction & Multiplication Foundations */}
               <div className="space-y-2">
-                <div className="editorial-meta text-[#64748B]">STAGE 2: MULTIPLICATION &amp; SUBTRACTION PREREQUISITES</div>
+                <div className="editorial-meta text-[#432623]/70">STAGE 2: MULTIPLICATION &amp; SUBTRACTION PREREQUISITES</div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {(["subtraction", "mult_concept", "mult_facts"] as ConceptId[]).map((cId) => {
                     const st = conceptStats[cId];
@@ -638,27 +647,27 @@ export function TeacherDashboard({
                       <div
                         key={cId}
                         onClick={() => setSelectedConceptForMap(cId)}
-                        className={`p-3.5 rounded-lg border-[1.5px] cursor-pointer transition-all ${
+                        className={`p-3.5 rounded-[2px] border cursor-pointer ${
                           isSelected
-                            ? "border-[#172033] bg-[#EBF0FF] shadow-[2px_2px_0px_#172033]"
-                            : "border-[#172033]/20 bg-white hover:border-[#172033]"
+                            ? "border-[#432623] bg-[#F5F1BC]/70"
+                            : "border-[#432623]/25 bg-[var(--surface)] hover:border-[#432623]"
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-[#171717]">{t(`c_${cId}`)}</span>
+                          <span className="text-xs font-bold text-[#432623]">{t(`c_${cId}`)}</span>
                           <span
-                            className={`w-2 h-2 rounded-full ${
+                            className={`w-2.5 h-2.5 rounded-[2px] ${
                               st.status === "mastered"
-                                ? "bg-[#2F855A]"
+                                ? "bg-[#8ABB93]"
                                 : st.status === "developing"
-                                ? "bg-[#B7791F]"
-                                : "bg-[#C53030]"
+                                ? "bg-[#DFA06E]"
+                                : "bg-[#DE2A35]"
                             }`}
                           />
                         </div>
                         <div className="mt-2 flex items-baseline justify-between text-xs">
-                          <span className="font-mono font-bold text-sm text-[#171717]">{st.avg}%</span>
-                          <span className="text-[10px] text-[#64748B]">Grade {CONCEPTS[cId].grade}</span>
+                          <span className="font-mono font-bold text-sm text-[#432623]">{st.avg}%</span>
+                          <span className="text-[10px] text-[#432623]/70">Grade {CONCEPTS[cId].grade}</span>
                         </div>
                       </div>
                     );
@@ -668,15 +677,15 @@ export function TeacherDashboard({
 
               {/* Dependency Flow Arrow */}
               <div className="flex justify-center">
-                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#64748B] bg-[#F7F6F2] px-3 py-1 rounded border border-[#172033]/20">
+                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#432623] bg-[#FAF8E8] dark:bg-[#432623]/40 px-3 py-1 rounded-[2px] border border-[#432623]/25">
                   <span>PREREQUISITE DEPENDENCY FLOW</span>
-                  <ArrowDown className="w-3.5 h-3.5 text-[#172033]" />
+                  <ArrowDown className="w-3.5 h-3.5 text-[#432623]" />
                 </div>
               </div>
 
               {/* Level 3: Division Operations & Multi-digit */}
               <div className="space-y-2">
-                <div className="editorial-meta text-[#64748B]">STAGE 3: DIVISION OPERATIONS &amp; MULTI-DIGIT FLUENCY</div>
+                <div className="editorial-meta text-[#432623]/70">STAGE 3: DIVISION OPERATIONS &amp; MULTI-DIGIT FLUENCY</div>
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                   {(["multi_digit_mult", "division_concept", "division_facts", "fraction_basics"] as ConceptId[]).map((cId) => {
                     const st = conceptStats[cId];
@@ -685,27 +694,27 @@ export function TeacherDashboard({
                       <div
                         key={cId}
                         onClick={() => setSelectedConceptForMap(cId)}
-                        className={`p-3.5 rounded-lg border-[1.5px] cursor-pointer transition-all ${
+                        className={`p-3.5 rounded-[2px] border cursor-pointer ${
                           isSelected
-                            ? "border-[#172033] bg-[#EBF0FF] shadow-[2px_2px_0px_#172033]"
-                            : "border-[#172033]/20 bg-white hover:border-[#172033]"
+                            ? "border-[#432623] bg-[#F5F1BC]/70"
+                            : "border-[#432623]/25 bg-[var(--surface)] hover:border-[#432623]"
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-[#171717] truncate">{t(`c_${cId}`)}</span>
+                          <span className="text-xs font-bold text-[#432623] truncate">{t(`c_${cId}`)}</span>
                           <span
-                            className={`w-2 h-2 rounded-full shrink-0 ml-1 ${
+                            className={`w-2.5 h-2.5 rounded-[2px] shrink-0 ml-1 ${
                               st.status === "mastered"
-                                ? "bg-[#2F855A]"
+                                ? "bg-[#8ABB93]"
                                 : st.status === "developing"
-                                ? "bg-[#B7791F]"
-                                : "bg-[#C53030]"
+                                ? "bg-[#DFA06E]"
+                                : "bg-[#DE2A35]"
                             }`}
                           />
                         </div>
                         <div className="mt-2 flex items-baseline justify-between text-xs">
-                          <span className="font-mono font-bold text-sm text-[#171717]">{st.avg}%</span>
-                          <span className="text-[10px] text-[#64748B]">Grade {CONCEPTS[cId].grade}</span>
+                          <span className="font-mono font-bold text-sm text-[#432623]">{st.avg}%</span>
+                          <span className="text-[10px] text-[#432623]/70">Grade {CONCEPTS[cId].grade}</span>
                         </div>
                       </div>
                     );
@@ -715,15 +724,15 @@ export function TeacherDashboard({
 
               {/* Dependency Flow Arrow */}
               <div className="flex justify-center">
-                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#64748B] bg-[#F7F6F2] px-3 py-1 rounded border border-[#172033]/20">
+                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#432623] bg-[#FAF8E8] dark:bg-[#432623]/40 px-3 py-1 rounded-[2px] border border-[#432623]/25">
                   <span>PREREQUISITE DEPENDENCY FLOW</span>
-                  <ArrowDown className="w-3.5 h-3.5 text-[#172033]" />
+                  <ArrowDown className="w-3.5 h-3.5 text-[#432623]" />
                 </div>
               </div>
 
-              {/* Level 4: Upper Grade 5 Mastery (Long Division, Word Problems, Fractions) */}
+              {/* Level 4: Upper Grade 5 Targets & Fractions */}
               <div className="space-y-2">
-                <div className="editorial-meta text-[#64748B]">STAGE 4: GRADE 5 TARGETS &amp; FRACTIONS</div>
+                <div className="editorial-meta text-[#432623]/70">STAGE 4: GRADE 5 TARGETS &amp; FRACTIONS</div>
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                   {(["long_division", "division_word", "equivalent_fractions", "comparing_fractions"] as ConceptId[]).map((cId) => {
                     const st = conceptStats[cId];
@@ -732,27 +741,27 @@ export function TeacherDashboard({
                       <div
                         key={cId}
                         onClick={() => setSelectedConceptForMap(cId)}
-                        className={`p-3.5 rounded-lg border-[1.5px] cursor-pointer transition-all ${
+                        className={`p-3.5 rounded-[2px] border cursor-pointer ${
                           isSelected
-                            ? "border-[#172033] bg-[#EBF0FF] shadow-[2px_2px_0px_#172033]"
-                            : "border-[#172033]/20 bg-white hover:border-[#172033]"
+                            ? "border-[#432623] bg-[#F5F1BC]/70"
+                            : "border-[#432623]/25 bg-[var(--surface)] hover:border-[#432623]"
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-[#171717] truncate">{t(`c_${cId}`)}</span>
+                          <span className="text-xs font-bold text-[#432623] truncate">{t(`c_${cId}`)}</span>
                           <span
-                            className={`w-2 h-2 rounded-full shrink-0 ml-1 ${
+                            className={`w-2.5 h-2.5 rounded-[2px] shrink-0 ml-1 ${
                               st.status === "mastered"
-                                ? "bg-[#2F855A]"
+                                ? "bg-[#8ABB93]"
                                 : st.status === "developing"
-                                ? "bg-[#B7791F]"
-                                : "bg-[#C53030]"
+                                ? "bg-[#DFA06E]"
+                                : "bg-[#DE2A35]"
                             }`}
                           />
                         </div>
                         <div className="mt-2 flex items-baseline justify-between text-xs">
-                          <span className="font-mono font-bold text-sm text-[#171717]">{st.avg}%</span>
-                          <span className="text-[10px] text-[#64748B]">Grade {CONCEPTS[cId].grade}</span>
+                          <span className="font-mono font-bold text-sm text-[#432623]">{st.avg}%</span>
+                          <span className="text-[10px] text-[#432623]/70">Grade {CONCEPTS[cId].grade}</span>
                         </div>
                       </div>
                     );
@@ -763,41 +772,41 @@ export function TeacherDashboard({
 
             {/* Selected Node Academic Dossier */}
             {selectedConceptForMap && (
-              <div className="p-4 bg-[#F7F6F2] border-[1.5px] border-[#172033] rounded-xl space-y-2.5">
+              <div className="p-4 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="editorial-meta text-[#3156D3]">CONCEPT DOSSIER</span>
-                    <h4 className="font-serif font-bold text-base text-[#171717]">
+                    <span className="editorial-meta text-[#432623]/80">CONCEPT DOSSIER</span>
+                    <h4 className="font-serif font-bold text-base text-[#432623]">
                       {t(`c_${selectedConceptForMap}`)}
                     </h4>
                   </div>
-                  <Badge variant="outline" className="font-mono text-[10px] border-[#172033]/30">
+                  <Badge variant="outline" className="font-mono text-[10px] border-[#432623]/30 text-[#432623] rounded-[2px]">
                     Grade {CONCEPTS[selectedConceptForMap].grade} • Strand: {CONCEPTS[selectedConceptForMap].strand.toUpperCase()}
                   </Badge>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs pt-1">
-                  <div className="bg-white p-3 rounded border-[1.5px] border-[#172033]/20">
-                    <div className="text-[#64748B] font-semibold">Immediate Prerequisites:</div>
-                    <div className="font-bold text-[#171717] mt-1">
+                  <div className="bg-[var(--surface)] p-3 rounded-[2px] border border-[#432623]/20">
+                    <div className="text-[#432623]/70 font-semibold">Immediate Prerequisites:</div>
+                    <div className="font-bold text-[#432623] mt-1">
                       {prerequisitesOf(selectedConceptForMap).length > 0
                         ? prerequisitesOf(selectedConceptForMap).map((p) => t(`c_${p}`)).join(", ")
                         : "Foundational (No prior prerequisites)"}
                     </div>
                   </div>
 
-                  <div className="bg-white p-3 rounded border-[1.5px] border-[#172033]/20">
-                    <div className="text-[#64748B] font-semibold">Downstream Dependents:</div>
-                    <div className="font-bold text-[#171717] mt-1">
+                  <div className="bg-[var(--surface)] p-3 rounded-[2px] border border-[#432623]/20">
+                    <div className="text-[#432623]/70 font-semibold">Downstream Dependents:</div>
+                    <div className="font-bold text-[#432623] mt-1">
                       {dependentsOf(selectedConceptForMap).length > 0
                         ? dependentsOf(selectedConceptForMap).map((d) => t(`c_${d}`)).join(", ")
                         : "Top-level capstone"}
                     </div>
                   </div>
 
-                  <div className="bg-white p-3 rounded border-[1.5px] border-[#172033]/20">
-                    <div className="text-[#64748B] font-semibold">Class Breakdown:</div>
-                    <div className="font-bold text-[#171717] mt-1">
+                  <div className="bg-[var(--surface)] p-3 rounded-[2px] border border-[#432623]/20">
+                    <div className="text-[#432623]/70 font-semibold">Class Breakdown:</div>
+                    <div className="font-bold text-[#432623] mt-1">
                       {conceptStats[selectedConceptForMap].masteredCount} Mastered • {conceptStats[selectedConceptForMap].developingCount} Developing • {conceptStats[selectedConceptForMap].supportCount} Need Support
                     </div>
                   </div>
@@ -811,26 +820,26 @@ export function TeacherDashboard({
         {/* TAB 3: TABULAR MASTERY MATRIX                                */}
         {/* ------------------------------------------------------------- */}
         {activeTab === "matrix" && (
-          <div className="neo-panel overflow-hidden">
-            <div className="p-4 bg-[#F7F6F2] border-b-[1.5px] border-[#172033]/20 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="neo-panel overflow-hidden rounded-[2px] border border-[#432623]/25 bg-[var(--surface)]">
+            <div className="p-4 bg-[#F5F1BC]/50 border-b border-[#432623]/20 flex flex-wrap items-center justify-between gap-3 text-xs">
               <div>
-                <span className="editorial-meta">CURRICULUM MATRIX</span>
-                <h4 className="font-serif font-bold text-base text-[#171717] mt-0.5">
+                <span className="editorial-meta text-[#432623]/80">CURRICULUM MATRIX</span>
+                <h4 className="font-serif font-bold text-base text-[#432623] mt-0.5">
                   Student × Concept Fluency Matrix
                 </h4>
               </div>
 
-              <div className="flex items-center gap-4 text-xs font-semibold">
+              <div className="flex items-center gap-4 text-xs font-semibold text-[#432623]">
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded bg-[#2F855A]" />
+                  <span className="w-2.5 h-2.5 rounded-[2px] bg-[#8ABB93]" />
                   ≥75%
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded bg-[#B7791F]" />
-                  50–74%
+                  <span className="w-2.5 h-2.5 rounded-[2px] bg-[#DFA06E]" />
+                  50-74%
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded bg-[#C53030]" />
+                  <span className="w-2.5 h-2.5 rounded-[2px] bg-[#DE2A35]" />
                   &lt;50%
                 </span>
               </div>
@@ -838,7 +847,7 @@ export function TeacherDashboard({
 
             <div className="overflow-x-auto max-h-[550px]">
               <table className="w-full text-left text-xs">
-                <thead className="bg-white sticky top-0 border-b-[1.5px] border-[#172033]/20 z-10">
+                <thead className="bg-[var(--surface)] sticky top-0 border-b border-[#432623]/20 z-10 text-[#432623]">
                   <tr>
                     <th className="py-2.5 px-3 font-bold w-44">Student</th>
                     {CONCEPT_IDS.map((cId) => (
@@ -848,10 +857,10 @@ export function TeacherDashboard({
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#172033]/10">
+                <tbody className="divide-y divide-[#432623]/15">
                   {students.map((s) => (
-                    <tr key={s.student.id} className="hover:bg-[#F7F6F2]/60">
-                      <td className="py-2 px-3 font-semibold text-[#171717] whitespace-nowrap">
+                    <tr key={s.student.id} className="hover:bg-[#F5F1BC]/30">
+                      <td className="py-2 px-3 font-semibold text-[#432623] whitespace-nowrap">
                         {s.student.name}
                       </td>
                       {CONCEPT_IDS.map((cId) => {
@@ -859,17 +868,17 @@ export function TeacherDashboard({
                         const st = est?.status;
                         const color =
                           st === "mastered"
-                            ? "bg-[#2F855A] text-white"
+                            ? "bg-[#8ABB93] text-[#432623]"
                             : st === "developing"
-                            ? "bg-[#B7791F] text-white"
+                            ? "bg-[#DFA06E] text-[#432623]"
                             : st === "needs_support"
-                            ? "bg-[#C53030] text-white"
-                            : "bg-[#E2E2DC] text-[#64748B]";
+                            ? "bg-[#DE2A35] text-white"
+                            : "bg-[#FAF8E8] text-[#432623]/60";
 
                         return (
                           <td key={cId} className="py-2 px-1 text-center">
                             <span
-                              className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${color}`}
+                              className={`inline-block px-1.5 py-0.5 rounded-[2px] text-[10px] font-mono font-bold ${color}`}
                               title={`${t(`c_${cId}`)}: ${Math.round((est?.mastery || 0) * 100)}%`}
                             >
                               {Math.round((est?.mastery || 0) * 100)}%
@@ -893,17 +902,17 @@ export function TeacherDashboard({
             {sortedGaps.map((gap, index) => (
               <div
                 key={gap.conceptId}
-                className="neo-panel p-5 space-y-3"
+                className="neo-panel p-5 space-y-3 rounded-[2px] border border-[#432623]/25 bg-[var(--surface)]"
               >
                 <div className="flex items-center justify-between">
-                  <Badge variant="outline" className="font-mono text-xs border-[#172033]/30">
+                  <Badge variant="outline" className="font-mono text-xs border-[#432623]/30 text-[#432623] rounded-[2px]">
                     Rank #{index + 1}
                   </Badge>
                   <span
-                    className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${
+                    className={`text-xs font-mono font-bold px-2 py-0.5 rounded-[2px] ${
                       gap.severity === "high"
-                        ? "bg-[#FFF5F5] text-[#C53030] border border-[#C53030]/30"
-                        : "bg-[#FFFDF5] text-[#B7791F] border border-[#B7791F]/30"
+                        ? "bg-[#DE2A35]/15 text-[#DE2A35] border border-[#DE2A35]/30"
+                        : "bg-[#DFA06E]/20 text-[#432623] border border-[#DFA06E]/40"
                     }`}
                   >
                     {gap.count} Students ({gap.pct}%)
@@ -911,30 +920,30 @@ export function TeacherDashboard({
                 </div>
 
                 <div>
-                  <h4 className="font-serif font-bold text-lg text-[#171717]">
+                  <h4 className="font-serif font-bold text-lg text-[#432623]">
                     {t(`c_${gap.conceptId}`)}
                   </h4>
-                  <div className="text-xs text-[#64748B] mt-0.5">
+                  <div className="text-xs text-[#432623]/70 mt-0.5">
                     {dict.prerequisiteOf}: {CONCEPTS[gap.conceptId]?.strand?.toUpperCase()} (Grade {CONCEPTS[gap.conceptId]?.grade})
                   </div>
                 </div>
 
-                <div className="w-full bg-[#E2E2DC] h-2 rounded-full overflow-hidden">
+                <div className="w-full bg-[#F5F1BC] h-2 rounded-[2px] overflow-hidden">
                   <div
-                    className={`h-full rounded-full ${
-                      gap.severity === "high" ? "bg-[#C53030]" : "bg-[#B7791F]"
+                    className={`h-full rounded-[2px] ${
+                      gap.severity === "high" ? "bg-[#DE2A35]" : "bg-[#DFA06E]"
                     }`}
                     style={{ width: `${gap.pct}%` }}
                   />
                 </div>
 
-                <p className="text-xs text-[#64748B] leading-relaxed">
+                <p className="text-xs text-[#432623]/80 leading-relaxed">
                   Blocking {gap.count} learners in Class 5A. Remediation in this foundational concept will directly unlock higher-order fluency in division and fractions.
                 </p>
 
-                <div className="pt-2 flex items-center justify-between border-t border-[#172033]/10 text-xs">
-                  <span className="font-semibold text-[#171717]">Recommended: 5-Day Targeted Practice</span>
-                  <span className="text-[#3156D3] font-bold">15 min daily</span>
+                <div className="pt-2 flex items-center justify-between border-t border-[#432623]/15 text-xs">
+                  <span className="font-semibold text-[#432623]">Recommended: 5-Day Targeted Practice</span>
+                  <span className="text-[#432623] font-bold">15 min daily</span>
                 </div>
               </div>
             ))}

@@ -1,27 +1,44 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter, Geist_Mono } from "next/font/google";
+import {
+  IBM_Plex_Sans,
+  Source_Serif_4,
+  Noto_Sans_Devanagari,
+  Noto_Sans_Telugu,
+} from "next/font/google";
 import "./globals.css";
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+const ibmPlexSans = IBM_Plex_Sans({
+  variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
-const inter = Inter({
-  variable: "--font-inter",
+const sourceSerif = Source_Serif_4({
+  variable: "--font-serif",
   subsets: ["latin"],
+  weight: ["400", "600", "700"],
   display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const notoDevanagari = Noto_Sans_Devanagari({
+  variable: "--font-devanagari",
+  subsets: ["devanagari"],
+  weight: ["400", "600", "700"],
+  display: "swap",
+});
+
+const notoTelugu = Noto_Sans_Telugu({
+  variable: "--font-telugu",
+  subsets: ["telugu"],
+  weight: ["400", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "ShikshaGap — Learning Intelligence & Diagnostic System",
-  description: "Swiss Editorial Minimalist diagnostic intelligence platform for Indian elementary education. Pinpoints root causes and provides targeted remediation.",
+  title: "ShikshaGap | Learning Intelligence and Diagnostic System",
+  description:
+    "Editorial diagnostic intelligence platform for Indian elementary mathematics education. Evaluates understanding, identifies foundational gaps, and suggests recovery paths.",
 };
 
 export default function RootLayout({
@@ -32,10 +49,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${inter.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${ibmPlexSans.variable} ${sourceSerif.variable} ${notoDevanagari.variable} ${notoTelugu.variable} h-full`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-[#F7F6F2] text-[#171717]">{children}</body>
+      <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)] font-sans antialiased">
+        {children}
+      </body>
     </html>
   );
 }
-

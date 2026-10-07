@@ -1,5 +1,5 @@
 /**
- * ShikshaGap — core domain types.
+ * ShikshaGap | core domain types.
  * All human-readable text is referenced through translation keys (TKey) so the
  * same data renders in English, Hindi or Telugu.
  */
@@ -52,7 +52,7 @@ export type QuestionFormat = "mcq" | "fill_blank" | "short_answer" | "word_probl
 export type AnswerKind = "int" | "fraction" | "choice";
 
 export type ErrorType =
-  | "slip" // near miss — likely careless
+  | "slip" // near miss: likely careless
   | "wrong_operation" // e.g. subtracted instead of dividing
   | "regrouping" // carry / borrow error
   | "place_value" // digit value confusion

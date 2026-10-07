@@ -1,5 +1,5 @@
 /**
- * Question Generator — produces parameterised, verifiable questions for each
+ * Question Generator | produces parameterised, verifiable questions for each
  * concept at three difficulty levels. Correct answers and known misconception
  * answers ("bugs") are computed, never typed by hand, so every generated item
  * is guaranteed to be correct. Prompts are translation keys, so the same item
@@ -21,7 +21,7 @@ const T = (key: TKey, params?: Record<string, string | number>): Txt => ({ key, 
 const R = (raw: string | number): Txt => ({ raw: String(raw) });
 
 export interface GenContext {
-  /** Meta of a failed question from a dependent concept — used to build a linked prerequisite probe. */
+  /** Meta of a failed question from a dependent concept: used to build a linked prerequisite probe. */
   link?: { conceptId: ConceptId; meta: QuestionMeta };
   /** Factor to focus on (e.g. the 6 in "6 × 5") */
   focus?: number;
