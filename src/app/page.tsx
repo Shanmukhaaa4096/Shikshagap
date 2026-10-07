@@ -63,14 +63,14 @@ function MainApp() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-100/60 dark:bg-zinc-950 font-sans flex flex-col">
+    <div className="min-h-screen bg-[#F7F6F2] text-[#171717] font-sans flex flex-col selection:bg-[#3156D3] selection:text-white">
       <Header
         currentView={currentView}
         onViewChange={setCurrentView}
         onResetDemo={handleResetDemo}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {currentView === "teacher" ? (
           <TeacherDashboard
             students={students}

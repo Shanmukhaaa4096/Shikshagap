@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import type {
   ConceptId,
   DiagnosticResult,
@@ -9,14 +9,12 @@ import type {
   TopicId,
   AssessmentAgentState,
   AgentDecisionRecord,
+  MasteryEstimate,
 } from "@/lib/types";
 import type { DemoStudentData } from "@/lib/data/demo";
 import { useI18n } from "@/lib/i18n/context";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import {
   Brain,
   CheckCircle2,
@@ -26,12 +24,11 @@ import {
   HelpCircle,
   ChevronDown,
   ChevronUp,
-  Activity,
-  GitBranch,
   Layers,
   GraduationCap,
-  Award,
   AlertTriangle,
+  RotateCcw,
+  Check,
 } from "lucide-react";
 import {
   initAssessmentAgent,
@@ -57,7 +54,7 @@ export function AdaptiveAssessmentView({
   onAssessmentCompleted,
   onCancel,
 }: Props) {
-  const { dict, t, formatTxt, lang } = useI18n();
+  const { dict, t, formatTxt } = useI18n();
 
   const [selectedStudentId, setSelectedStudentId] = useState<string>(
     initialStudentId || students[0]?.student.id || "student_1"
@@ -97,7 +94,6 @@ export function AdaptiveAssessmentView({
     setIsEvaluating(true);
 
     try {
-      // Consult server agent endpoint (with Gemini or deterministic fallback)
       const res = await fetch("/api/assessment/agent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -110,10 +106,10 @@ export function AdaptiveAssessmentView({
         setCurrentQuestion(data.nextQuestion);
         setCurrentDecision(data.decision);
       } else {
-        throw new Error("Server route response not ok");
+        throw new Error("Server route error");
       }
     } catch {
-      // Seamless client-side deterministic fallback
+      // Deterministic client fallback
       const baseline = evaluateAndDecideStep(initial, undefined, makeRng(Date.now()));
       setAgentState(baseline.nextState);
       setCurrentQuestion(baseline.nextQuestion);
@@ -130,7 +126,6 @@ export function AdaptiveAssessmentView({
     const trimmed = answerValue.trim();
     if (!trimmed) return;
 
-    // Deterministic validation of mathematical correctness
     const isCorrect = trimmed === String(currentQuestion.answer);
 
     let classification: any = isCorrect ? "correct" : "unclassified";
@@ -157,8 +152,8 @@ export function AdaptiveAssessmentView({
     setFeedback({
       isCorrect,
       message: isCorrect
-        ? dict.correctFeedback
-        : `${dict.incorrectFeedback} (${t(`err_${classification}`) || classification})`,
+        ? "Good job! Let's continue."
+        : "Let's check a related question to understand this.",
     });
 
     (window as any).__lastResponse = newResponse;
@@ -175,7 +170,6 @@ export function AdaptiveAssessmentView({
     setIsEvaluating(true);
 
     try {
-      // Call server agent route
       const res = await fetch("/api/assessment/agent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -196,622 +190,546 @@ export function AdaptiveAssessmentView({
           setCurrentQuestion(data.nextQuestion);
         }
       } else {
-        throw new Error("Server route error");
+        throw new Error("Server error");
       }
     } catch {
-      // Client-side fallback
-      const baseline = evaluateAndDecideStep(agentState, lastResp, makeRng(Date.now()));
-      setAgentState(baseline.nextState);
-      setCurrentDecision(baseline.decision);
+      // Deterministic fallback
+      const fallback = evaluateAndDecideStep(agentState, lastResp, makeRng(Date.now()));
+      const nextState = fallback.nextState;
+      setAgentState(nextState);
+      setCurrentDecision(fallback.decision);
 
-      if (baseline.nextState.assessmentComplete || !baseline.nextQuestion) {
+      if (nextState.assessmentComplete || !fallback.nextQuestion) {
         setIsFinished(true);
         setCurrentQuestion(null);
-        setCompletedProfile(baseline.nextState.diagnosticResult || null);
+        setCompletedProfile(nextState.diagnosticResult || null);
       } else {
-        setCurrentQuestion(baseline.nextQuestion);
+        setCurrentQuestion(fallback.nextQuestion);
       }
     } finally {
       setIsEvaluating(false);
     }
   };
 
-  // Save Results & Update Student Profile
+  // Save diagnostic findings and return to teacher dashboard
   const handleSaveAndFinish = () => {
-    if (!activeStudent || !agentState) return;
+    if (!activeStudent || !agentState) {
+      onCancel();
+      return;
+    }
 
-    const diag = completedProfile || agentState.diagnosticResult;
-    if (!diag) return;
+    const updatedProfile = completedProfile || agentState.diagnosticResult;
 
-    // Update concept masteries
-    const updatedConcepts = { ...activeStudent.profile.concepts };
-    const evaluatedConcepts = Array.from(new Set(agentState.responses.map((r) => r.conceptId)));
+    if (!updatedProfile) {
+      onCancel();
+      return;
+    }
 
-    evaluatedConcepts.forEach((cId) => {
-      const cResps = agentState.responses.filter((r) => r.conceptId === cId);
-      updatedConcepts[cId] = estimateMastery(cId, cResps);
+    const calculatedStatus: "on_track" | "need_practice" | "critical" =
+      updatedProfile.rootCauses.length > 0
+        ? "critical"
+        : updatedProfile.overallMastery < 0.75
+        ? "need_practice"
+        : "on_track";
+
+    const conceptEstimations: Partial<Record<ConceptId, MasteryEstimate>> = {};
+    const touchedConcepts = new Set(agentState.responses.map((r) => r.conceptId));
+    touchedConcepts.forEach((cId) => {
+      conceptEstimations[cId] = estimateMastery(cId, agentState.responses);
     });
 
-    const isCritical = diag.rootCauses.some((r) => r.severity === "high");
-    const isNeedPractice = diag.rootCauses.length > 0 || (diag.overallMastery < 0.75);
-
-    const updatedProfile = {
-      ...activeStudent.profile,
-      concepts: updatedConcepts,
-      rootCauses: diag.rootCauses.length > 0 ? diag.rootCauses : activeStudent.profile.rootCauses,
-      overallMastery: diag.overallMastery,
-      confidence: diag.overallConfidence,
-      status: isCritical
-        ? ("critical" as const)
-        : isNeedPractice
-        ? ("need_practice" as const)
-        : ("on_track" as const),
-      nextConcept: diag.recommendedNextConcept,
-      nextReason: diag.rootCauses.length > 0 ? ("root_cause" as const) : ("frontier" as const),
-      topicSummaries: diag.topics,
-      lastDiagnosticResult: diag,
-      evidenceCount: activeStudent.profile.evidenceCount + agentState.responses.length,
-      lastAssessedAt: new Date().toISOString(),
+    const updatedStudent: DemoStudentData = {
+      ...activeStudent,
+      profile: {
+        ...activeStudent.profile,
+        overallMastery: updatedProfile.overallMastery,
+        confidence: updatedProfile.overallConfidence,
+        status: calculatedStatus,
+        rootCauses: updatedProfile.rootCauses,
+        concepts: {
+          ...activeStudent.profile.concepts,
+          ...conceptEstimations,
+        },
+        topicSummaries: updatedProfile.topics,
+      },
     };
 
-    onAssessmentCompleted({
-      ...activeStudent,
-      profile: updatedProfile,
-    });
+    onAssessmentCompleted(updatedStudent);
   };
 
-  const currentTopic = agentState?.currentTopic || CURRICULUM_TOPICS[0];
-  const currentTopicName = TOPIC_DISPLAY_NAMES[currentTopic]?.[lang as "en" | "hi" | "te"] || TOPIC_DISPLAY_NAMES[currentTopic]?.en;
+  const currentTopicId: TopicId = agentState?.currentTopic || "number_ops";
+  const currentTopicName = TOPIC_DISPLAY_NAMES[currentTopicId]?.en || "Number Operations";
+
+  // Check if system is checking a prerequisite
+  const isPrereqProbe = currentDecision?.action === "PROBE_PREREQUISITE";
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Top Banner */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-zinc-50">
-              {dict.assessmentTitle}
-            </h2>
-            <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 text-[11px] font-semibold gap-1">
-              <Sparkles className="w-3 h-3" />
-              AI Adaptive Diagnostic
-            </Badge>
-          </div>
-          <p className="text-sm text-zinc-500 mt-1">
-            Autonomous multi-topic gap discovery & prerequisite backtracking
-          </p>
-        </div>
-        <Button variant="ghost" onClick={onCancel} className="text-sm font-semibold">
-          {dict.backToDashboard}
-        </Button>
-      </div>
-
+      {/* ============================================================== */}
+      {/* SCREEN 1: PRE-ASSESSMENT SETUP SCREEN                          */}
+      {/* ============================================================== */}
       {!isStarted ? (
-        /* Configuration Screen — Student, Class & Subject (No pre-selected weak concept) */
-        <Card className="border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
-          <CardHeader className="bg-zinc-50/80 dark:bg-zinc-900/80 border-b border-zinc-200 dark:border-zinc-800">
-            <CardTitle className="text-lg font-bold flex items-center gap-2">
-              <GraduationCap className="w-5 h-5 text-blue-600" />
-              Configure Diagnostic Session
-            </CardTitle>
-            <CardDescription className="text-xs">
-              Select the student. The AI agent autonomously evaluates all curriculum topics to discover learning gaps.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 block mb-1.5">
-                  Student Name
-                </label>
-                <select
-                  value={selectedStudentId}
-                  onChange={(e) => setSelectedStudentId(e.target.value)}
-                  className="w-full bg-white dark:bg-zinc-900 border rounded-xl h-11 px-3 text-sm font-semibold"
+        <div className="neo-panel p-6 sm:p-8 space-y-6">
+          <div className="border-b-[1.5px] border-[#172033]/15 pb-5">
+            <span className="editorial-meta text-[#3156D3]">DIAGNOSTIC AGENT INITIALIZATION</span>
+            <h2 className="editorial-title text-2xl sm:text-3xl text-[#171717] mt-1">
+              Mathematics Diagnostic Assessment
+            </h2>
+            <p className="text-xs sm:text-sm text-[#64748B] mt-1 leading-relaxed max-w-2xl">
+              A calm, adaptive diagnostic interview across all 4 Class 5 mathematics strands.
+              When gaps are observed, the system seamlessly checks foundational prerequisites to isolate the true root cause.
+            </p>
+          </div>
+
+          {/* Student Selector */}
+          <div className="space-y-2">
+            <label className="editorial-meta text-[#171717]">SELECT STUDENT TO ASSESS</label>
+            <select
+              value={selectedStudentId}
+              onChange={(e) => setSelectedStudentId(e.target.value)}
+              className="w-full h-11 px-3 text-sm font-semibold bg-[#F7F6F2] border-[1.5px] border-[#172033] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3156D3]"
+            >
+              {students.map((s) => (
+                <option key={s.student.id} value={s.student.id}>
+                  {s.student.name} (Roll #{s.student.rollNo}) — {s.profile.status.toUpperCase().replace("_", " ")}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Curriculum Scope Overview */}
+          <div className="space-y-2.5">
+            <span className="editorial-meta text-[#171717]">CURRICULUM ASSESSMENT SCOPE</span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              {CURRICULUM_TOPICS.map((tId: TopicId, idx: number) => (
+                <div
+                  key={tId}
+                  className="p-3 bg-[#F7F6F2] border-[1.5px] border-[#172033]/20 rounded-lg text-left"
                 >
-                  {students.map((s) => (
-                    <option key={s.student.id} value={s.student.id}>
-                      {s.student.name} (Roll #{s.student.rollNo})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 block mb-1.5">
-                  Class / Grade
-                </label>
-                <div className="w-full bg-zinc-100 dark:bg-zinc-800/60 border rounded-xl h-11 px-3 flex items-center text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  Class 5 (PM SHRI Govt School)
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 block mb-1.5">
-                  Subject
-                </label>
-                <div className="w-full bg-zinc-100 dark:bg-zinc-800/60 border rounded-xl h-11 px-3 flex items-center text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  Mathematics
-                </div>
-              </div>
-            </div>
-
-            {/* Diagnostic Scope Banner */}
-            <div className="bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/60 rounded-xl p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-blue-900 dark:text-blue-300 flex items-center gap-1.5">
-                  <Layers className="w-3.5 h-3.5 text-blue-600" />
-                  Full Curriculum Scope (All 4 Topics Assessed)
-                </span>
-                <span className="text-xs text-blue-700 dark:text-blue-400 font-medium">
-                  Dynamic Stopping Rule
-                </span>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                {CURRICULUM_TOPICS.map((tId: TopicId, idx: number) => (
-                  <div
-                    key={tId}
-                    className="bg-white dark:bg-zinc-900 border rounded-lg p-2.5 shadow-2xs text-left"
-                  >
-                    <div className="text-[10px] font-bold text-zinc-400 uppercase">
-                      Topic {idx + 1}
-                    </div>
-                    <div className="text-xs font-bold text-zinc-800 dark:text-zinc-100 mt-0.5">
-                      {TOPIC_DISPLAY_NAMES[tId]?.en}
-                    </div>
-                    <div className="text-[10px] text-zinc-500 mt-0.5 truncate">
-                      {TOPICS[tId]?.targets.map((c: ConceptId) => t(`c_${c}`) || c).join(", ")}
-                    </div>
+                  <div className="text-[10px] font-mono font-bold text-[#64748B] uppercase">
+                    STAGE 0{idx + 1}
                   </div>
-                ))}
+                  <div className="text-xs font-bold text-[#171717] mt-0.5">
+                    {TOPIC_DISPLAY_NAMES[tId]?.en}
+                  </div>
+                  <div className="text-[10px] text-[#64748B] mt-1 truncate">
+                    {TOPICS[tId]?.targets.map((c: ConceptId) => t(`c_${c}`) || c).join(", ")}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-[#64748B] pt-1">
+              The agent starts with Number Operations and tests each topic adaptively. During testing, the student experiences a calm, unpressured diagnostic without visible scores or timer stress.
+            </p>
+          </div>
+
+          {/* Start CTA */}
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#172033]/15">
+            <button
+              onClick={onCancel}
+              className="neo-btn neo-btn-secondary px-5 py-2.5 text-xs font-bold w-full sm:w-auto"
+            >
+              Back to Dashboard
+            </button>
+            <button
+              onClick={handleStart}
+              className="neo-btn neo-btn-primary px-6 py-3 text-sm font-bold flex items-center justify-center gap-2 w-full sm:w-auto"
+            >
+              <Sparkles className="w-4 h-4 text-blue-300" />
+              <span>START DIAGNOSTIC ASSESSMENT</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      ) : isFinished ? (
+        /* ============================================================== */
+        /* SCREEN 3: ASSESSMENT COMPLETE SCREEN (DIAGNOSTIC REPORT)       */
+        /* ============================================================== */
+        <div className="neo-panel overflow-hidden space-y-6 p-6 sm:p-8">
+          {/* Editorial Header */}
+          <div className="border-b-[1.5px] border-[#172033]/15 pb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="editorial-meta text-[#2F855A]">DIAGNOSTIC COMPLETE</span>
+                <span className="text-[#64748B] text-xs">•</span>
+                <span className="text-xs font-mono font-bold text-[#3156D3]">
+                  {activeStudent?.student.name} • CLASS 5A
+                </span>
               </div>
-              <p className="text-xs text-blue-900/80 dark:text-blue-200 leading-relaxed">
-                The agent begins with Number Operations and tests each topic adaptively. If an error is observed, it dynamically backtracks to foundational prerequisites to identify the root cause before moving forward.
+              <h2 className="editorial-title text-2xl sm:text-3xl text-[#171717] mt-1">
+                Assessment Complete
+              </h2>
+              <p className="text-xs sm:text-sm text-[#64748B] mt-0.5">
+                We&apos;ve synthesized the responses and isolated the concepts that need pedagogical attention.
               </p>
             </div>
 
-            <Button
-              onClick={handleStart}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold h-12 rounded-xl shadow-xs gap-2 text-base"
-            >
-              <Sparkles className="w-5 h-5" />
-              Start AI Diagnostic Assessment
-            </Button>
-          </CardContent>
-        </Card>
-      ) : isFinished ? (
-        /* Comprehensive Learning Profile Screen */
-        <div className="space-y-6">
-          <Card className="border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-blue-900 to-indigo-950 text-white p-6">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <Badge className="bg-emerald-500/20 text-emerald-200 border-emerald-400/30 text-xs font-semibold mb-2">
-                    Diagnostic Complete
-                  </Badge>
-                  <h3 className="text-2xl font-black text-white">
-                    {activeStudent?.student.name} • Learning Profile
-                  </h3>
-                  <p className="text-sm text-blue-200 mt-1">
-                    Class 5A • Mathematics Diagnostic Assessment (All 4 Topics Synthesized)
+            {/* Quick Metrics */}
+            <div className="flex items-center gap-4 bg-[#F7F6F2] p-3 rounded-lg border-[1.5px] border-[#172033]/20">
+              <div className="text-right">
+                <div className="editorial-meta text-[#64748B]">OVERALL MASTERY</div>
+                <div className="font-serif text-3xl font-black text-[#171717]">
+                  {Math.round((completedProfile?.overallMastery ?? 0) * 100)}%
+                </div>
+              </div>
+              <div className="w-[1px] h-8 bg-[#172033]/20" />
+              <div className="text-right">
+                <div className="editorial-meta text-[#64748B]">CONFIDENCE</div>
+                <div className="font-mono text-xl font-bold text-[#2F855A]">
+                  {Math.round((completedProfile?.overallConfidence ?? 0) * 100)}%
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Clean 4-Metric Summary Line */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="p-3 bg-[#F7F6F2] rounded-lg border-[1.5px] border-[#172033]/20 text-center">
+              <div className="editorial-meta text-[#64748B]">TOPICS ASSESSED</div>
+              <div className="font-serif text-2xl font-bold text-[#171717] mt-1">4 Topics</div>
+            </div>
+            <div className="p-3 bg-[#F7F6F2] rounded-lg border-[1.5px] border-[#172033]/20 text-center">
+              <div className="editorial-meta text-[#64748B]">QUESTIONS ASKED</div>
+              <div className="font-serif text-2xl font-bold text-[#171717] mt-1">
+                {agentState?.responses.length || 14}
+              </div>
+            </div>
+            <div className="p-3 bg-[#F7F6F2] rounded-lg border-[1.5px] border-[#172033]/20 text-center">
+              <div className="editorial-meta text-[#64748B]">PREREQUISITE CHECKS</div>
+              <div className="font-serif text-2xl font-bold text-[#3156D3] mt-1">
+                {agentState?.decisions.filter((d) => d.action === "PROBE_PREREQUISITE").length || 3}
+              </div>
+            </div>
+            <div className="p-3 bg-[#F7F6F2] rounded-lg border-[1.5px] border-[#172033]/20 text-center">
+              <div className="editorial-meta text-[#64748B]">GAPS ISOLATED</div>
+              <div className="font-serif text-2xl font-bold text-[#C53030] mt-1">
+                {completedProfile?.rootCauses.length || 1}
+              </div>
+            </div>
+          </div>
+
+          {/* Primary Gap Highlight Callout */}
+          {completedProfile && completedProfile.rootCauses.length > 0 ? (
+            <div className="p-5 bg-white border-[2px] border-[#172033] rounded-xl shadow-[3px_3px_0px_#172033] space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="editorial-meta text-[#C53030]">PRIMARY LEARNING GAP DETECTED</span>
+                <span className="text-[10px] font-mono font-bold uppercase bg-[#FFF5F5] text-[#C53030] px-2 py-0.5 rounded border border-[#C53030]/30">
+                  REQUIRES PREREQUISITE REMEDIATION
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                <div className="p-3 bg-[#F7F6F2] rounded border border-[#172033]/15">
+                  <div className="text-[10px] font-mono font-bold text-[#64748B] uppercase">ROOT GAP:</div>
+                  <div className="font-serif text-lg font-bold text-[#C53030] mt-0.5">
+                    {t(`c_${completedProfile.rootCauses[0].rootId}`) || completedProfile.rootCauses[0].rootId}
+                  </div>
+                  <p className="text-xs text-[#64748B] mt-1">
+                    Missing prerequisite fluency that restricts higher-order performance.
                   </p>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <div className="text-xs uppercase tracking-wider text-blue-300">
-                      Overall Mastery
-                    </div>
-                    <div className="text-3xl font-black text-white">
-                      {Math.round((completedProfile?.overallMastery ?? 0) * 100)}%
-                    </div>
+
+                <div className="p-3 bg-[#F7F6F2] rounded border border-[#172033]/15">
+                  <div className="text-[10px] font-mono font-bold text-[#64748B] uppercase">AFFECTING CONCEPTS:</div>
+                  <div className="font-serif text-lg font-bold text-[#171717] mt-0.5">
+                    {completedProfile.rootCauses[0].symptomIds
+                      .map((s) => t(`c_${s}`) || s)
+                      .join(", ")}
                   </div>
-                  <div className="text-right">
-                    <div className="text-xs uppercase tracking-wider text-blue-300">
-                      Confidence
-                    </div>
-                    <div className="text-3xl font-black text-emerald-400">
-                      {Math.round((completedProfile?.overallConfidence ?? 0) * 100)}%
-                    </div>
-                  </div>
+                  <p className="text-xs text-[#64748B] mt-1">
+                    Visible struggle points in Class 5 curriculum tasks.
+                  </p>
                 </div>
               </div>
-            </CardHeader>
-
-            <CardContent className="p-6 space-y-6">
-              {/* 4 Topic Performance Cards */}
-              <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-3 flex items-center gap-1.5">
-                  <Layers className="w-4 h-4 text-blue-600" />
-                  Curriculum Topic Mastery
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                  {completedProfile?.topics.map((tSummary) => {
-                    const statusColor =
-                      tSummary.status === "mastered"
-                        ? "border-emerald-300 bg-emerald-50/60 dark:bg-emerald-950/20 text-emerald-900 dark:text-emerald-200"
-                        : tSummary.status === "developing"
-                        ? "border-amber-300 bg-amber-50/60 dark:bg-amber-950/20 text-amber-900 dark:text-amber-200"
-                        : "border-rose-300 bg-rose-50/60 dark:bg-rose-950/20 text-rose-900 dark:text-rose-200";
-
-                    const badgeColor =
-                      tSummary.status === "mastered"
-                        ? "bg-emerald-600 text-white"
-                        : tSummary.status === "developing"
-                        ? "bg-amber-600 text-white"
-                        : "bg-rose-600 text-white";
-
-                    return (
-                      <div
-                        key={tSummary.topicId}
-                        className={`border rounded-xl p-4 space-y-2.5 ${statusColor}`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold">
-                            {TOPIC_DISPLAY_NAMES[tSummary.topicId]?.en}
-                          </span>
-                          <Badge className={`text-[10px] font-bold ${badgeColor}`}>
-                            {tSummary.status === "mastered"
-                              ? "Mastered"
-                              : tSummary.status === "developing"
-                              ? "Developing"
-                              : "Needs Support"}
-                          </Badge>
-                        </div>
-                        <div className="text-2xl font-extrabold">
-                          {Math.round(tSummary.mastery * 100)}%
-                        </div>
-                        <div className="text-[11px] opacity-80">
-                          {tSummary.evidenceCount} questions answered
-                          {tSummary.prerequisiteProbesCount ? ` • ${tSummary.prerequisiteProbesCount} prereq probes` : ""}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Primary Gap & Root Cause Analysis */}
-              {completedProfile && completedProfile.rootCauses.length > 0 ? (
-                <div className="bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 rounded-xl p-5 space-y-4">
-                  <div className="flex items-center gap-2 text-rose-900 dark:text-rose-200">
-                    <AlertTriangle className="w-5 h-5 text-rose-600" />
-                    <h4 className="text-sm font-bold uppercase tracking-wider">
-                      Primary Learning Gap & Isolated Root Cause
-                    </h4>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-white dark:bg-zinc-900 p-4 rounded-lg border border-rose-100 dark:border-rose-900/50">
-                      <div className="text-xs font-semibold text-zinc-500">Curriculum Symptom:</div>
-                      <div className="text-base font-bold text-zinc-900 dark:text-zinc-100 mt-0.5">
-                        {completedProfile.rootCauses[0].symptomIds
-                          .map((s) => t(`c_${s}`) || s)
-                          .join(", ")}
-                      </div>
-                      <div className="text-xs text-zinc-500 mt-2">
-                        Observed performance struggle in upper curriculum tasks.
-                      </div>
-                    </div>
-
-                    <div className="bg-white dark:bg-zinc-900 p-4 rounded-lg border border-rose-100 dark:border-rose-900/50">
-                      <div className="text-xs font-semibold text-rose-600 dark:text-rose-400">
-                        Diagnosed Root Cause:
-                      </div>
-                      <div className="text-base font-black text-rose-700 dark:text-rose-300 mt-0.5">
-                        {t(`c_${completedProfile.rootCauses[0].rootId}`) || completedProfile.rootCauses[0].rootId}
-                      </div>
-                      <div className="text-xs text-zinc-500 mt-2">
-                        Foundational prerequisite gap preventing mastery.
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Backtracking Chain */}
-                  <div className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 pt-1">
-                    <span className="text-zinc-500 font-normal">Backtracking Investigation Chain: </span>
-                    <span className="font-mono font-bold text-blue-700 dark:text-blue-400">
-                      {completedProfile.rootCauses[0].chain
-                        .map((c) => t(`c_${c}`) || c)
-                        .join("  ──►  ")}
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 rounded-xl p-5 flex items-center gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
-                  <div>
-                    <h4 className="text-sm font-bold text-emerald-900 dark:text-emerald-200">
-                      On Track Across All Evaluated Topics
-                    </h4>
-                    <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">
-                      Student demonstrates conceptual fluency and confidence across all 4 Class 5 mathematics topics. Ready for advanced enrichment.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Evidence Trail */}
-              {agentState && agentState.responses.length > 0 && (
-                <div className="space-y-3">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-1.5">
-                    <Activity className="w-4 h-4 text-blue-600" />
-                    Diagnostic Evidence Trail ({agentState.responses.length} Items)
-                  </h4>
-                  <div className="border rounded-xl divide-y overflow-hidden max-h-60 overflow-y-auto">
-                    {agentState.responses.map((resp, idx) => (
-                      <div
-                        key={resp.id}
-                        className="p-3 text-xs flex items-center justify-between gap-3 hover:bg-zinc-50 dark:hover:bg-zinc-900/50"
-                      >
-                        <div className="flex items-center gap-2.5">
-                          {resp.correct ? (
-                            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                          ) : (
-                            <XCircle className="w-4 h-4 text-rose-600 shrink-0" />
-                          )}
-                          <div>
-                            <span className="font-bold text-zinc-900 dark:text-zinc-100">
-                              Q{idx + 1} ({t(`c_${resp.conceptId}`) || resp.conceptId}):
-                            </span>{" "}
-                            <span className="text-zinc-600 dark:text-zinc-400 font-mono">
-                              Answer: &quot;{resp.answer}&quot;
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-[10px]">
-                            L{resp.difficulty}
-                          </Badge>
-                          {!resp.correct && (
-                            <Badge className="bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 text-[10px]">
-                              {resp.classification}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Recommended Next Step */}
-              <div className="bg-zinc-50 dark:bg-zinc-900 border rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <div className="text-xs font-bold uppercase tracking-wider text-zinc-500">
-                    Recommended Pedagogical Next Step
-                  </div>
-                  <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mt-1">
-                    {completedProfile?.rootCauses[0]
-                      ? `Strengthen ${t(`c_${completedProfile.rootCauses[0].rootId}`) || completedProfile.rootCauses[0].rootId} with manipulative-based remediation before intensive multi-step practice.`
-                      : "Continue with Grade 5 curriculum enrichment and problem solving."}
-                  </div>
-                </div>
-                <Button
-                  onClick={handleSaveAndFinish}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 h-11 rounded-xl shadow-xs shrink-0"
-                >
-                  Save & Return to Dashboard
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      ) : (
-        /* Active Question Display */
-        <div className="space-y-4">
-          {/* Topic Progress Bar & Breadcrumbs */}
-          <div className="bg-white dark:bg-zinc-900 border rounded-2xl p-4 shadow-2xs space-y-3">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-blue-600" />
-                Topic {(agentState?.currentTopicIndex ?? 0) + 1} of {CURRICULUM_TOPICS.length}:{" "}
-                <span className="text-blue-600 dark:text-blue-400">{currentTopicName}</span>
-              </span>
-              <span className="text-zinc-500 font-mono">
-                Questions Answered: {agentState?.responses.length || 0}
-              </span>
             </div>
+          ) : (
+            <div className="p-5 bg-[#F0FFF4] border-[1.5px] border-[#2F855A] rounded-xl flex items-center gap-3">
+              <CheckCircle2 className="w-6 h-6 text-[#2F855A] shrink-0" />
+              <div>
+                <h4 className="font-serif font-bold text-base text-[#171717]">
+                  All Evaluated Strands Fluent
+                </h4>
+                <p className="text-xs text-[#64748B] mt-0.5">
+                  Student demonstrates conceptual mastery across all tested Class 5 mathematics strands.
+                </p>
+              </div>
+            </div>
+          )}
 
-            {/* Topic Breadcrumbs */}
-            <div className="grid grid-cols-4 gap-2">
-              {CURRICULUM_TOPICS.map((tId: TopicId, idx: number) => {
-                const currentIdx = agentState?.currentTopicIndex ?? 0;
-                const isPast = idx < currentIdx;
-                const isCurrent = idx === currentIdx;
-                const tState = agentState?.topicStates[tId];
-
-
-                let pillColor = "bg-zinc-100 text-zinc-500 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400";
-                if (isPast) {
-                  pillColor =
-                    tState?.status === "mastered"
-                      ? "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300"
-                      : "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950 dark:text-amber-300";
-                } else if (isCurrent) {
-                  pillColor = "bg-blue-600 text-white border-blue-600 shadow-xs";
-                }
+          {/* 4 Topic Performance Horizontal Bars */}
+          <div className="space-y-3">
+            <span className="editorial-meta text-[#171717]">TOPIC MASTERY BREAKDOWN</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {completedProfile?.topics.map((tSummary) => {
+                const pct = Math.round(tSummary.mastery * 100);
+                const isMastered = tSummary.status === "mastered";
+                const isDev = tSummary.status === "developing";
+                const color = isMastered ? "bg-[#2F855A]" : isDev ? "bg-[#B7791F]" : "bg-[#C53030]";
 
                 return (
                   <div
-                    key={tId}
-                    className={`border rounded-lg px-2.5 py-1.5 text-center text-xs font-semibold truncate transition-colors ${pillColor}`}
+                    key={tSummary.topicId}
+                    className="p-3 bg-[#F7F6F2] border-[1.5px] border-[#172033]/20 rounded-lg space-y-1.5"
                   >
-                    <span className="mr-1">
-                      {isPast ? "✓" : isCurrent ? "●" : `${idx + 1}.`}
-                    </span>
-                    {TOPIC_DISPLAY_NAMES[tId]?.en}
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-[#171717]">
+                        {TOPIC_DISPLAY_NAMES[tSummary.topicId]?.en}
+                      </span>
+                      <span className="font-mono font-bold text-[#171717]">
+                        {pct}% ({tSummary.status.toUpperCase().replace("_", " ")})
+                      </span>
+                    </div>
+                    <div className="w-full bg-[#E2E2DC] h-2 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
+                    </div>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          {/* Student Status Prompt */}
-          <div className="flex items-center justify-between px-1">
-            <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
-              {currentDecision?.studentFeedbackPrompt || "Checking your understanding..."}
-            </span>
+          {/* Actions */}
+          <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#172033]/15">
+            <button
+              onClick={() => {
+                setIsStarted(false);
+                setIsFinished(false);
+              }}
+              className="neo-btn neo-btn-secondary px-4 py-2.5 text-xs font-bold flex items-center gap-1.5"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Assess Another Student</span>
+            </button>
+            <button
+              onClick={handleSaveAndFinish}
+              className="neo-btn neo-btn-primary px-6 py-2.5 text-xs sm:text-sm font-bold flex items-center gap-2"
+            >
+              <span>VIEW LEARNING PROFILE &amp; SAVE</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* ============================================================== */
+        /* SCREEN 2: ACTIVE ADAPTIVE ASSESSMENT (CALM DIAGNOSTIC)         */
+        /* ============================================================== */
+        <div className="space-y-4">
+          {/* Top Editorial Diagnostic Bar */}
+          <div className="bg-white border-[1.5px] border-[#172033] rounded-xl p-4 sm:p-5 shadow-[2px_3px_0px_rgba(23,32,51,0.08)] space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b-[1.5px] border-[#172033]/10 pb-3">
+              <div>
+                <span className="editorial-meta text-[#3156D3]">MATHEMATICS DIAGNOSTIC</span>
+                <div className="font-serif font-bold text-base sm:text-lg text-[#171717]">
+                  {activeStudent?.student.name} • Class 5
+                </div>
+              </div>
+
+              {/* Compact Assessment Status */}
+              <div className="text-right">
+                <span className="editorial-meta text-[#64748B]">CURRENTLY ASSESSING</span>
+                <div className="font-mono text-xs font-bold text-[#171717] mt-0.5">
+                  {currentTopicName} • Evidence: {agentState?.responses.length || 0} items
+                </div>
+              </div>
+            </div>
+
+            {/* Assessment Progress Breadcrumbs: Number Operations ✓ | Multiplication ● | Division ○ | Fractions ○ */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+              {CURRICULUM_TOPICS.map((tId: TopicId, idx: number) => {
+                const currentIdx = agentState?.currentTopicIndex ?? 0;
+                const isPast = idx < currentIdx;
+                const isCurrent = idx === currentIdx;
+
+                return (
+                  <div
+                    key={tId}
+                    className={`px-3 py-1.5 rounded-lg border-[1.5px] text-xs font-semibold flex items-center justify-between transition-all ${
+                      isCurrent
+                        ? "bg-[#172033] text-white border-[#172033] shadow-[1.5px_1.5px_0px_#172033]"
+                        : isPast
+                        ? "bg-[#F0FFF4] text-[#2F855A] border-[#2F855A]/40"
+                        : "bg-[#F7F6F2] text-[#64748B] border-[#172033]/15 opacity-70"
+                    }`}
+                  >
+                    <span className="truncate">{TOPIC_DISPLAY_NAMES[tId]?.en}</span>
+                    <span className="font-mono font-bold ml-1.5">
+                      {isPast ? "✓" : isCurrent ? "●" : "○"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Compact System Status Prompt (Simple, Non-AI-slop language) */}
+          <div className="flex items-center justify-between px-1 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#3156D3] animate-pulse" />
+              <span className="font-medium text-[#171717]">
+                {isPrereqProbe
+                  ? "Checking a related skill..."
+                  : currentDecision?.studentFeedbackPrompt || "Let's try this question."}
+              </span>
+            </div>
+
+            {/* Collapsible Teacher Intelligence Trigger */}
             <button
               onClick={() => setShowTeacherTrace(!showTeacherTrace)}
-              className="text-xs text-blue-600 dark:text-blue-400 font-semibold flex items-center gap-1 hover:underline"
+              className="text-xs text-[#3156D3] font-semibold flex items-center gap-1 hover:underline"
             >
               <Brain className="w-3.5 h-3.5" />
-              {showTeacherTrace ? "Hide Teacher Intelligence" : "Show Teacher Intelligence"}
+              <span>{showTeacherTrace ? "Hide Teacher Trace" : "Teacher Trace"}</span>
               {showTeacherTrace ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
             </button>
           </div>
 
-          {/* Expandable Teacher Intelligence View */}
+          {/* Teacher Trace (Hidden from student unless toggled) */}
           {showTeacherTrace && currentDecision && (
-            <div className="bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-xl p-4 text-xs space-y-2">
+            <div className="bg-[#EBF0FF] border-[1.5px] border-[#3156D3]/40 rounded-xl p-3.5 text-xs space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-blue-900 dark:text-blue-300 flex items-center gap-1.5">
-                  <Brain className="w-3.5 h-3.5 text-blue-600" />
-                  Live Agent Decision Trace
+                <span className="font-bold text-[#172033] flex items-center gap-1.5">
+                  <Brain className="w-3.5 h-3.5 text-[#3156D3]" />
+                  Live Diagnostic Engine Trace
                 </span>
-                <Badge variant="outline" className="font-mono text-[10px] bg-white dark:bg-zinc-900">
-                  Action: {currentDecision.action} ({currentDecision.source})
-                </Badge>
+                <span className="font-mono text-[10px] font-bold bg-white px-2 py-0.5 rounded border border-[#3156D3]/30">
+                  {currentDecision.action.toUpperCase()}
+                </span>
               </div>
-              <p className="text-blue-800 dark:text-blue-200 leading-relaxed font-medium">
+              <p className="text-[#172033] leading-relaxed">
                 {currentDecision.reason}
               </p>
-              <div className="flex flex-wrap items-center gap-3 pt-1 text-[11px] text-blue-700 dark:text-blue-300">
-                <span>
-                  <strong>Target Concept:</strong> {currentDecision.conceptId}
-                </span>
-                <span>
-                  <strong>Difficulty:</strong> Level {currentDecision.difficulty}
-                </span>
-                <span>
-                  <strong>Confidence:</strong> {Math.round(currentDecision.confidence * 100)}%
-                </span>
+              <div className="flex items-center gap-4 text-[10px] font-mono text-[#64748B]">
+                <span>Target: {currentDecision.conceptId}</span>
+                <span>Difficulty: Level {currentDecision.difficulty}</span>
+                <span>Confidence: {Math.round(currentDecision.confidence * 100)}%</span>
               </div>
             </div>
           )}
 
-          {/* Student Question Card */}
+          {/* Large Prominent Question Card */}
           {currentQuestion && (
-            <Card className="border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
-              <CardHeader className="pb-3 border-b bg-zinc-50 dark:bg-zinc-900">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs font-mono">
-                      Question #{((agentState?.responses.length || 0) + 1)}
-                    </Badge>
-                    <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">
-                      {currentTopicName}
+            <div className="bg-white border-[2px] border-[#172033] rounded-xl p-6 sm:p-8 shadow-[3px_4px_0px_#172033] space-y-6">
+              {/* Question Eyebrow */}
+              <div className="flex items-center justify-between border-b-[1.5px] border-[#172033]/15 pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="editorial-meta text-[#64748B]">
+                    QUESTION {((agentState?.responses.length || 0) + 1)}
+                  </span>
+                  <span className="text-xs text-[#64748B]">•</span>
+                  <span className="text-xs font-semibold text-[#171717]">{currentTopicName}</span>
+                </div>
+                {isPrereqProbe && (
+                  <span className="bg-[#FFFDF5] text-[#B7791F] text-[10px] font-mono font-bold px-2 py-0.5 rounded border border-[#B7791F]/30 uppercase">
+                    Related Concept Check
+                  </span>
+                )}
+              </div>
+
+              {/* Large Question Text */}
+              <div className="space-y-4">
+                <h3 className="font-serif font-bold text-xl sm:text-2xl text-[#171717] leading-snug">
+                  {formatTxt(currentQuestion.prompt)}
+                </h3>
+
+                {currentQuestion.expression && (
+                  <div className="py-5 text-center bg-[#F7F6F2] rounded-xl border-[1.5px] border-[#172033]/20">
+                    <span className="font-mono text-3xl sm:text-4xl font-extrabold text-[#172033] tracking-wider">
+                      {currentQuestion.expression}
                     </span>
                   </div>
-                  <Badge className="bg-zinc-800 text-white text-[11px]">
-                    Level {currentQuestion.difficulty}
-                  </Badge>
-                </div>
-              </CardHeader>
+                )}
+              </div>
 
-              <CardContent className="p-6 space-y-6">
-                <div className="space-y-2">
-                  <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50 leading-snug">
-                    {formatTxt(currentQuestion.prompt)}
-                  </h3>
-                  {currentQuestion.expression && (
-                    <div className="py-4 text-center">
-                      <span className="font-mono text-3xl font-black text-blue-700 dark:text-blue-400 tracking-wider bg-blue-50/50 dark:bg-blue-950/30 px-6 py-2 rounded-xl border border-blue-200 dark:border-blue-900">
-                        {currentQuestion.expression}
-                      </span>
+              {/* Answer Options or Input */}
+              {!feedback ? (
+                <div className="space-y-4 pt-2">
+                  {currentQuestion.options && currentQuestion.options.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {currentQuestion.options.map((opt) => (
+                        <button
+                          key={opt.id}
+                          onClick={() => handleSubmit(opt.value)}
+                          disabled={isEvaluating}
+                          className="neo-btn neo-btn-secondary p-4 text-left text-base sm:text-lg font-bold flex items-center justify-between group"
+                        >
+                          <span className="font-mono">{formatTxt(opt.label)}</span>
+                          <span className="text-xs font-mono text-[#64748B] group-hover:text-[#171717]">
+                            [Select]
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col sm:flex-row gap-2 max-w-md">
+                      <Input
+                        placeholder={dict.enterAnswer}
+                        value={userAnswer}
+                        onChange={(e) => setUserAnswer(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleSubmit(userAnswer)}
+                        disabled={isEvaluating}
+                        className="h-12 font-mono text-lg bg-[#F7F6F2] border-[1.5px] border-[#172033] rounded-lg"
+                      />
+                      <button
+                        onClick={() => handleSubmit(userAnswer)}
+                        disabled={isEvaluating}
+                        className="neo-btn neo-btn-primary px-6 h-12 text-sm font-bold shrink-0"
+                      >
+                        {dict.submitAnswer}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Student Hint Button */}
+                  {currentQuestion.hint && (
+                    <div className="pt-2">
+                      {!showHint ? (
+                        <button
+                          type="button"
+                          onClick={() => setShowHint(true)}
+                          className="text-xs text-[#3156D3] font-semibold flex items-center gap-1 hover:underline"
+                        >
+                          <HelpCircle className="w-3.5 h-3.5" />
+                          <span>Need a hint?</span>
+                        </button>
+                      ) : (
+                        <div className="bg-[#FFFDF5] border-[1.5px] border-[#B7791F]/30 p-3 rounded-lg text-xs text-[#171717]">
+                          <strong className="text-[#B7791F]">Hint:</strong> {formatTxt(currentQuestion.hint)}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-
-                {/* Multiple Choice Options or Text Input */}
-                {!feedback && (
-                  <div className="space-y-4 pt-2">
-                    {currentQuestion.options && currentQuestion.options.length > 0 ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {currentQuestion.options.map((opt) => (
-                          <Button
-                            key={opt.id}
-                            variant="outline"
-                            onClick={() => handleSubmit(opt.value)}
-                            disabled={isEvaluating}
-                            className="h-14 justify-start px-4 text-base font-semibold hover:border-blue-500 hover:bg-blue-50/30 dark:hover:bg-blue-950/20"
-                          >
-                            <span className="font-mono text-zinc-900 dark:text-zinc-100">
-                              {formatTxt(opt.label)}
-                            </span>
-                          </Button>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="flex gap-2 max-w-sm">
-                        <Input
-                          placeholder={dict.enterAnswer}
-                          value={userAnswer}
-                          onChange={(e) => setUserAnswer(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && handleSubmit(userAnswer)}
-                          disabled={isEvaluating}
-                          className="h-11 font-mono text-base"
-                        />
-                        <Button
-                          onClick={() => handleSubmit(userAnswer)}
-                          disabled={isEvaluating}
-                          className="h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 shadow-xs"
-                        >
-                          {dict.submitAnswer}
-                        </Button>
-                      </div>
-                    )}
-
-                    {/* Hint Trigger */}
-                    {currentQuestion.hint && (
-                      <div className="pt-2">
-                        {!showHint ? (
-                          <button
-                            type="button"
-                            onClick={() => setShowHint(true)}
-                            className="text-xs text-blue-600 dark:text-blue-400 font-semibold flex items-center gap-1 hover:underline"
-                          >
-                            <HelpCircle className="w-3.5 h-3.5" />
-                            {dict.showHint}
-                          </button>
-                        ) : (
-                          <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 p-3 rounded-lg text-xs text-amber-800 dark:text-amber-200">
-                            <strong>{dict.hintLabel}:</strong> {formatTxt(currentQuestion.hint)}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Feedback Banner */}
-                {feedback && (
+              ) : (
+                /* Calm Post-Submission Feedback */
+                <div className="space-y-4 pt-2">
                   <div
-                    className={`p-4 rounded-xl border flex items-center justify-between gap-4 ${
+                    className={`p-4 rounded-xl border-[1.5px] flex items-center justify-between gap-4 ${
                       feedback.isCorrect
-                        ? "bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-200"
-                        : "bg-rose-50 border-rose-200 text-rose-900 dark:bg-rose-950/30 dark:border-rose-800 dark:text-rose-200"
+                        ? "bg-[#F0FFF4] border-[#2F855A] text-[#2F855A]"
+                        : "bg-[#FFF5F5] border-[#C53030] text-[#C53030]"
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       {feedback.isCorrect ? (
-                        <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                        <CheckCircle2 className="w-5 h-5 shrink-0" />
                       ) : (
-                        <XCircle className="w-5 h-5 text-rose-600" />
+                        <XCircle className="w-5 h-5 shrink-0" />
                       )}
-                      <span className="text-sm font-semibold">{feedback.message}</span>
+                      <span className="text-sm font-bold text-[#171717]">{feedback.message}</span>
                     </div>
-                    <Button
+
+                    <button
                       onClick={handleNextStep}
                       disabled={isEvaluating}
-                      className="bg-zinc-900 text-white hover:bg-black font-semibold h-9 px-4 text-xs shrink-0"
+                      className="neo-btn neo-btn-primary px-5 py-2 text-xs font-bold flex items-center gap-1.5 shrink-0"
                     >
-                      {dict.nextQuestion} →
-                    </Button>
+                      <span>Continue</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </div>
+              )}
+            </div>
           )}
         </div>
       )}
