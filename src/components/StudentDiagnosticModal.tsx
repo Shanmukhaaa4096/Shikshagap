@@ -192,12 +192,45 @@ export function StudentDiagnosticModal({
                 </div>
               )}
 
+              {/* Topic Mastery Summary (if multi-topic assessment completed) */}
+              {profile.topicSummaries && profile.topicSummaries.length > 0 && (
+                <div className="bg-white dark:bg-zinc-900 border rounded-xl p-5 shadow-2xs space-y-3">
+                  <h4 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 flex items-center justify-between">
+                    <span>Curriculum Topic Diagnostics</span>
+                    <Badge variant="outline" className="text-[10px] font-mono">
+                      AI Diagnostic Agent
+                    </Badge>
+                  </h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    {profile.topicSummaries.map((ts) => (
+                      <div
+                        key={ts.topicId}
+                        className={`p-2.5 rounded-lg border text-xs space-y-1 ${
+                          ts.status === "mastered"
+                            ? "bg-emerald-50/50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-300"
+                            : ts.status === "developing"
+                            ? "bg-amber-50/50 border-amber-200 text-amber-900 dark:bg-amber-950/20 dark:text-amber-300"
+                            : "bg-rose-50/50 border-rose-200 text-rose-900 dark:bg-rose-950/20 dark:text-rose-300"
+                        }`}
+                      >
+                        <div className="font-bold truncate capitalize">
+                          {ts.topicId.replace("_", " ")}
+                        </div>
+                        <div className="text-lg font-black">{Math.round(ts.mastery * 100)}%</div>
+                        <div className="text-[10px] opacity-75 capitalize">{ts.status.replace("_", " ")}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Concept Mastery Breakdown */}
               <div className="bg-white dark:bg-zinc-900 border rounded-xl p-5 shadow-2xs">
                 <h4 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 mb-4">
                   Concept Mastery Breakdown (Class 3–5)
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
                   {Object.entries(profile.concepts).map(([cId, est]) => {
                     if (!est) return null;
                     const isRoot = rootCause?.rootId === cId;

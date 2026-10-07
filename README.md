@@ -36,8 +36,11 @@ Assess ──► Diagnose ──► Find Root Cause ──► Personalize ──
 
 ## 3. Key Capabilities
 
-- **Adaptive Diagnostic Agent**: Real-time prerequisite backtracking during assessment. If a student misses an item, the agent dynamically selects foundational prerequisite probes to isolate root causes.
+- **Autonomous Multi-Topic Assessment Agent**: Evaluates students across all 4 foundational topics (Number Operations, Multiplication, Division, Fractions) with dynamic stopping rules (min 2, max 6 questions per topic), rather than a single manual concept.
+- **Real-Time Prerequisite Backtracking**: If a student misses a problem, the agent dynamically traverses the mathematical dependency graph to probe foundational prerequisites and pinpoint root causes.
+- **Gemini AI Integration with Deterministic Verification**: Integrates `@google/genai` via server-side API (`/api/assessment/agent`) for pedagogical strategy while enforcing strict deterministic mathematical truth for all calculations and answers.
 - **Trilingual Localization**: Instant switching between **English**, **हिन्दी (Hindi)**, and **తెలుగు (Telugu)**.
+
 - **Teacher Dashboard**:
   - Class-wide overview for Class 5A (36 students) in PM SHRI Government Primary School.
   - Priority intervention table highlighting blocked prerequisites and root causes.

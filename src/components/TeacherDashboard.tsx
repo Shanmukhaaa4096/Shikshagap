@@ -172,13 +172,14 @@ export function TeacherDashboard({
             <Button
               onClick={() => {
                 const firstCritical = students.find((s) => s.profile.status === "critical");
-                if (firstCritical) onSelectStudent(firstCritical);
+                onOpenAssessment(firstCritical?.student.id || students[0]?.student.id || "student_1", "math");
               }}
               className="bg-white text-blue-950 hover:bg-blue-50 font-bold px-4 py-2.5 rounded-xl shadow-xs"
             >
-              Start Top Intervention →
+              Start AI Diagnostic Assessment →
             </Button>
           </div>
+
         </div>
       </div>
 

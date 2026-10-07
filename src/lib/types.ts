@@ -265,6 +265,98 @@ export interface RootCause {
 
 export type StudentStatus = "on_track" | "need_practice" | "critical" | "not_assessed";
 
+export type AgentAction =
+  | "START_TOPIC"
+  | "CONTINUE_TOPIC"
+  | "INCREASE_DIFFICULTY"
+  | "DECREASE_DIFFICULTY"
+  | "PROBE_PREREQUISITE"
+  | "VERIFY_MASTERY"
+  | "MARK_MASTERED"
+  | "MARK_DEVELOPING"
+  | "MARK_NEEDS_SUPPORT"
+  | "MOVE_TO_NEXT_TOPIC"
+  | "FINISH_ASSESSMENT";
+
+export interface TopicConceptSummary {
+  conceptId: ConceptId;
+  mastery: number;
+  confidence: number;
+  status: MasteryStatus;
+}
+
+export interface TopicAssessmentSummary {
+  topicId: TopicId;
+  mastery: number;
+  confidence: number;
+  status: MasteryStatus;
+  evidenceCount: number;
+  concepts: TopicConceptSummary[];
+  prerequisiteProbesCount?: number;
+  reason?: string;
+}
+
+export interface DiagnosticResult {
+  studentId: string;
+  subjectId: string;
+  topics: TopicAssessmentSummary[];
+  rootCauses: RootCause[];
+  overallMastery: number;
+  overallConfidence: number;
+  recommendedNextConcept: ConceptId | null;
+  assessmentStats: {
+    totalQuestions: number;
+    topicsAssessed: number;
+    prerequisiteProbes: number;
+  };
+}
+
+export interface TopicMasteryState {
+  topicId: TopicId;
+  mastery: number; // 0..1
+  confidence: number; // 0..1
+  status: MasteryStatus;
+  attempts: number;
+  correct: number;
+  difficultyProgression: Difficulty[];
+  misconceptions: ErrorType[];
+  evidenceCount: number;
+  prerequisiteProbesCount: number;
+  probedPrerequisites: ConceptId[];
+  reason?: string;
+}
+
+export interface AgentDecisionRecord {
+  step: number;
+  action: AgentAction;
+  topicId: TopicId;
+  conceptId: ConceptId;
+  difficulty: Difficulty;
+  reason: string;
+  confidence: number;
+  studentFeedbackPrompt?: string;
+  source: "ai" | "deterministic";
+}
+
+export interface AssessmentAgentState {
+  studentId: string;
+  studentName: string;
+  grade: number;
+  subjectId: string;
+  topics: TopicId[];
+  currentTopicIndex: number;
+  currentTopic: TopicId;
+  currentConcept: ConceptId;
+  currentDifficulty: Difficulty;
+  responses: Response[];
+  visitedConcepts: ConceptId[];
+  probedConcepts: ConceptId[];
+  topicStates: Partial<Record<TopicId, TopicMasteryState>>;
+  decisions: AgentDecisionRecord[];
+  assessmentComplete: boolean;
+  diagnosticResult?: DiagnosticResult;
+}
+
 export interface StudentProfile {
   studentId: string;
   status: StudentStatus;
@@ -281,4 +373,7 @@ export interface StudentProfile {
   evidenceCount: number;
   lastAssessedAt?: string;
   lastTopic?: TopicId;
+  topicSummaries?: TopicAssessmentSummary[];
+  lastDiagnosticResult?: DiagnosticResult;
 }
+
