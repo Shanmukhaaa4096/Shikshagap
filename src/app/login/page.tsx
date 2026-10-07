@@ -105,13 +105,14 @@ function LoginForm() {
                 <input
                   id="email"
                   type="email"
+                  autoComplete="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="teacher@school.gov.in"
-                  className="w-full bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/30 dark:border-[#F5F1BC]/30 px-3 py-2 text-xs font-mono text-[#432623] dark:text-[#F5F1BC] focus:outline-none focus:border-[#432623] dark:focus:border-[#F5F1BC]"
+                  className="w-full min-h-[44px] bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/30 dark:border-[#F5F1BC]/30 px-3 py-2 text-base sm:text-xs font-mono text-[#432623] dark:text-[#F5F1BC] focus:outline-none focus:border-[#432623] dark:focus:border-[#F5F1BC]"
                 />
-                <User size={16} className="absolute right-3 top-2.5 text-[#432623]/40 dark:text-[#F5F1BC]/40 pointer-events-none" />
+                <User size={18} className="absolute right-3 top-3 text-[#432623]/40 dark:text-[#F5F1BC]/40 pointer-events-none" />
               </div>
             </div>
 
@@ -126,10 +127,10 @@ function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="text-[11px] text-[#432623]/70 dark:text-[#F5F1BC]/70 underline hover:text-[#432623] dark:hover:text-[#F5F1BC] flex items-center gap-1"
+                  className="min-h-[44px] px-2 text-[11px] text-[#432623]/70 dark:text-[#F5F1BC]/70 underline hover:text-[#432623] dark:hover:text-[#F5F1BC] flex items-center gap-1"
                   aria-label={showPassword ? 'Hide password text' : 'Show password text'}
                 >
-                  {showPassword ? <EyeSlash size={14} /> : <Eye size={14} />}
+                  {showPassword ? <EyeSlash size={16} /> : <Eye size={16} />}
                   <span>{showPassword ? 'Hide' : 'Show'}</span>
                 </button>
               </div>
@@ -137,12 +138,13 @@ function LoginForm() {
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/30 dark:border-[#F5F1BC]/30 px-3 py-2 text-xs font-mono text-[#432623] dark:text-[#F5F1BC] focus:outline-none focus:border-[#432623] dark:focus:border-[#F5F1BC]"
+                  className="w-full min-h-[44px] bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/30 dark:border-[#F5F1BC]/30 px-3 py-2 text-base sm:text-xs font-mono text-[#432623] dark:text-[#F5F1BC] focus:outline-none focus:border-[#432623] dark:focus:border-[#F5F1BC]"
                 />
-                <Lock size={16} className="absolute right-3 top-2.5 text-[#432623]/40 dark:text-[#F5F1BC]/40 pointer-events-none" />
+                <Lock size={18} className="absolute right-3 top-3 text-[#432623]/40 dark:text-[#F5F1BC]/40 pointer-events-none" />
               </div>
             </div>
 
@@ -150,7 +152,7 @@ function LoginForm() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] py-2.5 px-4 text-xs font-mono uppercase tracking-wider font-bold border border-[#432623] dark:border-[#F5F1BC] disabled:opacity-50"
+                className="w-full min-h-[44px] bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] py-2.5 px-4 text-xs font-mono uppercase tracking-wider font-bold border border-[#432623] dark:border-[#F5F1BC] disabled:opacity-50 flex items-center justify-center"
               >
                 {isLoading ? 'Verifying Credentials...' : 'Authenticate & Enter Dashboard'}
               </button>

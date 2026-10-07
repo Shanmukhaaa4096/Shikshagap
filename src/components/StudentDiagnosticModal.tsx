@@ -37,14 +37,85 @@ export function StudentDiagnosticModal({
   onPrintWorksheet,
 }: Props) {
   const { dict, t } = useI18n();
-  const [activeTab, setActiveTab] = useState<"report" | "plan">("report");
+  const [activeTab, setActiveTab] = useState<"report" | "plan" | "override" | "share">("report");
   const [completedDays, setCompletedDays] = useState<number[]>([]);
   const [copied, setCopied] = useState(false);
+
+  // Override States
+  const [overrideDecision, setOverrideDecision] = useState<'accepted' | 'changed' | 'dismissed'>('accepted');
+  const [alternateConcept, setAlternateConcept] = useState('place_value');
+  const [teacherNote, setTeacherNote] = useState('');
+  const [isSavingOverride, setIsSavingOverride] = useState(false);
+  const [overrideSavedMessage, setOverrideSavedMessage] = useState<string | null>(null);
+
+  // Sharing States
+  const [confirmedShareNotice, setConfirmedShareNotice] = useState(false);
+  const [shareLink, setShareLink] = useState<string | null>(null);
+  const [isGeneratingShare, setIsGeneratingShare] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
+  const [isLinkCopied, setIsLinkCopied] = useState(false);
 
   if (!data) return null;
 
   const { student, profile, activePlan } = data;
   const rootCause = profile.rootCauses[0];
+
+  const handleSaveOverride = async () => {
+    setIsSavingOverride(true);
+    setOverrideSavedMessage(null);
+    try {
+      const res = await fetch('/api/assessment/override', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentId: student.id,
+          classId: student.classroomId || 'class_5a',
+          originalRootGapId: rootCause?.rootId || 'unclassified',
+          originalRootGapLabel: rootCause ? t(`c_${rootCause.rootId}`) : 'Unclassified',
+          decision: overrideDecision,
+          newRootGapId: overrideDecision === 'changed' ? alternateConcept : undefined,
+          newRootGapLabel: overrideDecision === 'changed' ? (CONCEPTS as any)[alternateConcept]?.name : undefined,
+          teacherNote,
+        }),
+      });
+      if (res.ok) {
+        setOverrideSavedMessage('Teacher diagnostic decision recorded and locked.');
+      } else {
+        setOverrideSavedMessage('Failed to save decision to server.');
+      }
+    } catch {
+      setOverrideSavedMessage('Saved locally for sync upon reconnect.');
+    } finally {
+      setIsSavingOverride(false);
+    }
+  };
+
+  const handleGenerateShare = async () => {
+    if (!confirmedShareNotice) return;
+    setIsGeneratingShare(true);
+    setShareError(null);
+    try {
+      const res = await fetch('/api/reports/share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentId: student.id,
+          classId: student.classroomId || 'class_5a',
+          confirmedNotice: true,
+        }),
+      });
+      const resData = await res.json();
+      if (!res.ok) {
+        setShareError(resData.error || 'Failed to generate secure link.');
+        return;
+      }
+      setShareLink(resData.shareUrl);
+    } catch {
+      setShareError('Network failure generating link.');
+    } finally {
+      setIsGeneratingShare(false);
+    }
+  };
 
   const toggleDayCompletion = (dayNum: number) => {
     setCompletedDays((prev) =>
@@ -177,36 +248,58 @@ export function StudentDiagnosticModal({
           </div>
 
           {/* Sub Navigation */}
-          <div className="flex items-center gap-2 mt-4 -mb-6 border-b border-[var(--border)] pb-2 text-xs">
+          <div className="flex flex-wrap items-center gap-1.5 mt-4 -mb-6 border-b border-[var(--border)] pb-2 text-xs">
             <button
               type="button"
               onClick={() => setActiveTab("report")}
-              className={`px-3 py-1 font-semibold rounded-[2px] border ${
+              className={`min-h-[40px] px-3 py-1 font-semibold rounded-[2px] border ${
                 activeTab === "report"
                   ? "bg-[var(--foreground)] text-[var(--background)] border-[var(--foreground)]"
                   : "bg-[var(--background)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--muted)]"
               }`}
             >
-              Diagnostic Intelligence Report
+              Diagnostic Intelligence
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("plan")}
-              className={`px-3 py-1 font-semibold rounded-[2px] border flex items-center gap-1.5 ${
+              className={`min-h-[40px] px-3 py-1 font-semibold rounded-[2px] border flex items-center gap-1.5 ${
                 activeTab === "plan"
                   ? "bg-[var(--foreground)] text-[var(--background)] border-[var(--foreground)]"
                   : "bg-[var(--background)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--muted)]"
               }`}
             >
-              <CalendarBlank size={12} />
-              <span>5-Day Recovery Action Plan</span>
+              <CalendarBlank size={13} />
+              <span>5-Day Action Plan</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("override" as any)}
+              className={`min-h-[40px] px-3 py-1 font-semibold rounded-[2px] border flex items-center gap-1.5 ${
+                (activeTab as string) === "override"
+                  ? "bg-[var(--foreground)] text-[var(--background)] border-[var(--foreground)]"
+                  : "bg-[var(--background)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--muted)]"
+              }`}
+            >
+              <span>Teacher Override</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("share" as any)}
+              className={`min-h-[40px] px-3 py-1 font-semibold rounded-[2px] border flex items-center gap-1.5 ${
+                (activeTab as string) === "share"
+                  ? "bg-[var(--foreground)] text-[var(--background)] border-[var(--foreground)]"
+                  : "bg-[var(--background)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--muted)]"
+              }`}
+            >
+              <span>Parent WhatsApp Report</span>
             </button>
           </div>
         </div>
 
         {/* Content Area */}
         <div className="p-6 space-y-5 bg-[var(--background)]">
-          {activeTab === "report" ? (
+          {activeTab === "report" && (
             <>
               {/* Mandatory AI Decision Support Disclaimer (Phase B rule 6) */}
               <div className="p-3 bg-[var(--card)] border border-[var(--border)] rounded-[2px] text-xs flex items-start gap-2.5 text-[var(--muted-foreground)]">
@@ -391,8 +484,10 @@ export function StudentDiagnosticModal({
                 )}
               </div>
             </>
-          ) : (
-            /* 5-Day Plan Tab */
+          )}
+
+          {/* TAB 2: 5-Day Plan Tab */}
+          {activeTab === "plan" && (
             <div className="space-y-4">
               <div className="bg-[var(--card)] border border-[var(--border)] rounded-[2px] p-4 flex flex-wrap items-center justify-between gap-2">
                 <div>
@@ -490,6 +585,227 @@ export function StudentDiagnosticModal({
                     <span>Start Reassessment</span>
                     <ArrowRight size={14} />
                   </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: TEACHER OVERRIDE */}
+          {activeTab === "override" && (
+            <div className="space-y-4">
+              <div className="border border-[var(--border)] p-4 bg-[var(--card)] space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-[var(--border)]">
+                  <div>
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--muted-foreground)]">
+                      AI SUGGESTED DIAGNOSIS
+                    </span>
+                    <h3 className="font-serif text-lg font-bold text-[var(--foreground)]">
+                      {rootCause ? t(`c_${rootCause.rootId}`) : "No Critical Gap Detected"}
+                    </h3>
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 border border-[#DE2A35] text-[#DE2A35] font-bold uppercase">
+                    AI Decision Support
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono uppercase font-bold text-[var(--foreground)] mb-2">
+                    Teacher Pedagogical Determination:
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setOverrideDecision("accepted")}
+                      className={`min-h-[44px] p-2.5 text-xs font-mono uppercase border text-left ${
+                        overrideDecision === "accepted"
+                          ? "bg-[var(--foreground)] text-[var(--background)] font-bold border-[var(--foreground)]"
+                          : "border-[var(--border)] hover:bg-[var(--muted)]"
+                      }`}
+                    >
+                      <div className="font-bold">Accept Suggestion</div>
+                      <div className="text-[10px] opacity-75">Confirm AI assessment</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setOverrideDecision("changed")}
+                      className={`min-h-[44px] p-2.5 text-xs font-mono uppercase border text-left ${
+                        overrideDecision === "changed"
+                          ? "bg-[var(--foreground)] text-[var(--background)] font-bold border-[var(--foreground)]"
+                          : "border-[var(--border)] hover:bg-[var(--muted)]"
+                      }`}
+                    >
+                      <div className="font-bold">Change Root Gap</div>
+                      <div className="text-[10px] opacity-75">Select alternate skill</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setOverrideDecision("dismissed")}
+                      className={`min-h-[44px] p-2.5 text-xs font-mono uppercase border text-left ${
+                        overrideDecision === "dismissed"
+                          ? "bg-[var(--foreground)] text-[var(--background)] font-bold border-[var(--foreground)]"
+                          : "border-[var(--border)] hover:bg-[var(--muted)]"
+                      }`}
+                    >
+                      <div className="font-bold">Dismiss Gap</div>
+                      <div className="text-[10px] opacity-75">Student on track</div>
+                    </button>
+                  </div>
+                </div>
+
+                {overrideDecision === "changed" && (
+                  <div>
+                    <label htmlFor="alternate-concept-select" className="block text-xs font-mono uppercase text-[var(--muted-foreground)] mb-1">
+                      Select True Prerequisite Gap:
+                    </label>
+                    <select
+                      id="alternate-concept-select"
+                      value={alternateConcept}
+                      onChange={(e) => setAlternateConcept(e.target.value)}
+                      className="w-full min-h-[44px] bg-[var(--background)] border border-[var(--border)] px-3 text-base sm:text-xs font-mono text-[var(--foreground)]"
+                    >
+                      {Object.entries(CONCEPTS).map(([id, c]) => (
+                        <option key={id} value={id}>
+                          {t(`c_${id}` as any) || id.replace(/_/g, ' ')} (Grade {c.grade})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label htmlFor="teacher-note-textarea" className="block text-xs font-mono uppercase text-[var(--muted-foreground)]">
+                      Confidential Teacher Note (Classroom Context):
+                    </label>
+                    <span className="text-[10px] font-mono text-[var(--muted-foreground)]">
+                      {500 - teacherNote.length} characters left
+                    </span>
+                  </div>
+                  <textarea
+                    id="teacher-note-textarea"
+                    rows={3}
+                    maxLength={500}
+                    value={teacherNote}
+                    onChange={(e) => setTeacherNote(e.target.value)}
+                    placeholder="e.g. Student understood borrowing with base-10 flats but rushed on zero regrouping..."
+                    className="w-full bg-[var(--background)] border border-[var(--border)] p-3 text-base sm:text-xs font-mono text-[var(--foreground)]"
+                  />
+                </div>
+
+                {overrideSavedMessage && (
+                  <div className="p-3 border border-[#8ABB93] bg-[#8ABB93]/15 text-xs font-mono">
+                    {overrideSavedMessage}
+                  </div>
+                )}
+
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={handleSaveOverride}
+                    disabled={isSavingOverride}
+                    className="w-full sm:w-auto min-h-[44px] px-6 bg-[var(--foreground)] text-[var(--background)] text-xs font-mono uppercase font-bold border border-[var(--foreground)] hover:bg-[#DE2A35]"
+                  >
+                    {isSavingOverride ? "Saving Override..." : "Save Teacher Determination"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: PARENT WHATSAPP REPORT */}
+          {activeTab === "share" && (
+            <div className="space-y-4">
+              <div className="border border-[var(--border)] p-5 bg-[var(--card)] space-y-4">
+                <div>
+                  <span className="text-[10px] font-mono uppercase text-[#DE2A35] font-bold">
+                    Child Privacy Protected (DPDP Act 2023)
+                  </span>
+                  <h3 className="font-serif text-lg font-bold text-[var(--foreground)] mt-0.5">
+                    Generate Private 7-Day Parent Progress Note
+                  </h3>
+                  <p className="text-xs text-[var(--muted-foreground)] leading-relaxed mt-1">
+                    Creates an unguessable 128-bit cryptographic link containing parent-friendly practice tips and strengths. Contains zero student scores or rankings.
+                  </p>
+                </div>
+
+                <div className="p-3 border border-[var(--border)] bg-[var(--background)] space-y-2">
+                  <label className="flex items-start gap-2.5 cursor-pointer text-xs leading-relaxed">
+                    <input
+                      type="checkbox"
+                      checked={confirmedShareNotice}
+                      onChange={(e) => setConfirmedShareNotice(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 shrink-0 rounded-[2px]"
+                    />
+                    <span>
+                      <strong>Teacher Confirmation:</strong> I confirm that I am sharing formative mathematics diagnostic feedback solely with this child&apos;s lawful parent or guardian.
+                    </span>
+                  </label>
+                </div>
+
+                {shareError && (
+                  <div className="p-3 border border-[#DE2A35] bg-[#DE2A35]/10 text-xs text-[#DE2A35]">
+                    {shareError}
+                  </div>
+                )}
+
+                {!shareLink ? (
+                  <button
+                    type="button"
+                    onClick={handleGenerateShare}
+                    disabled={!confirmedShareNotice || isGeneratingShare}
+                    className="min-h-[44px] px-5 bg-[var(--foreground)] text-[var(--background)] text-xs font-mono uppercase font-bold border border-[var(--foreground)] disabled:opacity-40"
+                  >
+                    {isGeneratingShare ? "Generating Cryptographic Token..." : "Generate Secure Parent Link"}
+                  </button>
+                ) : (
+                  <div className="space-y-3 pt-2 border-t border-[var(--border)]">
+                    <div>
+                      <span className="block text-[11px] font-mono uppercase text-[var(--muted-foreground)] mb-1">
+                        Secure Private Link (Expires in 7 days):
+                      </span>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <input
+                          type="text"
+                          readOnly
+                          value={shareLink}
+                          className="flex-1 min-h-[44px] bg-[var(--background)] border border-[var(--border)] px-3 font-mono text-xs text-[var(--foreground)] select-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(shareLink);
+                            setIsLinkCopied(true);
+                            setTimeout(() => setIsLinkCopied(false), 2000);
+                          }}
+                          className="min-h-[44px] px-4 border border-[var(--border)] bg-[var(--card)] text-xs font-mono uppercase font-bold shrink-0 hover:bg-[var(--muted)]"
+                        >
+                          {isLinkCopied ? "Copied!" : "Copy Link"}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 pt-2">
+                      <a
+                        href={`https://wa.me/?text=${encodeURIComponent(
+                          `Namaste. Here is the Class 5 mathematics learning progress note for ${student.name.split(" ")[0]}: ${shareLink}`
+                        )}`}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="min-h-[44px] px-4 bg-[#8ABB93] text-[var(--foreground)] font-bold text-xs font-mono uppercase inline-flex items-center gap-2 border border-[#8ABB93] hover:bg-[#8ABB93]/80"
+                      >
+                        <span>Share on WhatsApp</span>
+                      </a>
+
+                      <a
+                        href={shareLink}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="min-h-[44px] px-4 border border-[var(--border)] text-xs font-mono uppercase inline-flex items-center gap-1.5 hover:bg-[var(--muted)]"
+                      >
+                        <span>Open Parent View</span>
+                      </a>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>

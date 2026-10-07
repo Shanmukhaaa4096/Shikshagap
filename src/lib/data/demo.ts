@@ -1,6 +1,6 @@
 /**
  * ShikshaGap Demo Dataset
- * 36 realistic Class 5A students in PM SHRI Govt Primary School, Hyderabad.
+ * 36 realistic Class 5A students in Government Primary School, Hyderabad.
  * Diverse profiles demonstrating varying learning gap topologies.
  */
 import type {

@@ -1,0 +1,18 @@
+{
+  "name": "ShikshaGap Diagnostic Intelligence",
+  "short_name": "ShikshaGap",
+  "description": "Foundational mathematics diagnostic system for Class 5 educators in Indian schools",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FAF8E8",
+  "theme_color": "#FAF8E8",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

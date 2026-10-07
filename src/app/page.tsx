@@ -14,7 +14,9 @@ import {
   CaretDown, 
   CaretUp,
   Sun,
-  Moon
+  Moon,
+  List,
+  X
 } from '@phosphor-icons/react';
 
 // Synthetic sample learners for public demonstration (never real children)
@@ -81,6 +83,7 @@ export default function PublicLandingPage() {
   const [selectedSynthetic, setSelectedSynthetic] = useState(SYNTHETIC_SAMPLES[0]);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [isDark, setIsDark] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleTheme = () => {
     setIsDark(!isDark);
@@ -167,9 +170,12 @@ export default function PublicLandingPage() {
           </div>
 
           <nav className="flex items-center gap-3 sm:gap-6 text-xs font-mono uppercase tracking-wider" aria-label="Main Navigation">
-            <a href="#how-it-works" className="hidden md:inline hover:underline text-[#432623]/80 dark:text-[#F5F1BC]/80">
+            <Link href="/how-it-works" className="hidden lg:inline hover:underline text-[#432623]/80 dark:text-[#F5F1BC]/80">
               Methodology
-            </a>
+            </Link>
+            <Link href="/notices/guardian" className="hidden lg:inline hover:underline text-[#432623]/80 dark:text-[#F5F1BC]/80">
+              Guardian Notice
+            </Link>
             <a href="#synthetic-demo" className="hidden md:inline hover:underline text-[#432623]/80 dark:text-[#F5F1BC]/80">
               Sample Demo
             </a>
@@ -180,19 +186,70 @@ export default function PublicLandingPage() {
             <button
               onClick={toggleTheme}
               aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              className="p-1.5 border border-[#432623]/25 dark:border-[#F5F1BC]/25 hover:bg-[#F5F1BC]/40 dark:hover:bg-[#381f1c]"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 border border-[#432623]/25 dark:border-[#F5F1BC]/25 hover:bg-[#F5F1BC]/40 dark:hover:bg-[#381f1c]"
             >
-              {isDark ? <Sun size={15} /> : <Moon size={15} />}
+              {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
 
             <Link
               href="/login"
-              className="border border-[#432623] dark:border-[#F5F1BC] bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] px-3.5 py-1.5 text-xs font-mono uppercase font-bold hover:bg-[#DE2A35] dark:hover:bg-[#DE2A35] dark:hover:text-[#F5F1BC]"
+              className="hidden sm:inline-flex border border-[#432623] dark:border-[#F5F1BC] bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] px-3.5 py-2 min-h-[44px] items-center text-xs font-mono uppercase font-bold hover:bg-[#DE2A35] dark:hover:bg-[#DE2A35] dark:hover:text-[#F5F1BC]"
             >
               Teacher Login
             </Link>
+
+            {/* Mobile Hamburger Toggle Button (>= 44x44px) */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={isMobileMenuOpen}
+              className="md:hidden min-w-[44px] min-h-[44px] flex items-center justify-center border border-[#432623]/25 dark:border-[#F5F1BC]/25 hover:bg-[#F5F1BC]/40 dark:hover:bg-[#381f1c] text-[#432623] dark:text-[#F5F1BC]"
+            >
+              {isMobileMenuOpen ? <X size={20} /> : <List size={20} />}
+            </button>
           </nav>
         </div>
+
+        {/* Mobile Navigation Drawer */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden mt-3 pt-3 border-t border-[#432623]/20 dark:border-[#F5F1BC]/20 flex flex-col gap-2 font-mono text-xs uppercase tracking-wider">
+            <Link
+              href="/how-it-works"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="min-h-[44px] flex items-center px-3 border border-[#432623]/15 dark:border-[#F5F1BC]/15 bg-[#FAF8E8] dark:bg-[#381f1c]"
+            >
+              Methodology & Accuracy
+            </Link>
+            <Link
+              href="/notices/guardian"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="min-h-[44px] flex items-center px-3 border border-[#432623]/15 dark:border-[#F5F1BC]/15 bg-[#FAF8E8] dark:bg-[#381f1c]"
+            >
+              Guardian DPDP Notice
+            </Link>
+            <a
+              href="#synthetic-demo"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="min-h-[44px] flex items-center px-3 border border-[#432623]/15 dark:border-[#F5F1BC]/15 bg-[#FAF8E8] dark:bg-[#381f1c]"
+            >
+              Interactive Demo (Sample Data)
+            </a>
+            <a
+              href="#faq"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="min-h-[44px] flex items-center px-3 border border-[#432623]/15 dark:border-[#F5F1BC]/15 bg-[#FAF8E8] dark:bg-[#381f1c]"
+            >
+              Frequently Asked Questions
+            </a>
+            <Link
+              href="/login"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="min-h-[44px] flex items-center justify-center px-3 border border-[#432623] dark:border-[#F5F1BC] bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] font-bold text-center"
+            >
+              Teacher Login
+            </Link>
+          </div>
+        )}
       </header>
 
       {/* Main Content Area */}
@@ -292,6 +349,52 @@ export default function PublicLandingPage() {
               </p>
             </div>
           </div>
+
+          {/* Honest Flowchart Diagram Drawn in Code (No shadows, no gradients) */}
+          <div className="mt-8 border border-[#432623]/25 dark:border-[#F5F1BC]/25 p-5 bg-[#FAF8E8] dark:bg-[#381f1c]">
+            <div className="text-[11px] font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 mb-4 font-bold">
+              Diagnostic Traversal Architecture (Code-Drawn Flowchart)
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-stretch text-center font-mono text-xs">
+              <div className="p-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 bg-[#F5F1BC] text-[#432623] flex flex-col justify-between min-h-[90px]">
+                <div>
+                  <div className="font-bold text-[10px] text-[#DE2A35]">STEP 1</div>
+                  <div className="font-sans font-bold text-xs mt-1">Math Response</div>
+                </div>
+                <div className="text-[10px] opacity-80 mt-1">Learner solves Class 5 diagnostic item</div>
+              </div>
+
+              <div className="p-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 bg-[#FAF8E8] dark:bg-[#432623] text-[#432623] dark:text-[#F5F1BC] flex flex-col justify-between min-h-[90px]">
+                <div>
+                  <div className="font-bold text-[10px] text-[#DE2A35]">STEP 2</div>
+                  <div className="font-sans font-bold text-xs mt-1">Error Clustering</div>
+                </div>
+                <div className="text-[10px] opacity-80 mt-1">System classifies error pattern vs distractor</div>
+              </div>
+
+              <div className="p-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 bg-[#FAF8E8] dark:bg-[#432623] text-[#432623] dark:text-[#F5F1BC] flex flex-col justify-between min-h-[90px]">
+                <div>
+                  <div className="font-bold text-[10px] text-[#DE2A35]">STEP 3</div>
+                  <div className="font-sans font-bold text-xs mt-1">Graph Traversal</div>
+                </div>
+                <div className="text-[10px] opacity-80 mt-1">Backwards trace to prerequisite skill gap</div>
+              </div>
+
+              <div className="p-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 bg-[#8ABB93]/25 text-[#432623] dark:text-[#F5F1BC] flex flex-col justify-between min-h-[90px]">
+                <div>
+                  <div className="font-bold text-[10px] text-[#432623] dark:text-[#8ABB93]">STEP 4</div>
+                  <div className="font-sans font-bold text-xs mt-1">Teacher Override</div>
+                </div>
+                <div className="text-[10px] opacity-80 mt-1">Teacher accepts, alters, or dismisses gap</div>
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-[#432623]/15 dark:border-[#F5F1BC]/15 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] font-mono">
+              <span className="text-[#432623]/70 dark:text-[#F5F1BC]/70">Transparent mapping without hidden automated grading decisions.</span>
+              <Link href="/how-it-works" className="text-[#DE2A35] hover:underline font-bold">
+                Read full methodology page &rarr;
+              </Link>
+            </div>
+          </div>
         </section>
 
         {/* Interactive Demo Section with Synthetic Data */}
@@ -311,32 +414,43 @@ export default function PublicLandingPage() {
           </div>
 
           <div className="border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c]">
-            {/* Tab Bar */}
-            <div className="flex border-b border-[#432623]/20 dark:border-[#F5F1BC]/20 overflow-x-auto bg-[#F5F1BC]/40 dark:bg-[#381f1c]">
-              {SYNTHETIC_SAMPLES.map((sample) => (
+            {/* Tab Bar with Reset Demo Button */}
+            <div className="flex flex-wrap items-center justify-between border-b border-[#432623]/20 dark:border-[#F5F1BC]/20 bg-[#F5F1BC]/40 dark:bg-[#381f1c]">
+              <div className="flex overflow-x-auto">
+                {SYNTHETIC_SAMPLES.map((sample) => (
+                  <button
+                    key={sample.id}
+                    onClick={() => setSelectedSynthetic(sample)}
+                    className={`min-h-[44px] px-4 py-3 text-xs font-mono uppercase border-r border-[#432623]/20 dark:border-[#F5F1BC]/20 whitespace-nowrap text-left ${
+                      selectedSynthetic.id === sample.id
+                        ? 'bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] font-bold'
+                        : 'hover:bg-[#F5F1BC] dark:hover:bg-[#432623]/50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>{sample.label}</span>
+                      <span className={`text-[10px] px-1 border ${
+                        sample.status === 'Critical' 
+                          ? 'border-[#DE2A35] text-[#DE2A35]' 
+                          : sample.status === 'Developing' 
+                            ? 'border-[#DFA06E] text-[#DFA06E]' 
+                            : 'border-[#8ABB93] text-[#8ABB93]'
+                      }`}>
+                        {sample.status}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <div className="p-2 ml-auto">
                 <button
-                  key={sample.id}
-                  onClick={() => setSelectedSynthetic(sample)}
-                  className={`px-4 py-3 text-xs font-mono uppercase border-r border-[#432623]/20 dark:border-[#F5F1BC]/20 whitespace-nowrap text-left ${
-                    selectedSynthetic.id === sample.id
-                      ? 'bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] font-bold'
-                      : 'hover:bg-[#F5F1BC] dark:hover:bg-[#432623]/50'
-                  }`}
+                  onClick={() => setSelectedSynthetic(SYNTHETIC_SAMPLES[0])}
+                  className="min-h-[44px] px-3.5 py-2 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-xs font-mono uppercase bg-[#FAF8E8] dark:bg-[#432623] hover:bg-[#DE2A35] hover:text-[#F5F1BC] text-[#432623] dark:text-[#F5F1BC]"
+                  title="Reset demo sample state"
                 >
-                  <div className="flex items-center gap-2">
-                    <span>{sample.label}</span>
-                    <span className={`text-[10px] px-1 border ${
-                      sample.status === 'Critical' 
-                        ? 'border-[#DE2A35] text-[#DE2A35]' 
-                        : sample.status === 'Developing' 
-                          ? 'border-[#DFA06E] text-[#DFA06E]' 
-                          : 'border-[#8ABB93] text-[#8ABB93]'
-                    }`}>
-                      {sample.status}
-                    </span>
-                  </div>
+                  Reset Demo
                 </button>
-              ))}
+              </div>
             </div>
 
             {/* Selected Profile Detail */}
@@ -529,13 +643,17 @@ export default function PublicLandingPage() {
           </div>
 
           <div className="flex flex-wrap gap-4 text-[11px] uppercase tracking-wider text-[#432623]/80 dark:text-[#F5F1BC]/80">
+            <Link href="/how-it-works" className="hover:underline">Methodology</Link>
+            <span>/</span>
+            <Link href="/notices/guardian" className="hover:underline">Guardian Notice</Link>
+            <span>/</span>
             <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
             <span>/</span>
             <Link href="/terms" className="hover:underline">Terms of Service</Link>
             <span>/</span>
             <Link href="/cookies" className="hover:underline">Cookie Notice</Link>
             <span>/</span>
-            <Link href="/licenses" className="hover:underline">Open Source Licenses</Link>
+            <Link href="/licenses" className="hover:underline">Licenses</Link>
             <span>/</span>
             <Link href="/data-request" className="hover:underline">Data Request</Link>
           </div>

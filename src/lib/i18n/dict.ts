@@ -177,7 +177,7 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
   en: {
     appName: "ShikshaGap",
     appTagline: "AI Learning Gap Detection & Remediation",
-    badgeGovtSchool: "PM SHRI Govt Schools",
+    badgeGovtSchool: "Foundational Primary School",
     demoBadge: "Demo: Class 5A (36 Students)",
     resetDemo: "Reset Demo",
     teacherView: "Teacher Dashboard",
@@ -334,7 +334,7 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
   hi: {
     appName: "शिक्षा-गैप (ShikshaGap)",
     appTagline: "एआई-संचालित लर्निंग गैप पहचान और उपचारात्मक शिक्षण",
-    badgeGovtSchool: "पीएम श्री सरकारी स्कूल",
+    badgeGovtSchool: "बुनियादी प्राथमिक विद्यालय",
     demoBadge: "डेमो: कक्षा 5A (36 विद्यार्थी)",
     resetDemo: "डेमो रीसेट करें",
     teacherView: "शिक्षक डैशबोर्ड",
@@ -491,7 +491,7 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
   te: {
     appName: "శిక్షా-గ్యాప్ (ShikshaGap)",
     appTagline: "ఏఐ ఆధారిత లెర్నింగ్ గ్యాప్ నిర్ధారణ మరియు ఉపశమన విధానం",
-    badgeGovtSchool: "పీఎం శ్రీ ప్రభుత్వ పాఠశాలలు",
+    badgeGovtSchool: "ప్రాథమిక పాఠశాల",
     demoBadge: "డెమో: 5వ తరగతి A (36 మంది విద్యార్థులు)",
     resetDemo: "డెమో రీసెట్ చేయండి",
     teacherView: "ఉపాధ్యాయుల డాష్‌బోర్డ్",

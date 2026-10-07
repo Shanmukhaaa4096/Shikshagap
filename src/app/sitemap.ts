@@ -47,5 +47,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.5,
     },
+    {
+      url: `${baseUrl}/how-it-works`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/notices/guardian`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
   ];
 }

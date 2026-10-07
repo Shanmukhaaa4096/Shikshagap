@@ -35,10 +35,17 @@ const notoTelugu = Noto_Sans_Telugu({
   display: "swap",
 });
 
+import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
+
 export const metadata: Metadata = {
   title: "ShikshaGap | Learning Intelligence and Diagnostic System",
   description:
     "Editorial diagnostic intelligence platform for Indian elementary mathematics education. Evaluates understanding, identifies foundational gaps, and suggests recovery paths.",
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
@@ -53,6 +60,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)] font-sans antialiased">
+        <ServiceWorkerRegister />
         {children}
       </body>
     </html>

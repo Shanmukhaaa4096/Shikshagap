@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import Link from "next/link";
+import { OfflineSyncBanner } from "@/components/OfflineSyncBanner";
 import {
   Users,
   CheckCircle,
@@ -22,6 +24,8 @@ import {
   TreeStructure,
   Printer,
   CaretRight,
+  FileArrowDown,
+  FileText,
 } from "@phosphor-icons/react";
 import { CONCEPTS, CONCEPT_IDS, prerequisitesOf, dependentsOf } from "@/lib/concepts/graph";
 import type { ConceptId } from "@/lib/types";
@@ -113,8 +117,60 @@ export function TeacherDashboard({
     return acc;
   }, {} as Record<ConceptId, { avg: number; status: "mastered" | "developing" | "needs_support"; masteredCount: number; developingCount: number; supportCount: number }>);
 
+  // Export States
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportPassword, setExportPassword] = useState("");
+  const [showReauthModal, setShowReauthModal] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+
+  const handleExport = async (format: "csv" | "json") => {
+    setIsExporting(true);
+    setExportError(null);
+    try {
+      const res = await fetch("/api/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ format, passwordConfirm: exportPassword || undefined }),
+      });
+
+      if (res.status === 403) {
+        const data = await res.json().catch(() => ({}));
+        if (data.code === "REAUTH_REQUIRED") {
+          setShowReauthModal(true);
+          setIsExporting(false);
+          return;
+        }
+      }
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setExportError(data.error || "Export failed.");
+        setIsExporting(false);
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `shikshagap_class_5a_records.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setShowReauthModal(false);
+      setExportPassword("");
+    } catch {
+      setExportError("Network error during export.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* Offline & Sync Status Banner */}
+      <OfflineSyncBanner />
+
       {/* ============================================================== */}
       {/* 1. FIRST VIEWPORT: WHO NEEDS MY ATTENTION? (SWISS EDITORIAL)   */}
       {/* ============================================================== */}
@@ -136,13 +192,37 @@ export function TeacherDashboard({
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href="/notices/guardian"
+              className="min-h-[44px] px-3 border border-[#432623]/30 text-xs font-mono uppercase inline-flex items-center gap-1.5 hover:bg-[#F5F1BC]"
+            >
+              <FileText size={16} />
+              <span>Guardian Notice</span>
+            </Link>
+
+            <Link
+              href="/app/audit-log"
+              className="min-h-[44px] px-3 border border-[#432623]/30 text-xs font-mono uppercase inline-flex items-center gap-1.5 hover:bg-[#F5F1BC]"
+            >
+              <span>Audit Trail</span>
+            </Link>
+
+            <button
+              onClick={() => handleExport("csv")}
+              disabled={isExporting}
+              className="min-h-[44px] px-3 border border-[#432623]/30 text-xs font-mono uppercase inline-flex items-center gap-1.5 hover:bg-[#F5F1BC]"
+            >
+              <FileArrowDown size={16} />
+              <span>{isExporting ? "Exporting..." : "Export CSV"}</span>
+            </button>
+
             <button
               onClick={() => {
                 const firstCritical = students.find((s) => s.profile.status === "critical");
                 onOpenAssessment(firstCritical?.student.id || students[0]?.student.id || "student_1", "math");
               }}
-              className="neo-btn neo-btn-primary px-4 py-2.5 text-xs sm:text-sm flex items-center gap-2 font-bold rounded-[2px]"
+              className="neo-btn neo-btn-primary min-h-[44px] px-4 py-2.5 text-xs sm:text-sm flex items-center gap-2 font-bold rounded-[2px]"
             >
               <Brain className="w-4 h-4 text-[#F5F1BC]" />
               <span>START AI DIAGNOSTIC</span>
@@ -150,6 +230,40 @@ export function TeacherDashboard({
             </button>
           </div>
         </div>
+
+        {/* Re-authentication Modal for Export */}
+        {showReauthModal && (
+          <div className="mt-4 p-4 border border-[#DE2A35] bg-[#DE2A35]/10 rounded-[2px] space-y-3">
+            <div className="text-xs font-bold text-[#DE2A35] flex items-center gap-1.5">
+              <Warning size={16} />
+              <span>Security Re-authentication Required Prior to Exporting Child Records</span>
+            </div>
+            <p className="text-xs text-[#432623] leading-relaxed">
+              Per DPDP Act 2023 security protocols, please verify your institutional password to authorize downloading student data:
+            </p>
+            <div className="flex flex-col sm:flex-row gap-2 max-w-md">
+              <input
+                type="password"
+                placeholder="Enter password to confirm"
+                value={exportPassword}
+                onChange={(e) => setExportPassword(e.target.value)}
+                className="flex-1 min-h-[44px] px-3 border border-[#432623]/30 bg-[#FAF8E8] text-base sm:text-xs font-mono"
+              />
+              <button
+                onClick={() => handleExport("csv")}
+                className="min-h-[44px] px-4 bg-[#432623] text-[#F5F1BC] text-xs font-mono uppercase font-bold"
+              >
+                Confirm & Download
+              </button>
+              <button
+                onClick={() => setShowReauthModal(false)}
+                className="min-h-[44px] px-3 border border-[#432623]/30 text-xs font-mono uppercase"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* AI Decision Support Disclaimer */}
         <div className="mt-4 p-3 bg-[#F5F1BC]/60 border border-[#432623]/25 rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#432623]">
@@ -462,7 +576,8 @@ export function TeacherDashboard({
         {/* ------------------------------------------------------------- */}
         {activeTab === "interventions" && (
           <div className="neo-panel overflow-hidden rounded-[2px]">
-            <div className="overflow-x-auto">
+            {/* Desktop Table View (>= 640px) */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead className="bg-[#F5F1BC]/50 text-[#432623] font-bold text-xs border-b border-[#432623]/20">
                   <tr>
@@ -550,6 +665,73 @@ export function TeacherDashboard({
                   })}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile Stacked Card View (< 640px) */}
+            <div className="sm:hidden p-3 space-y-3">
+              {filteredStudents.map((s) => {
+                const root = s.profile.rootCauses[0];
+                return (
+                  <div
+                    key={s.student.id}
+                    className="p-3.5 border border-[#432623]/20 bg-[var(--surface)] space-y-2.5 rounded-[2px]"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <div className="font-bold text-[#432623] text-sm">
+                          {s.student.name}
+                        </div>
+                        <div className="text-xs text-[#432623]/70 font-mono">
+                          Roll #{s.student.rollNo} • Mastery: {Math.round((s.profile.overallMastery ?? 0) * 100)}%
+                        </div>
+                      </div>
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded-[2px] text-[10px] font-mono font-bold uppercase border shrink-0 ${
+                          s.profile.status === "critical"
+                            ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]/40"
+                            : s.profile.status === "need_practice"
+                            ? "bg-[#DFA06E]/20 text-[#432623] border-[#DFA06E]/40"
+                            : "bg-[#8ABB93]/20 text-[#432623] border-[#8ABB93]/40"
+                        }`}
+                      >
+                        {s.profile.status === "critical"
+                          ? dict.highSeverity
+                          : s.profile.status === "need_practice"
+                          ? dict.mediumSeverity
+                          : dict.lowSeverity}
+                      </span>
+                    </div>
+
+                    <div className="text-xs space-y-1 bg-[#F5F1BC]/30 p-2 border border-[#432623]/10">
+                      <div>
+                        <span className="font-mono text-[10px] uppercase text-[#432623]/60">Root Cause: </span>
+                        {root ? (
+                          <span className="font-bold text-[#DE2A35]">{t(`c_${root.rootId}`)}</span>
+                        ) : (
+                          <span className="font-semibold text-[#8ABB93]">Fluent Prerequisite</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-1">
+                      <button
+                        onClick={() => onSelectStudent(s)}
+                        className="flex-1 min-h-[44px] neo-btn neo-btn-secondary text-xs font-semibold rounded-[2px] flex items-center justify-center"
+                      >
+                        {dict.diagnoseBtn}
+                      </button>
+                      {root && (
+                        <button
+                          onClick={() => onOpenAssessment(s.student.id, root.rootId)}
+                          className="flex-1 min-h-[44px] neo-btn neo-btn-primary text-xs font-semibold rounded-[2px] flex items-center justify-center"
+                        >
+                          {dict.practiceBtn}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
