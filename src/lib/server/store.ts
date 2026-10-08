@@ -29,6 +29,12 @@ export interface AuditLogEntry {
   details?: string; // High-level operational message (strictly no child PII)
 }
 
+const IP_SALT = process.env.IP_SALT || (process.env.NODE_ENV === 'production' ? crypto.randomBytes(16).toString('hex') : 'dev_ip_salt');
+
+export function hashIp(ip: string): string {
+  return crypto.createHash('sha256').update(ip + IP_SALT).digest('hex').substring(0, 16);
+}
+
 // In-memory append-only audit log store
 const auditLogs: AuditLogEntry[] = [
   {
@@ -42,10 +48,6 @@ const auditLogs: AuditLogEntry[] = [
     details: 'System startup institutional session established',
   }
 ];
-
-export function hashIp(ip: string): string {
-  return crypto.createHash('sha256').update(ip + 'shikshagap_salt').digest('hex').substring(0, 16);
-}
 
 export function logAuditEvent(entry: Omit<AuditLogEntry, 'id' | 'timestamp'>): AuditLogEntry {
   const newLog: AuditLogEntry = {

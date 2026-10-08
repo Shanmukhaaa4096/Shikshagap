@@ -10,8 +10,8 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('redirect') || '/app';
 
-  const [email, setEmail] = useState('teacher@shikshagap.in');
-  const [password, setPassword] = useState('ShikshaTeacher@2026');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -140,6 +140,7 @@ function LoginForm() {
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   required
+                  placeholder="••••••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full min-h-[44px] bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/30 dark:border-[#F5F1BC]/30 px-3 py-2 text-base sm:text-xs font-mono text-[#432623] dark:text-[#F5F1BC] focus:outline-none focus:border-[#432623] dark:focus:border-[#F5F1BC]"

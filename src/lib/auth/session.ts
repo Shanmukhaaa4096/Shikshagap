@@ -3,7 +3,7 @@ import type { AuthUser, SessionData } from "./types";
 import crypto from "crypto";
 
 const SESSION_COOKIE = "shikshagap_session";
-const SESSION_SECRET = process.env.SESSION_SECRET || "shikshagap_production_secret_key_2026_safe";
+const SESSION_SECRET = process.env.SESSION_SECRET || (process.env.NODE_ENV === "production" ? crypto.randomBytes(32).toString("hex") : "dev_local_session_mock");
 const SESSION_DURATION_MS = 8 * 60 * 60 * 1000; // 8 hours
 
 function signData(data: string): string {
