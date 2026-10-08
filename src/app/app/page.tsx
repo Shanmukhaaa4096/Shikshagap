@@ -6,12 +6,14 @@ import { Header } from '@/components/Header';
 import { TeacherDashboard } from '@/components/TeacherDashboard';
 import { StudentDiagnosticModal } from '@/components/StudentDiagnosticModal';
 import { AdaptiveAssessmentView } from '@/components/AdaptiveAssessmentView';
+import { StudentHome } from '@/components/StudentHome';
 import { WorksheetModal } from '@/components/WorksheetModal';
 import { loadStudents, saveStudents, resetDemoData, type DemoStudentData } from '@/lib/data/demo';
 
 function AuthenticatedApp() {
   const [students, setStudents] = useState<DemoStudentData[]>(() => loadStudents());
   const [currentView, setCurrentView] = useState<'teacher' | 'student'>('teacher');
+  const [studentSubView, setStudentSubView] = useState<'home' | 'assessment'>('home');
   const [selectedStudent, setSelectedStudent] = useState<DemoStudentData | null>(null);
   const [isDiagnosticOpen, setIsDiagnosticOpen] = useState(false);
   const [worksheetStudent, setWorksheetStudent] = useState<DemoStudentData | null>(null);
@@ -43,6 +45,7 @@ function AuthenticatedApp() {
     setReassessStudentId(studentId);
     setReassessConceptId(conceptId);
     setIsDiagnosticOpen(false);
+    setStudentSubView('assessment');
     setCurrentView('student');
   };
 
@@ -66,7 +69,12 @@ function AuthenticatedApp() {
     <div className="min-h-screen bg-[#FAF8E8] dark:bg-[#432623] text-[#432623] dark:text-[#F5F1BC] font-sans flex flex-col selection:bg-[#DE2A35] selection:text-[#F5F1BC]">
       <Header
         currentView={currentView}
-        onViewChange={setCurrentView}
+        onViewChange={(view) => {
+          setCurrentView(view);
+          if (view === 'student') {
+            setStudentSubView('home');
+          }
+        }}
         onResetDemo={handleResetDemo}
       />
 
@@ -78,13 +86,32 @@ function AuthenticatedApp() {
             onOpenAssessment={handleOpenAssessment}
             onPrintWorksheet={handlePrintWorksheet}
           />
+        ) : studentSubView === 'home' ? (
+          <StudentHome
+            studentData={selectedStudent || students[0]}
+            onStartPractice={(conceptId) => {
+              const activeS = selectedStudent || students[0];
+              setReassessStudentId(activeS.student.id);
+              setReassessConceptId(conceptId);
+              setStudentSubView('assessment');
+            }}
+            onTakeAssessment={(studentId, conceptId) => {
+              setReassessStudentId(studentId);
+              setReassessConceptId(conceptId);
+              setStudentSubView('assessment');
+            }}
+          />
         ) : (
           <AdaptiveAssessmentView
             students={students}
-            initialStudentId={reassessStudentId}
+            initialStudentId={reassessStudentId || selectedStudent?.student.id || students[0]?.student.id}
             initialConceptId={reassessConceptId}
-            onAssessmentCompleted={handleAssessmentCompleted}
-            onCancel={() => setCurrentView('teacher')}
+            isStudentView={true}
+            onAssessmentCompleted={(updatedStudent) => {
+              handleAssessmentCompleted(updatedStudent);
+              setStudentSubView('home');
+            }}
+            onCancel={() => setStudentSubView('home')}
           />
         )}
       </main>

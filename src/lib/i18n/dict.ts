@@ -23,6 +23,19 @@ export interface Dict {
   teacherQuestionSub: string;
 
   // Tabs & Sections
+  navHome: string;
+  navStudents: string;
+  navClassGaps: string;
+  navReports: string;
+  whoNeedsHelpToday: string;
+  seeAllStudents: string;
+  whatToDoNext: string;
+  showDetails: string;
+  hideDetails: string;
+  todaysPractice: string;
+  startPractice: string;
+  takeAssessment: string;
+  oneMainGap: string;
   tabOverview: string;
   tabInterventions: string;
   tabConceptMap: string;
@@ -192,6 +205,19 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     teacherQuestionBanner: "Which students need urgent help, and what should you teach them today?",
     teacherQuestionSub: "ShikshaGap automatically traces struggling students back to their missing prerequisite concepts.",
 
+    navHome: "Home",
+    navStudents: "Students",
+    navClassGaps: "Class Gaps",
+    navReports: "Reports",
+    whoNeedsHelpToday: "Who needs help today",
+    seeAllStudents: "See all students",
+    whatToDoNext: "What to do next",
+    showDetails: "Show details",
+    hideDetails: "Hide details",
+    todaysPractice: "Today's Practice",
+    startPractice: "Start Practice",
+    takeAssessment: "Take assessment",
+    oneMainGap: "Main Learning Gap",
     tabOverview: "Class Overview",
     tabInterventions: "Prioritized Actions",
     tabConceptMap: "Class Mastery Map",
@@ -349,6 +375,19 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     teacherQuestionBanner: "किन विद्यार्थियों को तुरंत मदद की ज़रूरत है, और आज उन्हें क्या पढ़ाना चाहिए?",
     teacherQuestionSub: "शिक्षा-गैप संघर्षरत छात्रों की कठिनाई को उनके छूटे हुए बुनियादी कॉन्सेप्ट्स से जोड़ता है।",
 
+    navHome: "होम",
+    navStudents: "छात्र",
+    navClassGaps: "कक्षा की कमियां",
+    navReports: "रिपोर्ट्स",
+    whoNeedsHelpToday: "आज किन्हें मदद चाहिए",
+    seeAllStudents: "सभी छात्र देखें",
+    whatToDoNext: "आगे क्या करें",
+    showDetails: "विवरण देखें",
+    hideDetails: "विवरण छिपाएं",
+    todaysPractice: "आज का अभ्यास",
+    startPractice: "अभ्यास शुरू करें",
+    takeAssessment: "मूल्यांकन दें",
+    oneMainGap: "मुख्य सीखने की कमी",
     tabOverview: "कक्षा सारांश",
     tabInterventions: "प्राथमिकता वाले उपाय",
     tabConceptMap: "अवधारणा दक्षता मानचित्र",
@@ -506,6 +545,19 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     teacherQuestionBanner: "ఏ విద్యార్థులకు అత్యవసర సహాయం కావాలి, ఈరోజు వారికి ఏమి బోధించాలి?",
     teacherQuestionSub: "శిక్షా-గ్యాప్ ఇబ్బంది పడుతున్న విద్యార్థుల మూల కారణాలను వారి పునాది కాన్సెప్ట్‌లతో కలుపుతుంది.",
 
+    navHome: "హోమ్",
+    navStudents: "విద్యార్థులు",
+    navClassGaps: "తరగతి లోపాలు",
+    navReports: "నివేదికలు",
+    whoNeedsHelpToday: "ఈరోజు ఎవరికి సహాయం కావాలి",
+    seeAllStudents: "అందరి విద్యార్థులను చూడండి",
+    whatToDoNext: "తర్వాత ఏమి చేయాలి",
+    showDetails: "వివరాలు చూపించు",
+    hideDetails: "వివరాలు దాచు",
+    todaysPractice: "ఈరోజు అభ్యాసం",
+    startPractice: "సాధన ప్రారంభించండి",
+    takeAssessment: "మూల్యాంకనం రాయండి",
+    oneMainGap: "ప్రధాన అభ్యాస లోపం",
     tabOverview: "తరగతి ముఖ్యాంశాలు",
     tabInterventions: "ప్రాధాన్యత చర్యలు",
     tabConceptMap: "కాన్సెప్ట్ మ్యాస్టరీ మ్యాప్",

@@ -3,29 +3,24 @@
 import React, { useState } from "react";
 import type { DemoStudentData } from "@/lib/data/demo";
 import { useI18n } from "@/lib/i18n/context";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
 import { OfflineSyncBanner } from "@/components/OfflineSyncBanner";
 import {
+  House,
   Users,
-  CheckCircle,
-  Warning,
-  Fire,
+  ChartPieSlice,
+  FileText,
   MagnifyingGlass,
   ArrowRight,
   Brain,
   ArrowDown,
-  Stack,
-  ChartLineUp,
+  Printer,
+  FileArrowDown,
+  CheckCircle,
+  Warning,
   Table,
   TreeStructure,
-  Printer,
-  CaretRight,
-  FileArrowDown,
-  FileText,
 } from "@phosphor-icons/react";
 import { CONCEPTS, CONCEPT_IDS, prerequisitesOf, dependentsOf } from "@/lib/concepts/graph";
 import type { ConceptId } from "@/lib/types";
@@ -37,6 +32,8 @@ interface Props {
   onPrintWorksheet: (student: DemoStudentData) => void;
 }
 
+type TabType = "home" | "students" | "gaps" | "reports";
+
 export function TeacherDashboard({
   students,
   onSelectStudent,
@@ -44,10 +41,11 @@ export function TeacherDashboard({
   onPrintWorksheet,
 }: Props) {
   const { dict, t } = useI18n();
-  const [activeTab, setActiveTab] = useState<"interventions" | "map" | "gaps" | "matrix">("interventions");
+  const [activeTab, setActiveTab] = useState<TabType>("home");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [selectedConceptForMap, setSelectedConceptForMap] = useState<ConceptId | null>("mult_facts");
+  const [gapsSubView, setGapsSubView] = useState<"common" | "map" | "matrix">("common");
 
   // Summary Metrics
   const total = students.length;
@@ -55,7 +53,7 @@ export function TeacherDashboard({
   const needPracticeCount = students.filter((s) => s.profile.status === "need_practice").length;
   const criticalCount = students.filter((s) => s.profile.status === "critical").length;
 
-  // Filtered students for list
+  // Filtered students for full list
   const filteredStudents = students.filter((s) => {
     const matchesSearch =
       s.student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -82,7 +80,7 @@ export function TeacherDashboard({
     }))
     .sort((a, b) => b.count - a.count);
 
-  // Top critical students needing urgent intervention (compact top list)
+  // Top 5 students needing urgent help today
   const urgentStudents = students
     .filter((s) => s.profile.status === "critical" || s.profile.status === "need_practice")
     .slice(0, 5);
@@ -166,496 +164,419 @@ export function TeacherDashboard({
     }
   };
 
+  // Helper to jump from metric tap to filtered student list
+  const handleFilterClick = (status: "on_track" | "need_practice" | "critical") => {
+    setFilterStatus(status);
+    setActiveTab("students");
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 sm:pb-8">
       {/* Offline & Sync Status Banner */}
       <OfflineSyncBanner />
 
+      {/* Top Desktop Tabs (Max 4 tabs: Home, Students, Class Gaps, Reports) */}
+      <nav aria-label="Teacher Dashboard Navigation" className="border-b border-[#432623]/25 dark:border-[#F5F1BC]/25 flex items-center gap-1 sm:gap-2">
+        <button
+          type="button"
+          onClick={() => setActiveTab("home")}
+          className={`min-h-[44px] px-4 py-2 font-mono text-xs uppercase font-bold border-b-2 transition-none flex items-center gap-2 ${
+            activeTab === "home"
+              ? "border-[#DE2A35] text-[#DE2A35] bg-[#FAF8E8] dark:bg-[#381f1c]"
+              : "border-transparent text-[#432623]/70 dark:text-[#F5F1BC]/70 hover:text-[#432623]"
+          }`}
+        >
+          <House size={16} />
+          <span>{dict.navHome || "Home"}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("students")}
+          className={`min-h-[44px] px-4 py-2 font-mono text-xs uppercase font-bold border-b-2 transition-none flex items-center gap-2 ${
+            activeTab === "students"
+              ? "border-[#DE2A35] text-[#DE2A35] bg-[#FAF8E8] dark:bg-[#381f1c]"
+              : "border-transparent text-[#432623]/70 dark:text-[#F5F1BC]/70 hover:text-[#432623]"
+          }`}
+        >
+          <Users size={16} />
+          <span>{dict.navStudents || "Students"} ({total})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("gaps")}
+          className={`min-h-[44px] px-4 py-2 font-mono text-xs uppercase font-bold border-b-2 transition-none flex items-center gap-2 ${
+            activeTab === "gaps"
+              ? "border-[#DE2A35] text-[#DE2A35] bg-[#FAF8E8] dark:bg-[#381f1c]"
+              : "border-transparent text-[#432623]/70 dark:text-[#F5F1BC]/70 hover:text-[#432623]"
+          }`}
+        >
+          <ChartPieSlice size={16} />
+          <span>{dict.navClassGaps || "Class Gaps"}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("reports")}
+          className={`min-h-[44px] px-4 py-2 font-mono text-xs uppercase font-bold border-b-2 transition-none flex items-center gap-2 ${
+            activeTab === "reports"
+              ? "border-[#DE2A35] text-[#DE2A35] bg-[#FAF8E8] dark:bg-[#381f1c]"
+              : "border-transparent text-[#432623]/70 dark:text-[#F5F1BC]/70 hover:text-[#432623]"
+          }`}
+        >
+          <FileText size={16} />
+          <span>{dict.navReports || "Reports"}</span>
+        </button>
+      </nav>
+
       {/* ============================================================== */}
-      {/* 1. FIRST VIEWPORT: WHO NEEDS MY ATTENTION? (SWISS EDITORIAL)   */}
+      {/* 1. TEACHER HOME TAB (Ultra-Clean, Passes the 5-Second Test)    */}
       {/* ============================================================== */}
-      <section className="bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] p-5 sm:p-6">
-        {/* Editorial Masthead Bar */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-[#432623]/20">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="editorial-meta text-[#432623]/80">ACADEMIC DIAGNOSTICS</span>
-              <span className="text-[#432623]/40 text-xs">•</span>
-              <span className="text-xs font-mono font-semibold text-[#432623]">CLASS 5 : SECTION A (SAMPLE COHORT)</span>
-            </div>
-            <h1 className="editorial-title text-2xl sm:text-3xl text-[#432623] mt-0.5">
-              Teacher Intelligence Dashboard
-            </h1>
-            <p className="text-xs sm:text-sm text-[#432623]/80 font-sans mt-0.5">
-              Mathematics diagnostic status and pedagogical overview answering:{" "}
-              <strong className="text-[#432623] font-semibold">Who needs attention today?</strong>
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href="/notices/guardian"
-              className="min-h-[44px] px-3 border border-[#432623]/30 text-xs font-mono uppercase inline-flex items-center gap-1.5 hover:bg-[#F5F1BC]"
-            >
-              <FileText size={16} />
-              <span>Guardian Notice</span>
-            </Link>
-
-            <Link
-              href="/app/audit-log"
-              className="min-h-[44px] px-3 border border-[#432623]/30 text-xs font-mono uppercase inline-flex items-center gap-1.5 hover:bg-[#F5F1BC]"
-            >
-              <span>Audit Trail</span>
-            </Link>
-
-            <button
-              onClick={() => handleExport("csv")}
-              disabled={isExporting}
-              className="min-h-[44px] px-3 border border-[#432623]/30 text-xs font-mono uppercase inline-flex items-center gap-1.5 hover:bg-[#F5F1BC]"
-            >
-              <FileArrowDown size={16} />
-              <span>{isExporting ? "Exporting..." : "Export CSV"}</span>
-            </button>
-
-            <button
-              onClick={() => {
-                const firstCritical = students.find((s) => s.profile.status === "critical");
-                onOpenAssessment(firstCritical?.student.id || students[0]?.student.id || "student_1", "math");
-              }}
-              className="neo-btn neo-btn-primary min-h-[44px] px-4 py-2.5 text-xs sm:text-sm flex items-center gap-2 font-bold rounded-[2px]"
-            >
-              <Brain className="w-4 h-4 text-[#F5F1BC]" />
-              <span>START AI DIAGNOSTIC</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Re-authentication Modal for Export */}
-        {showReauthModal && (
-          <div className="mt-4 p-4 border border-[#DE2A35] bg-[#DE2A35]/10 rounded-[2px] space-y-3">
-            <div className="text-xs font-bold text-[#DE2A35] flex items-center gap-1.5">
-              <Warning size={16} />
-              <span>Security Re-authentication Required Prior to Exporting Child Records</span>
-            </div>
-            <p className="text-xs text-[#432623] leading-relaxed">
-              Per DPDP Act 2023 security protocols, please verify your institutional password to authorize downloading student data:
-            </p>
-            <div className="flex flex-col sm:flex-row gap-2 max-w-md">
-              <input
-                type="password"
-                placeholder="Enter password to confirm"
-                value={exportPassword}
-                onChange={(e) => setExportPassword(e.target.value)}
-                className="flex-1 min-h-[44px] px-3 border border-[#432623]/30 bg-[#FAF8E8] text-base sm:text-xs font-mono"
-              />
-              <button
-                onClick={() => handleExport("csv")}
-                className="min-h-[44px] px-4 bg-[#432623] text-[#F5F1BC] text-xs font-mono uppercase font-bold"
-              >
-                Confirm & Download
-              </button>
-              <button
-                onClick={() => setShowReauthModal(false)}
-                className="min-h-[44px] px-3 border border-[#432623]/30 text-xs font-mono uppercase"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* AI Decision Support Disclaimer */}
-        <div className="mt-4 p-3 bg-[#F5F1BC]/60 border border-[#432623]/25 rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#432623]">
-          <div className="flex items-center gap-2">
-            <Warning className="w-4 h-4 text-[#DE2A35] shrink-0" />
-            <span>
-              <strong>Pedagogical Decision Support:</strong> Diagnostic outputs are AI-assisted recommendations. Teacher judgement is final.
+      {activeTab === "home" && (
+        <section className="space-y-6">
+          {/* Main Question & Classroom Heading */}
+          <div className="border border-[#432623]/20 dark:border-[#F5F1BC]/20 p-5 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px]">
+            <span className="text-[11px] font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 font-bold block mb-1">
+              Class 5A Mathematics Overview
             </span>
-          </div>
-          <span className="font-mono text-[10px] text-[#432623]/70 shrink-0">SAMPLE DATA COHORT</span>
-        </div>
-
-        {/* 4 Swiss Metric Figures */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 pt-5">
-          {/* Total */}
-          <div className="p-3.5 bg-[#FAF8E8] dark:bg-[#432623]/40 rounded-[2px] border border-[#432623]/25 flex flex-col justify-between">
-            <span className="editorial-meta text-[#432623]/70">{dict.totalStudents}</span>
-            <div className="mt-1 flex items-baseline justify-between">
-              <span className="font-serif text-3xl font-extrabold text-[#432623]">{total}</span>
-              <span className="text-[11px] font-mono text-[#432623]/70">Class 5A</span>
-            </div>
-            <div className="text-[11px] text-[#432623]/70 mt-1">15 learners assessed (Sample data)</div>
+            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#432623] dark:text-[#F5F1BC]">
+              {dict.whoNeedsHelpToday || "Who needs help today"}
+            </h1>
           </div>
 
-          {/* On Track */}
-          <div className="p-3.5 bg-[#8ABB93]/15 rounded-[2px] border border-[#8ABB93] flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="editorial-meta text-[#432623] font-bold">{dict.onTrack}</span>
-              <span className="w-2.5 h-2.5 rounded-[2px] bg-[#8ABB93]" />
+          {/* 1. THREE NUMBERS ONLY: On Track, Need Practice, Critical */}
+          <div>
+            <div className="text-[11px] font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 font-bold mb-2">
+              Class Progress (Tap any number to filter students):
             </div>
-            <div className="mt-1 flex items-baseline justify-between">
-              <span className="font-serif text-3xl font-extrabold text-[#432623]">{onTrackCount}</span>
-              <span className="text-[11px] font-mono font-bold text-[#432623]">
-                {Math.round((onTrackCount / (total || 1)) * 100)}%
-              </span>
-            </div>
-            <div className="text-[11px] text-[#432623]/80 mt-1">Fluent across prerequisites</div>
-          </div>
-
-          {/* Developing */}
-          <div className="p-3.5 bg-[#DFA06E]/15 rounded-[2px] border border-[#DFA06E] flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="editorial-meta text-[#432623] font-bold">{dict.needPractice}</span>
-              <span className="w-2.5 h-2.5 rounded-[2px] bg-[#DFA06E]" />
-            </div>
-            <div className="mt-1 flex items-baseline justify-between">
-              <span className="font-serif text-3xl font-extrabold text-[#432623]">{needPracticeCount}</span>
-              <span className="text-[11px] font-mono font-bold text-[#432623]">
-                {Math.round((needPracticeCount / (total || 1)) * 100)}%
-              </span>
-            </div>
-            <div className="text-[11px] text-[#432623]/80 mt-1">Needs targeted practice</div>
-          </div>
-
-          {/* Need Support */}
-          <div className="p-3.5 bg-[#DE2A35]/15 rounded-[2px] border border-[#DE2A35] flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="editorial-meta text-[#DE2A35] font-bold">{dict.criticalGaps}</span>
-              <span className="w-2.5 h-2.5 rounded-[2px] bg-[#DE2A35]" />
-            </div>
-            <div className="mt-1 flex items-baseline justify-between">
-              <span className="font-serif text-3xl font-extrabold text-[#DE2A35]">{criticalCount}</span>
-              <span className="text-[11px] font-mono font-bold text-[#DE2A35]">
-                {Math.round((criticalCount / (total || 1)) * 100)}%
-              </span>
-            </div>
-            <div className="text-[11px] text-[#DE2A35]/90 mt-1">Blocked by root cause</div>
-          </div>
-        </div>
-
-        {/* Viewport Sub-Grid: Learning Gaps Distribution vs Priority Interventions */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 pt-6 mt-6 border-t border-[#432623]/20">
-          {/* Left Column (5 cols): LEARNING GAPS THIS WEEK */}
-          <div className="lg:col-span-5 space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="editorial-meta text-[#432623]/80">CURRICULUM BOTTLENECK DISTRIBUTION</span>
-                <h3 className="font-serif font-bold text-base text-[#432623] mt-0.5">
-                  Most Common Gaps This Week
-                </h3>
-              </div>
-              <Badge variant="outline" className="font-mono text-[10px] border-[#432623]/30 text-[#432623] rounded-[2px]">
-                CLASS 5A
-              </Badge>
-            </div>
-
-            <p className="text-xs text-[#432623]/80">
-              Aggregated root-cause isolation identifying missing prerequisite skills blocking class progress.
-            </p>
-
-            <div className="space-y-2.5 pt-1">
-              {sortedGaps.slice(0, 4).map((gap, idx) => (
-                <div
-                  key={gap.conceptId}
-                  className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] hover:border-[#432623]"
-                >
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5 font-bold text-[#432623]">
-                      <span className="font-mono text-[10px] text-[#432623]/70">0{idx + 1}</span>
-                      <span>{t(`c_${gap.conceptId}`)}</span>
-                    </div>
-                    <span className="font-mono font-bold text-[#432623]">
-                      {gap.count} learners ({gap.pct}%)
-                    </span>
-                  </div>
-
-                  {/* Clean Minimal Progress Bar */}
-                  <div className="w-full bg-[#F5F1BC] h-2 rounded-[2px] overflow-hidden mt-2">
-                    <div
-                      className={`h-full rounded-[2px] ${
-                        gap.severity === "high" ? "bg-[#DE2A35]" : "bg-[#DFA06E]"
-                      }`}
-                      style={{ width: `${Math.min(gap.pct, 100)}%` }}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between mt-1 text-[10px] text-[#432623]/80">
-                    <span>Affects division &amp; fractions</span>
-                    <span className="uppercase font-semibold text-[#432623]">
-                      {gap.severity === "high" ? "Urgent Remediation" : "Targeted Drill"}
-                    </span>
-                  </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* On Track */}
+              <button
+                type="button"
+                onClick={() => handleFilterClick("on_track")}
+                className="p-4 border border-[#8ABB93] bg-[#8ABB93]/15 rounded-[2px] text-left hover:bg-[#8ABB93]/25 transition-none flex flex-col justify-between min-h-[96px]"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs uppercase font-bold text-[#432623] dark:text-[#F5F1BC]">
+                    {dict.onTrack || "On Track"}
+                  </span>
+                  <span className="w-3 h-3 rounded-[2px] bg-[#8ABB93]" />
                 </div>
-              ))}
+                <div className="flex items-baseline justify-between mt-2">
+                  <span className="font-serif text-4xl font-black text-[#432623] dark:text-[#F5F1BC]">
+                    {onTrackCount}
+                  </span>
+                  <span className="font-mono text-xs text-[#432623]/75 dark:text-[#F5F1BC]/75 font-bold">
+                    {Math.round((onTrackCount / (total || 1)) * 100)}%
+                  </span>
+                </div>
+              </button>
+
+              {/* Need Practice */}
+              <button
+                type="button"
+                onClick={() => handleFilterClick("need_practice")}
+                className="p-4 border border-[#DFA06E] bg-[#DFA06E]/15 rounded-[2px] text-left hover:bg-[#DFA06E]/25 transition-none flex flex-col justify-between min-h-[96px]"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs uppercase font-bold text-[#432623] dark:text-[#F5F1BC]">
+                    {dict.needPractice || "Need Practice"}
+                  </span>
+                  <span className="w-3 h-3 rounded-[2px] bg-[#DFA06E]" />
+                </div>
+                <div className="flex items-baseline justify-between mt-2">
+                  <span className="font-serif text-4xl font-black text-[#432623] dark:text-[#F5F1BC]">
+                    {needPracticeCount}
+                  </span>
+                  <span className="font-mono text-xs text-[#432623]/75 dark:text-[#F5F1BC]/75 font-bold">
+                    {Math.round((needPracticeCount / (total || 1)) * 100)}%
+                  </span>
+                </div>
+              </button>
+
+              {/* Critical */}
+              <button
+                type="button"
+                onClick={() => handleFilterClick("critical")}
+                className="p-4 border border-[#DE2A35] bg-[#DE2A35]/15 rounded-[2px] text-left hover:bg-[#DE2A35]/25 transition-none flex flex-col justify-between min-h-[96px]"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs uppercase font-bold text-[#DE2A35]">
+                    {dict.criticalGaps || "Critical"}
+                  </span>
+                  <span className="w-3 h-3 rounded-[2px] bg-[#DE2A35]" />
+                </div>
+                <div className="flex items-baseline justify-between mt-2">
+                  <span className="font-serif text-4xl font-black text-[#DE2A35]">
+                    {criticalCount}
+                  </span>
+                  <span className="font-mono text-xs text-[#DE2A35] font-bold">
+                    {Math.round((criticalCount / (total || 1)) * 100)}%
+                  </span>
+                </div>
+              </button>
             </div>
           </div>
 
-          {/* Right Column (7 cols): PRIORITY INTERVENTIONS */}
-          <div className="lg:col-span-7 space-y-3">
-            <div className="flex items-center justify-between">
+          {/* 2. "WHO NEEDS HELP TODAY": Top 5 Students Only */}
+          <div className="border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] p-5 space-y-4">
+            <div className="flex items-center justify-between border-b border-[#432623]/15 dark:border-[#F5F1BC]/15 pb-3">
               <div>
-                <span className="editorial-meta text-[#432623]/80">ACTION REQUIRED</span>
-                <h3 className="font-serif font-bold text-base text-[#432623] mt-0.5">
-                  Priority Interventions (Who Needs Support)
-                </h3>
+                <h2 className="font-serif text-lg sm:text-xl font-bold text-[#432623] dark:text-[#F5F1BC]">
+                  {dict.whoNeedsHelpToday || "Who needs help today"}
+                </h2>
+                <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 mt-0.5">
+                  Top 5 learners needing teacher support in class today.
+                </p>
               </div>
-              <span className="text-[11px] font-mono font-semibold text-[#DE2A35] bg-[#DE2A35]/10 px-2 py-0.5 rounded-[2px] border border-[#DE2A35]/30">
-                {criticalCount + needPracticeCount} Learners
+              <span className="text-xs font-mono font-bold text-[#DE2A35] bg-[#DE2A35]/10 px-2.5 py-1 rounded-[2px] border border-[#DE2A35]/30">
+                {urgentStudents.length} Students
               </span>
             </div>
 
-            <p className="text-xs text-[#432623]/80">
-              Sorted by diagnostic urgency. Each student has a diagnosed prerequisite root cause.
-            </p>
+            <div className="space-y-3">
+              {urgentStudents.map((s) => {
+                const root = s.profile.rootCauses[0];
+                const isCritical = s.profile.status === "critical";
+                const problemDesc = root ? t(`c_${root.rootId}`) : "Prerequisite foundation review";
 
-            {/* Compact Swiss Table */}
-            <div className="border border-[#432623]/25 rounded-[2px] overflow-hidden bg-[var(--surface)]">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-[#F5F1BC]/50 text-[#432623] font-bold border-b border-[#432623]/20">
-                    <tr>
-                      <th className="py-2.5 px-3">Student</th>
-                      <th className="py-2.5 px-3">Diagnosed Root Gap</th>
-                      <th className="py-2.5 px-2">Priority</th>
-                      <th className="py-2.5 px-3 text-right">Pedagogical Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#432623]/15">
-                    {urgentStudents.map((s) => {
-                      const root = s.profile.rootCauses[0];
-                      const isCritical = s.profile.status === "critical";
-                      return (
-                        <tr
-                          key={s.student.id}
-                          className="hover:bg-[#F5F1BC]/30"
+                return (
+                  <div
+                    key={s.student.id}
+                    className="p-3.5 border border-[#432623]/20 dark:border-[#F5F1BC]/20 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                  >
+                    {/* Left: Name and One-line problem */}
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => onSelectStudent(s)}
+                          className="font-serif font-bold text-base text-[#432623] dark:text-[#F5F1BC] hover:underline text-left"
                         >
-                          <td className="py-2.5 px-3 font-semibold text-[#432623]">
-                            <div className="font-bold">{s.student.name}</div>
-                            <div className="text-[10px] text-[#432623]/70 font-mono">
-                              Roll #{s.student.rollNo} • {Math.round((s.profile.overallMastery ?? 0) * 100)}% Mastery
-                            </div>
-                          </td>
-                          <td className="py-2.5 px-3">
-                            {root ? (
-                              <div>
-                                <span className="font-bold text-[#DE2A35]">
-                                  {t(`c_${root.rootId}`)}
-                                </span>
-                                <div className="text-[10px] text-[#432623]/70">
-                                  Affecting: {root.symptomIds.map((sym) => t(`c_${sym}`)).join(", ")}
-                                </div>
-                              </div>
-                            ) : (
-                              <span className="text-[#432623]/70 italic">Prerequisite check</span>
-                            )}
-                          </td>
-                          <td className="py-2.5 px-2">
-                            <span
-                              className={`inline-block px-1.5 py-0.5 rounded-[2px] text-[10px] font-mono font-bold uppercase ${
-                                isCritical
-                                  ? "bg-[#DE2A35]/15 text-[#DE2A35] border border-[#DE2A35]/30"
-                                  : "bg-[#DFA06E]/20 text-[#432623] border border-[#DFA06E]/40"
-                              }`}
-                            >
-                              {isCritical ? "HIGH" : "MEDIUM"}
-                            </span>
-                          </td>
-                          <td className="py-2.5 px-3 text-right">
-                            <div className="flex items-center justify-end gap-1.5">
-                              <button
-                                onClick={() => onSelectStudent(s)}
-                                className="neo-btn neo-btn-secondary px-2.5 py-1 text-[11px] font-bold rounded-[2px]"
-                              >
-                                View Report
-                              </button>
-                              {root && (
-                                <button
-                                  onClick={() => onOpenAssessment(s.student.id, root.rootId)}
-                                  className="neo-btn neo-btn-primary px-2.5 py-1 text-[11px] font-bold flex items-center gap-1 rounded-[2px]"
-                                >
-                                  <span>Reassess</span>
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                          {s.student.name}
+                        </button>
+                        <span className="text-[11px] font-mono text-[#432623]/60 dark:text-[#F5F1BC]/60">
+                          (Roll #{s.student.rollNo})
+                        </span>
+                        <span
+                          className={`text-[10px] font-mono font-bold uppercase px-1.5 py-0.2 rounded-[2px] border ${
+                            isCritical
+                              ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]"
+                              : "bg-[#DFA06E]/20 text-[#432623] border-[#DFA06E]"
+                          }`}
+                        >
+                          {isCritical ? "Critical" : "Need Practice"}
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#432623]/85 dark:text-[#F5F1BC]/85">
+                        <strong className="text-[#DE2A35]">{problemDesc}</strong>
+                      </p>
+                    </div>
+
+                    {/* Right: Exactly ONE Action Button */}
+                    <div className="shrink-0 flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => onSelectStudent(s)}
+                        className="min-h-[44px] px-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-xs font-mono uppercase text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC]/50"
+                      >
+                        Details
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onOpenAssessment(s.student.id, root?.rootId || "number_ops")}
+                        className="min-h-[44px] px-4 bg-[#DE2A35] text-[#F5F1BC] text-xs font-mono uppercase font-bold border border-[#DE2A35] hover:bg-[#DE2A35]/90 flex items-center gap-1.5"
+                      >
+                        <span>Practice</span>
+                        <ArrowRight size={14} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* 3. "SEE ALL STUDENTS" LINK */}
+            <div className="pt-2 text-right">
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterStatus("all");
+                  setActiveTab("students");
+                }}
+                className="min-h-[44px] px-4 py-2 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-xs font-mono uppercase font-bold text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC] dark:hover:bg-[#432623] inline-flex items-center gap-1.5"
+              >
+                <span>{dict.seeAllStudents || "See all students"} ({total})</span>
+                <ArrowRight size={14} />
+              </button>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ============================================================== */}
-      {/* 2. DEEP INTELLIGENCE TABS                                      */}
+      {/* 2. STUDENT LIST TAB                                            */}
       {/* ============================================================== */}
-      <div className="space-y-4">
-        {/* Tab Controls */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#432623]/20 pb-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => setActiveTab("interventions")}
-              className={`h-9 px-3.5 text-xs font-bold rounded-[2px] border flex items-center gap-1.5 ${
-                activeTab === "interventions"
-                  ? "bg-[#432623] text-[#F5F1BC] border-[#432623]"
-                  : "bg-[var(--surface)] text-[#432623] border-[#432623]/25 hover:bg-[#F5F1BC]/40"
-              }`}
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span>All Students ({students.length})</span>
-            </button>
+      {activeTab === "students" && (
+        <section className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#432623]/20 dark:border-[#F5F1BC]/20 pb-3">
+            <div>
+              <h2 className="font-serif text-xl font-bold text-[#432623] dark:text-[#F5F1BC]">
+                Class 5A Student Cohort ({filteredStudents.length} of {total})
+              </h2>
+              <p className="text-xs text-[#432623]/70 dark:text-[#F5F1BC]/70">
+                Tap any student to view their diagnosis and 5-day action plan.
+              </p>
+            </div>
 
-            <button
-              onClick={() => setActiveTab("map")}
-              className={`h-9 px-3.5 text-xs font-bold rounded-[2px] border flex items-center gap-1.5 ${
-                activeTab === "map"
-                  ? "bg-[#432623] text-[#F5F1BC] border-[#432623]"
-                  : "bg-[var(--surface)] text-[#432623] border-[#432623]/25 hover:bg-[#F5F1BC]/40"
-              }`}
-            >
-              <TreeStructure className="w-3.5 h-3.5" />
-              <span>Learning Dependency Map</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("matrix")}
-              className={`h-9 px-3.5 text-xs font-bold rounded-[2px] border flex items-center gap-1.5 ${
-                activeTab === "matrix"
-                  ? "bg-[#432623] text-[#F5F1BC] border-[#432623]"
-                  : "bg-[var(--surface)] text-[#432623] border-[#432623]/25 hover:bg-[#F5F1BC]/40"
-              }`}
-            >
-              <Table className="w-3.5 h-3.5" />
-              <span>Mastery Matrix</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("gaps")}
-              className={`h-9 px-3.5 text-xs font-bold rounded-[2px] border flex items-center gap-1.5 ${
-                activeTab === "gaps"
-                  ? "bg-[#432623] text-[#F5F1BC] border-[#432623]"
-                  : "bg-[var(--surface)] text-[#432623] border-[#432623]/25 hover:bg-[#F5F1BC]/40"
-              }`}
-            >
-              <ChartLineUp className="w-3.5 h-3.5" />
-              <span>Remediation Insights</span>
-            </button>
-          </div>
-
-          {/* Search & Filter for Students Tab */}
-          {activeTab === "interventions" && (
-            <div className="flex items-center gap-2">
-              <div className="relative w-48 sm:w-60">
-                <MagnifyingGlass className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-[#432623]/60" />
+            {/* Search Box and Single Status Filter */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <div className="relative">
+                <MagnifyingGlass size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#432623]/60 dark:text-[#F5F1BC]/60" />
                 <Input
-                  placeholder="Search name or roll no..."
+                  type="text"
+                  placeholder="Search student or roll no..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8 h-8 text-xs bg-[var(--surface)] border border-[#432623]/25 focus-visible:border-[#432623] rounded-[2px] text-[#432623]"
+                  className="pl-9 min-h-[44px] text-base sm:text-xs font-mono bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px]"
                 />
               </div>
+
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="text-xs bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] h-8 px-2 font-medium text-[#432623]"
+                className="min-h-[44px] px-3 text-base sm:text-xs font-mono bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] text-[#432623] dark:text-[#F5F1BC]"
               >
-                <option value="all">All Status</option>
-                <option value="critical">Critical Support</option>
-                <option value="need_practice">Developing</option>
-                <option value="on_track">On Track</option>
+                <option value="all">All Students ({total})</option>
+                <option value="critical">Critical Support ({criticalCount})</option>
+                <option value="need_practice">Need Practice ({needPracticeCount})</option>
+                <option value="on_track">On Track ({onTrackCount})</option>
               </select>
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* ------------------------------------------------------------- */}
-        {/* TAB 1: ALL STUDENTS LIST                                     */}
-        {/* ------------------------------------------------------------- */}
-        {activeTab === "interventions" && (
-          <div className="neo-panel overflow-hidden rounded-[2px]">
-            {/* Desktop Table View (>= 640px) */}
-            <div className="hidden sm:block overflow-x-auto">
+          {/* Mobile Card View (< 640px) */}
+          <div className="sm:hidden space-y-3">
+            {filteredStudents.map((s) => {
+              const root = s.profile.rootCauses[0];
+              const isCritical = s.profile.status === "critical";
+              const isNeedPractice = s.profile.status === "need_practice";
+
+              return (
+                <div
+                  key={s.student.id}
+                  onClick={() => onSelectStudent(s)}
+                  className="p-4 border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] cursor-pointer hover:border-[#DE2A35] space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-serif font-bold text-base text-[#432623] dark:text-[#F5F1BC]">
+                        {s.student.name}
+                      </span>
+                      <span className="text-xs font-mono text-[#432623]/60 dark:text-[#F5F1BC]/60 ml-1.5">
+                        #{s.student.rollNo}
+                      </span>
+                    </div>
+
+                    <span
+                      className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-[2px] border ${
+                        isCritical
+                          ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]"
+                          : isNeedPractice
+                          ? "bg-[#DFA06E]/20 text-[#432623] border-[#DFA06E]"
+                          : "bg-[#8ABB93]/20 text-[#8ABB93] border-[#8ABB93]"
+                      }`}
+                    >
+                      {isCritical ? "Critical" : isNeedPractice ? "Need Practice" : "On Track"}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80">
+                    {root ? (
+                      <span>Gap: <strong className="text-[#DE2A35]">{t(`c_${root.rootId}`)}</strong></span>
+                    ) : (
+                      <span className="text-[#8ABB93] font-semibold">Mastering Grade 5 curriculum</span>
+                    )}
+                  </p>
+
+                  <div className="flex items-center justify-between pt-1 border-t border-[#432623]/10 dark:border-[#F5F1BC]/10 text-xs font-mono">
+                    <span className="text-[#432623]/70 dark:text-[#F5F1BC]/70">
+                      Mastery: {Math.round((s.profile.overallMastery ?? 0) * 100)}%
+                    </span>
+                    <span className="text-[#DE2A35] font-bold">Tap to view report &rarr;</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop Table View (>= 640px) */}
+          <div className="hidden sm:block border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] overflow-hidden">
+            <div className="overflow-x-auto">
               <table className="w-full text-left text-xs sm:text-sm">
-                <thead className="bg-[#F5F1BC]/50 text-[#432623] font-bold text-xs border-b border-[#432623]/20">
+                <thead className="bg-[#F5F1BC]/50 dark:bg-[#432623]/60 text-[#432623] dark:text-[#F5F1BC] font-bold text-xs border-b border-[#432623]/20 dark:border-[#F5F1BC]/20">
                   <tr>
-                    <th className="py-3 px-4">{dict.studentName}</th>
-                    <th className="py-3 px-4">{dict.symptomConcept}</th>
-                    <th className="py-3 px-4">{dict.rootCauseConcept}</th>
-                    <th className="py-3 px-4">{dict.severity}</th>
-                    <th className="py-3 px-4 text-right">{dict.action}</th>
+                    <th className="py-3 px-4">Student</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4">Main Learning Gap</th>
+                    <th className="py-3 px-4">Mastery</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#432623]/15">
+                <tbody className="divide-y divide-[#432623]/15 dark:divide-[#F5F1BC]/15">
                   {filteredStudents.map((s) => {
                     const root = s.profile.rootCauses[0];
+                    const isCritical = s.profile.status === "critical";
+                    const isNeedPractice = s.profile.status === "need_practice";
+
                     return (
-                      <tr
-                        key={s.student.id}
-                        className="hover:bg-[#F5F1BC]/30"
-                      >
-                        <td className="py-3 px-4">
-                          <div className="font-bold text-[#432623]">
-                            {s.student.name}
+                      <tr key={s.student.id} className="hover:bg-[#F5F1BC]/30 dark:hover:bg-[#432623]/40">
+                        <td className="py-3 px-4 font-semibold text-[#432623] dark:text-[#F5F1BC]">
+                          <div className="font-bold">{s.student.name}</div>
+                          <div className="text-[11px] text-[#432623]/60 dark:text-[#F5F1BC]/60 font-mono">
+                            Roll #{s.student.rollNo}
                           </div>
-                          <div className="text-xs text-[#432623]/70 font-mono">
-                            Roll #{s.student.rollNo} • Mastery: {Math.round((s.profile.overallMastery ?? 0) * 100)}%
-                          </div>
-                        </td>
-                        <td className="py-3 px-4 text-[#432623]/80">
-                          {root && root.symptomIds.length > 0 ? (
-                            <span className="font-medium text-[#432623]">
-                              {root.symptomIds.map((sym) => t(`c_${sym}`)).join(", ")}
-                            </span>
-                          ) : (
-                            <span className="text-[#432623]/60 italic">None (On Track)</span>
-                          )}
-                        </td>
-                        <td className="py-3 px-4">
-                          {root ? (
-                            <div className="font-bold text-[#DE2A35]">
-                              {t(`c_${root.rootId}`)}
-                            </div>
-                          ) : (
-                            <span className="text-[#432623] font-semibold flex items-center gap-1 text-xs">
-                              <CheckCircle className="w-3.5 h-3.5 text-[#8ABB93]" />
-                              Fluent Prerequisite
-                            </span>
-                          )}
                         </td>
                         <td className="py-3 px-4">
                           <span
                             className={`inline-block px-2 py-0.5 rounded-[2px] text-[10px] font-mono font-bold uppercase border ${
-                              s.profile.status === "critical"
-                                ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]/40"
-                                : s.profile.status === "need_practice"
-                                ? "bg-[#DFA06E]/20 text-[#432623] border-[#DFA06E]/40"
-                                : "bg-[#8ABB93]/20 text-[#432623] border-[#8ABB93]/40"
+                              isCritical
+                                ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]"
+                                : isNeedPractice
+                                ? "bg-[#DFA06E]/20 text-[#432623] dark:text-[#F5F1BC] border-[#DFA06E]"
+                                : "bg-[#8ABB93]/20 text-[#8ABB93] border-[#8ABB93]"
                             }`}
                           >
-                            {s.profile.status === "critical"
-                              ? dict.highSeverity
-                              : s.profile.status === "need_practice"
-                              ? dict.mediumSeverity
-                              : dict.lowSeverity}
+                            {isCritical ? "Critical" : isNeedPractice ? "Need Practice" : "On Track"}
                           </span>
+                        </td>
+                        <td className="py-3 px-4 text-xs">
+                          {root ? (
+                            <span className="font-bold text-[#DE2A35]">{t(`c_${root.rootId}`)}</span>
+                          ) : (
+                            <span className="text-[#8ABB93] font-semibold">Solid prerequisite foundation</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 font-mono font-bold text-xs">
+                          {Math.round((s.profile.overallMastery ?? 0) * 100)}%
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
                             <button
+                              type="button"
                               onClick={() => onSelectStudent(s)}
-                              className="neo-btn neo-btn-secondary px-3 py-1 text-xs font-semibold rounded-[2px]"
+                              className="min-h-[36px] px-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-xs font-mono uppercase font-bold hover:bg-[#F5F1BC]"
                             >
-                              {dict.diagnoseBtn}
+                              Report
                             </button>
                             {root && (
                               <button
+                                type="button"
                                 onClick={() => onOpenAssessment(s.student.id, root.rootId)}
-                                className="neo-btn neo-btn-primary px-3 py-1 text-xs font-semibold flex items-center gap-1 rounded-[2px]"
+                                className="min-h-[36px] px-3 bg-[#DE2A35] text-[#F5F1BC] text-xs font-mono uppercase font-bold border border-[#DE2A35] hover:bg-[#DE2A35]/90"
                               >
-                                <span>{dict.practiceBtn}</span>
+                                Practice
                               </button>
                             )}
                           </div>
@@ -666,114 +587,128 @@ export function TeacherDashboard({
                 </tbody>
               </table>
             </div>
+          </div>
+        </section>
+      )}
 
-            {/* Mobile Stacked Card View (< 640px) */}
-            <div className="sm:hidden p-3 space-y-3">
-              {filteredStudents.map((s) => {
-                const root = s.profile.rootCauses[0];
-                return (
-                  <div
-                    key={s.student.id}
-                    className="p-3.5 border border-[#432623]/20 bg-[var(--surface)] space-y-2.5 rounded-[2px]"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <div className="font-bold text-[#432623] text-sm">
-                          {s.student.name}
-                        </div>
-                        <div className="text-xs text-[#432623]/70 font-mono">
-                          Roll #{s.student.rollNo} • Mastery: {Math.round((s.profile.overallMastery ?? 0) * 100)}%
-                        </div>
-                      </div>
-                      <span
-                        className={`inline-block px-2 py-0.5 rounded-[2px] text-[10px] font-mono font-bold uppercase border shrink-0 ${
-                          s.profile.status === "critical"
-                            ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]/40"
-                            : s.profile.status === "need_practice"
-                            ? "bg-[#DFA06E]/20 text-[#432623] border-[#DFA06E]/40"
-                            : "bg-[#8ABB93]/20 text-[#432623] border-[#8ABB93]/40"
-                        }`}
-                      >
-                        {s.profile.status === "critical"
-                          ? dict.highSeverity
-                          : s.profile.status === "need_practice"
-                          ? dict.mediumSeverity
-                          : dict.lowSeverity}
-                      </span>
-                    </div>
+      {/* ============================================================== */}
+      {/* 3. CLASS GAPS TAB (Visualizations in their own second level)   */}
+      {/* ============================================================== */}
+      {activeTab === "gaps" && (
+        <section className="space-y-5">
+          <div className="border-b border-[#432623]/20 dark:border-[#F5F1BC]/20 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 className="font-serif text-xl font-bold text-[#432623] dark:text-[#F5F1BC]">
+                Classroom Learning Gaps & Prerequisite Map
+              </h2>
+              <p className="text-xs text-[#432623]/70 dark:text-[#F5F1BC]/70">
+                Explore root-cause bottlenecks and curriculum prerequisite dependencies.
+              </p>
+            </div>
 
-                    <div className="text-xs space-y-1 bg-[#F5F1BC]/30 p-2 border border-[#432623]/10">
-                      <div>
-                        <span className="font-mono text-[10px] uppercase text-[#432623]/60">Root Cause: </span>
-                        {root ? (
-                          <span className="font-bold text-[#DE2A35]">{t(`c_${root.rootId}`)}</span>
-                        ) : (
-                          <span className="font-semibold text-[#8ABB93]">Fluent Prerequisite</span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 pt-1">
-                      <button
-                        onClick={() => onSelectStudent(s)}
-                        className="flex-1 min-h-[44px] neo-btn neo-btn-secondary text-xs font-semibold rounded-[2px] flex items-center justify-center"
-                      >
-                        {dict.diagnoseBtn}
-                      </button>
-                      {root && (
-                        <button
-                          onClick={() => onOpenAssessment(s.student.id, root.rootId)}
-                          className="flex-1 min-h-[44px] neo-btn neo-btn-primary text-xs font-semibold rounded-[2px] flex items-center justify-center"
-                        >
-                          {dict.practiceBtn}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+            {/* Sub-view toggles */}
+            <div className="flex items-center bg-[#FAF8E8] dark:bg-[#432623] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-0.5 text-xs font-mono">
+              <button
+                type="button"
+                onClick={() => setGapsSubView("common")}
+                className={`min-h-[36px] px-3 rounded-[2px] font-bold ${
+                  gapsSubView === "common"
+                    ? "bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623]"
+                    : "text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC]/40"
+                }`}
+              >
+                Common Gaps
+              </button>
+              <button
+                type="button"
+                onClick={() => setGapsSubView("map")}
+                className={`min-h-[36px] px-3 rounded-[2px] font-bold ${
+                  gapsSubView === "map"
+                    ? "bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623]"
+                    : "text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC]/40"
+                }`}
+              >
+                Dependency Map
+              </button>
+              <button
+                type="button"
+                onClick={() => setGapsSubView("matrix")}
+                className={`min-h-[36px] px-3 rounded-[2px] font-bold ${
+                  gapsSubView === "matrix"
+                    ? "bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623]"
+                    : "text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC]/40"
+                }`}
+              >
+                Mastery Matrix
+              </button>
             </div>
           </div>
-        )}
 
-        {/* ------------------------------------------------------------- */}
-        {/* TAB 2: ACADEMIC LEARNING DEPENDENCY MAP                       */}
-        {/* ------------------------------------------------------------- */}
-        {activeTab === "map" && (
-          <div className="neo-panel p-6 space-y-6 rounded-[2px] border border-[#432623]/25 bg-[var(--surface)]">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#432623]/20">
-              <div>
-                <span className="editorial-meta text-[#432623]/80">SIGNATURE ACADEMIC INTELLIGENCE</span>
-                <h3 className="editorial-title text-xl text-[#432623]">
-                  Mathematics Concept Dependency Graph (Class 3-5)
+          {/* Sub-view 1: Common Gaps List */}
+          {gapsSubView === "common" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {sortedGaps.map((gap, index) => (
+                <div
+                  key={gap.conceptId}
+                  className="p-5 border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs font-bold text-[#432623]/70 dark:text-[#F5F1BC]/70">
+                      GAP 0{index + 1}
+                    </span>
+                    <span
+                      className={`text-xs font-mono font-bold px-2 py-0.5 rounded-[2px] border ${
+                        gap.severity === "high"
+                          ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]/30"
+                          : "bg-[#DFA06E]/20 text-[#432623] border-[#DFA06E]/40"
+                      }`}
+                    >
+                      {gap.count} Students ({gap.pct}%)
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="font-serif font-bold text-lg text-[#432623] dark:text-[#F5F1BC]">
+                      {t(`c_${gap.conceptId}`)}
+                    </h3>
+                    <div className="text-xs text-[#432623]/70 dark:text-[#F5F1BC]/70 mt-0.5">
+                      Strand: {CONCEPTS[gap.conceptId]?.strand?.toUpperCase()} (Grade {CONCEPTS[gap.conceptId]?.grade})
+                    </div>
+                  </div>
+
+                  {/* Clean Progress Bar */}
+                  <div className="w-full bg-[#F5F1BC] h-2 rounded-[2px] overflow-hidden">
+                    <div
+                      className={`h-full rounded-[2px] ${
+                        gap.severity === "high" ? "bg-[#DE2A35]" : "bg-[#DFA06E]"
+                      }`}
+                      style={{ width: `${gap.pct}%` }}
+                    />
+                  </div>
+
+                  <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
+                    Affects {gap.count} learners in Class 5A. Prerequisite for multi-digit division and fraction calculations.
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Sub-view 2: Prerequisite Dependency Map */}
+          {gapsSubView === "map" && (
+            <div className="space-y-5 p-5 border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px]">
+              <div className="border-b border-[#432623]/15 pb-3">
+                <h3 className="font-serif text-lg font-bold text-[#432623] dark:text-[#F5F1BC]">
+                  Prerequisite Lineage Traversal
                 </h3>
-                <p className="text-xs text-[#432623]/80 mt-0.5 max-w-2xl">
-                  Prerequisites cascade downwards. When students stumble on upper-tier concepts (such as Division or Fractions), the diagnostic engine traces prerequisite lineages to isolate the exact foundation gap.
+                <p className="text-xs text-[#432623]/75 dark:text-[#F5F1BC]/75">
+                  Earlier concepts lead into upper grade mathematics. Tap any box to see prerequisites and dependents.
                 </p>
               </div>
 
-              {/* Status Legend */}
-              <div className="flex flex-wrap items-center gap-3 text-xs bg-[#FAF8E8] dark:bg-[#432623]/30 p-2.5 rounded-[2px] border border-[#432623]/25">
-                <span className="flex items-center gap-1.5 font-semibold text-[#432623]">
-                  <span className="w-2.5 h-2.5 rounded-[2px] bg-[#8ABB93]" />
-                  Mastered (≥75%)
-                </span>
-                <span className="flex items-center gap-1.5 font-semibold text-[#432623]">
-                  <span className="w-2.5 h-2.5 rounded-[2px] bg-[#DFA06E]" />
-                  Developing (50-74%)
-                </span>
-                <span className="flex items-center gap-1.5 font-semibold text-[#432623]">
-                  <span className="w-2.5 h-2.5 rounded-[2px] bg-[#DE2A35]" />
-                  Needs Support (&lt;50%)
-                </span>
-              </div>
-            </div>
-
-            {/* Academic Knowledge Map Visualizer */}
-            <div className="space-y-6">
-              {/* Level 1: Foundational Number Sense */}
+              {/* Stage 1 */}
               <div className="space-y-2">
-                <div className="editorial-meta text-[#432623]/70">STAGE 1: FOUNDATIONAL NUMBER SENSE</div>
+                <span className="text-[10px] font-mono uppercase font-bold text-[#432623]/70">STAGE 1: FOUNDATION</span>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {(["number_sense", "place_value", "addition"] as ConceptId[]).map((cId) => {
                     const st = conceptStats[cId];
@@ -782,27 +717,15 @@ export function TeacherDashboard({
                       <div
                         key={cId}
                         onClick={() => setSelectedConceptForMap(cId)}
-                        className={`p-3.5 rounded-[2px] border cursor-pointer ${
+                        className={`p-3 rounded-[2px] border cursor-pointer ${
                           isSelected
-                            ? "border-[#432623] bg-[#F5F1BC]/70"
-                            : "border-[#432623]/25 bg-[var(--surface)] hover:border-[#432623]"
+                            ? "border-[#DE2A35] bg-[#F5F1BC]"
+                            : "border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#432623]/30 hover:border-[#432623]"
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-[#432623]">{t(`c_${cId}`)}</span>
-                          <span
-                            className={`w-2.5 h-2.5 rounded-[2px] ${
-                              st.status === "mastered"
-                                ? "bg-[#8ABB93]"
-                                : st.status === "developing"
-                                ? "bg-[#DFA06E]"
-                                : "bg-[#DE2A35]"
-                            }`}
-                          />
-                        </div>
-                        <div className="mt-2 flex items-baseline justify-between text-xs">
-                          <span className="font-mono font-bold text-sm text-[#432623]">{st.avg}%</span>
-                          <span className="text-[10px] text-[#432623]/70">Grade {CONCEPTS[cId].grade}</span>
+                        <div className="flex items-center justify-between text-xs font-bold text-[#432623] dark:text-[#F5F1BC]">
+                          <span>{t(`c_${cId}`)}</span>
+                          <span>{st.avg}%</span>
                         </div>
                       </div>
                     );
@@ -810,17 +733,11 @@ export function TeacherDashboard({
                 </div>
               </div>
 
-              {/* Dependency Flow Arrow */}
-              <div className="flex justify-center">
-                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#432623] bg-[#FAF8E8] dark:bg-[#432623]/40 px-3 py-1 rounded-[2px] border border-[#432623]/25">
-                  <span>PREREQUISITE DEPENDENCY FLOW</span>
-                  <ArrowDown className="w-3.5 h-3.5 text-[#432623]" />
-                </div>
-              </div>
+              <div className="text-center font-bold text-[#432623]/50">&darr;</div>
 
-              {/* Level 2: Subtraction & Multiplication Foundations */}
+              {/* Stage 2 */}
               <div className="space-y-2">
-                <div className="editorial-meta text-[#432623]/70">STAGE 2: MULTIPLICATION &amp; SUBTRACTION PREREQUISITES</div>
+                <span className="text-[10px] font-mono uppercase font-bold text-[#432623]/70">STAGE 2: OPERATIONS</span>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {(["subtraction", "mult_concept", "mult_facts"] as ConceptId[]).map((cId) => {
                     const st = conceptStats[cId];
@@ -829,27 +746,15 @@ export function TeacherDashboard({
                       <div
                         key={cId}
                         onClick={() => setSelectedConceptForMap(cId)}
-                        className={`p-3.5 rounded-[2px] border cursor-pointer ${
+                        className={`p-3 rounded-[2px] border cursor-pointer ${
                           isSelected
-                            ? "border-[#432623] bg-[#F5F1BC]/70"
-                            : "border-[#432623]/25 bg-[var(--surface)] hover:border-[#432623]"
+                            ? "border-[#DE2A35] bg-[#F5F1BC]"
+                            : "border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#432623]/30 hover:border-[#432623]"
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-[#432623]">{t(`c_${cId}`)}</span>
-                          <span
-                            className={`w-2.5 h-2.5 rounded-[2px] ${
-                              st.status === "mastered"
-                                ? "bg-[#8ABB93]"
-                                : st.status === "developing"
-                                ? "bg-[#DFA06E]"
-                                : "bg-[#DE2A35]"
-                            }`}
-                          />
-                        </div>
-                        <div className="mt-2 flex items-baseline justify-between text-xs">
-                          <span className="font-mono font-bold text-sm text-[#432623]">{st.avg}%</span>
-                          <span className="text-[10px] text-[#432623]/70">Grade {CONCEPTS[cId].grade}</span>
+                        <div className="flex items-center justify-between text-xs font-bold text-[#432623] dark:text-[#F5F1BC]">
+                          <span>{t(`c_${cId}`)}</span>
+                          <span>{st.avg}%</span>
                         </div>
                       </div>
                     );
@@ -857,17 +762,11 @@ export function TeacherDashboard({
                 </div>
               </div>
 
-              {/* Dependency Flow Arrow */}
-              <div className="flex justify-center">
-                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#432623] bg-[#FAF8E8] dark:bg-[#432623]/40 px-3 py-1 rounded-[2px] border border-[#432623]/25">
-                  <span>PREREQUISITE DEPENDENCY FLOW</span>
-                  <ArrowDown className="w-3.5 h-3.5 text-[#432623]" />
-                </div>
-              </div>
+              <div className="text-center font-bold text-[#432623]/50">&darr;</div>
 
-              {/* Level 3: Division Operations & Multi-digit */}
+              {/* Stage 3 */}
               <div className="space-y-2">
-                <div className="editorial-meta text-[#432623]/70">STAGE 3: DIVISION OPERATIONS &amp; MULTI-DIGIT FLUENCY</div>
+                <span className="text-[10px] font-mono uppercase font-bold text-[#432623]/70">STAGE 3: DIVISION & FRACTIONS</span>
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                   {(["multi_digit_mult", "division_concept", "division_facts", "fraction_basics"] as ConceptId[]).map((cId) => {
                     const st = conceptStats[cId];
@@ -876,27 +775,15 @@ export function TeacherDashboard({
                       <div
                         key={cId}
                         onClick={() => setSelectedConceptForMap(cId)}
-                        className={`p-3.5 rounded-[2px] border cursor-pointer ${
+                        className={`p-3 rounded-[2px] border cursor-pointer ${
                           isSelected
-                            ? "border-[#432623] bg-[#F5F1BC]/70"
-                            : "border-[#432623]/25 bg-[var(--surface)] hover:border-[#432623]"
+                            ? "border-[#DE2A35] bg-[#F5F1BC]"
+                            : "border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#432623]/30 hover:border-[#432623]"
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-[#432623] truncate">{t(`c_${cId}`)}</span>
-                          <span
-                            className={`w-2.5 h-2.5 rounded-[2px] shrink-0 ml-1 ${
-                              st.status === "mastered"
-                                ? "bg-[#8ABB93]"
-                                : st.status === "developing"
-                                ? "bg-[#DFA06E]"
-                                : "bg-[#DE2A35]"
-                            }`}
-                          />
-                        </div>
-                        <div className="mt-2 flex items-baseline justify-between text-xs">
-                          <span className="font-mono font-bold text-sm text-[#432623]">{st.avg}%</span>
-                          <span className="text-[10px] text-[#432623]/70">Grade {CONCEPTS[cId].grade}</span>
+                        <div className="flex items-center justify-between text-xs font-bold text-[#432623] dark:text-[#F5F1BC]">
+                          <span className="truncate">{t(`c_${cId}`)}</span>
+                          <span>{st.avg}%</span>
                         </div>
                       </div>
                     );
@@ -904,234 +791,249 @@ export function TeacherDashboard({
                 </div>
               </div>
 
-              {/* Dependency Flow Arrow */}
-              <div className="flex justify-center">
-                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#432623] bg-[#FAF8E8] dark:bg-[#432623]/40 px-3 py-1 rounded-[2px] border border-[#432623]/25">
-                  <span>PREREQUISITE DEPENDENCY FLOW</span>
-                  <ArrowDown className="w-3.5 h-3.5 text-[#432623]" />
+              {/* Selected Concept Info */}
+              {selectedConceptForMap && (
+                <div className="p-4 border border-[#432623]/25 bg-[#F5F1BC]/40 dark:bg-[#432623]/50 rounded-[2px] text-xs space-y-1">
+                  <div className="font-bold text-[#432623] dark:text-[#F5F1BC]">
+                    Selected: {t(`c_${selectedConceptForMap}`)}
+                  </div>
+                  <div>
+                    Prerequisites: {prerequisitesOf(selectedConceptForMap).map((p) => t(`c_${p}`)).join(", ") || "Foundational"}
+                  </div>
+                  <div>
+                    Dependents: {dependentsOf(selectedConceptForMap).map((d) => t(`c_${d}`)).join(", ") || "None"}
+                  </div>
                 </div>
-              </div>
-
-              {/* Level 4: Upper Grade 5 Targets & Fractions */}
-              <div className="space-y-2">
-                <div className="editorial-meta text-[#432623]/70">STAGE 4: GRADE 5 TARGETS &amp; FRACTIONS</div>
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                  {(["long_division", "division_word", "equivalent_fractions", "comparing_fractions"] as ConceptId[]).map((cId) => {
-                    const st = conceptStats[cId];
-                    const isSelected = selectedConceptForMap === cId;
-                    return (
-                      <div
-                        key={cId}
-                        onClick={() => setSelectedConceptForMap(cId)}
-                        className={`p-3.5 rounded-[2px] border cursor-pointer ${
-                          isSelected
-                            ? "border-[#432623] bg-[#F5F1BC]/70"
-                            : "border-[#432623]/25 bg-[var(--surface)] hover:border-[#432623]"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-[#432623] truncate">{t(`c_${cId}`)}</span>
-                          <span
-                            className={`w-2.5 h-2.5 rounded-[2px] shrink-0 ml-1 ${
-                              st.status === "mastered"
-                                ? "bg-[#8ABB93]"
-                                : st.status === "developing"
-                                ? "bg-[#DFA06E]"
-                                : "bg-[#DE2A35]"
-                            }`}
-                          />
-                        </div>
-                        <div className="mt-2 flex items-baseline justify-between text-xs">
-                          <span className="font-mono font-bold text-sm text-[#432623]">{st.avg}%</span>
-                          <span className="text-[10px] text-[#432623]/70">Grade {CONCEPTS[cId].grade}</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+              )}
             </div>
+          )}
 
-            {/* Selected Node Academic Dossier */}
-            {selectedConceptForMap && (
-              <div className="p-4 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="editorial-meta text-[#432623]/80">CONCEPT DOSSIER</span>
-                    <h4 className="font-serif font-bold text-base text-[#432623]">
-                      {t(`c_${selectedConceptForMap}`)}
-                    </h4>
-                  </div>
-                  <Badge variant="outline" className="font-mono text-[10px] border-[#432623]/30 text-[#432623] rounded-[2px]">
-                    Grade {CONCEPTS[selectedConceptForMap].grade} • Strand: {CONCEPTS[selectedConceptForMap].strand.toUpperCase()}
-                  </Badge>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs pt-1">
-                  <div className="bg-[var(--surface)] p-3 rounded-[2px] border border-[#432623]/20">
-                    <div className="text-[#432623]/70 font-semibold">Immediate Prerequisites:</div>
-                    <div className="font-bold text-[#432623] mt-1">
-                      {prerequisitesOf(selectedConceptForMap).length > 0
-                        ? prerequisitesOf(selectedConceptForMap).map((p) => t(`c_${p}`)).join(", ")
-                        : "Foundational (No prior prerequisites)"}
-                    </div>
-                  </div>
-
-                  <div className="bg-[var(--surface)] p-3 rounded-[2px] border border-[#432623]/20">
-                    <div className="text-[#432623]/70 font-semibold">Downstream Dependents:</div>
-                    <div className="font-bold text-[#432623] mt-1">
-                      {dependentsOf(selectedConceptForMap).length > 0
-                        ? dependentsOf(selectedConceptForMap).map((d) => t(`c_${d}`)).join(", ")
-                        : "Top-level capstone"}
-                    </div>
-                  </div>
-
-                  <div className="bg-[var(--surface)] p-3 rounded-[2px] border border-[#432623]/20">
-                    <div className="text-[#432623]/70 font-semibold">Class Breakdown:</div>
-                    <div className="font-bold text-[#432623] mt-1">
-                      {conceptStats[selectedConceptForMap].masteredCount} Mastered • {conceptStats[selectedConceptForMap].developingCount} Developing • {conceptStats[selectedConceptForMap].supportCount} Need Support
-                    </div>
-                  </div>
+          {/* Sub-view 3: Tabular Mastery Matrix */}
+          {gapsSubView === "matrix" && (
+            <div className="border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] overflow-hidden">
+              <div className="p-4 border-b border-[#432623]/20 flex items-center justify-between">
+                <span className="font-serif font-bold text-base text-[#432623] dark:text-[#F5F1BC]">
+                  Student × Concept Matrix
+                </span>
+                <div className="flex items-center gap-3 text-xs font-mono">
+                  <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-[#8ABB93]" /> &ge;75%</span>
+                  <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-[#DFA06E]" /> 50-74%</span>
+                  <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-[#DE2A35]" /> &lt;50%</span>
                 </div>
               </div>
-            )}
-          </div>
-        )}
 
-        {/* ------------------------------------------------------------- */}
-        {/* TAB 3: TABULAR MASTERY MATRIX                                */}
-        {/* ------------------------------------------------------------- */}
-        {activeTab === "matrix" && (
-          <div className="neo-panel overflow-hidden rounded-[2px] border border-[#432623]/25 bg-[var(--surface)]">
-            <div className="p-4 bg-[#F5F1BC]/50 border-b border-[#432623]/20 flex flex-wrap items-center justify-between gap-3 text-xs">
-              <div>
-                <span className="editorial-meta text-[#432623]/80">CURRICULUM MATRIX</span>
-                <h4 className="font-serif font-bold text-base text-[#432623] mt-0.5">
-                  Student × Concept Fluency Matrix
-                </h4>
-              </div>
-
-              <div className="flex items-center gap-4 text-xs font-semibold text-[#432623]">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-[2px] bg-[#8ABB93]" />
-                  ≥75%
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-[2px] bg-[#DFA06E]" />
-                  50-74%
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-[2px] bg-[#DE2A35]" />
-                  &lt;50%
-                </span>
-              </div>
-            </div>
-
-            <div className="overflow-x-auto max-h-[550px]">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-[var(--surface)] sticky top-0 border-b border-[#432623]/20 z-10 text-[#432623]">
-                  <tr>
-                    <th className="py-2.5 px-3 font-bold w-44">Student</th>
-                    {CONCEPT_IDS.map((cId) => (
-                      <th key={cId} className="py-2.5 px-2 font-medium text-center text-[10px] whitespace-nowrap">
-                        {t(`c_${cId}`).split(" ")[0]}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#432623]/15">
-                  {students.map((s) => (
-                    <tr key={s.student.id} className="hover:bg-[#F5F1BC]/30">
-                      <td className="py-2 px-3 font-semibold text-[#432623] whitespace-nowrap">
-                        {s.student.name}
-                      </td>
-                      {CONCEPT_IDS.map((cId) => {
-                        const est = s.profile.concepts[cId];
-                        const st = est?.status;
-                        const color =
-                          st === "mastered"
-                            ? "bg-[#8ABB93] text-[#432623]"
-                            : st === "developing"
-                            ? "bg-[#DFA06E] text-[#432623]"
-                            : st === "needs_support"
-                            ? "bg-[#DE2A35] text-white"
-                            : "bg-[#FAF8E8] text-[#432623]/60";
-
-                        return (
-                          <td key={cId} className="py-2 px-1 text-center">
-                            <span
-                              className={`inline-block px-1.5 py-0.5 rounded-[2px] text-[10px] font-mono font-bold ${color}`}
-                              title={`${t(`c_${cId}`)}: ${Math.round((est?.mastery || 0) * 100)}%`}
-                            >
-                              {Math.round((est?.mastery || 0) * 100)}%
-                            </span>
-                          </td>
-                        );
-                      })}
+              <div className="overflow-x-auto max-h-[500px]">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#FAF8E8] dark:bg-[#381f1c] sticky top-0 border-b border-[#432623]/20">
+                    <tr>
+                      <th className="py-2.5 px-3 font-bold w-40">Student</th>
+                      {CONCEPT_IDS.map((cId) => (
+                        <th key={cId} className="py-2.5 px-2 text-center text-[10px] whitespace-nowrap">
+                          {t(`c_${cId}`).split(" ")[0]}
+                        </th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-[#432623]/15">
+                    {students.map((s) => (
+                      <tr key={s.student.id} className="hover:bg-[#F5F1BC]/30">
+                        <td className="py-2 px-3 font-semibold text-[#432623] dark:text-[#F5F1BC] whitespace-nowrap">
+                          {s.student.name}
+                        </td>
+                        {CONCEPT_IDS.map((cId) => {
+                          const est = s.profile.concepts[cId];
+                          const m = est?.mastery ?? 0;
+                          const bg = m >= 0.75 ? "bg-[#8ABB93]" : m >= 0.5 ? "bg-[#DFA06E]" : "bg-[#DE2A35] text-white";
+                          return (
+                            <td key={cId} className="py-2 px-1 text-center font-mono text-[10px]">
+                              <span className={`inline-block px-1 py-0.5 rounded-[2px] ${bg}`}>
+                                {Math.round(m * 100)}%
+                              </span>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* ============================================================== */}
+      {/* 4. REPORTS TAB (Exports, Guardian Notices, Audit Trail)        */}
+      {/* ============================================================== */}
+      {activeTab === "reports" && (
+        <section className="space-y-5">
+          <div className="border-b border-[#432623]/20 dark:border-[#F5F1BC]/20 pb-3">
+            <h2 className="font-serif text-xl font-bold text-[#432623] dark:text-[#F5F1BC]">
+              Classroom Reports & Institutional Exports
+            </h2>
+            <p className="text-xs text-[#432623]/70 dark:text-[#F5F1BC]/70">
+              Download student records, guardian notices, and inspect security audit trails.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Export Card */}
+            <div className="p-5 border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] space-y-3">
+              <h3 className="font-serif font-bold text-base text-[#432623] dark:text-[#F5F1BC]">
+                Data Export (CSV & JSON)
+              </h3>
+              <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
+                Download Class 5A student records with formula injection protection and UTF-8 encoding for Excel.
+              </p>
+              {exportError && (
+                <div className="p-2 border border-[#DE2A35] bg-[#DE2A35]/10 text-xs text-[#DE2A35]">
+                  {exportError}
+                </div>
+              )}
+              <div className="flex flex-wrap gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => handleExport("csv")}
+                  disabled={isExporting}
+                  className="min-h-[44px] px-4 bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] text-xs font-mono uppercase font-bold hover:bg-[#DE2A35]"
+                >
+                  {isExporting ? "Exporting..." : "Export CSV"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleExport("json")}
+                  disabled={isExporting}
+                  className="min-h-[44px] px-4 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-xs font-mono uppercase hover:bg-[#F5F1BC]/40"
+                >
+                  Export JSON
+                </button>
+              </div>
+            </div>
+
+            {/* Guardian Notice Card */}
+            <div className="p-5 border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] space-y-3">
+              <h3 className="font-serif font-bold text-base text-[#432623] dark:text-[#F5F1BC]">
+                Guardian DPDP Notices
+              </h3>
+              <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
+                Print statutory 1-page parent notices in English, Hindi, and Telugu under DPDP Act 2023.
+              </p>
+              <div className="pt-1">
+                <Link
+                  href="/notices/guardian"
+                  className="min-h-[44px] px-4 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-xs font-mono uppercase font-bold inline-flex items-center gap-1.5 hover:bg-[#F5F1BC]"
+                >
+                  <FileText size={16} />
+                  <span>Open Printable Notices</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Audit Trail Card */}
+            <div className="p-5 border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] space-y-3">
+              <h3 className="font-serif font-bold text-base text-[#432623] dark:text-[#F5F1BC]">
+                Security Audit Trail
+              </h3>
+              <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
+                Review immutable access logs, export events, share links, and teacher override determinations.
+              </p>
+              <div className="pt-1">
+                <Link
+                  href="/app/audit-log"
+                  className="min-h-[44px] px-4 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-xs font-mono uppercase font-bold inline-flex items-center gap-1.5 hover:bg-[#F5F1BC]"
+                >
+                  <span>View Audit Log</span>
+                </Link>
+              </div>
             </div>
           </div>
-        )}
 
-        {/* ------------------------------------------------------------- */}
-        {/* TAB 4: REMEDIATION INSIGHTS                                  */}
-        {/* ------------------------------------------------------------- */}
-        {activeTab === "gaps" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {sortedGaps.map((gap, index) => (
-              <div
-                key={gap.conceptId}
-                className="neo-panel p-5 space-y-3 rounded-[2px] border border-[#432623]/25 bg-[var(--surface)]"
-              >
-                <div className="flex items-center justify-between">
-                  <Badge variant="outline" className="font-mono text-xs border-[#432623]/30 text-[#432623] rounded-[2px]">
-                    Rank #{index + 1}
-                  </Badge>
-                  <span
-                    className={`text-xs font-mono font-bold px-2 py-0.5 rounded-[2px] ${
-                      gap.severity === "high"
-                        ? "bg-[#DE2A35]/15 text-[#DE2A35] border border-[#DE2A35]/30"
-                        : "bg-[#DFA06E]/20 text-[#432623] border border-[#DFA06E]/40"
-                    }`}
-                  >
-                    {gap.count} Students ({gap.pct}%)
-                  </span>
-                </div>
-
-                <div>
-                  <h4 className="font-serif font-bold text-lg text-[#432623]">
-                    {t(`c_${gap.conceptId}`)}
-                  </h4>
-                  <div className="text-xs text-[#432623]/70 mt-0.5">
-                    {dict.prerequisiteOf}: {CONCEPTS[gap.conceptId]?.strand?.toUpperCase()} (Grade {CONCEPTS[gap.conceptId]?.grade})
-                  </div>
-                </div>
-
-                <div className="w-full bg-[#F5F1BC] h-2 rounded-[2px] overflow-hidden">
-                  <div
-                    className={`h-full rounded-[2px] ${
-                      gap.severity === "high" ? "bg-[#DE2A35]" : "bg-[#DFA06E]"
-                    }`}
-                    style={{ width: `${gap.pct}%` }}
-                  />
-                </div>
-
-                <p className="text-xs text-[#432623]/80 leading-relaxed">
-                  Blocking {gap.count} learners in Class 5A. Remediation in this foundational concept will directly unlock higher-order fluency in division and fractions.
-                </p>
-
-                <div className="pt-2 flex items-center justify-between border-t border-[#432623]/15 text-xs">
-                  <span className="font-semibold text-[#432623]">Recommended: 5-Day Targeted Practice</span>
-                  <span className="text-[#432623] font-bold">15 min daily</span>
-                </div>
+          {/* Re-auth Password Modal */}
+          {showReauthModal && (
+            <div className="p-4 border border-[#DE2A35] bg-[#DE2A35]/10 rounded-[2px] space-y-3">
+              <div className="text-xs font-bold text-[#DE2A35] flex items-center gap-1.5">
+                <Warning size={16} />
+                <span>Re-authentication Required Prior to Exporting Child Records</span>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+              <p className="text-xs text-[#432623] dark:text-[#F5F1BC] leading-relaxed">
+                To protect student data, verify your teacher credentials:
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2 max-w-md">
+                <input
+                  type="password"
+                  placeholder="Enter password to confirm"
+                  value={exportPassword}
+                  onChange={(e) => setExportPassword(e.target.value)}
+                  className="flex-1 min-h-[44px] px-3 border border-[#432623]/30 bg-[#FAF8E8] text-base sm:text-xs font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleExport("csv")}
+                  className="min-h-[44px] px-4 bg-[#DE2A35] text-[#F5F1BC] text-xs font-mono uppercase font-bold"
+                >
+                  Download
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowReauthModal(false)}
+                  className="min-h-[44px] px-3 border border-[#432623]/30 text-xs font-mono uppercase"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* ============================================================== */}
+      {/* MOBILE FIXED BOTTOM NAVIGATION BAR (< 640px)                   */}
+      {/* ============================================================== */}
+      <nav aria-label="Mobile Navigation Bar" className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FAF8E8] dark:bg-[#381f1c] border-t border-[#432623]/25 dark:border-[#F5F1BC]/25 flex items-center justify-around h-16 px-1 safe-area-pb">
+        <button
+          type="button"
+          onClick={() => setActiveTab("home")}
+          className={`flex-1 min-h-[48px] flex flex-col items-center justify-center gap-1 text-[11px] font-mono font-bold uppercase ${
+            activeTab === "home" ? "text-[#DE2A35]" : "text-[#432623]/60 dark:text-[#F5F1BC]/60"
+          }`}
+        >
+          <House size={20} />
+          <span>Home</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("students")}
+          className={`flex-1 min-h-[48px] flex flex-col items-center justify-center gap-1 text-[11px] font-mono font-bold uppercase ${
+            activeTab === "students" ? "text-[#DE2A35]" : "text-[#432623]/60 dark:text-[#F5F1BC]/60"
+          }`}
+        >
+          <Users size={20} />
+          <span>Students</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("gaps")}
+          className={`flex-1 min-h-[48px] flex flex-col items-center justify-center gap-1 text-[11px] font-mono font-bold uppercase ${
+            activeTab === "gaps" ? "text-[#DE2A35]" : "text-[#432623]/60 dark:text-[#F5F1BC]/60"
+          }`}
+        >
+          <ChartPieSlice size={20} />
+          <span>Class Gaps</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("reports")}
+          className={`flex-1 min-h-[48px] flex flex-col items-center justify-center gap-1 text-[11px] font-mono font-bold uppercase ${
+            activeTab === "reports" ? "text-[#DE2A35]" : "text-[#432623]/60 dark:text-[#F5F1BC]/60"
+          }`}
+        >
+          <FileText size={20} />
+          <span>Reports</span>
+        </button>
+      </nav>
     </div>
   );
 }

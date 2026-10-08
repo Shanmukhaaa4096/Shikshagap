@@ -43,6 +43,7 @@ interface Props {
   students: DemoStudentData[];
   initialStudentId?: string;
   initialConceptId?: string;
+  isStudentView?: boolean;
   onAssessmentCompleted: (updatedStudent: DemoStudentData) => void;
   onCancel: () => void;
 }
@@ -50,6 +51,7 @@ interface Props {
 export function AdaptiveAssessmentView({
   students,
   initialStudentId,
+  isStudentView = false,
   onAssessmentCompleted,
   onCancel,
 }: Props) {
@@ -280,21 +282,31 @@ export function AdaptiveAssessmentView({
             </p>
           </div>
 
-          {/* Student Selector */}
-          <div className="space-y-2">
-            <label className="editorial-meta text-[#432623]">SELECT STUDENT TO ASSESS</label>
-            <select
-              value={selectedStudentId}
-              onChange={(e) => setSelectedStudentId(e.target.value)}
-              className="w-full h-11 px-3 text-sm font-semibold bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623] focus:outline-none focus:ring-1 focus:ring-[#432623]"
-            >
-              {students.map((s) => (
-                <option key={s.student.id} value={s.student.id}>
-                  {s.student.name} (Roll #{s.student.rollNo}) | {s.profile.status.toUpperCase().replace("_", " ")}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Student Selector or Personal Learner Banner */}
+          {isStudentView ? (
+            <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] flex items-center justify-between">
+              <div>
+                <span className="editorial-meta text-[#432623]/70">LEARNER</span>
+                <div className="font-serif font-bold text-lg text-[#432623] dark:text-[#F5F1BC]">{activeStudent?.student.name}</div>
+              </div>
+              <span className="font-mono text-xs font-bold text-[#432623]/70 dark:text-[#F5F1BC]/70">Roll #{activeStudent?.student.rollNo}</span>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <label className="editorial-meta text-[#432623]">SELECT STUDENT TO ASSESS</label>
+              <select
+                value={selectedStudentId}
+                onChange={(e) => setSelectedStudentId(e.target.value)}
+                className="w-full h-11 px-3 text-sm font-semibold bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623] focus:outline-none focus:ring-1 focus:ring-[#432623]"
+              >
+                {students.map((s) => (
+                  <option key={s.student.id} value={s.student.id}>
+                    {s.student.name} (Roll #{s.student.rollNo}) | {s.profile.status.toUpperCase().replace("_", " ")}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Curriculum Scope Overview */}
           <div className="space-y-2.5">
