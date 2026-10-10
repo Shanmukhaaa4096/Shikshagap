@@ -225,6 +225,23 @@ export function Header({
               </div>
             )}
 
+            {/* Class switcher on mobile */}
+            {onSelectClass && (
+              <div className="md:hidden pb-2 border-b border-[#432623]/10 dark:border-[#F5F1BC]/10">
+                <div className="text-[10px] text-[#432623]/70 dark:text-[#F5F1BC]/70 uppercase tracking-wider mb-1">
+                  Active Class
+                </div>
+                <ClassSelector
+                  selectedClassId={selectedClassId}
+                  onSelectClass={(cls) => {
+                    onSelectClass(cls);
+                    setIsMenuOpen(false);
+                  }}
+                  compact={false}
+                />
+              </div>
+            )}
+
             <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
               {onResetDemo && (
                 <button

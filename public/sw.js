@@ -1,6 +1,6 @@
-// ShikshaGap Service Worker: App-Shell Only
-// Version: v1.3-shell
-const CACHE_NAME = 'shikshagap-shell-v1.3';
+// ShikshaGap Service Worker: App-Shell & Offline Engine
+// Version: v1.4-shell
+const CACHE_NAME = 'shikshagap-shell-v1.4';
 const SHELL_ASSETS = [
   '/',
   '/manifest.json',
@@ -48,16 +48,41 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first for static shell assets, network fallback with offline page
+  // HTML navigation: NETWORK-FIRST to ensure fresh deploys are seen immediately
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          return caches.match(request).then((cached) => {
+            return cached || caches.match('/offline.html');
+          });
+        })
+    );
+    return;
+  }
+
+  // Static assets: Cache-first with network fallback
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached;
 
-      return fetch(request).catch(() => {
-        // If navigating to a document while offline, serve offline fallback
-        if (request.mode === 'navigate') {
-          return caches.match('/offline.html');
+      return fetch(request).then((response) => {
+        if (response && response.status === 200) {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseClone);
+          });
         }
+        return response;
       });
     })
   );
