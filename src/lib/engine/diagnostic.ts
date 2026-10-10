@@ -256,15 +256,22 @@ export function initAssessmentAgent(
   studentId: string,
   studentName: string,
   grade = 5,
-  subjectId = "math"
+  subjectId = "math",
+  customTopics?: TopicId[]
 ): AssessmentAgentState {
-  const initialTopic = CURRICULUM_TOPICS[0]; // "number_ops"
-  const targets = TOPICS[initialTopic].targets;
-  const initialConcept = targets[0] || "place_value";
+  const topicsToUse = customTopics && customTopics.length > 0 
+    ? customTopics 
+    : grade === 3 
+    ? (["number_ops", "multiplication"] as TopicId[]) 
+    : CURRICULUM_TOPICS;
+
+  const initialTopic = topicsToUse[0] || "number_ops";
+  const targets = TOPICS[initialTopic]?.targets || ["place_value"];
+  const initialConcept = grade === 3 && initialTopic === "number_ops" ? "number_sense" : (targets[0] || "place_value");
   const initialDifficulty: Difficulty = 2;
 
   const topicStates: Partial<Record<TopicId, TopicMasteryState>> = {};
-  for (const tId of CURRICULUM_TOPICS) {
+  for (const tId of topicsToUse) {
     topicStates[tId] = {
       topicId: tId,
       mastery: 0,
@@ -298,7 +305,7 @@ export function initAssessmentAgent(
     studentName,
     grade,
     subjectId,
-    topics: CURRICULUM_TOPICS,
+    topics: topicsToUse,
     currentTopicIndex: 0,
     currentTopic: initialTopic,
     currentConcept: initialConcept,

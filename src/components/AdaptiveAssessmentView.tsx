@@ -35,11 +35,14 @@ import {
 import { TOPICS } from "@/lib/concepts/graph";
 import { uid, makeRng } from "@/lib/rng";
 
+import { getClassConfig, DEFAULT_CLASS_ID } from "@/lib/curriculum/classes";
+
 interface Props {
   students: DemoStudentData[];
   initialStudentId?: string;
   initialConceptId?: string;
   isStudentView?: boolean;
+  selectedClassId?: string;
   onAssessmentCompleted: (updatedStudent: DemoStudentData) => void;
   onCancel: () => void;
 }
@@ -48,10 +51,12 @@ export function AdaptiveAssessmentView({
   students,
   initialStudentId,
   isStudentView = false,
+  selectedClassId = DEFAULT_CLASS_ID,
   onAssessmentCompleted,
   onCancel,
 }: Props) {
   const { dict, t, formatTxt } = useI18n();
+  const classConfig = getClassConfig(selectedClassId);
 
   const [selectedStudentId, setSelectedStudentId] = useState<string>(
     initialStudentId || students[0]?.student.id || "student_1"
@@ -80,8 +85,9 @@ export function AdaptiveAssessmentView({
     const initial = initAssessmentAgent(
       activeStudent.student.id,
       activeStudent.student.name,
-      5,
-      "math"
+      classConfig.grade,
+      "math",
+      classConfig.topics
     );
 
     setIsStarted(true);
@@ -107,8 +113,9 @@ export function AdaptiveAssessmentView({
         throw new Error("Server route error");
       }
     } catch {
-      // Deterministic client fallback
-      const baseline = evaluateAndDecideStep(initial, undefined, makeRng(Date.now()));
+      // Deterministic client fallback with stable seed derived from student
+      const fallbackRng = makeRng(12345 + (activeStudent?.student.rollNo || 1));
+      const baseline = evaluateAndDecideStep(initial, undefined, fallbackRng);
       setAgentState(baseline.nextState);
       setCurrentQuestion(baseline.nextQuestion);
       setCurrentDecision(baseline.decision);
@@ -307,9 +314,9 @@ export function AdaptiveAssessmentView({
 
           {/* Curriculum Scope Overview */}
           <div className="space-y-2.5">
-            <span className="editorial-meta text-[#432623]">CURRICULUM ASSESSMENT SCOPE</span>
+            <span className="editorial-meta text-[#432623]">{classConfig.label.toUpperCase()} ASSESSMENT SCOPE</span>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              {CURRICULUM_TOPICS.map((tId: TopicId, idx: number) => (
+              {classConfig.topics.map((tId: TopicId, idx: number) => (
                 <div
                   key={tId}
                   className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-left"

@@ -17,14 +17,18 @@ import {
   Printer,
   Warning,
 } from "@phosphor-icons/react";
-import { CONCEPTS, CONCEPT_IDS, prerequisitesOf, dependentsOf } from "@/lib/concepts/graph";
+import { getClassConfig, DEFAULT_CLASS_ID } from "@/lib/curriculum/classes";
+import { ClassSelector } from "./ClassSelector";
 import type { ConceptId } from "@/lib/types";
+import { CONCEPT_IDS, CONCEPTS, prerequisitesOf, dependentsOf } from "@/lib/concepts/graph";
 
 interface Props {
   students: DemoStudentData[];
   onSelectStudent: (student: DemoStudentData) => void;
   onOpenAssessment: (studentId: string, conceptId: string) => void;
   onPrintWorksheet: (student: DemoStudentData) => void;
+  selectedClassId?: string;
+  onSelectClass?: (classId: string) => void;
 }
 
 type TabType = "home" | "students" | "gaps" | "reports";
@@ -34,7 +38,10 @@ export function TeacherDashboard({
   onSelectStudent,
   onOpenAssessment,
   onPrintWorksheet,
+  selectedClassId = DEFAULT_CLASS_ID,
+  onSelectClass,
 }: Props) {
+  const classConfig = getClassConfig(selectedClassId);
   const { dict, t } = useI18n();
   const [activeTab, setActiveTab] = useState<TabType>("home");
   const [searchQuery, setSearchQuery] = useState("");
@@ -231,13 +238,27 @@ export function TeacherDashboard({
       {activeTab === "home" && (
         <section className="space-y-6">
           {/* Main Question & Classroom Heading */}
-          <div className="border border-[#432623]/20 dark:border-[#F5F1BC]/20 p-5 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px]">
-            <span className="text-[11px] font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 font-bold block mb-1">
-              Class 5A Mathematics Overview
-            </span>
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#432623] dark:text-[#F5F1BC]">
-              {dict.whoNeedsHelpToday || "Who needs help today"}
-            </h1>
+          <div className="border border-[#432623]/20 dark:border-[#F5F1BC]/20 p-5 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <span className="text-[11px] font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 font-bold block mb-1">
+                {classConfig.label} - Section {classConfig.section} Mathematics Overview • (Demo data)
+              </span>
+              <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#432623] dark:text-[#F5F1BC]">
+                {dict.whoNeedsHelpToday || "Who needs help today"}
+              </h1>
+            </div>
+            {onSelectClass && (
+              <div className="flex flex-col sm:items-end gap-1">
+                <span className="text-[10px] font-mono font-bold uppercase text-[#432623]/60 dark:text-[#F5F1BC]/60">
+                  Select Grade
+                </span>
+                <ClassSelector
+                  selectedClassId={selectedClassId}
+                  onSelectClass={onSelectClass}
+                  compact={true}
+                />
+              </div>
+            )}
           </div>
 
           {/* 1. THREE NUMBERS ONLY: On Track, Need Practice, Critical */}
@@ -418,7 +439,7 @@ export function TeacherDashboard({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#432623]/20 dark:border-[#F5F1BC]/20 pb-3">
             <div>
               <h2 className="font-serif text-xl font-bold text-[#432623] dark:text-[#F5F1BC]">
-                Class 5A Student Cohort ({filteredStudents.length} of {total})
+                {classConfig.label} - Section {classConfig.section} Student Cohort ({filteredStudents.length} of {total}) • Demo data
               </h2>
               <p className="text-xs text-[#432623]/70 dark:text-[#F5F1BC]/70">
                 Tap any student to view their diagnosis and 5-day action plan.
@@ -708,7 +729,7 @@ export function TeacherDashboard({
                   </div>
 
                   <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
-                    Affects {gap.count} learners in Class 5A. Prerequisite for multi-digit division and fraction calculations.
+                    Affects {gap.count} learners in {classConfig.label} - Section {classConfig.section}. Practice this skill before moving to higher topics.
                   </p>
                 </div>
               ))}
@@ -904,7 +925,7 @@ export function TeacherDashboard({
                 Data Export (CSV & JSON)
               </h3>
               <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
-                Download Class 5A student records with formula injection protection and UTF-8 encoding for Excel.
+                Download {classConfig.label} - Section {classConfig.section} student records with formula injection protection and UTF-8 encoding for Excel.
               </p>
               {exportError && (
                 <div className="p-2 border border-[#DE2A35] bg-[#DE2A35]/10 text-xs text-[#DE2A35]">

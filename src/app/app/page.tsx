@@ -10,8 +10,21 @@ import { StudentHome } from '@/components/StudentHome';
 import { WorksheetModal } from '@/components/WorksheetModal';
 import { loadStudents, saveStudents, resetDemoData, type DemoStudentData } from '@/lib/data/demo';
 
+import { DEFAULT_CLASS_ID } from '@/lib/curriculum/classes';
+
 function AuthenticatedApp() {
-  const [students, setStudents] = useState<DemoStudentData[]>(() => loadStudents());
+  const [selectedClassId, setSelectedClassId] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        return localStorage.getItem('sg_selected_class') || DEFAULT_CLASS_ID;
+      } catch {
+        return DEFAULT_CLASS_ID;
+      }
+    }
+    return DEFAULT_CLASS_ID;
+  });
+
+  const [students, setStudents] = useState<DemoStudentData[]>(() => loadStudents(selectedClassId));
   const [currentView, setCurrentView] = useState<'teacher' | 'student'>('teacher');
   const [studentSubView, setStudentSubView] = useState<'home' | 'assessment'>('home');
   const [selectedStudent, setSelectedStudent] = useState<DemoStudentData | null>(null);
@@ -23,8 +36,23 @@ function AuthenticatedApp() {
   const [reassessStudentId, setReassessStudentId] = useState<string | undefined>();
   const [reassessConceptId, setReassessConceptId] = useState<string | undefined>();
 
+  const handleSelectClass = (newClassId: string) => {
+    setSelectedClassId(newClassId);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('sg_selected_class', newClassId);
+      } catch {
+        // ignore
+      }
+    }
+    const classStudents = loadStudents(newClassId);
+    setStudents(classStudents);
+    setSelectedStudent(null);
+    setIsDiagnosticOpen(false);
+  };
+
   const handleResetDemo = () => {
-    const fresh = resetDemoData();
+    const fresh = resetDemoData(selectedClassId);
     setStudents(fresh);
     setIsDiagnosticOpen(false);
     setSelectedStudent(null);
@@ -70,6 +98,8 @@ function AuthenticatedApp() {
           }
         }}
         onResetDemo={handleResetDemo}
+        selectedClassId={selectedClassId}
+        onSelectClass={handleSelectClass}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -79,6 +109,8 @@ function AuthenticatedApp() {
             onSelectStudent={handleSelectStudent}
             onOpenAssessment={handleOpenAssessment}
             onPrintWorksheet={handlePrintWorksheet}
+            selectedClassId={selectedClassId}
+            onSelectClass={handleSelectClass}
           />
         ) : studentSubView === 'home' ? (
           <StudentHome
@@ -101,6 +133,7 @@ function AuthenticatedApp() {
             initialStudentId={reassessStudentId || selectedStudent?.student.id || students[0]?.student.id}
             initialConceptId={reassessConceptId}
             isStudentView={true}
+            selectedClassId={selectedClassId}
             onAssessmentCompleted={(updatedStudent) => {
               handleAssessmentCompleted(updatedStudent);
               setStudentSubView('home');

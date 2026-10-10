@@ -1,7 +1,7 @@
 /**
  * ShikshaGap Demo Dataset
- * 36 realistic Class 5A students in Government Primary School, Hyderabad.
- * Diverse profiles demonstrating varying learning gap topologies.
+ * Realistic student cohorts for Class 3A, 4A, and 5A.
+ * Clearly marked as Demo data.
  */
 import type {
   Classroom,
@@ -15,15 +15,23 @@ import type {
   StudentStatus,
 } from "@/lib/types";
 import { generateRemediationPlan } from "@/lib/engine/remediation";
+import { getClassConfig, DEFAULT_CLASS_ID } from "@/lib/curriculum/classes";
 
-export const DEMO_CLASSROOM: Classroom = {
-  id: "class_5a",
-  name: "Class 5 - Section A (Maths)",
-  grade: 5,
-  section: "A",
-  subjectId: "math",
-  isDemo: true,
-};
+export const SCHOOL_NAME = "Government Primary School, Hyderabad";
+
+export function getDemoClassroom(classId: string = DEFAULT_CLASS_ID): Classroom {
+  const conf = getClassConfig(classId);
+  return {
+    id: conf.id,
+    name: `${conf.label} - Section ${conf.section} (Maths)`,
+    grade: conf.grade,
+    section: conf.section,
+    subjectId: "math",
+    isDemo: true,
+  };
+}
+
+export const DEMO_CLASSROOM: Classroom = getDemoClassroom(DEFAULT_CLASS_ID);
 
 export interface DemoStudentData {
   student: Student;
@@ -31,7 +39,8 @@ export interface DemoStudentData {
   activePlan?: RemediationPlan;
 }
 
-const RAW_STUDENTS = [
+// Class 5A (36 students)
+const RAW_STUDENTS_CLASS_5 = [
   { roll: 1, name: "Ravi Kumar", status: "critical", rootId: "mult_facts", symptoms: ["division_facts", "long_division"] },
   { roll: 2, name: "Sita Devi", status: "critical", rootId: "subtraction", symptoms: ["long_division"] },
   { roll: 3, name: "Mohammed Imran", status: "critical", rootId: "comparing_fractions", symptoms: ["fraction_addition"] },
@@ -58,24 +67,120 @@ const RAW_STUDENTS = [
   { roll: 24, name: "Suresh Raina", status: "need_practice", rootId: "division_facts", symptoms: ["long_division"] },
   { roll: 25, name: "Bhavana Chary", status: "on_track", rootId: null, symptoms: [] },
   { roll: 26, name: "Naveen Polishetty", status: "on_track", rootId: null, symptoms: [] },
-  { roll: 27, name: "Sandhya Rani", status: "critical", rootId: "subtraction", symptoms: ["long_division"] },
-  { roll: 28, name: "Prashanth Neel", status: "on_track", rootId: null, symptoms: [] },
-  { roll: 29, name: "Ayesha Siddiqua", status: "need_practice", rootId: "fraction_basics", symptoms: ["fraction_addition"] },
-  { roll: 30, name: "Varun Tej", status: "on_track", rootId: null, symptoms: [] },
-  { roll: 31, name: "Meenakshi S", status: "on_track", rootId: null, symptoms: [] },
-  { roll: 32, name: "Shravan Kumar", status: "need_practice", rootId: "place_value", symptoms: ["addition"] },
-  { roll: 33, name: "Pallavi Prashanth", status: "on_track", rootId: null, symptoms: [] },
-  { roll: 34, name: "Tarun Bhaskar", status: "on_track", rootId: null, symptoms: [] },
-  { roll: 35, name: "Sneha Reddy", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 27, name: "Swathi Reddy", status: "need_practice", rootId: "comparing_fractions", symptoms: ["fraction_addition"] },
+  { roll: 28, name: "Kiran Abbavaram", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 29, name: "Rashmika Mandanna", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 30, name: "Vijay Deverakonda", status: "need_practice", rootId: "mult_facts", symptoms: ["multi_digit_mult"] },
+  { roll: 31, name: "Samantha Ruth", status: "critical", rootId: "subtraction", symptoms: ["long_division"] },
+  { roll: 32, name: "Allu Arjun", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 33, name: "Ram Charan", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 34, name: "NTR Junior", status: "need_practice", rootId: "fraction_basics", symptoms: ["comparing_fractions"] },
+  { roll: 35, name: "Prabhas Raju", status: "on_track", rootId: null, symptoms: [] },
   { roll: 36, name: "Vamsi Paidipally", status: "on_track", rootId: null, symptoms: [] },
 ];
 
-function buildConceptsMap(status: string, rootId: ConceptId | null, roll: number): Partial<Record<ConceptId, MasteryEstimate>> {
+// Class 4A (34 students)
+const RAW_STUDENTS_CLASS_4 = [
+  { roll: 1, name: "Aarav Sharma", status: "critical", rootId: "subtraction", symptoms: ["division_concept"] },
+  { roll: 2, name: "Ishaan Reddy", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 3, name: "Ananya Iyer", status: "need_practice", rootId: "place_value", symptoms: ["addition"] },
+  { roll: 4, name: "Diya Nair", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 5, name: "Sai Praneeth", status: "critical", rootId: "mult_concept", symptoms: ["mult_facts"] },
+  { roll: 6, name: "Tanvi Rao", status: "need_practice", rootId: "mult_concept", symptoms: ["division_concept"] },
+  { roll: 7, name: "Manish Kumar", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 8, name: "Bhavya Sri", status: "critical", rootId: "number_sense", symptoms: ["place_value"] },
+  { roll: 9, name: "Rohit Varma", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 10, name: "Meera Bai", status: "need_practice", rootId: "subtraction", symptoms: ["division_concept"] },
+  { roll: 11, name: "Krishna Chaitanya", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 12, name: "Sandhya Rani", status: "critical", rootId: "addition", symptoms: ["mult_concept"] },
+  { roll: 13, name: "Tarun Tej", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 14, name: "Kavya Madhavan", status: "need_practice", rootId: "place_value", symptoms: ["subtraction"] },
+  { roll: 15, name: "Rakesh Roshan", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 16, name: "Pavani Latha", status: "need_practice", rootId: "mult_concept", symptoms: ["mult_facts"] },
+  { roll: 17, name: "Nikhil Siddhartha", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 18, name: "Anjali Menon", status: "critical", rootId: "number_sense", symptoms: ["addition"] },
+  { roll: 19, name: "Siddharth Roy", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 20, name: "Charan Raj", status: "need_practice", rootId: "division_concept", symptoms: ["fraction_basics"] },
+  { roll: 21, name: "Vaishnavi Devi", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 22, name: "Aditi Rao", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 23, name: "Murali Krishna", status: "critical", rootId: "mult_facts", symptoms: ["division_concept"] },
+  { roll: 24, name: "Shreya Ghoshal", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 25, name: "Varun Sandesh", status: "need_practice", rootId: "place_value", symptoms: ["addition"] },
+  { roll: 26, name: "Kajal Agarwal", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 27, name: "Mahesh Babu", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 28, name: "Namrata Shirodkar", status: "need_practice", rootId: "subtraction", symptoms: ["division_concept"] },
+  { roll: 29, name: "Nani Bellamkonda", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 30, name: "Nithya Menen", status: "critical", rootId: "addition", symptoms: ["mult_concept"] },
+  { roll: 31, name: "Sundeep Kishan", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 32, name: "Regina Cassandra", status: "need_practice", rootId: "fraction_basics", symptoms: ["fraction_basics"] },
+  { roll: 33, name: "Sharwanand Myneni", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 34, name: "Sai Pallavi", status: "on_track", rootId: null, symptoms: [] },
+];
+
+// Class 3A (32 students)
+const RAW_STUDENTS_CLASS_3 = [
+  { roll: 1, name: "Vihaan Joshi", status: "critical", rootId: "number_sense", symptoms: ["place_value"] },
+  { roll: 2, name: "Aadhya Patel", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 3, name: "Kabir Das", status: "critical", rootId: "place_value", symptoms: ["addition"] },
+  { roll: 4, name: "Saanvi Reddy", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 5, name: "Reyansh Gupta", status: "need_practice", rootId: "place_value", symptoms: ["subtraction"] },
+  { roll: 6, name: "Anvi Kulkarni", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 7, name: "Dhruv Nambiar", status: "critical", rootId: "addition", symptoms: ["mult_concept"] },
+  { roll: 8, name: "Isha Sundaram", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 9, name: "Arnav Varma", status: "need_practice", rootId: "number_sense", symptoms: ["addition"] },
+  { roll: 10, name: "Myra Kapoor", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 11, name: "Yuvan Shankar", status: "critical", rootId: "place_value", symptoms: ["subtraction"] },
+  { roll: 12, name: "Prisha Sen", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 13, name: "Advait Pillai", status: "need_practice", rootId: "addition", symptoms: ["subtraction"] },
+  { roll: 14, name: "Kiara Advani", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 15, name: "Vivaan Shah", status: "critical", rootId: "number_sense", symptoms: ["place_value"] },
+  { roll: 16, name: "Anaya Saxena", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 17, name: "Atharv Kulkarni", status: "need_practice", rootId: "addition", symptoms: ["mult_concept"] },
+  { roll: 18, name: "Riya Chakraborty", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 19, name: "Shaurya Singh", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 20, name: "Navya Nair", status: "critical", rootId: "place_value", symptoms: ["addition"] },
+  { roll: 21, name: "Samarth Bhat", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 22, name: "Ahana Ghosh", status: "need_practice", rootId: "number_sense", symptoms: ["subtraction"] },
+  { roll: 23, name: "Devansh Parekh", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 24, name: "Mira Nair", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 25, name: "Rudra Pratap", status: "critical", rootId: "place_value", symptoms: ["subtraction"] },
+  { roll: 26, name: "Siya Agarwal", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 27, name: "Darshil Seth", status: "need_practice", rootId: "addition", symptoms: ["mult_concept"] },
+  { roll: 28, name: "Shanaya Roy", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 29, name: "Veer Singhania", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 30, name: "Tara Sutaria", status: "need_practice", rootId: "number_sense", symptoms: ["place_value"] },
+  { roll: 31, name: "Rishi Sunak", status: "on_track", rootId: null, symptoms: [] },
+  { roll: 32, name: "Avani Lekhara", status: "on_track", rootId: null, symptoms: [] },
+];
+
+function getRawCohort(classId: string) {
+  if (classId === "class_3") return RAW_STUDENTS_CLASS_3;
+  if (classId === "class_4") return RAW_STUDENTS_CLASS_4;
+  return RAW_STUDENTS_CLASS_5;
+}
+
+function buildConceptsMap(
+  status: string,
+  rootId: ConceptId | null,
+  roll: number
+): Partial<Record<ConceptId, MasteryEstimate>> {
+  // Ensure we assess all concepts up to this class's scope, including prerequisites
   const allConcepts: ConceptId[] = [
-    "number_sense", "place_value", "addition", "subtraction",
-    "mult_concept", "mult_facts", "multi_digit_mult",
-    "division_concept", "division_facts", "long_division", "division_word",
-    "fraction_basics", "equivalent_fractions", "comparing_fractions", "fraction_addition",
+    "number_sense",
+    "place_value",
+    "addition",
+    "subtraction",
+    "mult_concept",
+    "mult_facts",
+    "multi_digit_mult",
+    "division_concept",
+    "division_facts",
+    "long_division",
+    "division_word",
+    "fraction_basics",
+    "equivalent_fractions",
+    "comparing_fractions",
+    "fraction_addition",
   ];
 
   const map: Partial<Record<ConceptId, MasteryEstimate>> = {};
@@ -116,9 +221,12 @@ function buildConceptsMap(status: string, rootId: ConceptId | null, roll: number
   return map;
 }
 
-export function initializeDemoData(): DemoStudentData[] {
-  return RAW_STUDENTS.map((item) => {
-    const sId = `student_${item.roll}`;
+export function initializeDemoData(classId: string = DEFAULT_CLASS_ID): DemoStudentData[] {
+  const rawCohort = getRawCohort(classId);
+  const classroom = getDemoClassroom(classId);
+
+  return rawCohort.map((item) => {
+    const sId = `${classId}_student_${item.roll}`;
     const concepts = buildConceptsMap(item.status, item.rootId as ConceptId | null, item.roll);
 
     const strong: ConceptId[] = [];
@@ -178,14 +286,14 @@ export function initializeDemoData(): DemoStudentData[] {
       overallMastery: overallMastery / 100,
       confidence: 0.85,
       concepts,
+      rootCauses,
       strong,
       developing,
       needsSupport,
       inferredOk: [],
-      rootCauses,
-      nextConcept: item.rootId as ConceptId | null,
-      nextReason: item.rootId ? "root_cause" : "none",
-      evidenceCount: 12,
+      nextConcept: rootCauses[0]?.rootId || null,
+      nextReason: rootCauses.length > 0 ? "root_cause" : "none",
+      evidenceCount: 4,
       lastAssessedAt: "2026-10-06T10:30:00Z",
       lastTopic: "division",
     };
@@ -194,7 +302,7 @@ export function initializeDemoData(): DemoStudentData[] {
       id: sId,
       name: item.name,
       rollNo: item.roll,
-      classroomId: DEMO_CLASSROOM.id,
+      classroomId: classroom.id,
       isDemo: true,
     };
 
@@ -206,36 +314,38 @@ export function initializeDemoData(): DemoStudentData[] {
   });
 }
 
-const STORAGE_KEY = "shikshagap_students_v1";
+function getStorageKey(classId: string): string {
+  return `shikshagap_students_${classId}_v2`;
+}
 
-export function loadStudents(): DemoStudentData[] {
+export function loadStudents(classId: string = DEFAULT_CLASS_ID): DemoStudentData[] {
   if (typeof window === "undefined") {
-    return initializeDemoData();
+    return initializeDemoData(classId);
   }
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(getStorageKey(classId));
     if (raw) {
       return JSON.parse(raw);
     }
   } catch {
     // ignore
   }
-  const fresh = initializeDemoData();
-  saveStudents(fresh);
+  const fresh = initializeDemoData(classId);
+  saveStudents(fresh, classId);
   return fresh;
 }
 
-export function saveStudents(data: DemoStudentData[]): void {
+export function saveStudents(data: DemoStudentData[], classId: string = DEFAULT_CLASS_ID): void {
   if (typeof window === "undefined") return;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(getStorageKey(classId), JSON.stringify(data));
   } catch {
     // ignore
   }
 }
 
-export function resetDemoData(): DemoStudentData[] {
-  const fresh = initializeDemoData();
-  saveStudents(fresh);
+export function resetDemoData(classId: string = DEFAULT_CLASS_ID): DemoStudentData[] {
+  const fresh = initializeDemoData(classId);
+  saveStudents(fresh, classId);
   return fresh;
 }

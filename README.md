@@ -9,7 +9,7 @@
 ---
 
 ## 1. Problem Statement
-In classrooms of 30–60+ students, traditional evaluations produce marks (e.g., *42% in Mathematics*), but fail to tell teachers **why** a student is struggling or **which foundational prerequisite concept is missing**. 
+In classrooms of 30 to 60+ students, traditional evaluations produce marks (e.g., *42% in Mathematics*), but fail to tell teachers **why** a student is struggling or **which foundational prerequisite concept is missing**. 
 
 For example, a Class 5 student who cannot solve long division is usually not struggling with division itself, but with **multiplication table fluency** or **subtraction regrouping**. Without diagnosing the root cause, standard repeated practice on division fails.
 
@@ -18,43 +18,21 @@ $$\text{Marks} \longrightarrow \text{Learning Intelligence} \longrightarrow \tex
 
 ---
 
-## 2. Core Diagnostic Loop
+## 2. Multi-Class Curriculum Support
 
-```
-Assess ──► Diagnose ──► Find Root Cause ──► Personalize ──► Recommend ──► Reassess
-```
+ShikshaGap supports **Classes 3, 4, and 5** with fully verified syllabus topics, student cohorts, and 1-page printable worksheets:
+- **Class 3**: Number sense, 2-digit subtraction with borrowing, and introduction to repeated addition.
+- **Class 4**: Place value up to 10,000, multiplication facts (2 to 9), sharing division, and unit fractions.
+- **Class 5**: Multi-digit multiplication, long division with remainders, and equivalent fractions.
+- **Classes 1, 2, 6, 7, 8**: Marked as "Coming soon" with disabled states. No unverified syllabus content is invented.
 
-1. **What does the student know?** Tracked through Bayesian mastery accumulation ($P(M|E)$).
-2. **What concept is the student struggling with?** Observed curriculum symptom (e.g. Long Division).
-3. **What prerequisite concept is causing the difficulty?** Backtracked along the mathematical dependency graph (e.g. Multiplication facts or Subtraction regrouping).
-4. **How severe is the gap?** High, Medium, or Low severity.
-5. **What should the student learn next?** A personalized 5-day action plan using concrete, zero-cost manipulatives (tamarind seeds, broom sticks, paper folding).
-6. **What should they practice?** Parameterized adaptive items and printable 1-page paper worksheets.
-7. **When should they be reassessed?** Automatic reassessment after 5 days to prove gap closure.
-
----
-
-## 3. Key Capabilities
-
-- **Autonomous Multi-Topic Assessment Agent**: Evaluates students across all 4 foundational topics (Number Operations, Multiplication, Division, Fractions) with dynamic stopping rules (min 2, max 6 questions per topic), rather than a single manual concept.
-- **Real-Time Prerequisite Backtracking**: If a student misses a problem, the agent dynamically traverses the mathematical dependency graph to probe foundational prerequisites and pinpoint root causes.
-- **Gemini AI Integration with Deterministic Verification**: Integrates `@google/genai` via server-side API (`/api/assessment/agent`) for pedagogical strategy while enforcing strict deterministic mathematical truth for all calculations and answers.
-- **Trilingual Localization**: Instant switching between **English**, **हिन्दी (Hindi)**, and **తెలుగు (Telugu)**.
-
-- **Teacher Dashboard**:
-  - Class-wide overview for Class 5A (36 students) in PM SHRI Government Primary School.
-  - Priority intervention table highlighting blocked prerequisites and root causes.
-  - Aggregate learning gap distribution.
-  - Full Class Mastery Matrix across Class 3–5 concepts.
-- **Interactive Student Diagnostic Profile**:
-  - Root-cause explanation & visual backtracking chain.
-  - Evidence trail showing exact questions, student answers, and identified misconception bugs.
-  - Interactive 5-day action plan with progress checkboxes.
-- **Printable Remediation Worksheets**: Formatted 1-page worksheets ready for classroom distribution or homework.
-
----
-
-## 4. Concept Dependency Graph (Class 3–5 Math)
+### How to Add a New Class
+1. Open `src/lib/curriculum/classes.ts`.
+2. Locate the target class configuration in `SUPPORTED_CLASSES` (e.g. `class_6`).
+3. Set `enabled: true`, define verified syllabus `topics` and `targetConcepts`.
+4. Add prerequisite edges to the concept graph in `src/lib/concepts/graph.ts` ensuring the single unified DAG property is preserved.
+5. Add realistic demo cohort data in `src/lib/data/demo.ts`.
+6. Enable the grade in `src/app/api/assessment/agent/route.ts` allowed grades whitelist.
 
 ```
 Number Sense

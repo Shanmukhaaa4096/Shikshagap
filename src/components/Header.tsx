@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useI18n } from "@/lib/i18n/context";
 import type { Lang } from "@/lib/types";
 import {
@@ -13,7 +14,8 @@ import {
   BookOpen,
   ArrowCounterClockwise,
 } from "@phosphor-icons/react";
-import Link from "next/link";
+import { getClassConfig, DEFAULT_CLASS_ID } from "@/lib/curriculum/classes";
+import { ClassSelector } from "./ClassSelector";
 
 interface HeaderProps {
   currentView?: "teacher" | "student";
@@ -21,6 +23,8 @@ interface HeaderProps {
   onResetDemo?: () => void;
   userRole?: "teacher" | "admin" | "student" | null;
   onSignOut?: () => void;
+  selectedClassId?: string;
+  onSelectClass?: (classId: string) => void;
 }
 
 export function Header({
@@ -28,6 +32,8 @@ export function Header({
   onViewChange,
   onResetDemo,
   onSignOut,
+  selectedClassId = DEFAULT_CLASS_ID,
+  onSelectClass,
 }: HeaderProps) {
   const { lang, setLang } = useI18n();
   const [isDark, setIsDark] = useState(() => {
@@ -91,10 +97,20 @@ export function Header({
                   ShikshaGap
                 </span>
                 <span className="ml-2 text-xs font-mono font-bold uppercase text-[#432623]/80 dark:text-[#F5F1BC]/80 border border-[#432623]/20 dark:border-[#F5F1BC]/20 px-1.5 py-0.5 rounded-[2px] bg-[#F5F1BC]/40 dark:bg-[#432623]">
-                  Class 5A
+                  {getClassConfig(selectedClassId).shortLabel}
                 </span>
               </div>
             </Link>
+
+            {onSelectClass && (
+              <div className="hidden md:flex items-center ml-2 pl-2 border-l border-[#432623]/20 dark:border-[#F5F1BC]/20">
+                <ClassSelector
+                  selectedClassId={selectedClassId}
+                  onSelectClass={onSelectClass}
+                  compact={true}
+                />
+              </div>
+            )}
           </div>
 
           {/* Right: Language switch + View toggle + Menu */}

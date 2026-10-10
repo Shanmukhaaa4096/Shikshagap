@@ -1,7 +1,7 @@
 import type { Concept, ConceptId, Strand, Topic, TopicId } from "@/lib/types";
 
 /**
- * Concept dependency graph (Class 3–5 Mathematics).
+ * Concept dependency graph (Classes 3 to 5 Mathematics).
  * Prerequisites are listed in diagnostic priority order: when a student shows
  * difficulty with a concept, the agent investigates prerequisites in this order.
  */

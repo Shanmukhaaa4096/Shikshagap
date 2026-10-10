@@ -84,12 +84,30 @@ This document tracks all relocations and design hierarchy changes made to make S
 
 ## 4. Design Bans & Security Verification
 * **Design Bans**: Verified 0 emojis, 0 em dashes, 0 Lucide icons, 0 gradients, 0 box shadows, 0 pill buttons (`rounded-full` on buttons). All buttons and containers use `rounded-[2px]`.
-* **Security Suite**: Ran `npm test` (`tests/security.test.mjs`). All 8 security tests passed:
-  1. Cross-Class Access Isolation
-  2. Cross-School Data Isolation
-  3. Token Entropy and Guessing Resistance
-  4. Expired, Revoked, and View-Limited Tokens
-  5. Re-Authentication Window Enforcement for Exports
-  6. Teacher Note XSS Sanitization & Character Cap
-  7. CSV Injection Formula Escaping and UTF-8 BOM
-  8. Audit Log Privacy & Zero Student PII Exposure
+* **Security Suite**: Ran `npm test` (`tests/security.test.mjs`, `tests/product-audit.test.mjs`, `tests/multi-class.test.mjs`). All 22 tests passed.
+
+---
+
+## 5. Multi-Class Curriculum Support & Landing Page Overhaul
+* **Multi-Class Architecture (`src/lib/curriculum/classes.ts`)**:
+  * Classes 3, 4, and 5 fully enabled with verified syllabus targets and seeded demo cohorts (32, 34, 36 students).
+  * Classes 1, 2, 6, 7, and 8 defined in config and marked `Coming soon` (disabled).
+  * Single DAG concept graph spans Classes 3 to 5 for cross-grade prerequisite backtracking.
+* **Landing Page (`src/app/page.tsx`)**:
+  * Restructured into exact 13-section order:
+    1. Sticky Navbar (logo, max 4 links, mobile drawer, filled sign-in button)
+    2. Language Switcher in navbar (EN, हिन्दी, తెలుగు, sets `html lang`)
+    3. Hero (headline, CTAs, no badge claims)
+    4. Problem & Solution Strip (42% dilemma vs. root-cause backtracking)
+    5. Interactive 5-Step Demo driven by ClassSelector
+    6. Trust Strip (DPDP 2023, 0 tracking cookies, simple Android phones)
+    7. Features as Bento Grid (4 unequal cards, 1 visual each)
+    8. Worksheet Preview (paper mockup using real question generator)
+    9. Stats Row (config-derived facts only)
+    10. Pilot Form (school, teacher, class range, contact, honeypot, rate limiting, masked storage)
+    11. FAQ Accordion (single open, includes multi-class answer)
+    12. Final CTA Banner (heading, line, two buttons)
+    13. Footer (two columns, all legal links, copyright line)
+* **Pilot Data Registration Endpoint (`/api/pilot-register`)**:
+  * Captures school pilot registrations with bot honeypot, 5 req/min rate limit, email/phone validation, contact masking, and append-only audit logging in `src/lib/server/store.ts`.
+

@@ -57,6 +57,14 @@ ShikshaGap processes educational diagnostic data concerning children (minors age
 - Child names, scores, notes, and plain tokens are strictly excluded from audit log text.
 - Append-only structure prevents retroactive tampering or erasure of access logs.
 
+### 2.7 School Pilot Registration Safeguards (`/api/pilot-register`)
+- Voluntary institutional partnership inquiries from educators and school heads.
+- Bot defense: In-memory honeypot field trapping automated spam bots without CAPTCHA friction.
+- IP rate limiting: 5 submissions per minute per IP address.
+- Contact masking: Phone/email numbers masked in memory (`98******10`) before administrative review.
+- Audit trail logging: Submissions recorded with hashed IP under action `data_request_received`.
+- Clear statutory notice and Privacy Policy consent checkbox before submission.
+
 ---
 
 ## 3. Third-Party Service Data Flow Assessment

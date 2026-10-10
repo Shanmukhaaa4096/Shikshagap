@@ -84,7 +84,7 @@ export function WorksheetModal({ data, isOpen, onClose }: Props) {
           {/* Header Masthead */}
           <div className="border-b border-[var(--foreground)] pb-4 text-center space-y-1">
             <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--muted-foreground)]">
-              CLASS 5 SECTION A | MATHS PRACTICE
+              {student.classroomId ? `${student.classroomId.toUpperCase()} | MATHS PRACTICE` : "CLASSROOM MATHS PRACTICE"}
             </div>
             <h1 className="font-serif text-2xl font-bold uppercase text-[var(--foreground)]">
               Practice Worksheet

@@ -33,9 +33,11 @@ To connect a custom domain on Vercel:
   - `sitemap.xml` automatically lists only public pages (`/`, `/login`, `/privacy`, `/terms`, `/cookies`, `/licenses`, `/data-request`).
   - `robots.txt` explicitly disallows crawling of `/app/`, `/app/*`, and `/api/*` to guarantee that no pupil data or authenticated dashboards are indexed by search engines.
 * **Structured Data**:
-  - JSON-LD schemas embedded on `/` include `Organization`, `SoftwareApplication`, and `FAQPage`.
+  - JSON-LD schemas embedded on `/` include `Organization`, `SoftwareApplication` (Mathematics learning check and practice planning for Indian schools, Classes 3 to 5), and `FAQPage`.
 * **Metadata & Canonicalization**:
   - Each public page contains unique titles, meta descriptions, and `canonical` links pointing to the production domain.
+  - Multi-class targeting: Primary Mathematics Classes 3 to 5 (Class 3, Class 4, Class 5 NCERT/SCERT foundational numeracy).
+  - Pilot onboarding anchor (`#pilot`): Structured for institutional teacher searches ("primary school diagnostic pilot", "free FLN maths practice worksheets").
   - Multi-script support: Hindi and Telugu metadata entries prepared for regional language search queries.
 
 ---
