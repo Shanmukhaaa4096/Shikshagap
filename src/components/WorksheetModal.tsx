@@ -50,13 +50,13 @@ export function WorksheetModal({ data, isOpen, onClose }: Props) {
         <div className="flex items-center justify-between pb-4 border-b border-[var(--border)] print:hidden">
           <div>
             <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--muted-foreground)]">
-              REMEDIATION MATERIAL
+              PRACTICE MATERIAL
             </div>
             <h3 className="font-serif text-lg font-bold text-[var(--foreground)] mt-0.5">
-              Printable Remediation Handout
+              Printable Practice Sheet
             </h3>
             <p className="text-xs text-[var(--muted-foreground)]">
-              Designed for classroom intervention or offline practice at home.
+              Made for classroom practice or homework.
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -84,13 +84,13 @@ export function WorksheetModal({ data, isOpen, onClose }: Props) {
           {/* Header Masthead */}
           <div className="border-b border-[var(--foreground)] pb-4 text-center space-y-1">
             <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--muted-foreground)]">
-              ELEMENTARY MATHEMATICS DIAGNOSTIC | CLASS 5 SECTION A
+              CLASS 5 SECTION A | MATHS PRACTICE
             </div>
             <h1 className="font-serif text-2xl font-bold uppercase text-[var(--foreground)]">
-              Targeted Remediation Worksheet
+              Practice Worksheet
             </h1>
             <p className="text-xs font-mono font-semibold text-[var(--primary)]">
-              Target Skill: {t(`c_${rootId}`)}
+              Skill: {t(`c_${rootId}`)}
             </p>
           </div>
 

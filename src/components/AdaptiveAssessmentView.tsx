@@ -269,13 +269,13 @@ export function AdaptiveAssessmentView({
       {!isStarted ? (
         <div className="neo-panel p-6 sm:p-8 space-y-6 rounded-[2px] border border-[#432623]/25 bg-[var(--surface)]">
           <div className="border-b border-[#432623]/20 pb-5">
-            <span className="editorial-meta text-[#432623]/80">DIAGNOSTIC AGENT INITIALIZATION</span>
+            <span className="editorial-meta text-[#432623]/80">START LEARNING CHECK</span>
             <h2 className="editorial-title text-2xl sm:text-3xl text-[#432623] mt-1">
-              Mathematics Diagnostic Assessment
+              Class 5 Maths Check
             </h2>
             <p className="text-xs sm:text-sm text-[#432623]/80 mt-1 leading-relaxed max-w-2xl">
-              A calm, adaptive diagnostic interview across all 4 Class 5 mathematics strands.
-              When gaps are observed, the system seamlessly checks foundational prerequisites to isolate the true root cause.
+              A calm check across 4 Class 5 maths topics.
+              When a question is hard for a student, the test asks an earlier question to find what skill they need to practice first.
             </p>
           </div>
 
@@ -327,7 +327,7 @@ export function AdaptiveAssessmentView({
               ))}
             </div>
             <p className="text-xs text-[#432623]/80 pt-1">
-              The agent starts with Number Operations and tests each topic adaptively. During testing, the student experiences a calm, unpressured diagnostic without visible scores or timer stress.
+              The test starts with Number Operations and adjusts to each student. There is no timer and no score shown during the test, so the student feels calm and comfortable.
             </p>
           </div>
 
@@ -344,7 +344,7 @@ export function AdaptiveAssessmentView({
               className="neo-btn neo-btn-primary px-6 py-3 text-sm font-bold flex items-center justify-center gap-2 w-full sm:w-auto rounded-[2px]"
             >
               <Brain className="w-4 h-4 text-[#F5F1BC]" />
-              <span>START DIAGNOSTIC ASSESSMENT</span>
+              <span>START TEST</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -358,17 +358,17 @@ export function AdaptiveAssessmentView({
           <div className="border-b border-[#432623]/20 pb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <span className="editorial-meta text-[#432623] font-bold">DIAGNOSTIC COMPLETE</span>
+                <span className="editorial-meta text-[#432623] font-bold">TEST COMPLETE</span>
                 <span className="text-[#432623]/40 text-xs">•</span>
                 <span className="text-xs font-mono font-bold text-[#432623]">
                   {activeStudent?.student.name} • CLASS 5A
                 </span>
               </div>
               <h2 className="editorial-title text-2xl sm:text-3xl text-[#432623] mt-1">
-                Assessment Complete
+                Test Complete
               </h2>
               <p className="text-xs sm:text-sm text-[#432623]/80 mt-0.5">
-                We&apos;ve synthesized the responses and isolated the concepts that need pedagogical attention.
+                We checked the student&apos;s answers and found the topics that need more practice.
               </p>
             </div>
 
@@ -420,32 +420,32 @@ export function AdaptiveAssessmentView({
           {completedProfile && completedProfile.rootCauses.length > 0 ? (
             <div className="p-5 bg-[var(--surface)] border border-[#DE2A35]/40 rounded-[2px] space-y-3">
               <div className="flex items-center justify-between">
-                <span className="editorial-meta text-[#DE2A35]">PRIMARY LEARNING GAP DETECTED</span>
+                <span className="editorial-meta text-[#DE2A35]">TOPIC NEEDING PRACTICE</span>
                 <span className="text-[10px] font-mono font-bold uppercase bg-[#DE2A35]/15 text-[#DE2A35] px-2 py-0.5 rounded-[2px] border border-[#DE2A35]/30">
-                  REQUIRES PREREQUISITE REMEDIATION
+                  PRACTICE THIS SKILL FIRST
                 </span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                 <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#432623]/20">
-                  <div className="text-[10px] font-mono font-bold text-[#432623]/70 uppercase">ROOT GAP:</div>
+                  <div className="text-[10px] font-mono font-bold text-[#432623]/70 uppercase">SKILL NEEDED FIRST:</div>
                   <div className="font-serif text-lg font-bold text-[#DE2A35] mt-0.5">
                     {t(`c_${completedProfile.rootCauses[0].rootId}`) || completedProfile.rootCauses[0].rootId}
                   </div>
                   <p className="text-xs text-[#432623]/80 mt-1">
-                    Missing prerequisite fluency that restricts higher-order performance.
+                    An earlier skill the student needs to understand first.
                   </p>
                 </div>
 
                 <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#432623]/20">
-                  <div className="text-[10px] font-mono font-bold text-[#432623]/70 uppercase">AFFECTING CONCEPTS:</div>
+                  <div className="text-[10px] font-mono font-bold text-[#432623]/70 uppercase">STRUGGLING WITH:</div>
                   <div className="font-serif text-lg font-bold text-[#432623] mt-0.5">
                     {completedProfile.rootCauses[0].symptomIds
                       .map((s) => t(`c_${s}`) || s)
                       .join(", ")}
                   </div>
                   <p className="text-xs text-[#432623]/80 mt-1">
-                    Visible struggle points in Class 5 curriculum tasks.
+                    Questions in Class 5 lessons where the student got stuck.
                   </p>
                 </div>
               </div>
@@ -506,13 +506,13 @@ export function AdaptiveAssessmentView({
               className="neo-btn neo-btn-secondary px-4 py-2.5 text-xs font-bold flex items-center gap-1.5 rounded-[2px]"
             >
               <ArrowCounterClockwise className="w-3.5 h-3.5" />
-              <span>Assess Another Student</span>
+              <span>Check Another Student</span>
             </button>
             <button
               onClick={handleSaveAndFinish}
               className="neo-btn neo-btn-primary px-6 py-2.5 text-xs sm:text-sm font-bold flex items-center gap-2 rounded-[2px]"
             >
-              <span>VIEW LEARNING PROFILE &amp; SAVE</span>
+              <span>SEE LEARNING PLAN &amp; SAVE</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -526,7 +526,7 @@ export function AdaptiveAssessmentView({
           <div className="bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] p-4 sm:p-5 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#432623]/20 pb-3">
               <div>
-                <span className="editorial-meta text-[#432623]/80">MATHEMATICS DIAGNOSTIC</span>
+                <span className="editorial-meta text-[#432623]/80">CLASS 5 MATHS CHECK</span>
                 <div className="font-serif font-bold text-base sm:text-lg text-[#432623]">
                   {activeStudent?.student.name} • Class 5
                 </div>
@@ -534,9 +534,9 @@ export function AdaptiveAssessmentView({
 
               {/* Compact Assessment Status */}
               <div className="text-right">
-                <span className="editorial-meta text-[#432623]/70">CURRENTLY ASSESSING</span>
+                <span className="editorial-meta text-[#432623]/70">TOPIC BEING CHECKED</span>
                 <div className="font-mono text-xs font-bold text-[#432623] mt-0.5">
-                  {currentTopicName} • Evidence: {agentState?.responses.length || 0} items
+                  {currentTopicName} • {agentState?.responses.length || 0} questions answered
                 </div>
               </div>
             </div>

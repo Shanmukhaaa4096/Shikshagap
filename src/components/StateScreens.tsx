@@ -229,9 +229,9 @@ export function OfflineState({ lang = 'en', onRetry, className = '' }: BaseState
 export function SlowNetworkState({ lang = 'en', onCancel, className = '' }: { lang?: LanguageCode; onCancel?: () => void; className?: string }) {
   const text = {
     en: {
-      title: 'Network Response is Slower than Normal',
-      desc: 'The diagnostic request is taking longer than 5 seconds. You may keep waiting or cancel the operation.',
-      action: 'Cancel Request'
+      title: 'Loading is Taking Longer Than Normal',
+      desc: 'This is taking longer than 5 seconds. You can keep waiting or cancel.',
+      action: 'Cancel'
     },
     hi: {
       title: 'नेटवर्क प्रतिक्रिया धीमी है',
@@ -385,9 +385,9 @@ export function SessionExpiredState({ lang = 'en', className = '' }: BaseStatePr
 export function SuccessState({ lang = 'en', message, onAction, className = '' }: { lang?: LanguageCode; message?: string; onAction?: () => void; className?: string }) {
   const text = {
     en: {
-      title: 'Assessment Processed Successfully',
-      desc: message || 'Student diagnostic records and 5-day action plan have been saved.',
-      action: 'View Updated Profile'
+      title: 'Test Saved Successfully',
+      desc: message || 'Student answers and 5-day practice plan have been saved.',
+      action: 'See Updated Profile'
     },
     hi: {
       title: 'मूल्यांकन सफलतापूर्वक सहेजा गया',
