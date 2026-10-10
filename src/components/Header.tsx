@@ -29,23 +29,38 @@ export function Header({
   onResetDemo,
   onSignOut,
 }: HeaderProps) {
-  const { lang, setLang, dict } = useI18n();
-  const [isDark, setIsDark] = useState(false);
+  const { lang, setLang } = useI18n();
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const savedTheme = localStorage.getItem("shikshagap_theme");
+        if (savedTheme) {
+          return savedTheme === "dark";
+        }
+        return window.matchMedia("(prefers-color-scheme: dark)").matches;
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
-    const isDarkMode = document.documentElement.classList.contains("dark");
-    setIsDark(isDarkMode);
-  }, []);
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [isDark]);
 
   const toggleDarkMode = () => {
     const nextDark = !isDark;
     setIsDark(nextDark);
-    if (nextDark) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("shikshagap_theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
+    try {
+      localStorage.setItem("shikshagap_theme", nextDark ? "dark" : "light");
+    } catch {
+      // ignore
     }
   };
 

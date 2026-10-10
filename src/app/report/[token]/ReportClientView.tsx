@@ -10,7 +10,7 @@ interface Props {
   expiresAt: number;
 }
 
-export default function ReportClientView({ studentId, expiresAt }: Props) {
+export default function ReportClientView({ expiresAt }: Props) {
   const [lang, setLang] = useState<'en' | 'hi' | 'te'>('en');
 
   // Formatted expiry date

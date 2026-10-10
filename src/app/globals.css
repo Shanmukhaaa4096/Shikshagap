@@ -53,48 +53,70 @@
 }
 
 :root {
-  /* Light mode: Cream background tint, brown text */
-  --background: #FAF8E8;
-  --foreground: #432623;
-  --card: #F5F1BC;
-  --card-foreground: #432623;
-  --popover: #FAF8E8;
-  --popover-foreground: #432623;
-  --primary: #DE2A35;
-  --primary-foreground: #FAF8E8;
-  --secondary: #F5F1BC;
-  --secondary-foreground: #432623;
-  --muted: #EFEBC0;
-  --muted-foreground: rgba(67, 38, 35, 0.7);
-  --accent: #DFA06E;
-  --accent-foreground: #432623;
-  --destructive: #DE2A35;
-  --border: rgba(67, 38, 35, 0.25);
-  --input: rgba(67, 38, 35, 0.25);
-  --ring: #DE2A35;
+  /* Light mode: Warm neutral background, charcoal text, accessible blue accent */
+  --background: #F8F7F4;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --popover: #F8F7F4;
+  --popover-foreground: #0F172A;
+  --primary: #1D4ED8;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F1EFEA;
+  --secondary-foreground: #0F172A;
+  --muted: #E2E8F0;
+  --muted-foreground: #475569;
+  --accent: #1D4ED8;
+  --accent-foreground: #FFFFFF;
+  --destructive: #B91C1C;
+  --border: #CBD5E1;
+  --input: #CBD5E1;
+  --ring: #1D4ED8;
   --radius: 2px;
+
+  /* Learning Status Tokens (reserved strictly for learning mastery and alerts) */
+  --status-good: #15803D;
+  --status-good-bg: #DCFCE7;
+  --status-good-border: #86EFAC;
+  --status-warn: #B45309;
+  --status-warn-bg: #FEF3C7;
+  --status-warn-border: #FCD34D;
+  --status-urgent: #B91C1C;
+  --status-urgent-bg: #FEE2E2;
+  --status-urgent-border: #FCA5A5;
 }
 
 .dark {
-  /* Dark mode: Brown background, cream text */
-  --background: #432623;
-  --foreground: #F5F1BC;
-  --card: #4E2E2A;
-  --card-foreground: #F5F1BC;
-  --popover: #432623;
-  --popover-foreground: #F5F1BC;
-  --primary: #DE2A35;
-  --primary-foreground: #FAF8E8;
-  --secondary: #3D221F;
-  --secondary-foreground: #F5F1BC;
-  --muted: #3B201E;
-  --muted-foreground: rgba(245, 241, 188, 0.7);
-  --accent: #DFA06E;
-  --accent-foreground: #432623;
-  --destructive: #DE2A35;
-  --border: rgba(245, 241, 188, 0.25);
-  --input: rgba(245, 241, 188, 0.25);
-  --ring: #DFA06E;
+  /* Dark mode: Deep navy background, light text, accessible blue accent */
+  --background: #0F172A;
+  --foreground: #F8FAFC;
+  --card: #1E293B;
+  --card-foreground: #F8FAFC;
+  --popover: #0F172A;
+  --popover-foreground: #F8FAFC;
+  --primary: #3B82F6;
+  --primary-foreground: #0F172A;
+  --secondary: #1E293B;
+  --secondary-foreground: #F8FAFC;
+  --muted: #334155;
+  --muted-foreground: #94A3B8;
+  --accent: #3B82F6;
+  --accent-foreground: #0F172A;
+  --destructive: #EF4444;
+  --border: #334155;
+  --input: #334155;
+  --ring: #3B82F6;
+
+  /* Learning Status Tokens (Dark) */
+  --status-good: #4ADE80;
+  --status-good-bg: rgba(34, 197, 94, 0.15);
+  --status-good-border: rgba(34, 197, 94, 0.4);
+  --status-warn: #FBBF24;
+  --status-warn-bg: rgba(245, 158, 11, 0.15);
+  --status-warn-border: rgba(245, 158, 11, 0.4);
+  --status-urgent: #F87171;
+  --status-urgent-bg: rgba(239, 68, 68, 0.15);
+  --status-urgent-border: rgba(239, 68, 68, 0.4);
 }
 
 @layer base {

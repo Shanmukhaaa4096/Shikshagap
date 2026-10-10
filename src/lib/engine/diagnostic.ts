@@ -4,7 +4,6 @@
  * to isolate root-cause learning gaps.
  */
 import {
-  CONCEPTS,
   TOPICS,
   prerequisitesOf,
   ancestorsOf,
@@ -167,7 +166,7 @@ export function findRootCauses(responses: Response[]): RootCause[] {
     const evidence: EvidenceItem[] = relevantResps.map((r) => ({
       questionId: r.questionId,
       conceptId: r.conceptId,
-      prompt: { key: `q.${r.conceptId}` as any },
+      prompt: { raw: `Solve ${r.conceptId.replace(/_/g, " ")}` },
       answer: r.answer,
       correctAnswer: r.correct ? r.answer : "(correct answer)",
       correct: r.correct,
@@ -679,7 +678,7 @@ export function evaluateAndDecideStep(
 
   // 6. Otherwise, continue testing within topic with difficulty adaptation
   let nextDifficulty: Difficulty = 2;
-  let nextConceptToTest = currentTopicTargets.find((c: ConceptId) => c !== lastConcept) || currentTopicTargets[0];
+  const nextConceptToTest = currentTopicTargets.find((c: ConceptId) => c !== lastConcept) || currentTopicTargets[0];
 
 
   if (lastCorrect) {

@@ -115,7 +115,7 @@ export async function syncOfflineQueue(): Promise<{
       syncedCount: result.processedCount || queue.length,
       remainingCount: 0,
     };
-  } catch (err) {
+  } catch {
     return {
       success: false,
       syncedCount: 0,

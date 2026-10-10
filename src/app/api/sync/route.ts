@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '@/lib/auth/session';
-import { logAuditEvent, saveTeacherOverride, hashIp, TeacherOverrideRecord } from '@/lib/server/store';
+import { logAuditEvent, saveTeacherOverride, hashIp } from '@/lib/server/store';
 
 export async function POST(req: NextRequest) {
   try {

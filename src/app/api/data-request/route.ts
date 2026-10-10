@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
         "Your request under India's Digital Personal Data Protection Act 2023 has been logged. Our Data Protection Officer will review and verify your identity within 7 business days, and resolve the request within 30 days.",
       timelineDays: 30,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to process data request. Please try again or contact privacy@shikshagap.in" },
       { status: 500 }

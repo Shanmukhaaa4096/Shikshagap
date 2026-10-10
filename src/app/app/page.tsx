@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { LanguageProvider } from '@/lib/i18n/context';
 import { Header } from '@/components/Header';
 import { TeacherDashboard } from '@/components/TeacherDashboard';
@@ -22,12 +22,6 @@ function AuthenticatedApp() {
   // Reassessment specific triggers
   const [reassessStudentId, setReassessStudentId] = useState<string | undefined>();
   const [reassessConceptId, setReassessConceptId] = useState<string | undefined>();
-
-  // Load students on mount
-  useEffect(() => {
-    const loaded = loadStudents();
-    setStudents(loaded);
-  }, []);
 
   const handleResetDemo = () => {
     const fresh = resetDemoData();

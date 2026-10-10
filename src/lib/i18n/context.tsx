@@ -15,18 +15,27 @@ interface I18nContextType {
 const I18nContext = createContext<I18nContextType | null>(null);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("en");
+  const [lang, setLangState] = useState<Lang>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("shikshagap_lang") as Lang | null;
+        if (saved === "en" || saved === "hi" || saved === "te") {
+          return saved;
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return "en";
+  });
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("shikshagap_lang") as Lang | null;
-      if (saved === "en" || saved === "hi" || saved === "te") {
-        setLangState(saved);
-      }
+      document.documentElement.lang = lang;
     } catch {
-      // ignore SSR or storage restrictions
+      // ignore
     }
-  }, []);
+  }, [lang]);
 
   const setLang = (newLang: Lang) => {
     setLangState(newLang);

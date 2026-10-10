@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle, Warning, CaretDown, CaretUp, PaperPlaneRight, ShieldCheck } from '@phosphor-icons/react';
+import { ArrowLeft, CheckCircle, Warning, CaretDown, CaretUp, PaperPlaneRight } from '@phosphor-icons/react';
 
 export default function HowItWorksPage() {
   const [reportTopic, setReportTopic] = useState('subtraction');

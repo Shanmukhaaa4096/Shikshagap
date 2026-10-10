@@ -15,7 +15,7 @@ interface Props {
 }
 
 export function WorksheetModal({ data, isOpen, onClose }: Props) {
-  const { dict, t, formatTxt } = useI18n();
+  const { t, formatTxt } = useI18n();
 
   if (!data) return null;
 

@@ -7,10 +7,12 @@ import type {
   Classroom,
   ConceptId,
   MasteryEstimate,
+  MasteryStatus,
   RemediationPlan,
   RootCause,
   Student,
   StudentProfile,
+  StudentStatus,
 } from "@/lib/types";
 import { generateRemediationPlan } from "@/lib/engine/remediation";
 
@@ -80,7 +82,7 @@ function buildConceptsMap(status: string, rootId: ConceptId | null, roll: number
 
   allConcepts.forEach((cid, idx) => {
     let mastery = 0.85;
-    let st: any = "mastered";
+    let st: MasteryStatus = "mastered";
 
     const variance = ((roll * 17 + idx * 23) % 15) / 100;
 
@@ -149,7 +151,7 @@ export function initializeDemoData(): DemoStudentData[] {
           {
             questionId: `ev_${item.roll}_1`,
             conceptId: rootId,
-            prompt: { key: `q.${rootId}` as any },
+            prompt: { raw: `Solve ${rootId.replace(/_/g, " ")}` },
             answer: "Wrong Answer",
             correctAnswer: "Correct Answer",
             correct: false,
@@ -172,7 +174,7 @@ export function initializeDemoData(): DemoStudentData[] {
 
     const profile: StudentProfile = {
       studentId: sId,
-      status: item.status as any,
+      status: item.status as StudentStatus,
       overallMastery: overallMastery / 100,
       confidence: 0.85,
       concepts,

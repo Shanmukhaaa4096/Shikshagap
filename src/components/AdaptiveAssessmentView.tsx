@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import type {
+  Classification,
   ConceptId,
   DiagnosticResult,
   Question,
@@ -13,7 +14,6 @@ import type {
 } from "@/lib/types";
 import type { DemoStudentData } from "@/lib/data/demo";
 import { useI18n } from "@/lib/i18n/context";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
   Brain,
@@ -23,11 +23,7 @@ import {
   Question as QuestionIcon,
   CaretDown,
   CaretUp,
-  Stack,
-  GraduationCap,
-  Warning,
   ArrowCounterClockwise,
-  Check,
 } from "@phosphor-icons/react";
 import {
   initAssessmentAgent,
@@ -36,7 +32,7 @@ import {
   CURRICULUM_TOPICS,
   TOPIC_DISPLAY_NAMES,
 } from "@/lib/engine/diagnostic";
-import { CONCEPTS, TOPICS } from "@/lib/concepts/graph";
+import { TOPICS } from "@/lib/concepts/graph";
 import { uid, makeRng } from "@/lib/rng";
 
 interface Props {
@@ -73,6 +69,7 @@ export function AdaptiveAssessmentView({
   const [showTeacherTrace, setShowTeacherTrace] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [completedProfile, setCompletedProfile] = useState<DiagnosticResult | null>(null);
+  const lastResponseRef = React.useRef<StudentResponse | null>(null);
 
   const activeStudent = students.find((s) => s.student.id === selectedStudentId);
 
@@ -129,7 +126,7 @@ export function AdaptiveAssessmentView({
 
     const isCorrect = trimmed === String(currentQuestion.answer);
 
-    let classification: any = isCorrect ? "correct" : "unclassified";
+    let classification: Classification = isCorrect ? "correct" : "unclassified";
     if (!isCorrect && currentQuestion.meta.bugs && currentQuestion.meta.bugs[trimmed]) {
       classification = currentQuestion.meta.bugs[trimmed];
     } else if (!isCorrect) {
@@ -157,14 +154,14 @@ export function AdaptiveAssessmentView({
         : "Let's check a related question to understand this.",
     });
 
-    (window as any).__lastResponse = newResponse;
+    lastResponseRef.current = newResponse;
   };
 
   // Advance to next adaptive step
   const handleNextStep = async () => {
     if (!agentState) return;
 
-    const lastResp: StudentResponse | undefined = (window as any).__lastResponse;
+    const lastResp: StudentResponse | undefined = lastResponseRef.current || undefined;
     setFeedback(null);
     setUserAnswer("");
     setShowHint(false);
@@ -195,7 +192,7 @@ export function AdaptiveAssessmentView({
       }
     } catch {
       // Deterministic fallback
-      const fallback = evaluateAndDecideStep(agentState, lastResp, makeRng(Date.now()));
+      const fallback = evaluateAndDecideStep(agentState, lastResp, makeRng(agentState.responses.length + 1));
       const nextState = fallback.nextState;
       setAgentState(nextState);
       setCurrentDecision(fallback.decision);

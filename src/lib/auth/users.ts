@@ -15,8 +15,8 @@ const USERS: StoredUser[] = [
     role: "teacher",
     schoolId: "sch_mpps_rampur",
     classId: "class_5a",
-    // bcrypt hash of "ShikshaTeacher@2026"
-    passwordHash: "$2a$10$wI5f2h7aQpX3U9X1pUqKGeB4b4L6D5E9zF8a0b1c2d3e4f5g6h7i8",
+    // Verified bcrypt hash of "ShikshaTeacher@2026"
+    passwordHash: process.env.DEMO_TEACHER_HASH || "$2b$10$gpdgL818eby42wLrinnq6.8Z1ZNnmzVFI3Lc0QHxljk4oG3ds5YC.",
   },
   {
     id: "usr_admin_1",
@@ -24,15 +24,15 @@ const USERS: StoredUser[] = [
     name: "Headmaster K. Rao",
     role: "school_admin",
     schoolId: "sch_mpps_rampur",
-    // bcrypt hash of "ShikshaAdmin@2026"
-    passwordHash: "$2a$10$wI5f2h7aQpX3U9X1pUqKGeB4b4L6D5E9zF8a0b1c2d3e4f5g6h7i8",
+    // Verified bcrypt hash of "ShikshaAdmin@2026"
+    passwordHash: process.env.DEMO_ADMIN_HASH || "$2b$10$ifEVNWAd2Xqi3TbPhPhPDuJjUQqp9ut4KXUSerTkTQ/jfjsQzUm4G",
   },
 ];
 
 // Fallback password for demo login convenience
 const DEMO_PASSWORDS: Record<string, string> = {
-  "teacher@shikshagap.in": "ShikshaTeacher@2026",
-  "admin@shikshagap.in": "ShikshaAdmin@2026",
+  "teacher@shikshagap.in": process.env.DEMO_TEACHER_PASSWORD || "ShikshaTeacher@2026",
+  "admin@shikshagap.in": process.env.DEMO_ADMIN_PASSWORD || "ShikshaAdmin@2026",
 };
 
 // In-memory rate limiting map (IP / email -> { attempts, lockedUntil })

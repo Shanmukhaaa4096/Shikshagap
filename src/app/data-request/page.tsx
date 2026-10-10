@@ -140,7 +140,7 @@ export default function DataRequestPage() {
                 <label className="font-bold text-[#432623]">Your Relationship to Student *</label>
                 <select
                   value={formData.requesterRole}
-                  onChange={(e) => setFormData({ ...formData, requesterRole: e.target.value as any })}
+                  onChange={(e) => setFormData({ ...formData, requesterRole: e.target.value as "parent" | "teacher" | "student" | "guardian" })}
                   className="w-full h-9 px-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623]"
                 >
                   <option value="parent">Parent</option>
@@ -211,7 +211,7 @@ export default function DataRequestPage() {
               <label className="font-bold text-[#432623]">Type of Request *</label>
               <select
                 value={formData.requestType}
-                onChange={(e) => setFormData({ ...formData, requestType: e.target.value as any })}
+                onChange={(e) => setFormData({ ...formData, requestType: e.target.value as "access" | "correction" | "deletion" | "grievance" })}
                 className="w-full h-9 px-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623]"
               >
                 <option value="access">Access: Request copy of all academic diagnostic records</option>

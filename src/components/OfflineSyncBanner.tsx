@@ -1,24 +1,37 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { WifiSlash, ArrowsClockwise, Warning, Check, X } from '@phosphor-icons/react';
+import { WifiSlash, ArrowsClockwise, Warning, X } from '@phosphor-icons/react';
 import { getOfflineQueue, syncOfflineQueue, getLastSyncTime } from '@/lib/offline/sync';
 
 export function OfflineSyncBanner() {
-  const [isOnline, setIsOnline] = useState(true);
+  const [isOnline, setIsOnline] = useState(() => {
+    if (typeof navigator !== 'undefined') {
+      return navigator.onLine;
+    }
+    return true;
+  });
   const [queuedCount, setQueuedCount] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [lastSyncMinutes, setLastSyncMinutes] = useState<number | null>(null);
-  const [syncStatus, setSyncStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [showSharedNotice, setShowSharedNotice] = useState(true);
+
+  const triggerSync = React.useCallback(async () => {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+    setIsSyncing(true);
+
+    const result = await syncOfflineQueue();
+    setIsSyncing(false);
+
+    if (result.success) {
+      setQueuedCount(0);
+    }
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    setIsOnline(navigator.onLine);
     const updateOnline = () => {
       setIsOnline(true);
-      // Auto sync when coming back online
       triggerSync();
     };
     const updateOffline = () => setIsOnline(false);
@@ -30,10 +43,7 @@ export function OfflineSyncBanner() {
     const checkQueue = () => {
       const q = getOfflineQueue();
       setQueuedCount(q.length);
-      const last = getLastSyncTime();
-      if (last) {
-        setLastSyncMinutes(Math.floor((Date.now() - last) / 60000));
-      }
+      getLastSyncTime();
     };
 
     checkQueue();
@@ -44,25 +54,7 @@ export function OfflineSyncBanner() {
       window.removeEventListener('offline', updateOffline);
       clearInterval(interval);
     };
-  }, []);
-
-  const triggerSync = async () => {
-    if (!navigator.onLine) return;
-    setIsSyncing(true);
-    setSyncStatus('idle');
-
-    const result = await syncOfflineQueue();
-    setIsSyncing(false);
-
-    if (result.success) {
-      setSyncStatus('success');
-      setQueuedCount(0);
-      setLastSyncMinutes(0);
-      setTimeout(() => setSyncStatus('idle'), 3000);
-    } else {
-      setSyncStatus('error');
-    }
-  };
+  }, [triggerSync]);
 
   // If online with 0 queued items and shared notice dismissed, keep UI completely unobtrusive
   if (isOnline && queuedCount === 0 && !showSharedNotice) {

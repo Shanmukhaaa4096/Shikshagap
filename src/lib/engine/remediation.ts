@@ -5,7 +5,6 @@
  */
 import type { ConceptId, PlanDay, RemediationPlan, RootCause } from "@/lib/types";
 import { CONCEPTS } from "@/lib/concepts/graph";
-import { uid } from "@/lib/rng";
 
 interface PlanTemplate {
   conceptId: ConceptId;

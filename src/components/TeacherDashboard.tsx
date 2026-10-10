@@ -6,6 +6,7 @@ import { useI18n } from "@/lib/i18n/context";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { OfflineSyncBanner } from "@/components/OfflineSyncBanner";
+import { NoSearchResultsState, EmptyState } from "@/components/StateScreens";
 import {
   House,
   Users,
@@ -13,14 +14,8 @@ import {
   FileText,
   MagnifyingGlass,
   ArrowRight,
-  Brain,
-  ArrowDown,
   Printer,
-  FileArrowDown,
-  CheckCircle,
   Warning,
-  Table,
-  TreeStructure,
 } from "@phosphor-icons/react";
 import { CONCEPTS, CONCEPT_IDS, prerequisitesOf, dependentsOf } from "@/lib/concepts/graph";
 import type { ConceptId } from "@/lib/types";
@@ -456,138 +451,164 @@ export function TeacherDashboard({
             </div>
           </div>
 
-          {/* Mobile Card View (< 640px) */}
-          <div className="sm:hidden space-y-3">
-            {filteredStudents.map((s) => {
-              const root = s.profile.rootCauses[0];
-              const isCritical = s.profile.status === "critical";
-              const isNeedPractice = s.profile.status === "need_practice";
-
-              return (
-                <div
-                  key={s.student.id}
-                  onClick={() => onSelectStudent(s)}
-                  className="p-4 border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] cursor-pointer hover:border-[#DE2A35] space-y-2"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="font-serif font-bold text-base text-[#432623] dark:text-[#F5F1BC]">
-                        {s.student.name}
-                      </span>
-                      <span className="text-xs font-mono text-[#432623]/60 dark:text-[#F5F1BC]/60 ml-1.5">
-                        #{s.student.rollNo}
-                      </span>
-                    </div>
-
-                    <span
-                      className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-[2px] border ${
-                        isCritical
-                          ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]"
-                          : isNeedPractice
-                          ? "bg-[#DFA06E]/20 text-[#432623] border-[#DFA06E]"
-                          : "bg-[#8ABB93]/20 text-[#8ABB93] border-[#8ABB93]"
-                      }`}
-                    >
-                      {isCritical ? "Critical" : isNeedPractice ? "Need Practice" : "On Track"}
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80">
-                    {root ? (
-                      <span>Gap: <strong className="text-[#DE2A35]">{t(`c_${root.rootId}`)}</strong></span>
-                    ) : (
-                      <span className="text-[#8ABB93] font-semibold">Mastering Grade 5 curriculum</span>
-                    )}
-                  </p>
-
-                  <div className="flex items-center justify-between pt-1 border-t border-[#432623]/10 dark:border-[#F5F1BC]/10 text-xs font-mono">
-                    <span className="text-[#432623]/70 dark:text-[#F5F1BC]/70">
-                      Mastery: {Math.round((s.profile.overallMastery ?? 0) * 100)}%
-                    </span>
-                    <span className="text-[#DE2A35] font-bold">Tap to view report &rarr;</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Desktop Table View (>= 640px) */}
-          <div className="hidden sm:block border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs sm:text-sm">
-                <thead className="bg-[#F5F1BC]/50 dark:bg-[#432623]/60 text-[#432623] dark:text-[#F5F1BC] font-bold text-xs border-b border-[#432623]/20 dark:border-[#F5F1BC]/20">
-                  <tr>
-                    <th className="py-3 px-4">Student</th>
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4">Main Learning Gap</th>
-                    <th className="py-3 px-4">Mastery</th>
-                    <th className="py-3 px-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#432623]/15 dark:divide-[#F5F1BC]/15">
-                  {filteredStudents.map((s) => {
-                    const root = s.profile.rootCauses[0];
-                    const isCritical = s.profile.status === "critical";
-                    const isNeedPractice = s.profile.status === "need_practice";
-
-                    return (
-                      <tr key={s.student.id} className="hover:bg-[#F5F1BC]/30 dark:hover:bg-[#432623]/40">
-                        <td className="py-3 px-4 font-semibold text-[#432623] dark:text-[#F5F1BC]">
-                          <div className="font-bold">{s.student.name}</div>
-                          <div className="text-[11px] text-[#432623]/60 dark:text-[#F5F1BC]/60 font-mono">
-                            Roll #{s.student.rollNo}
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">
-                          <span
-                            className={`inline-block px-2 py-0.5 rounded-[2px] text-[10px] font-mono font-bold uppercase border ${
-                              isCritical
-                                ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]"
-                                : isNeedPractice
-                                ? "bg-[#DFA06E]/20 text-[#432623] dark:text-[#F5F1BC] border-[#DFA06E]"
-                                : "bg-[#8ABB93]/20 text-[#8ABB93] border-[#8ABB93]"
-                            }`}
-                          >
-                            {isCritical ? "Critical" : isNeedPractice ? "Need Practice" : "On Track"}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-xs">
-                          {root ? (
-                            <span className="font-bold text-[#DE2A35]">{t(`c_${root.rootId}`)}</span>
-                          ) : (
-                            <span className="text-[#8ABB93] font-semibold">Solid prerequisite foundation</span>
-                          )}
-                        </td>
-                        <td className="py-3 px-4 font-mono font-bold text-xs">
-                          {Math.round((s.profile.overallMastery ?? 0) * 100)}%
-                        </td>
-                        <td className="py-3 px-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <button
-                              type="button"
-                              onClick={() => onSelectStudent(s)}
-                              className="min-h-[36px] px-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-xs font-mono uppercase font-bold hover:bg-[#F5F1BC]"
-                            >
-                              Report
-                            </button>
-                            {root && (
-                              <button
-                                type="button"
-                                onClick={() => onOpenAssessment(s.student.id, root.rootId)}
-                                className="min-h-[36px] px-3 bg-[#DE2A35] text-[#F5F1BC] text-xs font-mono uppercase font-bold border border-[#DE2A35] hover:bg-[#DE2A35]/90"
-                              >
-                                Practice
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+          {filteredStudents.length === 0 ? (
+            <div className="py-4">
+              {students.length === 0 ? (
+                <EmptyState />
+              ) : (
+                <NoSearchResultsState
+                  onClear={() => {
+                    setSearchQuery("");
+                    setFilterStatus("all");
+                  }}
+                />
+              )}
             </div>
-          </div>
+          ) : (
+            <>
+              {/* Mobile Card View (< 640px) */}
+              <div className="sm:hidden space-y-3">
+                {filteredStudents.map((s) => {
+                  const root = s.profile.rootCauses[0];
+                  const isCritical = s.profile.status === "critical";
+                  const isNeedPractice = s.profile.status === "need_practice";
+
+                  return (
+                    <div
+                      key={s.student.id}
+                      onClick={() => onSelectStudent(s)}
+                      className="p-4 border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] cursor-pointer hover:border-[#1D4ED8] space-y-2"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="font-serif font-bold text-base text-[#432623] dark:text-[#F5F1BC]">
+                            {s.student.name}
+                          </span>
+                          <span className="text-xs font-mono text-[#432623]/60 dark:text-[#F5F1BC]/60 ml-1.5">
+                            #{s.student.rollNo}
+                          </span>
+                        </div>
+
+                        <span
+                          className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-[2px] border ${
+                            isCritical
+                              ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]"
+                              : isNeedPractice
+                              ? "bg-[#DFA06E]/20 text-[#432623] dark:text-[#F5F1BC] border-[#DFA06E]"
+                              : "bg-[#8ABB93]/20 text-[#8ABB93] border-[#8ABB93]"
+                          }`}
+                        >
+                          {isCritical ? "Need Immediate Help" : isNeedPractice ? "Need Practice" : "On Track"}
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80">
+                        {root ? (
+                          <span>Needs practice with: <strong className="text-[#DE2A35]">{t(`c_${root.rootId}`)}</strong></span>
+                        ) : (
+                          <span className="text-[#8ABB93] font-semibold">Understands foundational concepts</span>
+                        )}
+                      </p>
+
+                      <div className="flex items-center justify-between pt-1 border-t border-[#432623]/10 dark:border-[#F5F1BC]/10 text-xs font-mono">
+                        <span className="text-[#432623]/70 dark:text-[#F5F1BC]/70">
+                          Understanding: {Math.round((s.profile.overallMastery ?? 0) * 100)}%
+                        </span>
+                        <span className="text-[#1D4ED8] font-bold">View report</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop Table View (>= 640px) */}
+              <div className="hidden sm:block border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs sm:text-sm">
+                    <thead className="bg-[#F5F1BC]/50 dark:bg-[#432623]/60 text-[#432623] dark:text-[#F5F1BC] font-bold text-xs border-b border-[#432623]/20 dark:border-[#F5F1BC]/20">
+                      <tr>
+                        <th className="py-3 px-4">Student</th>
+                        <th className="py-3 px-4">Status</th>
+                        <th className="py-3 px-4">Topic Needing Practice</th>
+                        <th className="py-3 px-4">Understanding</th>
+                        <th className="py-3 px-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#432623]/15 dark:divide-[#F5F1BC]/15">
+                      {filteredStudents.map((s) => {
+                        const root = s.profile.rootCauses[0];
+                        const isCritical = s.profile.status === "critical";
+                        const isNeedPractice = s.profile.status === "need_practice";
+
+                        return (
+                          <tr key={s.student.id} className="hover:bg-[#F5F1BC]/30 dark:hover:bg-[#432623]/40">
+                            <td className="py-3 px-4 font-semibold text-[#432623] dark:text-[#F5F1BC]">
+                              <div className="font-bold">{s.student.name}</div>
+                              <div className="text-[11px] text-[#432623]/60 dark:text-[#F5F1BC]/60 font-mono">
+                                Roll #{s.student.rollNo}
+                              </div>
+                            </td>
+                            <td className="py-3 px-4">
+                              <span
+                                className={`inline-block px-2 py-0.5 rounded-[2px] text-[10px] font-mono font-bold uppercase border ${
+                                  isCritical
+                                    ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]"
+                                    : isNeedPractice
+                                    ? "bg-[#DFA06E]/20 text-[#432623] dark:text-[#F5F1BC] border-[#DFA06E]"
+                                    : "bg-[#8ABB93]/20 text-[#8ABB93] border-[#8ABB93]"
+                                }`}
+                              >
+                                {isCritical ? "Need Immediate Help" : isNeedPractice ? "Need Practice" : "On Track"}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-xs">
+                              {root ? (
+                                <span className="font-bold text-[#DE2A35]">{t(`c_${root.rootId}`)}</span>
+                              ) : (
+                                <span className="text-[#8ABB93] font-semibold">Understands foundational concepts</span>
+                              )}
+                            </td>
+                            <td className="py-3 px-4 font-mono font-bold text-xs">
+                              {Math.round((s.profile.overallMastery ?? 0) * 100)}%
+                            </td>
+                            <td className="py-3 px-4 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => onSelectStudent(s)}
+                                  className="min-h-[36px] px-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-xs font-mono uppercase font-bold hover:bg-[#F5F1BC]"
+                                >
+                                  Report
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => onPrintWorksheet(s)}
+                                  className="min-h-[36px] px-2.5 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-xs font-mono uppercase font-bold hover:bg-[#F5F1BC] inline-flex items-center gap-1"
+                                  title="Print 1-page paper worksheet"
+                                >
+                                  <Printer size={13} />
+                                  <span>Sheet</span>
+                                </button>
+                                {root && (
+                                  <button
+                                    type="button"
+                                    onClick={() => onOpenAssessment(s.student.id, root.rootId)}
+                                    className="min-h-[36px] px-3 bg-[#1D4ED8] text-white text-xs font-mono uppercase font-bold border border-[#1D4ED8] hover:bg-[#1E40AF]"
+                                  >
+                                    Practice
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )}
         </section>
       )}
 

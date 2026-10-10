@@ -6,7 +6,6 @@ import { useI18n } from "@/lib/i18n/context";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   CheckCircle,
-  XCircle,
   ArrowRight,
   Printer,
   Clock,
@@ -77,7 +76,7 @@ export function StudentDiagnosticModal({
           originalRootGapLabel: rootCause ? t(`c_${rootCause.rootId}`) : 'Unclassified',
           decision: overrideDecision,
           newRootGapId: overrideDecision === 'changed' ? alternateConcept : undefined,
-          newRootGapLabel: overrideDecision === 'changed' ? (CONCEPTS as any)[alternateConcept]?.name : undefined,
+          newRootGapLabel: overrideDecision === 'changed' ? t(`c_${alternateConcept}`) : undefined,
           teacherNote,
         }),
       });
@@ -288,9 +287,9 @@ export function StudentDiagnosticModal({
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab("override" as any)}
+              onClick={() => setActiveTab("override")}
               className={`min-h-[40px] px-3 py-1 font-semibold rounded-[2px] border flex items-center gap-1.5 ${
-                (activeTab as string) === "override"
+                activeTab === "override"
                   ? "bg-[var(--foreground)] text-[var(--background)] border-[var(--foreground)]"
                   : "bg-[var(--background)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--muted)]"
               }`}
@@ -299,9 +298,9 @@ export function StudentDiagnosticModal({
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab("share" as any)}
+              onClick={() => setActiveTab("share")}
               className={`min-h-[40px] px-3 py-1 font-semibold rounded-[2px] border flex items-center gap-1.5 ${
-                (activeTab as string) === "share"
+                activeTab === "share"
                   ? "bg-[var(--foreground)] text-[var(--background)] border-[var(--foreground)]"
                   : "bg-[var(--background)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--muted)]"
               }`}
@@ -391,7 +390,7 @@ export function StudentDiagnosticModal({
                     <button
                       type="button"
                       onClick={() => onStartReassessment(student.id, rootCause.rootId)}
-                      className="min-h-[44px] px-5 py-2 text-xs font-bold bg-[#DE2A35] text-[#F5F1BC] rounded-[2px] border border-[#DE2A35] flex items-center gap-2"
+                      className="min-h-[44px] px-5 py-2 text-xs font-bold bg-[#1D4ED8] text-white rounded-[2px] border border-[#1D4ED8] hover:bg-[#1E40AF] flex items-center gap-2"
                     >
                       <span>{dict.startPractice || "Start Reassessment"}</span>
                       <ArrowRight size={15} />
@@ -761,7 +760,7 @@ export function StudentDiagnosticModal({
                     >
                       {Object.entries(CONCEPTS).map(([id, c]) => (
                         <option key={id} value={id}>
-                          {t(`c_${id}` as any) || id.replace(/_/g, ' ')} (Grade {c.grade})
+                          {t(`c_${id}`) || id.replace(/_/g, ' ')} (Grade {c.grade})
                         </option>
                       ))}
                     </select>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 
 // Consistent SVG stroke icons (no emojis, no lucide, no sparkles)
@@ -76,33 +76,33 @@ interface BaseStateProps {
 export function EmptyState({ lang = 'en', onAction, className = '' }: BaseStateProps) {
   const text = {
     en: {
-      title: 'No Student Records Found',
-      desc: 'No diagnostic assessments have been recorded for this classroom cohort yet.',
-      action: 'Create New Assessment'
+      title: 'No Students Added Yet',
+      desc: 'No students added yet. Add a student to start checking their learning.',
+      action: 'Add Student'
     },
     hi: {
-      title: 'कोई छात्र रिकॉर्ड नहीं मिला',
-      desc: 'इस कक्षा समूह के लिए अभी तक कोई नैदानिक मूल्यांकन दर्ज नहीं किया गया है।',
-      action: 'नया मूल्यांकन शुरू करें'
+      title: 'अभी कोई छात्र नहीं जोड़ा गया',
+      desc: 'अभी कोई छात्र नहीं है। सीखने की जांच शुरू करने के लिए छात्र जोड़ें।',
+      action: 'छात्र जोड़ें'
     },
     te: {
-      title: 'విద్యార్థి రికార్డులు కనుగొనబడలేదు',
-      desc: 'ఈ తరగతి కోసం ఇంకా ఎటువంటి రోగనిర్ధారణ మూల్యాంకనాలు నమోదు కాలేదు.',
-      action: 'కొత్త మూల్యాంకనాన్ని ప్రారంభించండి'
+      title: 'ఇంకా విద్యార్థులు చేర్చబడలేదు',
+      desc: 'ఇంకా ఎవరూ లేరు. పరిశీలన ప్రారంభించడానికి విద్యార్థిని జోడించండి.',
+      action: 'విద్యార్థిని జోడించండి'
     }
   }[lang];
 
   return (
-    <div className={`border border-[#432623]/25 dark:border-[#F5F1BC]/25 p-8 text-center bg-[#FAF8E8] dark:bg-[#381f1c] ${className}`}>
-      <div className="flex justify-center mb-3 text-[#432623]/60 dark:text-[#F5F1BC]/60">
+    <div className={`border border-[#CBD5E1] dark:border-[#334155] p-8 text-center bg-white dark:bg-[#1E293B] ${className}`}>
+      <div className="flex justify-center mb-3 text-[#475569] dark:text-[#94A3B8]">
         <SvgIcons.Empty />
       </div>
-      <h3 className="font-serif text-lg font-bold mb-1 text-[#432623] dark:text-[#F5F1BC]">{text.title}</h3>
-      <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 max-w-md mx-auto mb-5 leading-relaxed">{text.desc}</p>
+      <h3 className="font-serif text-lg font-bold mb-1 text-[#0F172A] dark:text-[#F8FAFC]">{text.title}</h3>
+      <p className="text-xs text-[#475569] dark:text-[#94A3B8] max-w-md mx-auto mb-5 leading-relaxed">{text.desc}</p>
       {onAction && (
         <button
           onClick={onAction}
-          className="border border-[#432623] dark:border-[#F5F1BC] bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#DE2A35]"
+          className="border border-[#1D4ED8] bg-[#1D4ED8] text-white px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#1E40AF] min-h-[44px]"
         >
           {text.action}
         </button>
@@ -138,46 +138,46 @@ interface ErrorStateProps extends BaseStateProps {
 
 export function ErrorState({ 
   lang = 'en', 
-  referenceId = `ERR-${Date.now().toString(36).toUpperCase()}`,
+  referenceId = 'ERR-DIAG',
   errorMessage,
   onRetry, 
   className = '' 
 }: ErrorStateProps) {
   const text = {
     en: {
-      title: 'Unable to Load Diagnostic Data',
-      desc: errorMessage || 'An unexpected server issue occurred during processing.',
-      action: 'Retry Request',
+      title: "We couldn't load this report",
+      desc: errorMessage || 'Please try again.',
+      action: 'Try Again',
       ref: 'Reference ID'
     },
     hi: {
-      title: 'डेटा लोड करने में असमर्थ',
-      desc: errorMessage || 'प्रसंस्करण के दौरान एक अनपेक्षित सर्वर समस्या उत्पन्न हुई।',
+      title: 'हम इस रिपोर्ट को लोड नहीं कर सके',
+      desc: errorMessage || 'कृपया पुनः प्रयास करें।',
       action: 'पुनः प्रयास करें',
       ref: 'संदर्भ संख्या'
     },
     te: {
-      title: 'డేటాను లోడ్ చేయడం సాధ్యం కాలేదు',
-      desc: errorMessage || 'ప్రాసెస్ చేస్తున్నప్పుడు ఊహించని సర్వర్ సమస్య ఏర్పడింది.',
+      title: 'మేము ఈ నివేదికను లోడ్ చేయలేకపోయాము',
+      desc: errorMessage || 'దయచేసి మళ్లీ ప్రయత్నించండి.',
       action: 'మళ్లీ ప్రయత్నించండి',
       ref: 'రిఫరెన్స్ ఐడీ'
     }
   }[lang];
 
   return (
-    <div className={`border border-[#DE2A35] p-8 text-center bg-[#DE2A35]/5 ${className}`} role="alert">
+    <div className={`border border-[#B91C1C] p-8 text-center bg-[#FEE2E2]/30 dark:bg-[#B91C1C]/10 ${className}`} role="alert">
       <div className="flex justify-center mb-3">
         <SvgIcons.Error />
       </div>
-      <h3 className="font-serif text-lg font-bold mb-1 text-[#DE2A35]">{text.title}</h3>
-      <p className="text-xs text-[#432623]/85 dark:text-[#F5F1BC]/85 max-w-md mx-auto mb-3 leading-relaxed">{text.desc}</p>
-      <div className="text-[11px] font-mono text-[#432623]/60 dark:text-[#F5F1BC]/60 mb-5">
+      <h3 className="font-serif text-lg font-bold mb-1 text-[#B91C1C]">{text.title}</h3>
+      <p className="text-xs text-[#475569] dark:text-[#94A3B8] max-w-md mx-auto mb-3 leading-relaxed">{text.desc}</p>
+      <div className="text-[11px] font-mono text-[#475569] dark:text-[#94A3B8] mb-5">
         {text.ref}: <span className="font-bold select-all">{referenceId}</span>
       </div>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="border border-[#DE2A35] bg-[#DE2A35] text-[#F5F1BC] px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#432623]"
+          className="border border-[#1D4ED8] bg-[#1D4ED8] text-white px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#1E40AF] min-h-[44px]"
         >
           {text.action}
         </button>
@@ -272,33 +272,33 @@ export function SlowNetworkState({ lang = 'en', onCancel, className = '' }: { la
 export function NoSearchResultsState({ lang = 'en', onClear, className = '' }: { lang?: LanguageCode; onClear?: () => void; className?: string }) {
   const text = {
     en: {
-      title: 'No Matching Records',
-      desc: 'No students or concepts match the active filter criteria.',
-      action: 'Clear Search Filters'
+      title: 'No Students Found',
+      desc: 'No students match this search. Try another name.',
+      action: 'Clear Search'
     },
     hi: {
-      title: 'कोई मेल नहीं मिला',
-      desc: 'दिए गए खोज मानदंडों से मेल खाने वाला कोई छात्र या विषय नहीं मिला।',
-      action: 'फ़िल्टर हटाएं'
+      title: 'कोई छात्र नहीं मिला',
+      desc: 'इस खोज से कोई छात्र मेल नहीं खाता। दूसरा नाम खोजें।',
+      action: 'खोज साफ़ करें'
     },
     te: {
-      title: 'ఫలితాలు లేవు',
-      desc: 'మీరు వెతికిన సమాచారంతో సరిపోలే విద్యార్థులు లేదా అంశాలు లేవు.',
-      action: 'ఫిల్టర్‌లను తొలగించండి'
+      title: 'విద్యార్థులు ఎవరూ లేరు',
+      desc: 'ఈ శోధనతో ఏ విద్యార్థి సరిపోలలేదు. మరొక పేరును ప్రయత్నించండి.',
+      action: 'శోధన తొలగించండి'
     }
   }[lang];
 
   return (
-    <div className={`border border-[#432623]/25 dark:border-[#F5F1BC]/25 p-8 text-center bg-[#FAF8E8] dark:bg-[#381f1c] ${className}`}>
-      <div className="flex justify-center mb-2 text-[#432623]/60 dark:text-[#F5F1BC]/60">
+    <div className={`border border-[#CBD5E1] dark:border-[#334155] p-8 text-center bg-white dark:bg-[#1E293B] ${className}`}>
+      <div className="flex justify-center mb-2 text-[#475569] dark:text-[#94A3B8]">
         <SvgIcons.NoSearchResults />
       </div>
-      <h3 className="font-serif text-base font-bold mb-1 text-[#432623] dark:text-[#F5F1BC]">{text.title}</h3>
-      <p className="text-xs text-[#432623]/75 dark:text-[#F5F1BC]/75 mb-4">{text.desc}</p>
+      <h3 className="font-serif text-base font-bold mb-1 text-[#0F172A] dark:text-[#F8FAFC]">{text.title}</h3>
+      <p className="text-xs text-[#475569] dark:text-[#94A3B8] mb-4">{text.desc}</p>
       {onClear && (
         <button
           onClick={onClear}
-          className="border border-[#432623] dark:border-[#F5F1BC] px-3.5 py-1.5 text-xs font-mono uppercase hover:bg-[#F5F1BC] dark:hover:bg-[#432623]"
+          className="border border-[#CBD5E1] dark:border-[#334155] px-3.5 py-1.5 text-xs font-mono uppercase hover:bg-[#F1EFEA] dark:hover:bg-[#334155] min-h-[44px]"
         >
           {text.action}
         </button>

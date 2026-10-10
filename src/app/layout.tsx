@@ -38,9 +38,9 @@ const notoTelugu = Noto_Sans_Telugu({
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 
 export const metadata: Metadata = {
-  title: "ShikshaGap | Learning Intelligence and Diagnostic System",
+  title: "ShikshaGap | Find out what each student needs to learn next",
   description:
-    "Editorial diagnostic intelligence platform for Indian elementary mathematics education. Evaluates understanding, identifies foundational gaps, and suggests recovery paths.",
+    "ShikshaGap checks a student's understanding, finds the topics that need more practice and helps teachers plan the next lesson in Indian primary schools.",
   manifest: "/manifest.json",
   icons: {
     icon: "/icon.svg",

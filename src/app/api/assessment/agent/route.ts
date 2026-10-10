@@ -3,9 +3,8 @@ import { GoogleGenAI } from "@google/genai";
 import {
   evaluateAndDecideStep,
   CURRICULUM_TOPICS,
-  TOPIC_DISPLAY_NAMES,
 } from "@/lib/engine/diagnostic";
-import { CONCEPTS, CONCEPT_IDS, TOPICS } from "@/lib/concepts/graph";
+import { CONCEPT_IDS, TOPICS } from "@/lib/concepts/graph";
 import { generateQuestion } from "@/lib/questions/generator";
 import { makeRng } from "@/lib/rng";
 import type {
@@ -14,7 +13,6 @@ import type {
   AssessmentAgentState,
   ConceptId,
   Difficulty,
-  Question,
   Response as StudentResponse,
   TopicId,
 } from "@/lib/types";
@@ -22,6 +20,23 @@ import type {
 interface RequestBody {
   state: AssessmentAgentState;
   lastResponse?: StudentResponse;
+}
+
+// In-memory rate limiting for AI assessment agent endpoint (max 40 requests/min per IP)
+const agentRateLimits = new Map<string, { count: number; resetAt: number }>();
+
+function checkAgentRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = agentRateLimits.get(ip);
+  if (!record || now > record.resetAt) {
+    agentRateLimits.set(ip, { count: 1, resetAt: now + 60 * 1000 });
+    return true;
+  }
+  if (record.count >= 40) {
+    return false;
+  }
+  record.count += 1;
+  return true;
 }
 
 const VALID_ACTIONS: AgentAction[] = [
@@ -40,6 +55,22 @@ const VALID_ACTIONS: AgentAction[] = [
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
+    if (!checkAgentRateLimit(ip)) {
+      return NextResponse.json(
+        { error: "Too many requests. Please wait a moment before trying again." },
+        { status: 429 }
+      );
+    }
+
+    const contentLength = req.headers.get("content-length");
+    if (contentLength && parseInt(contentLength, 10) > 65536) {
+      return NextResponse.json(
+        { error: "Request payload exceeds allowed limit (64KB)." },
+        { status: 413 }
+      );
+    }
+
     const body: RequestBody = await req.json();
     const { state, lastResponse } = body;
 

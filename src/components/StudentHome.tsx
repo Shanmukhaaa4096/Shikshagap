@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import type { DemoStudentData } from "@/lib/data/demo";
 import { useI18n } from "@/lib/i18n/context";
-import { ArrowRight, BookOpen, CheckCircle, Sparkle } from "@phosphor-icons/react";
+import { ArrowRight } from "@phosphor-icons/react";
 
 interface Props {
   studentData: DemoStudentData;

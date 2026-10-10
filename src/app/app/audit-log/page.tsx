@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Funnel, Clock, ShieldCheck, User, WarningCircle } from '@phosphor-icons/react';
+import { ArrowLeft, Funnel } from '@phosphor-icons/react';
 import { LoadingSkeletonState, EmptyState, ErrorState, PermissionDeniedState } from '@/components/StateScreens';
 
 interface AuditLogItem {
@@ -22,41 +22,46 @@ export default function AuditLogPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [actionFilter, setActionFilter] = useState('');
   const [isPermissionDenied, setIsPermissionDenied] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    fetchLogs();
-  }, [actionFilter]);
+    let ignore = false;
 
-  const fetchLogs = async () => {
-    setIsLoading(true);
-    setErrorMessage(null);
-    setIsPermissionDenied(false);
+    async function loadLogs() {
+      try {
+        const url = actionFilter 
+          ? `/api/admin/audit-log?action=${encodeURIComponent(actionFilter)}`
+          : '/api/admin/audit-log';
 
-    try {
-      const url = actionFilter 
-        ? `/api/admin/audit-log?action=${encodeURIComponent(actionFilter)}`
-        : '/api/admin/audit-log';
+        const res = await fetch(url);
+        if (ignore) return;
+        if (res.status === 403) {
+          setIsPermissionDenied(true);
+          setIsLoading(false);
+          return;
+        }
 
-      const res = await fetch(url);
-      if (res.status === 403) {
-        setIsPermissionDenied(true);
-        setIsLoading(false);
-        return;
+        const data = await res.json();
+        if (ignore) return;
+        if (!res.ok) {
+          setErrorMessage(data.error || 'Failed to load audit records.');
+          setIsLoading(false);
+          return;
+        }
+
+        setLogs(data.logs || []);
+      } catch {
+        if (!ignore) setErrorMessage('Network connection failure.');
+      } finally {
+        if (!ignore) setIsLoading(false);
       }
-
-      const data = await res.json();
-      if (!res.ok) {
-        setErrorMessage(data.error || 'Failed to load audit records.');
-        return;
-      }
-
-      setLogs(data.logs || []);
-    } catch {
-      setErrorMessage('Network connection failure.');
-    } finally {
-      setIsLoading(false);
     }
-  };
+
+    loadLogs();
+    return () => {
+      ignore = true;
+    };
+  }, [actionFilter, refreshKey]);
 
   if (isPermissionDenied) {
     return (
@@ -121,7 +126,7 @@ export default function AuditLogPage() {
         {isLoading ? (
           <LoadingSkeletonState />
         ) : errorMessage ? (
-          <ErrorState errorMessage={errorMessage} onRetry={fetchLogs} />
+          <ErrorState errorMessage={errorMessage} onRetry={() => setRefreshKey(k => k + 1)} />
         ) : logs.length === 0 ? (
           <EmptyState />
         ) : (
