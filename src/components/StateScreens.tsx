@@ -93,16 +93,16 @@ export function EmptyState({ lang = 'en', onAction, className = '' }: BaseStateP
   }[lang];
 
   return (
-    <div className={`border border-[#CBD5E1] dark:border-[#334155] p-8 text-center bg-white dark:bg-[#1E293B] ${className}`}>
-      <div className="flex justify-center mb-3 text-[#475569] dark:text-[#94A3B8]">
+    <div className={`border border-[#432623]/25 dark:border-[#FAF8E8]/25 p-8 text-center bg-[#FAF8E8] dark:bg-[#251614] ${className}`}>
+      <div className="flex justify-center mb-3 text-[#432623]/70 dark:text-[#FAF8E8]/70">
         <SvgIcons.Empty />
       </div>
-      <h3 className="font-serif text-lg font-bold mb-1 text-[#0F172A] dark:text-[#F8FAFC]">{text.title}</h3>
-      <p className="text-xs text-[#475569] dark:text-[#94A3B8] max-w-md mx-auto mb-5 leading-relaxed">{text.desc}</p>
+      <h3 className="font-serif text-lg font-bold mb-1 text-[#432623] dark:text-[#FAF8E8]">{text.title}</h3>
+      <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 max-w-md mx-auto mb-5 leading-relaxed">{text.desc}</p>
       {onAction && (
         <button
           onClick={onAction}
-          className="border border-[#1D4ED8] bg-[#1D4ED8] text-white px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#1E40AF] min-h-[44px]"
+          className="border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#B51E28] min-h-[44px] cursor-pointer"
         >
           {text.action}
         </button>
@@ -165,19 +165,19 @@ export function ErrorState({
   }[lang];
 
   return (
-    <div className={`border border-[#B91C1C] p-8 text-center bg-[#FEE2E2]/30 dark:bg-[#B91C1C]/10 ${className}`} role="alert">
+    <div className={`border-2 border-[#DE2A35] p-8 text-center bg-[#DE2A35]/10 dark:bg-[#DE2A35]/15 ${className}`} role="alert">
       <div className="flex justify-center mb-3">
         <SvgIcons.Error />
       </div>
-      <h3 className="font-serif text-lg font-bold mb-1 text-[#B91C1C]">{text.title}</h3>
-      <p className="text-xs text-[#475569] dark:text-[#94A3B8] max-w-md mx-auto mb-3 leading-relaxed">{text.desc}</p>
-      <div className="text-[11px] font-mono text-[#475569] dark:text-[#94A3B8] mb-5">
+      <h3 className="font-serif text-lg font-bold mb-1 text-[#DE2A35]">{text.title}</h3>
+      <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 max-w-md mx-auto mb-3 leading-relaxed">{text.desc}</p>
+      <div className="text-[11px] font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-5">
         {text.ref}: <span className="font-bold select-all">{referenceId}</span>
       </div>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="border border-[#1D4ED8] bg-[#1D4ED8] text-white px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#1E40AF] min-h-[44px]"
+          className="border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#B51E28] min-h-[44px] cursor-pointer"
         >
           {text.action}
         </button>
@@ -289,16 +289,16 @@ export function NoSearchResultsState({ lang = 'en', onClear, className = '' }: {
   }[lang];
 
   return (
-    <div className={`border border-[#CBD5E1] dark:border-[#334155] p-8 text-center bg-white dark:bg-[#1E293B] ${className}`}>
-      <div className="flex justify-center mb-2 text-[#475569] dark:text-[#94A3B8]">
+    <div className={`border border-[#432623]/25 dark:border-[#FAF8E8]/25 p-8 text-center bg-[#FAF8E8] dark:bg-[#251614] ${className}`}>
+      <div className="flex justify-center mb-2 text-[#432623]/70 dark:text-[#FAF8E8]/70">
         <SvgIcons.NoSearchResults />
       </div>
-      <h3 className="font-serif text-base font-bold mb-1 text-[#0F172A] dark:text-[#F8FAFC]">{text.title}</h3>
-      <p className="text-xs text-[#475569] dark:text-[#94A3B8] mb-4">{text.desc}</p>
+      <h3 className="font-serif text-base font-bold mb-1 text-[#432623] dark:text-[#FAF8E8]">{text.title}</h3>
+      <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 mb-4">{text.desc}</p>
       {onClear && (
         <button
           onClick={onClear}
-          className="border border-[#CBD5E1] dark:border-[#334155] px-3.5 py-1.5 text-xs font-mono uppercase hover:bg-[#F1EFEA] dark:hover:bg-[#334155] min-h-[44px]"
+          className="border border-[#432623]/40 dark:border-[#FAF8E8]/40 px-3.5 py-1.5 text-xs font-mono uppercase hover:bg-[#F5F1BC] dark:hover:bg-[#311E1B] min-h-[44px] cursor-pointer"
         >
           {text.action}
         </button>

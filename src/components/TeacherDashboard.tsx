@@ -498,7 +498,7 @@ export function TeacherDashboard({
                     <div
                       key={s.student.id}
                       onClick={() => onSelectStudent(s)}
-                      className="p-4 border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] cursor-pointer hover:border-[#1D4ED8] space-y-2"
+                      className="p-4 border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] cursor-pointer hover:border-[#DE2A35] space-y-2"
                     >
                       <div className="flex items-center justify-between">
                         <div>
@@ -535,7 +535,7 @@ export function TeacherDashboard({
                         <span className="text-[#432623]/70 dark:text-[#F5F1BC]/70">
                           Understanding: {Math.round((s.profile.overallMastery ?? 0) * 100)}%
                         </span>
-                        <span className="text-[#1D4ED8] font-bold">View report</span>
+                        <span className="text-[#DE2A35] font-bold">View report</span>
                       </div>
                     </div>
                   );
@@ -614,7 +614,7 @@ export function TeacherDashboard({
                                   <button
                                     type="button"
                                     onClick={() => onOpenAssessment(s.student.id, root.rootId)}
-                                    className="min-h-[36px] px-3 bg-[#1D4ED8] text-white text-xs font-mono uppercase font-bold border border-[#1D4ED8] hover:bg-[#1E40AF]"
+                                    className="min-h-[36px] px-3 bg-[#DE2A35] text-[#FAF8E8] text-xs font-mono uppercase font-bold border border-[#DE2A35] hover:bg-[#B51E28] cursor-pointer"
                                   >
                                     Practice
                                   </button>

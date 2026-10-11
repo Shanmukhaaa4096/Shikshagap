@@ -390,7 +390,7 @@ export function StudentDiagnosticModal({
                     <button
                       type="button"
                       onClick={() => onStartReassessment(student.id, rootCause.rootId)}
-                      className="min-h-[44px] px-5 py-2 text-xs font-bold bg-[#1D4ED8] text-white rounded-[2px] border border-[#1D4ED8] hover:bg-[#1E40AF] flex items-center gap-2"
+                      className="min-h-[44px] px-5 py-2 text-xs font-bold bg-[#DE2A35] text-[#FAF8E8] rounded-[2px] border border-[#DE2A35] hover:bg-[#B51E28] flex items-center gap-2 cursor-pointer"
                     >
                       <span>{dict.startPractice || "Start Reassessment"}</span>
                       <ArrowRight size={15} />
