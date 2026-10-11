@@ -1,14 +1,18 @@
 import React from 'react';
 import Link from 'next/link';
+import { NotFoundIllustration } from '@/components/illustrations/StateIllustrations';
 
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-[#FAF8E8] dark:bg-[#432623] text-[#432623] dark:text-[#F5F1BC] font-sans flex flex-col justify-between p-6 sm:p-12">
-      <div className="max-w-xl mx-auto my-auto border border-[#432623]/25 dark:border-[#F5F1BC]/25 p-8 bg-[#FAF8E8] dark:bg-[#381f1c]">
-        <div className="text-xs font-mono uppercase text-[#DE2A35] font-bold mb-2">
-          HTTP 404: Page Not Located
+      <div className="max-w-xl mx-auto my-auto border-2 border-[#432623]/25 dark:border-[#F5F1BC]/25 p-8 bg-[#FAF8E8] dark:bg-[#381f1c] text-center sm:text-left">
+        <div className="flex justify-center sm:justify-start mb-4">
+          <NotFoundIllustration className="w-48 h-auto" />
         </div>
-        <h1 className="font-serif text-3xl font-bold mb-4">Resource Unavailable</h1>
+        <div className="text-xs font-mono uppercase text-[#DE2A35] font-bold mb-2">
+          HTTP 404 : Resource Not Found
+        </div>
+        <h1 className="font-serif text-3xl font-bold mb-4">Page Not Located</h1>
         <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed mb-6">
           The requested document or diagnostic route does not exist or has been relocated behind authorized institutional access.
         </p>

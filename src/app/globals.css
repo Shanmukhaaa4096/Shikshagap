@@ -7,8 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans), var(--font-devanagari), var(--font-telugu), system-ui, sans-serif;
-  --font-serif: var(--font-serif), Georgia, Cambria, serif;
+  --font-sans: var(--font-sans), 'Bricolage Grotesque', var(--font-devanagari), var(--font-telugu), system-ui, sans-serif;
+  --font-serif: var(--font-serif), 'Instrument Serif', Georgia, Cambria, serif;
+  --font-display: var(--font-sans);
   --font-mono: ui-monospace, Menlo, Monaco, Consolas, monospace;
   --font-heading: var(--font-serif);
 
@@ -53,25 +54,25 @@
 }
 
 :root {
-  /* Light mode: Warm neutral background, charcoal text, accessible blue accent */
-  --background: #F8F7F4;
-  --foreground: #0F172A;
-  --card: #FFFFFF;
-  --card-foreground: #0F172A;
-  --popover: #F8F7F4;
-  --popover-foreground: #0F172A;
-  --primary: #1D4ED8;
-  --primary-foreground: #FFFFFF;
-  --secondary: #F1EFEA;
-  --secondary-foreground: #0F172A;
-  --muted: #E2E8F0;
-  --muted-foreground: #475569;
-  --accent: #1D4ED8;
-  --accent-foreground: #FFFFFF;
-  --destructive: #B91C1C;
-  --border: #CBD5E1;
-  --input: #CBD5E1;
-  --ring: #1D4ED8;
+  /* Editorial Palette: Cream background, dark brown text, red for accents */
+  --background: #FAF8E8;
+  --foreground: #432623;
+  --card: #F5F1BC;
+  --card-foreground: #432623;
+  --popover: #FAF8E8;
+  --popover-foreground: #432623;
+  --primary: #DE2A35;
+  --primary-foreground: #FAF8E8;
+  --secondary: #F5F1BC;
+  --secondary-foreground: #432623;
+  --muted: rgba(67, 38, 35, 0.08);
+  --muted-foreground: #6A4944;
+  --accent: #DE2A35;
+  --accent-foreground: #FAF8E8;
+  --destructive: #B51E28;
+  --border: rgba(67, 38, 35, 0.16);
+  --input: rgba(67, 38, 35, 0.22);
+  --ring: #DE2A35;
   --radius: 2px;
 
   /* Learning Status Tokens (reserved strictly for learning mastery and alerts) */
@@ -87,25 +88,25 @@
 }
 
 .dark {
-  /* Dark mode: Deep navy background, light text, accessible blue accent */
-  --background: #0F172A;
-  --foreground: #F8FAFC;
-  --card: #1E293B;
-  --card-foreground: #F8FAFC;
-  --popover: #0F172A;
-  --popover-foreground: #F8FAFC;
-  --primary: #3B82F6;
-  --primary-foreground: #0F172A;
-  --secondary: #1E293B;
-  --secondary-foreground: #F8FAFC;
-  --muted: #334155;
-  --muted-foreground: #94A3B8;
-  --accent: #3B82F6;
-  --accent-foreground: #0F172A;
-  --destructive: #EF4444;
-  --border: #334155;
-  --input: #334155;
-  --ring: #3B82F6;
+  /* Editorial Dark / Night Edition */
+  --background: #251614;
+  --foreground: #FAF8E8;
+  --card: #311E1B;
+  --card-foreground: #FAF8E8;
+  --popover: #251614;
+  --popover-foreground: #FAF8E8;
+  --primary: #DE2A35;
+  --primary-foreground: #FAF8E8;
+  --secondary: #3A2320;
+  --secondary-foreground: #FAF8E8;
+  --muted: rgba(250, 248, 232, 0.10);
+  --muted-foreground: #DFA06E;
+  --accent: #DE2A35;
+  --accent-foreground: #FAF8E8;
+  --destructive: #DE2A35;
+  --border: rgba(250, 248, 232, 0.18);
+  --input: rgba(250, 248, 232, 0.25);
+  --ring: #DE2A35;
 
   /* Learning Status Tokens (Dark) */
   --status-good: #4ADE80;

@@ -1,23 +1,24 @@
 import type { Metadata } from "next";
 import {
-  IBM_Plex_Sans,
-  Source_Serif_4,
+  Instrument_Serif,
+  Bricolage_Grotesque,
   Noto_Sans_Devanagari,
   Noto_Sans_Telugu,
 } from "next/font/google";
 import "./globals.css";
 
-const ibmPlexSans = IBM_Plex_Sans({
-  variable: "--font-sans",
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-serif",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: "400",
+  style: ["normal", "italic"],
   display: "swap",
 });
 
-const sourceSerif = Source_Serif_4({
-  variable: "--font-serif",
+const bricolageGrotesque = Bricolage_Grotesque({
+  variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  weight: ["300", "400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -56,7 +57,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${ibmPlexSans.variable} ${sourceSerif.variable} ${notoDevanagari.variable} ${notoTelugu.variable} h-full`}
+      className={`${bricolageGrotesque.variable} ${instrumentSerif.variable} ${notoDevanagari.variable} ${notoTelugu.variable} h-full`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)] font-sans antialiased">

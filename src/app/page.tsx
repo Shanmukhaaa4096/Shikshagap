@@ -4,16 +4,17 @@ import React, { useState, useId } from 'react';
 import Link from 'next/link';
 import { 
   CheckCircle, 
-  ShieldCheck, 
-  User, 
+  ShieldCheck,
   CaretDown, 
-  CaretUp,
-  Sun,
-  Moon,
-  List,
-  X,
-  Lock,
-  ArrowRight
+  CaretUp, 
+  Sun, 
+  Moon, 
+  List, 
+  X, 
+  Lock, 
+  ArrowRight,
+  Clock,
+  FileText
 } from '@phosphor-icons/react';
 import { useI18n, LanguageProvider } from '@/lib/i18n/context';
 import type { Lang } from '@/lib/types';
@@ -25,6 +26,22 @@ import {
 import { ClassSelector } from '@/components/ClassSelector';
 import { generateQuestion } from '@/lib/questions/generator';
 import { makeRng } from '@/lib/rng';
+import { motion } from 'motion/react';
+import { LuminousType } from '@/components/LuminousType';
+import { BlinkingDots } from '@/components/BlinkingDots';
+import { CountUp } from '@/components/CountUp';
+import { MascotHero } from '@/components/illustrations/MascotHero';
+import { MathFloatingShapes } from '@/components/illustrations/MathFloatingShapes';
+import { ProblemIllustration, SolutionIllustration } from '@/components/illustrations/ProblemSolutionIllustrations';
+import { 
+  DagBentoIllustration, 
+  LanguagesBentoIllustration, 
+  WorksheetBentoIllustration, 
+  PrivacyBentoIllustration 
+} from '@/components/illustrations/BentoIllustrations';
+import { WorksheetPreviewIllustration } from '@/components/illustrations/WorksheetPreviewIllustration';
+import { SuccessIllustration } from '@/components/illustrations/StateIllustrations';
+
 
 // Seeded workflow demo records per enabled class (clearly marked Demo data)
 const MULTICLASS_DEMO_DATA: Record<string, Array<{
@@ -375,7 +392,7 @@ function PublicLandingPageContent() {
         'name': 'ShikshaGap',
         'applicationCategory': 'EducationalApplication',
         'operatingSystem': 'Web Browser',
-        'description': 'Mathematics learning check and practice planning for Indian schools, Classes 3 to 5.',
+        'description': 'AI agent that assesses students across Classes 3 to 5 and finds their foundational learning gaps.',
         'offers': {
           '@type': 'Offer',
           'price': '0',
@@ -397,7 +414,7 @@ function PublicLandingPageContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans flex flex-col">
+    <div className="min-h-screen bg-[#FAF8E8] dark:bg-[#251614] text-[#432623] dark:text-[#FAF8E8] font-sans flex flex-col selection:bg-[#DE2A35] selection:text-[#FAF8E8] pb-16 sm:pb-0 overflow-x-hidden">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -406,45 +423,62 @@ function PublicLandingPageContent() {
       {/* Accessible Skip Link */}
       <a 
         href="#main-content" 
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#DE2A35] focus:text-[#F5F1BC] text-xs font-mono uppercase border border-[#432623]"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#DE2A35] focus:text-[#FAF8E8] text-xs font-mono uppercase border border-[#432623]"
       >
         Skip to main content
       </a>
 
-      {/* SECTION 1: Sticky Navbar */}
-      <header className="sticky top-0 z-40 bg-[var(--background)]/95 border-b border-[var(--border)] px-4 sm:px-8 py-3">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+      {/* EDITORIAL TOP MASTHEAD DATELINE */}
+      <div className="bg-[#FAF8E8] dark:bg-[#251614] border-b border-[#432623]/20 px-4 sm:px-8 py-1.5 text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-[#DE2A35]">VOL. 2026</span>
+          <span className="opacity-40">|</span>
+          <span>ISSUE NO. 05: CLASS 5 MATHEMATICS</span>
+          <span className="opacity-40 hidden md:inline">|</span>
+          <span className="hidden md:inline">AI AGENT LEARNING GAP DIAGNOSTIC</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="hidden sm:inline">INDIAN PRIMARY SCHOOLS EDITION</span>
+          <span className="opacity-40 hidden sm:inline">|</span>
+          <span className="text-[#DE2A35] font-bold">DPDP 2023 COMPLIANT</span>
+        </div>
+      </div>
+
+      {/* STICKY NAVBAR with thin rule divider */}
+      <header className="sticky top-0 z-50 bg-[#FAF8E8]/95 dark:bg-[#251614]/95 backdrop-blur-xs border-b border-[#432623]/25 px-4 sm:px-8 py-2.5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Link href="/" className="font-serif text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">
-              <span className="h-7 w-7 rounded-[2px] bg-[#DE2A35] text-[#F5F1BC] font-mono text-xs flex items-center justify-center font-bold">
+            <Link href="/" className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#432623] dark:text-[#FAF8E8] flex items-center gap-2.5">
+              <span className="h-7 w-7 rounded-[2px] bg-[#DE2A35] text-[#FAF8E8] font-mono text-xs flex items-center justify-center font-bold tracking-normal shadow-xs">
                 SG
               </span>
-              <span>ShikshaGap</span>
+              <span className="tracking-tighter">ShikshaGap</span>
             </Link>
-            <span className="hidden sm:inline-block border border-[var(--border)] text-[10px] font-mono uppercase px-2 py-0.5 bg-[var(--muted)] text-[var(--muted-foreground)]">
-              Classes 3 to 5
+            <span className="hidden sm:inline-block border border-[#432623]/30 text-[10px] font-mono uppercase px-2 py-0.5 bg-[#F5F1BC]/60 dark:bg-[#311E1B] text-[#432623] dark:text-[#FAF8E8] font-bold">
+              AI Diagnostic Agent
             </span>
           </div>
 
-          <div className="flex items-center gap-3 sm:gap-5">
-            {/* 4 desktop links max */}
-            <nav className="hidden md:flex items-center gap-5 text-xs font-mono uppercase tracking-wider text-[var(--muted-foreground)]" aria-label="Main Navigation">
-              <a href="#demo" className="hover:text-[var(--foreground)]">Demo</a>
-              <a href="#how-it-works" className="hover:text-[var(--foreground)]">How It Works</a>
-              <a href="#faq" className="hover:text-[var(--foreground)]">FAQ</a>
+          <div className="flex items-center gap-2.5 sm:gap-4">
+            {/* Desktop Navigation Links */}
+            <nav className="hidden lg:flex items-center gap-5 text-[11px] font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80" aria-label="Main Navigation">
+              <a href="#cover" className="hover:text-[#DE2A35] transition-colors">01 Cover</a>
+              <a href="#how-agent-works" className="hover:text-[#DE2A35] transition-colors">02 How Agent Works</a>
+              <a href="#demo" className="hover:text-[#DE2A35] transition-colors">03 Interactive Cases</a>
+              <a href="#faq" className="hover:text-[#DE2A35] transition-colors">04 FAQ</a>
             </nav>
 
-            {/* SECTION 2: Language switcher in navbar (EN / हिन्दी / తెలుగు) */}
-            <div className="flex items-center border border-[var(--border)] rounded-[2px] p-0.5 text-xs font-mono">
+            {/* Language Switcher (EN / हिन्दी / తెలుగు) */}
+            <div className="flex items-center border border-[#432623]/30 dark:border-[#FAF8E8]/30 rounded-[2px] p-0.5 text-xs font-mono bg-[#F5F1BC]/40 dark:bg-[#311E1B]">
               {(['en', 'hi', 'te'] as Lang[]).map((l) => (
                 <button
                   key={l}
                   type="button"
                   onClick={() => setLang(l)}
-                  className={`min-h-[36px] px-2 rounded-[2px] font-bold ${
+                  className={`min-h-[44px] sm:min-h-[36px] px-2.5 rounded-[2px] font-bold cursor-pointer transition-none focus-visible:outline-2 focus-visible:outline-[#DE2A35] ${
                     lang === l
-                      ? 'bg-[var(--foreground)] text-[var(--background)]'
-                      : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+                      ? 'bg-[#432623] text-[#FAF8E8] dark:bg-[#FAF8E8] dark:text-[#432623]'
+                      : 'text-[#432623]/70 dark:text-[#FAF8E8]/70 hover:text-[#432623] dark:hover:text-[#FAF8E8]'
                   }`}
                   aria-label={`Switch language to ${l === 'en' ? 'English' : l === 'hi' ? 'Hindi' : 'Telugu'}`}
                 >
@@ -458,17 +492,26 @@ function PublicLandingPageContent() {
               type="button"
               onClick={toggleTheme}
               aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-              className="min-w-[40px] min-h-[40px] flex items-center justify-center border border-[var(--border)] bg-[var(--card)] hover:bg-[var(--muted)]"
+              className="min-w-[44px] min-h-[44px] sm:min-w-[38px] sm:min-h-[38px] flex items-center justify-center border border-[#432623]/30 dark:border-[#FAF8E8]/30 bg-transparent hover:bg-[#F5F1BC] dark:hover:bg-[#311E1B] text-[#432623] dark:text-[#FAF8E8] cursor-pointer focus-visible:outline-2 focus-visible:outline-[#DE2A35]"
             >
-              {isDark ? <Sun size={16} /> : <Moon size={16} />}
+              {isDark ? <Sun size={15} /> : <Moon size={15} />}
             </button>
 
-            {/* Teacher Sign In (Filled Button) */}
+            {/* Secondary Link: Sign In (Quiet) */}
             <Link
               href="/login"
-              className="hidden sm:inline-flex border border-[#DE2A35] bg-[#DE2A35] text-[#F5F1BC] px-4 py-2 min-h-[40px] items-center text-xs font-mono uppercase font-bold hover:bg-[#B51E28]"
+              className="hidden sm:inline-flex border border-[#432623]/30 dark:border-[#FAF8E8]/30 bg-transparent text-[#432623] dark:text-[#FAF8E8] px-3 py-2 min-h-[44px] sm:min-h-[38px] items-center text-xs font-mono uppercase font-bold hover:bg-[#F5F1BC]/60 cursor-pointer focus-visible:outline-2 focus-visible:outline-[#DE2A35]"
             >
-              Teacher Sign In
+              Sign In
+            </Link>
+
+            {/* PRIMARY ACTION: ASSESS TEST BUTTON (Sticky Navbar) */}
+            <Link
+              href="/app"
+              className="inline-flex border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-4 sm:px-5 py-2 min-h-[40px] items-center text-xs font-mono uppercase font-bold hover:bg-[#B51E28] focus-visible:outline-2 focus-visible:outline-[#DE2A35] cursor-pointer shadow-xs active:translate-y-[1px] tracking-wider"
+            >
+              <span>Assess Test</span>
+              <ArrowRight size={13} className="ml-1.5" />
             </Link>
 
             {/* Mobile Menu Button */}
@@ -477,41 +520,55 @@ function PublicLandingPageContent() {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={isMobileMenuOpen}
-              className="md:hidden min-w-[40px] min-h-[40px] flex items-center justify-center border border-[var(--border)] bg-[var(--card)]"
+              className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center border border-[#432623]/30 dark:border-[#FAF8E8]/30 bg-transparent text-[#432623] dark:text-[#FAF8E8] cursor-pointer focus-visible:outline-2 focus-visible:outline-[#DE2A35]"
             >
-              {isMobileMenuOpen ? <X size={20} /> : <List size={20} />}
+              {isMobileMenuOpen ? <X size={18} /> : <List size={18} />}
             </button>
           </div>
         </div>
 
         {/* Mobile Navigation Drawer */}
         {isMobileMenuOpen && (
-          <div className="md:hidden mt-3 pt-3 border-t border-[var(--border)] flex flex-col gap-2 font-mono text-xs uppercase tracking-wider">
+          <div className="lg:hidden mt-3 pt-3 border-t border-[#432623]/20 dark:border-[#FAF8E8]/20 flex flex-col gap-2 font-mono text-xs uppercase tracking-wider">
+            <Link
+              href="/app"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="min-h-[48px] flex items-center justify-center px-4 border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] font-bold text-sm tracking-wider"
+            >
+              Assess Test (Start Assessment)
+            </Link>
+            <a
+              href="#cover"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="min-h-[42px] flex items-center px-3 border border-[#432623]/20 bg-[#F5F1BC]/50 dark:bg-[#311E1B]"
+            >
+              01 Cover Story
+            </a>
+            <a
+              href="#how-agent-works"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="min-h-[42px] flex items-center px-3 border border-[#432623]/20 bg-[#F5F1BC]/50 dark:bg-[#311E1B]"
+            >
+              02 How Agent Works
+            </a>
             <a
               href="#demo"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="min-h-[44px] flex items-center px-3 border border-[var(--border)] bg-[var(--card)]"
+              className="min-h-[42px] flex items-center px-3 border border-[#432623]/20 bg-[#F5F1BC]/50 dark:bg-[#311E1B]"
             >
-              Demo
-            </a>
-            <a
-              href="#how-it-works"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="min-h-[44px] flex items-center px-3 border border-[var(--border)] bg-[var(--card)]"
-            >
-              How It Works
+              03 Interactive Workflow
             </a>
             <a
               href="#faq"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="min-h-[44px] flex items-center px-3 border border-[var(--border)] bg-[var(--card)]"
+              className="min-h-[42px] flex items-center px-3 border border-[#432623]/20 bg-[#F5F1BC]/50 dark:bg-[#311E1B]"
             >
-              FAQ
+              04 Inquiries & FAQ
             </a>
             <Link
               href="/login"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="min-h-[44px] flex items-center justify-center px-3 border border-[#DE2A35] bg-[#DE2A35] text-[#F5F1BC] font-bold"
+              className="min-h-[42px] flex items-center justify-center px-3 border border-[#432623]/30 bg-transparent text-[#432623] dark:text-[#FAF8E8] font-bold"
             >
               Teacher Sign In
             </Link>
@@ -519,89 +576,385 @@ function PublicLandingPageContent() {
         )}
       </header>
 
-      {/* Main Content */}
+      {/* MAIN CONTENT */}
       <main id="main-content" className="flex-1">
-        {/* SECTION 3: Hero */}
-        <section className="border-b border-[var(--border)] px-4 sm:px-8 py-14 sm:py-20 max-w-6xl mx-auto">
-          <div className="max-w-3xl">
-            <div className="inline-block border border-[var(--border)] bg-[var(--card)] px-3 py-1 text-xs font-mono uppercase text-[var(--muted-foreground)] mb-5">
-              For Indian Primary School Teachers
+
+        {/* SECTION 01: HERO MAGAZINE COVER (With Primary "Assess Test" Button Above the Fold) */}
+        <section id="cover" className="relative border-b border-[#432623]/25 overflow-hidden bg-[#FAF8E8] dark:bg-[#251614]">
+          
+          {/* Top Editorial Hairline & Issue Badge */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-4 sm:pt-6 pb-2 flex flex-wrap items-center justify-between gap-2 border-b border-[#432623]/15 text-[11px] font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-[#DE2A35] rounded-full inline-block"></span>
+              <span className="font-bold text-[#432623] dark:text-[#FAF8E8]">01 / THE COVER STORY</span>
+              <span className="opacity-40">|</span>
+              <span className="text-[#DE2A35] font-bold">ISSUE / CLASS 5 MATHS</span>
+            </div>
+            <div>
+              <span>AI LEARNING GAP AGENT : FREE FOR GOVT SCHOOLS</span>
+            </div>
+          </div>
+
+          {/* MAGAZINE COVER HERO STAGE */}
+          {/* Wrapper is position: relative, headline at z-10, cutout PNG at z-20, foreground content and Assess Test at z-30 */}
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-8 min-h-[640px] sm:min-h-[720px] lg:min-h-[800px] flex flex-col justify-between overflow-hidden">
+
+            {/* LAYER 1 (z-10): GIGANTIC EDITORIAL HEADLINE BEHIND THE CUTOUT */}
+            <div className="absolute inset-0 z-10 flex flex-col justify-center items-center pointer-events-none select-none px-2 sm:px-6">
+              <div className="w-full text-center">
+                <h1 className="font-serif uppercase tracking-tight text-[#432623] dark:text-[#FAF8E8] leading-[0.84] text-[clamp(3.6rem,11.5vw,10.5rem)] m-0">
+                  <span className="block whitespace-nowrap">
+                    <LuminousType text="WHAT EACH student" italicIndices={[2]} />
+                  </span>
+                  <span className="block whitespace-nowrap">
+                    <LuminousType text="NEEDS TO learn NEXT" italicIndices={[2]} />
+                  </span>
+                </h1>
+                <div className="mt-2 text-xs sm:text-sm font-mono tracking-widest uppercase text-[#432623]/60 dark:text-[#FAF8E8]/60">
+                  SHIKSHAGAP AI AGENT : ADAPTIVE DIAGNOSTIC FOR CLASSES 3, 4 & 5
+                </div>
+              </div>
             </div>
 
-            <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal leading-[1.15] text-[var(--foreground)] tracking-tight mb-5">
-              Find out what each student needs to learn next.
-            </h1>
+            {/* FLOATING MATH SHAPES BACKGROUND DRIFT */}
+            <MathFloatingShapes />
 
-            <p className="text-base sm:text-lg text-[var(--muted-foreground)] leading-relaxed mb-7">
-              ShikshaGap checks understanding across Classes 3 to 5, traces learning gaps back to foundational skills, and helps teachers plan the next lesson.
-            </p>
+            {/* LAYER 2 (z-20): 2D CARTOON OWL MASCOT ("GAPPU") ON BOOKS */}
+            <div className="absolute inset-x-0 bottom-0 z-20 flex justify-center pointer-events-auto">
+              <div className="relative w-[280px] sm:w-[380px] lg:w-[460px] flex items-end justify-center pb-2">
+                <MascotHero
+                  width={460}
+                  height={560}
+                  className="w-full max-w-[420px] drop-shadow-md"
+                />
+              </div>
+            </div>
 
-            <div className="flex flex-wrap items-center gap-4">
-              <a
-                href="#demo"
-                className="border border-[#DE2A35] bg-[#DE2A35] text-[#F5F1BC] px-5 py-3 text-xs font-mono uppercase tracking-wider font-bold hover:bg-[#B51E28] inline-flex items-center gap-2 min-h-[44px]"
-              >
-                <span>Try the 5-Step Demo</span>
-              </a>
+            {/* LAYER 3 (z-30): FOREGROUND CALLOUT WITH PRIMARY 'ASSESS TEST' BUTTON (Above both layers, never covered) */}
+            <div className="relative z-30 pt-4 sm:pt-6 pb-6 flex-1 flex flex-col justify-between pointer-events-none">
+              
+              {/* Upper Section: Primary Agent Action Card (Prominent & immediately visible above the fold on mobile & desktop) */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pointer-events-auto">
+                <div className="md:col-span-5 bg-[#FAF8E8]/95 dark:bg-[#251614]/95 p-5 sm:p-6 border-2 border-[#432623]/30 backdrop-blur-xs max-w-md shadow-md">
+                  
+                  <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-[#DE2A35] font-bold mb-1.5">
+                    <BlinkingDots count={3} activeColor="#DE2A35" />
+                    <span>AI DIAGNOSTIC AGENT</span>
+                  </div>
 
+                  <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#432623] dark:text-[#FAF8E8] mb-2 leading-snug">
+                    Find the exact concept blocking your student.
+                  </h2>
+
+                  {/* Copy describing the agent: what it assesses, how long it takes, and what student gets */}
+                  <div className="space-y-1.5 mb-4 text-xs font-mono text-[#432623]/80 dark:text-[#FAF8E8]/80 border-t border-b border-[#432623]/15 py-2.5">
+                    <div className="flex items-start gap-2">
+                      <span className="font-bold text-[#DE2A35] w-20 shrink-0 uppercase text-[10px]">Assesses:</span>
+                      <span>Foundational Math in Classes 3 to 5 (place value, regrouping, fractions, division)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-[#DE2A35] w-20 shrink-0 uppercase text-[10px]">Time:</span>
+                      <span className="flex items-center gap-1"><Clock size={12} /> 6 to 8 minutes per child</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="font-bold text-[#DE2A35] w-20 shrink-0 uppercase text-[10px]">Output:</span>
+                      <span className="flex items-center gap-1"><FileText size={12} /> Root gap report & 5-day classroom plan</span>
+                    </div>
+                  </div>
+
+                  {/* PRIMARY ACTION BUTTON: ASSESS TEST (Single most prominent button on the page) */}
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <motion.div
+                      whileHover={{ y: -2, scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="inline-block"
+                    >
+                      <Link
+                        href="/app"
+                        className="border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-6 py-3.5 min-h-[50px] inline-flex items-center justify-center gap-2 text-sm font-mono uppercase tracking-wider font-bold hover:bg-[#B51E28] focus-visible:outline-2 focus-visible:outline-[#DE2A35] cursor-pointer shadow-md active:translate-y-[1px] transition-transform duration-150 animate-pulse-subtle"
+                      >
+                        <span>Assess Test</span>
+                        <ArrowRight size={16} />
+                      </Link>
+                    </motion.div>
+
+                    {/* Visually quieter secondary button */}
+                    <a
+                      href="#how-agent-works"
+                      className="border border-[#432623]/30 dark:border-[#FAF8E8]/30 bg-transparent text-[#432623] dark:text-[#FAF8E8] px-4 py-2.5 min-h-[44px] inline-flex items-center justify-center text-xs font-mono uppercase tracking-wider font-semibold hover:bg-[#F5F1BC]/60 cursor-pointer transition-none"
+                    >
+                      See how it works
+                    </a>
+                  </div>
+
+                  <div className="mt-3 text-[10px] font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60 flex items-center gap-2">
+                    <ShieldCheck size={13} className="text-[#8ABB93]" />
+                    <span>No login required for initial classroom trial</span>
+                  </div>
+                </div>
+
+                {/* Right Side: Editorial Issue Contents Dossier */}
+                <div className="hidden md:block md:col-start-9 md:col-span-4 bg-[#FAF8E8]/90 dark:bg-[#251614]/90 p-4 border border-[#432623]/25 backdrop-blur-xs text-right">
+                  <div className="text-[10px] font-mono uppercase tracking-widest text-[#8ABB93] font-bold mb-1">
+                    INSIDE THIS DOSSIER
+                  </div>
+                  <ul className="text-xs font-mono space-y-1.5 text-[#432623]/80 dark:text-[#FAF8E8]/80">
+                    <li><span className="text-[#DE2A35] font-bold">p. 02</span> : The 42% Test Score Fallacy</li>
+                    <li><span className="text-[#DE2A35] font-bold">p. 04</span> : How the AI Agent Traces Gaps</li>
+                    <li><span className="text-[#DE2A35] font-bold">p. 07</span> : Live Student Gap Report Specimen</li>
+                    <li><span className="text-[#DE2A35] font-bold">p. 12</span> : Printable 1-Page A4 Worksheets</li>
+                  </ul>
+                  <div className="mt-3 pt-2 border-t border-[#432623]/20 text-[10px] font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60">
+                    MADE SPECIFICALLY FOR INDIAN GOVT SCHOOLS
+                  </div>
+                </div>
+              </div>
+
+              {/* Lower Bar: Editorial Cutout Caption & Specimen Barcode */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end mt-auto pt-6 pointer-events-auto">
+                <div className="md:col-span-5 bg-[#FAF8E8]/95 dark:bg-[#251614]/95 p-3 border border-[#432623]/25">
+                  <div className="text-[10px] font-mono uppercase text-[#DE2A35] font-bold">
+                    FIGURE 1.0: GAPPU THE DIAGNOSTIC OWL
+                  </div>
+                  <p className="text-[11px] text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-snug mt-0.5">
+                    Friendly AI agent mascot Gappu analyzing foundational math prerequisites. Interactive mascot winks and bobs as it tracks Class 3 and 4 skills that stall multi-digit division.
+                  </p>
+                </div>
+
+                <div className="hidden md:flex md:col-start-9 md:col-span-4 justify-end">
+                  <div className="bg-[#FAF8E8]/95 dark:bg-[#251614]/95 border border-[#432623]/25 p-2.5 text-center font-mono">
+                    <div className="text-[9px] tracking-widest text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase">
+                      SPECIMEN NO. 2026-SG-AGENT
+                    </div>
+                    <div className="text-sm font-mono tracking-widest font-bold text-[#432623] dark:text-[#FAF8E8] mt-0.5">
+                      ||| | |||| || ||| |||||
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 02: THE CLASSROOM DILEMMA */}
+        <section className="border-b border-[#432623]/25 px-4 sm:px-8 py-12 max-w-7xl mx-auto">
+          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-4">
+            <span className="text-[#DE2A35] font-bold">02</span>
+            <span>/</span>
+            <span>THE CLASSROOM DILEMMA</span>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Pull Quote */}
+            <div className="lg:col-span-5 border-l-2 border-[#DE2A35] pl-5 py-2">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#DE2A35] font-bold block mb-2">
+                THE FOUNDATIONAL ANOMALY
+              </span>
+              <blockquote className="font-serif text-2xl sm:text-3xl lg:text-4xl leading-tight text-[#432623] dark:text-[#FAF8E8]">
+                A student scores 42% on a test. The mark confirms struggle, but conceals the root cause.
+              </blockquote>
+              <div className="mt-4 text-xs font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70">
+                AUDITED ACROSS PRIMARY SCHOOL COHORTS IN TELANGANA AND ANDHRA PRADESH
+              </div>
+            </div>
+
+            {/* Two Side-by-Side Hairline Columns */}
+            <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="border border-[#432623]/20 bg-[#F5F1BC]/30 dark:bg-[#311E1B]/50 p-5 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+                <div>
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-[#DE2A35] font-bold mb-1">
+                    The Dilemma
+                  </div>
+                  <h3 className="font-serif text-lg font-bold text-[#432623] dark:text-[#FAF8E8] mb-2">
+                    Repeating current class problems creates frustration.
+                  </h3>
+                  <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed mb-4">
+                    When a Class 5 child fails long division, giving 20 more division sums fails. The real gap is almost always in Class 3 regrouping or Class 4 multiplication table fluency.
+                  </p>
+                </div>
+                <div className="pt-2 flex justify-center">
+                  <ProblemIllustration />
+                </div>
+              </div>
+
+              <div className="border border-[#432623]/20 bg-[#8ABB93]/15 dark:bg-[#8ABB93]/10 p-5 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+                <div>
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-[#8ABB93] font-bold mb-1">
+                    The AI Agent Solution
+                  </div>
+                  <h3 className="font-serif text-lg font-bold text-[#432623] dark:text-[#FAF8E8] mb-2">
+                    Traces the prerequisite gap and generates a 5-day plan.
+                  </h3>
+                  <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed mb-4">
+                    ShikshaGap backtracks through the curriculum DAG to identify whether the missing link began in Class 3, 4, or 5, then produces a concrete 5-day plan with single-sheet paper printouts.
+                  </p>
+                </div>
+                <div className="pt-2 flex justify-center">
+                  <SolutionIllustration />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 03: HOW THE AGENT WORKS (With Live Gap Report & Worksheet Visual) */}
+        <section id="how-agent-works" className="border-b border-[#432623]/25 px-4 sm:px-8 py-12 max-w-7xl mx-auto bg-[#F5F1BC]/20 dark:bg-[#311E1B]/30">
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-[#432623]/20 pb-4">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
+                <span className="text-[#DE2A35] font-bold">03</span>
+                <span>/</span>
+                <span>HOW THE AI AGENT WORKS : VISUAL SPECIMENS</span>
+              </div>
+              <h2 className="font-serif text-2xl sm:text-4xl font-normal mt-1 text-[#432623] dark:text-[#FAF8E8]">
+                From 6-Minute Check to Actionable Gap Report
+              </h2>
+            </div>
+            <div className="flex items-center gap-3">
               <Link
-                href="/login"
-                className="border border-[var(--border)] bg-[var(--card)] px-5 py-3 text-xs font-mono uppercase tracking-wider font-bold hover:bg-[var(--muted)] inline-flex items-center gap-2 min-h-[44px]"
+                href="/app"
+                className="border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
               >
-                <User size={16} />
-                <span>Teacher Sign In</span>
+                Start an Assessment Now
               </Link>
             </div>
           </div>
-        </section>
 
-        {/* SECTION 4: Problem and solution strip (two short columns) */}
-        <section className="border-b border-[var(--border)] px-4 sm:px-8 py-10 max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="border border-[var(--border)] p-5 bg-[var(--card)]">
-              <div className="text-[10px] font-mono uppercase tracking-wider text-[#DE2A35] font-bold mb-1">
-                The Classroom Dilemma
+          {/* 2-Part Visual Specimen Grid: Gap Report Specimen & Printable Practice Worksheet */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            
+            {/* Visual Specimen 1: Student Gap Report */}
+            <div className="border-2 border-[#432623]/30 bg-[#FAF8E8] dark:bg-[#251614] p-6 shadow-sm space-y-4">
+              <div className="border-b border-[#432623]/20 pb-3 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#DE2A35] font-bold">
+                    EXHIBIT A : DIAGNOSTIC OUTPUT
+                  </span>
+                  <h3 className="font-serif text-xl font-bold">Student Gap Report</h3>
+                </div>
+                <span className="text-xs font-mono px-2 py-1 bg-[#DE2A35]/15 text-[#DE2A35] border border-[#DE2A35]/30 font-bold">
+                  Class 5A : 42%
+                </span>
               </div>
-              <h2 className="font-serif text-lg font-bold text-[var(--foreground)] mb-2">
-                A student scores 42% on a test.
-              </h2>
-              <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
-                A low score tells a teacher that a student is struggling, but it cannot reveal which earlier prerequisite is missing. Repeating current class problems only creates frustration.
-              </p>
+
+              {/* Diagnosed Root Gap */}
+              <div className="border border-[#432623]/20 p-4 bg-[#F5F1BC]/40 dark:bg-[#311E1B]/50 space-y-2">
+                <div className="flex items-center justify-between text-xs font-mono">
+                  <span className="text-[#432623]/70 dark:text-[#FAF8E8]/70 uppercase text-[10px]">Student:</span>
+                  <strong>Rajesh Kumar (Roll #7)</strong>
+                </div>
+                <div className="text-xs font-mono">
+                  <span className="text-[#DE2A35] font-bold uppercase text-[10px] block">Diagnosed Root Cause:</span>
+                  <p className="font-serif text-base font-bold text-[#DE2A35]">
+                    Class 3 Subtraction Regrouping (Tens to Units Borrowing)
+                  </p>
+                </div>
+                <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed italic border-t border-[#432623]/15 pt-2">
+                  &ldquo;Student attempted long division in 24 / 6 by subtracting 6 repeatedly, but subtracted the smaller ones digit from the larger digit without borrowing.&rdquo;
+                </p>
+              </div>
+
+              {/* Prerequisite Backtracking Graph Trail */}
+              <div className="border border-[#432623]/20 p-3 bg-white dark:bg-[#311E1B] space-y-2 text-xs font-mono">
+                <span className="text-[10px] uppercase font-bold text-[#432623]/70 dark:text-[#FAF8E8]/70 block">
+                  AI Agent Backtracking Trail:
+                </span>
+                <div className="flex items-center justify-between text-[11px] bg-[#FAF8E8] dark:bg-[#251614] p-2 border border-[#432623]/15">
+                  <span className="text-[#DE2A35] font-bold">Class 3 Place Value</span>
+                  <ArrowRight size={12} className="text-[#DE2A35]" />
+                  <span className="text-[#DE2A35] font-bold">Class 4 Mult Facts</span>
+                  <ArrowRight size={12} className="text-[#DE2A35]" />
+                  <span className="text-[#432623]/60 dark:text-[#FAF8E8]/60">Class 5 Long Division</span>
+                </div>
+              </div>
+
+              {/* 5-Day Plan Summary */}
+              <div className="border border-[#8ABB93]/50 p-3 bg-[#8ABB93]/10 space-y-1.5 text-xs font-mono">
+                <span className="text-[10px] uppercase font-bold text-[#432623] dark:text-[#FAF8E8] block">
+                  Prescribed 5-Day Classroom Sequence:
+                </span>
+                <div className="text-[11px] text-[#432623]/80 dark:text-[#FAF8E8]/80">
+                  Day 1 to 2: Physical pebble bundles for grouping. Day 3: Inverse facts on slate. Day 4 to 5: Single-sheet paper checks.
+                </div>
+              </div>
             </div>
 
-            <div className="border border-[var(--border)] p-5 bg-[var(--card)]">
-              <div className="text-[10px] font-mono uppercase tracking-wider text-[#8ABB93] font-bold mb-1">
-                The ShikshaGap Solution
+            {/* Visual Specimen 2: Single-Sheet Printable Practice Worksheet */}
+            <div className="border-2 border-[#432623]/30 p-6 bg-[#FAF8E8] text-[#432623] rounded-[2px] shadow-sm space-y-4">
+              <div className="border-b border-[#432623]/30 pb-3 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#432623]/70 font-bold">
+                    EXHIBIT B : CLASSROOM SPECIMEN
+                  </span>
+                  <h3 className="font-serif text-xl font-bold">1-Page Paper Worksheet</h3>
+                </div>
+                <span className="text-xs font-mono px-2 py-1 bg-[#8ABB93]/20 border border-[#8ABB93] text-[#432623] font-bold">
+                  Standard A4 Print
+                </span>
               </div>
-              <h2 className="font-serif text-lg font-bold text-[var(--foreground)] mb-2">
-                Traces the gap back and gives a 5-day plan.
-              </h2>
-              <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
-                ShikshaGap backtracks through the concept graph to find whether the gap began in Class 3, 4, or 5, then provides a concrete 5-day classroom action plan with printable sheets.
-              </p>
+              <div className="flex justify-center py-2">
+                <WorksheetPreviewIllustration className="max-w-[170px]" />
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 border border-[#432623]/20 p-2 text-[11px] font-mono bg-[#F5F1BC]/50">
+                <div>STUDENT: <strong>Rajesh Kumar</strong></div>
+                <div>ROLL NO: <strong>#7</strong></div>
+                <div className="text-right">CLASS: <strong>5A</strong></div>
+              </div>
+
+              <div className="space-y-3 pt-1">
+                <div className="text-[10px] font-mono uppercase tracking-wider text-[#432623]/70">
+                  Target Skill: Equal Sharing Division Concept
+                </div>
+
+                <div className="border border-[#432623]/20 p-3 space-y-1 bg-white">
+                  <div className="text-xs font-bold font-sans">1. Solve the following problem:</div>
+                  <div className="text-sm font-mono font-bold">{previewSampleQ1.expression || '4 x 6 = ?'}</div>
+                  <div className="h-8 border-b border-dashed border-[#432623]/30 flex items-end text-[10px] text-[#432623]/50 font-mono">
+                    Answer: _______________________
+                  </div>
+                </div>
+
+                <div className="border border-[#432623]/20 p-3 space-y-1 bg-white">
+                  <div className="text-xs font-bold font-sans">2. Solve the following problem:</div>
+                  <div className="text-sm font-mono font-bold">{previewSampleQ2.expression || '7 x 8 = ?'}</div>
+                  <div className="h-8 border-b border-dashed border-[#432623]/30 flex items-end text-[10px] text-[#432623]/50 font-mono">
+                    Answer: _______________________
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2 text-center text-[10px] font-mono text-[#432623]/60 border-t border-[#432623]/15">
+                Deterministic Question Bank : Generated for Student Diagnosis : Form SG-A4-2026
+              </div>
             </div>
+
           </div>
         </section>
 
-        {/* SECTION 5: Product Demo (5-step workflow driven by class selector) */}
-        <section id="demo" className="border-b border-[var(--border)] px-4 sm:px-8 py-12 max-w-6xl mx-auto">
-          <div className="mb-6">
-            <span className="text-xs font-mono uppercase tracking-widest text-[var(--muted-foreground)]">
-              Demo Data | Interactive Workflow
-            </span>
-            <h2 className="font-serif text-2xl sm:text-3xl font-normal mt-1 text-[var(--foreground)]">
-              How ShikshaGap Works in Five Steps
-            </h2>
-            <p className="text-xs sm:text-sm text-[var(--muted-foreground)] mt-1 max-w-2xl">
-              Select a class below to see how diagnostic checks, gap detection, and practice planning adapt across grade levels.
+        {/* SECTION 04: PRODUCT DEMO (5-Step Interactive Case Dossier) */}
+        <section id="demo" className="border-b border-[#432623]/25 px-4 sm:px-8 py-12 max-w-7xl mx-auto">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-[#432623]/20 pb-4">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
+                <span className="text-[#DE2A35] font-bold">04</span>
+                <span>/</span>
+                <span>INTERACTIVE WORKFLOW CASE FILES</span>
+              </div>
+              <h2 className="font-serif text-2xl sm:text-4xl font-normal mt-1 text-[#432623] dark:text-[#FAF8E8]">
+                How the Agent Runs in Five Steps
+              </h2>
+            </div>
+            <p className="text-xs font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 max-w-md">
+              Select a class and student record below to test diagnostic checking, DAG backtracking, and 5-day practice sequences.
             </p>
           </div>
 
-          {/* Class selector for demo */}
-          <div className="mb-6 p-3 border border-[var(--border)] bg-[var(--card)]">
-            <div className="text-[10px] font-mono uppercase tracking-wider text-[var(--muted-foreground)] mb-2">
-              Select Grade to Explore Demo:
+          {/* Class Selector Bar */}
+          <div className="mb-6 p-4 border border-[#432623]/20 bg-[#F5F1BC]/40 dark:bg-[#311E1B]/60">
+            <div className="text-[10px] font-mono uppercase tracking-wider text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-2 font-bold">
+              Select Grade to Explore Curriculum Cases:
             </div>
             <ClassSelector
               selectedClassId={selectedClassId}
@@ -609,14 +962,14 @@ function PublicLandingPageContent() {
             />
           </div>
 
-          {/* Stepper buttons */}
+          {/* Stepper Buttons (Hairline Editorial Numbered Navigation) */}
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-6 font-mono text-xs uppercase">
             {[
-              { num: 1, label: '1. Select Student' },
-              { num: 2, label: '2. Check Learning' },
-              { num: 3, label: '3. Find Gaps' },
-              { num: 4, label: '4. Practice Plan' },
-              { num: 5, label: '5. Check Again' },
+              { num: 1, label: '01. Select Student' },
+              { num: 2, label: '02. Check Learning' },
+              { num: 3, label: '03. Find Gaps' },
+              { num: 4, label: '04. Practice Plan' },
+              { num: 5, label: '05. Check Again' },
             ].map((step) => {
               const isActive = activeWorkflowStep === step.num;
               return (
@@ -624,10 +977,10 @@ function PublicLandingPageContent() {
                   key={step.num}
                   type="button"
                   onClick={() => setActiveWorkflowStep(step.num as 1 | 2 | 3 | 4 | 5)}
-                  className={`min-h-[44px] p-2.5 border text-center font-bold ${
+                  className={`min-h-[44px] p-2.5 border text-center font-bold cursor-pointer transition-none ${
                     isActive
-                      ? 'border-[#DE2A35] bg-[#DE2A35] text-[#F5F1BC]'
-                      : 'border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] hover:bg-[var(--muted)]'
+                      ? 'border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8]'
+                      : 'border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#251614] text-[#432623] dark:text-[#FAF8E8] hover:bg-[#F5F1BC] dark:hover:bg-[#311E1B]'
                   }`}
                 >
                   {step.label}
@@ -637,12 +990,12 @@ function PublicLandingPageContent() {
           </div>
 
           {/* Interactive Stepper Content Card */}
-          <div className="border border-[var(--border)] bg-[var(--card)] p-5 sm:p-6">
+          <div className="border-2 border-[#432623]/30 bg-[#FAF8E8] dark:bg-[#251614] p-5 sm:p-7 shadow-xs">
             {/* Student selection bar */}
-            <div className="flex flex-wrap items-center justify-between pb-4 mb-5 border-b border-[var(--border)] gap-3">
+            <div className="flex flex-wrap items-center justify-between pb-4 mb-5 border-b border-[#432623]/20 gap-3">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono text-[var(--muted-foreground)] uppercase">
-                  {activeClassConfig.label} Demo Students:
+                <span className="text-xs font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 uppercase font-bold">
+                  {activeClassConfig.label} Case Records:
                 </span>
                 <div className="flex gap-2">
                   {classStudents.map((s, idx) => (
@@ -650,20 +1003,19 @@ function PublicLandingPageContent() {
                       key={s.id}
                       type="button"
                       onClick={() => setSelectedStudentIndex(idx)}
-                      className={`min-h-[36px] px-3 text-xs font-mono border ${
+                      className={`min-h-[36px] px-3 border text-xs font-mono cursor-pointer transition-none ${
                         selectedStudentIndex === idx
-                          ? 'border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)] font-bold'
-                          : 'border-[var(--border)] hover:bg-[var(--muted)]'
+                          ? 'border-[#432623] dark:border-[#FAF8E8] bg-[#432623] text-[#FAF8E8] dark:bg-[#FAF8E8] dark:text-[#432623] font-bold'
+                          : 'border-[#432623]/20 bg-transparent text-[#432623] dark:text-[#FAF8E8] hover:bg-[#F5F1BC]'
                       }`}
                     >
-                      {s.name}
+                      {s.name} ({s.gradeLabel})
                     </button>
                   ))}
                 </div>
               </div>
-
-              <div className="text-xs font-mono text-[var(--muted-foreground)]">
-                Roll #{currentStudent.rollNo} | {currentStudent.gradeLabel}
+              <div className="text-xs font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70">
+                Roll No: #{currentStudent.rollNo}
               </div>
             </div>
 
@@ -671,35 +1023,29 @@ function PublicLandingPageContent() {
             {activeWorkflowStep === 1 && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-serif text-xl font-bold">Step 1: Select a student</h3>
-                  <span className={`text-xs font-mono px-2 py-0.5 border ${
-                    currentStudent.statusType === 'critical'
-                      ? 'border-[#DE2A35] text-[#DE2A35] bg-[#DE2A35]/10'
-                      : currentStudent.statusType === 'warn'
-                      ? 'border-[#DFA06E] text-[#432623] dark:text-[#F5F1BC] bg-[#DFA06E]/20'
-                      : 'border-[#8ABB93] text-[#432623] dark:text-[#F5F1BC] bg-[#8ABB93]/20'
-                  }`}>
-                    {currentStudent.status}
+                  <h3 className="font-serif text-xl sm:text-2xl font-bold">Step 1: Student Diagnostic Profile</h3>
+                  <span className="text-xs font-mono px-2 py-0.5 border border-[#432623]/20 bg-[#F5F1BC]/60 dark:bg-[#311E1B]">
+                    Initial Status: {currentStudent.status}
                   </span>
                 </div>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  The teacher views their classroom roster and sees each student learning status clearly.
+                <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed">
+                  The teacher or agent selects <strong>{currentStudent.name}</strong> from {currentStudent.gradeLabel}. Current evaluated topic: <em>{currentStudent.topic}</em>. Initial estimated mastery is {currentStudent.mastery}%.
                 </p>
 
-                <div className="border border-[var(--border)] p-4 bg-[var(--background)]">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
-                    <div>
-                      <div className="text-[var(--muted-foreground)] uppercase text-[10px]">Student</div>
-                      <div className="text-sm font-bold text-[var(--foreground)] mt-0.5">{currentStudent.name}</div>
-                    </div>
-                    <div>
-                      <div className="text-[var(--muted-foreground)] uppercase text-[10px]">Class Topic</div>
-                      <div className="text-sm font-bold text-[var(--foreground)] mt-0.5">{currentStudent.topic}</div>
-                    </div>
-                    <div>
-                      <div className="text-[var(--muted-foreground)] uppercase text-[10px]">Current Understanding</div>
-                      <div className="text-sm font-bold text-[var(--foreground)] mt-0.5">{currentStudent.mastery}%</div>
-                    </div>
+                <div className="border border-[#432623]/20 p-4 bg-[#F5F1BC]/30 dark:bg-[#311E1B]/30 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono">
+                  <div>
+                    <span className="text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-[10px]">Student Name</span>
+                    <strong className="text-sm">{currentStudent.name}</strong>
+                  </div>
+                  <div>
+                    <span className="text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-[10px]">Topic Under Assessment</span>
+                    <strong>{currentStudent.topic}</strong>
+                  </div>
+                  <div>
+                    <span className="text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-[10px]">Diagnostic Standing</span>
+                    <strong className={currentStudent.statusType === 'critical' ? 'text-[#DE2A35]' : 'text-[#8ABB93]'}>
+                      {currentStudent.status} ({currentStudent.mastery}%)
+                    </strong>
                   </div>
                 </div>
 
@@ -707,7 +1053,7 @@ function PublicLandingPageContent() {
                   <button
                     type="button"
                     onClick={() => setActiveWorkflowStep(2)}
-                    className="min-h-[44px] px-4 bg-[#DE2A35] text-[#F5F1BC] text-xs font-mono uppercase font-bold hover:bg-[#B51E28]"
+                    className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-xs font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
                   >
                     Next: Check Learning
                   </button>
@@ -718,27 +1064,27 @@ function PublicLandingPageContent() {
             {/* STEP 2 */}
             {activeWorkflowStep === 2 && (
               <div className="space-y-4">
-                <h3 className="font-serif text-xl font-bold">Step 2: Check Learning</h3>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  The student answers a diagnostic question on the screen or paper.
+                <h3 className="font-serif text-xl sm:text-2xl font-bold">Step 2: Diagnostic Check Question</h3>
+                <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80">
+                  The student answers a diagnostic question calibrated specifically for {currentStudent.topic}.
                 </p>
 
-                <div className="border border-[var(--border)] p-4 bg-[var(--background)] space-y-3">
-                  <div className="text-xs font-mono uppercase text-[var(--muted-foreground)]">Question:</div>
-                  <div className="font-serif text-base font-bold text-[var(--foreground)]">
-                    {currentStudent.question}
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
+                <div className="border border-[#432623]/20 p-4 bg-[#FAF8E8] dark:bg-[#251614] space-y-3">
+                  <div className="text-xs font-mono text-[#DE2A35] font-bold uppercase">Diagnostic Item:</div>
+                  <div className="text-sm font-bold font-mono">{currentStudent.question}</div>
+                  <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-2">
                     {currentStudent.options.map((opt, i) => (
                       <div
                         key={i}
-                        className={`p-2.5 text-xs font-mono border ${
+                        className={`p-2 border ${
                           opt === currentStudent.studentChoice
-                            ? 'border-[#DE2A35] bg-[#DE2A35]/10 text-[var(--foreground)] font-bold'
-                            : 'border-[var(--border)] text-[var(--muted-foreground)]'
+                            ? 'border-[#DE2A35] bg-[#DE2A35]/10 font-bold'
+                            : 'border-[#432623]/20'
                         }`}
                       >
-                        {opt} {opt === currentStudent.studentChoice && '(Student selected)'}
+                        Option {i + 1}: {opt}
+                        {opt === currentStudent.studentChoice && ' (Student Choice)'}
+                        {opt === currentStudent.correctOption && ' (Correct Key)'}
                       </div>
                     ))}
                   </div>
@@ -748,14 +1094,14 @@ function PublicLandingPageContent() {
                   <button
                     type="button"
                     onClick={() => setActiveWorkflowStep(1)}
-                    className="min-h-[44px] px-4 border border-[var(--border)] text-xs font-mono uppercase hover:bg-[var(--muted)]"
+                    className="min-h-[44px] px-4 border border-[#432623]/20 text-xs font-mono uppercase hover:bg-[#F5F1BC] cursor-pointer"
                   >
                     Back
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveWorkflowStep(3)}
-                    className="min-h-[44px] px-4 bg-[#DE2A35] text-[#F5F1BC] text-xs font-mono uppercase font-bold hover:bg-[#B51E28]"
+                    className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-xs font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
                   >
                     Next: Find Gaps
                   </button>
@@ -766,26 +1112,27 @@ function PublicLandingPageContent() {
             {/* STEP 3 */}
             {activeWorkflowStep === 3 && (
               <div className="space-y-4">
-                <h3 className="font-serif text-xl font-bold">Step 3: Find Gaps</h3>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  ShikshaGap connects the mistake to an earlier prerequisite topic in the curriculum DAG.
+                <h3 className="font-serif text-xl sm:text-2xl font-bold">Step 3: Root Cause Analysis</h3>
+                <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80">
+                  The system analyzes the error and traces the prerequisite gap back through the curriculum DAG.
                 </p>
 
-                <div className="border border-[var(--border)] p-4 bg-[var(--background)] space-y-3 text-xs font-mono">
+                <div className="border border-[#432623]/20 p-4 bg-[#F5F1BC]/30 dark:bg-[#311E1B]/30 space-y-3 text-xs">
                   <div>
-                    <span className="text-[var(--muted-foreground)] uppercase">Observed Mistake: </span>
-                    <span className="text-[var(--foreground)] font-bold">{currentStudent.observedMistake}</span>
+                    <span className="font-mono text-[#DE2A35] font-bold uppercase block text-[10px]">Observed Error Pattern:</span>
+                    <p className="text-[#432623] dark:text-[#FAF8E8] mt-0.5">{currentStudent.observedMistake}</p>
                   </div>
-                  <div>
-                    <span className="text-[var(--muted-foreground)] uppercase">Missing Prerequisite: </span>
-                    <span className="text-[#DE2A35] font-bold">{currentStudent.rootGap}</span>
+                  <div className="border-t border-[#432623]/15 pt-2">
+                    <span className="font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-[10px]">Diagnosed Root Gap:</span>
+                    <strong className="text-sm font-serif text-[#DE2A35]">{currentStudent.rootGap}</strong>
                   </div>
-                  <div>
-                    <span className="text-[var(--muted-foreground)] uppercase">Prerequisite Needed For: </span>
-                    <span className="text-[var(--foreground)] font-bold">{currentStudent.prerequisiteFor}</span>
+                  <div className="border-t border-[#432623]/15 pt-2">
+                    <span className="font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-[10px]">Foundational Prerequisite For:</span>
+                    <p>{currentStudent.prerequisiteFor}</p>
                   </div>
-                  <div className="pt-2 text-[var(--muted-foreground)] text-[11px] leading-relaxed border-t border-[var(--border)]">
-                    Evidence: {currentStudent.evidence}
+                  <div className="border-t border-[#432623]/15 pt-2">
+                    <span className="font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-[10px]">Diagnostic Evidence:</span>
+                    <p className="italic text-[#432623]/80 dark:text-[#FAF8E8]/80">{currentStudent.evidence}</p>
                   </div>
                 </div>
 
@@ -793,14 +1140,14 @@ function PublicLandingPageContent() {
                   <button
                     type="button"
                     onClick={() => setActiveWorkflowStep(2)}
-                    className="min-h-[44px] px-4 border border-[var(--border)] text-xs font-mono uppercase hover:bg-[var(--muted)]"
+                    className="min-h-[44px] px-4 border border-[#432623]/20 text-xs font-mono uppercase hover:bg-[#F5F1BC] cursor-pointer"
                   >
                     Back
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveWorkflowStep(4)}
-                    className="min-h-[44px] px-4 bg-[#DE2A35] text-[#F5F1BC] text-xs font-mono uppercase font-bold hover:bg-[#B51E28]"
+                    className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-xs font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
                   >
                     Next: Practice Plan
                   </button>
@@ -811,16 +1158,16 @@ function PublicLandingPageContent() {
             {/* STEP 4 */}
             {activeWorkflowStep === 4 && (
               <div className="space-y-4">
-                <h3 className="font-serif text-xl font-bold">Step 4: Practice Plan</h3>
-                <p className="text-xs text-[var(--muted-foreground)]">
-                  A concrete 5-day classroom practice sequence for the teacher.
+                <h3 className="font-serif text-xl sm:text-2xl font-bold">Step 4: 5-Day Classroom Practice Plan</h3>
+                <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80">
+                  A concrete, manipulative-assisted 5-day classroom sequence for the teacher.
                 </p>
 
-                <div className="border border-[var(--border)] p-4 bg-[var(--background)] space-y-2.5">
+                <div className="border border-[#432623]/20 p-4 bg-[#FAF8E8] dark:bg-[#251614] space-y-2.5">
                   {currentStudent.plan.map((p, i) => (
-                    <div key={i} className="flex gap-3 text-xs border-b border-[var(--border)] pb-2 last:border-b-0 last:pb-0">
-                      <span className="font-mono font-bold text-[var(--foreground)] w-14 shrink-0">{p.day}:</span>
-                      <span className="text-[var(--muted-foreground)]">{p.task}</span>
+                    <div key={i} className="flex gap-3 text-xs border-b border-[#432623]/15 pb-2 last:border-b-0 last:pb-0">
+                      <span className="font-mono font-bold text-[#DE2A35] w-14 shrink-0">{p.day}:</span>
+                      <span className="text-[#432623]/80 dark:text-[#FAF8E8]/80">{p.task}</span>
                     </div>
                   ))}
                 </div>
@@ -829,14 +1176,14 @@ function PublicLandingPageContent() {
                   <button
                     type="button"
                     onClick={() => setActiveWorkflowStep(3)}
-                    className="min-h-[44px] px-4 border border-[var(--border)] text-xs font-mono uppercase hover:bg-[var(--muted)]"
+                    className="min-h-[44px] px-4 border border-[#432623]/20 text-xs font-mono uppercase hover:bg-[#F5F1BC] cursor-pointer"
                   >
                     Back
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveWorkflowStep(5)}
-                    className="min-h-[44px] px-4 bg-[#DE2A35] text-[#F5F1BC] text-xs font-mono uppercase font-bold hover:bg-[#B51E28]"
+                    className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-xs font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
                   >
                     Next: Check Again
                   </button>
@@ -847,17 +1194,17 @@ function PublicLandingPageContent() {
             {/* STEP 5 */}
             {activeWorkflowStep === 5 && (
               <div className="space-y-4">
-                <h3 className="font-serif text-xl font-bold">Step 5: Check Again</h3>
-                <p className="text-xs text-[var(--muted-foreground)]">
+                <h3 className="font-serif text-xl sm:text-2xl font-bold">Step 5: Verification & Check Again</h3>
+                <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80">
                   After 5 days of practice, the student is checked again to verify mastery.
                 </p>
 
-                <div className="border border-[#8ABB93] p-4 bg-[#8ABB93]/10 space-y-2">
-                  <div className="flex items-center gap-2 text-[#432623] dark:text-[#F5F1BC] font-mono font-bold text-xs uppercase">
-                    <CheckCircle size={16} />
-                    <span>Learning Verified</span>
+                <div className="border border-[#8ABB93] p-4 bg-[#8ABB93]/15 space-y-2">
+                  <div className="flex items-center gap-2 text-[#432623] dark:text-[#FAF8E8] font-mono font-bold text-xs uppercase">
+                    <CheckCircle size={16} className="text-[#8ABB93]" />
+                    <span>Learning Verified on Paper & Slate</span>
                   </div>
-                  <p className="text-xs text-[var(--foreground)] leading-relaxed">
+                  <p className="text-xs text-[#432623] dark:text-[#FAF8E8] leading-relaxed">
                     {currentStudent.reassessmentResult}
                   </p>
                 </div>
@@ -866,15 +1213,15 @@ function PublicLandingPageContent() {
                   <button
                     type="button"
                     onClick={() => setActiveWorkflowStep(4)}
-                    className="min-h-[44px] px-4 border border-[var(--border)] text-xs font-mono uppercase hover:bg-[var(--muted)]"
+                    className="min-h-[44px] px-4 border border-[#432623]/20 text-xs font-mono uppercase hover:bg-[#F5F1BC] cursor-pointer"
                   >
                     Back to Step 4
                   </button>
                   <Link
-                    href="/login"
-                    className="min-h-[44px] px-4 bg-[#DE2A35] text-[#F5F1BC] text-xs font-mono uppercase font-bold hover:bg-[#B51E28] inline-flex items-center"
+                    href="/app"
+                    className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-xs font-mono uppercase font-bold hover:bg-[#B51E28] inline-flex items-center cursor-pointer shadow-xs"
                   >
-                    Open Teacher App
+                    Assess Test Now
                   </Link>
                 </div>
               </div>
@@ -882,357 +1229,372 @@ function PublicLandingPageContent() {
           </div>
         </section>
 
-        {/* SECTION 6: Trust Strip */}
-        <section className="border-b border-[var(--border)] px-4 sm:px-8 py-5 max-w-6xl mx-auto bg-[var(--card)]">
-          <div className="flex flex-wrap items-center justify-around gap-4 text-xs font-mono text-[var(--muted-foreground)]">
-            <div className="flex items-center gap-1.5">
-              <ShieldCheck size={16} className="text-[#8ABB93]" />
-              <span>DPDP 2023 Compliant</span>
+        {/* SECTION 05: PULL-QUOTE STYLE STAT ROW */}
+        <section className="border-b border-[#432623]/25 px-4 sm:px-8 py-12 max-w-7xl mx-auto bg-[#F5F1BC]/30 dark:bg-[#311E1B]/40">
+          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-4">
+            <span className="text-[#DE2A35] font-bold">05</span>
+            <span>/</span>
+            <span>VITAL STATISTICS : THE CURRICULUM FOOTPRINT</span>
+          </div>
+
+          {/* Editorial Pull-Quote */}
+          <div className="max-w-4xl mb-10">
+            <blockquote className="font-serif text-2xl sm:text-3xl lg:text-4xl leading-tight text-[#432623] dark:text-[#FAF8E8]">
+              &ldquo;A curriculum map of 15 connected concepts, taught across 3 Indian regional languages, with zero tracking cookies and complete DPDP 2023 compliance.&rdquo;
+            </blockquote>
+          </div>
+
+          {/* Asymmetric Hairline Stat Columns */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 pt-6 border-t border-[#432623]/20">
+            <div className="border-l border-[#432623]/30 pl-4 py-1">
+              <div className="font-serif text-5xl sm:text-6xl font-normal text-[#DE2A35] leading-none">
+                <CountUp end={15} />
+              </div>
+              <div className="text-[11px] font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80 mt-2 font-bold">
+                Concepts in DAG
+              </div>
+              <div className="text-[10px] text-[#432623]/60 dark:text-[#FAF8E8]/60 mt-0.5">
+                Single unified acyclic prerequisite graph
+              </div>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Lock size={16} className="text-[#8ABB93]" />
-              <span>No Tracking Cookies</span>
+
+            <div className="border-l border-[#432623]/30 pl-4 py-1">
+              <div className="font-serif text-5xl sm:text-6xl font-normal text-[#432623] dark:text-[#FAF8E8] leading-none">
+                0<CountUp end={3} />
+              </div>
+              <div className="text-[11px] font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80 mt-2 font-bold">
+                Languages Supported
+              </div>
+              <div className="text-[10px] text-[#432623]/60 dark:text-[#FAF8E8]/60 mt-0.5">
+                Full translation in English, हिन्दी and తెలుగు
+              </div>
             </div>
-            <div className="flex items-center gap-1.5">
-              <CheckCircle size={16} className="text-[#8ABB93]" />
-              <span>Works on Simple Android Phones</span>
+
+            <div className="border-l border-[#432623]/30 pl-4 py-1">
+              <div className="font-serif text-5xl sm:text-6xl font-normal text-[#DFA06E] leading-none">
+                0<CountUp end={ENABLED_CLASSES.length} />
+              </div>
+              <div className="text-[11px] font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80 mt-2 font-bold">
+                Classes Enabled (3, 4, 5)
+              </div>
+              <div className="text-[10px] text-[#432623]/60 dark:text-[#FAF8E8]/60 mt-0.5">
+                Verified against state syllabus standards
+              </div>
+            </div>
+
+            <div className="border-l border-[#432623]/30 pl-4 py-1">
+              <div className="font-serif text-5xl sm:text-6xl font-normal text-[#8ABB93] leading-none">
+                00
+              </div>
+              <div className="text-[11px] font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80 mt-2 font-bold">
+                Tracking Cookies
+              </div>
+              <div className="text-[10px] text-[#432623]/60 dark:text-[#FAF8E8]/60 mt-0.5">
+                Local device session storage only
+              </div>
             </div>
           </div>
         </section>
 
-        {/* SECTION 7: Features as a Bento Grid (4 cards in unequal tiles with 1 small visual each) */}
-        <section id="how-it-works" className="border-b border-[var(--border)] px-4 sm:px-8 py-12 max-w-6xl mx-auto">
-          <div className="mb-6">
-            <span className="text-xs font-mono uppercase tracking-widest text-[var(--muted-foreground)]">
-              Core Capabilities
-            </span>
-            <h2 className="font-serif text-2xl sm:text-3xl font-normal mt-1 text-[var(--foreground)]">
-              Built for Government School Classrooms
-            </h2>
+        {/* SECTION 06: CURRICULUM ARCHITECTURE (Bento Grid) */}
+        <section className="border-b border-[#432623]/25 px-4 sm:px-8 py-12 max-w-7xl mx-auto">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-[#432623]/20 pb-4">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
+                <span className="text-[#DE2A35] font-bold">06</span>
+                <span>/</span>
+                <span>CURRICULUM ARCHITECTURE</span>
+              </div>
+              <h2 className="font-serif text-2xl sm:text-4xl font-normal mt-1 text-[#432623] dark:text-[#FAF8E8]">
+                Built for Indian Government School Classrooms
+              </h2>
+            </div>
+            <p className="text-xs font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 max-w-md">
+              Engineered for multi-grade classrooms, non-English speakers, limited internet, and zero child tracking.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {/* Tile 1: Wide */}
-            <div className="md:col-span-2 border border-[var(--border)] p-5 bg-[var(--card)] flex flex-col justify-between">
-              <div>
-                <div className="text-[10px] font-mono text-[#DE2A35] font-bold mb-1">01 / PREREQUISITE TRACING</div>
-                <h3 className="font-serif text-lg font-bold mb-2">Traces Missing Skills Across Grades</h3>
-                <p className="text-xs text-[var(--muted-foreground)] leading-relaxed mb-4">
-                  When a Class 5 student fails a long division task, the system automatically checks whether the gap began in Class 3 repeated addition or Class 4 multiplication facts.
-                </p>
+            <div className="md:col-span-2 border border-[#432623]/25 p-6 bg-[#FAF8E8] dark:bg-[#251614] flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                <div>
+                  <div className="text-[10px] font-mono text-[#DE2A35] font-bold mb-1 uppercase tracking-wider">
+                    01 : Prerequisite Tracing Engine
+                  </div>
+                  <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2">
+                    Traces Missing Skills Across Grade Boundaries
+                  </h3>
+                  <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed mb-4">
+                    When a Class 5 student fails a long division task, the system automatically traverses backwards to check whether the breakdown began in Class 3 repeated addition or Class 4 multiplication facts.
+                  </p>
+                </div>
+                <div className="shrink-0 flex justify-center pb-2 sm:pb-0">
+                  <DagBentoIllustration className="w-36 h-auto" />
+                </div>
               </div>
-              <div className="border border-[var(--border)] p-2.5 bg-[var(--background)] flex items-center justify-between text-[11px] font-mono">
-                <span className="text-[var(--muted-foreground)]">Class 3 Repeated Addition</span>
+              <div className="border border-[#432623]/20 p-3 bg-[#F5F1BC]/40 dark:bg-[#311E1B]/50 flex items-center justify-between text-[11px] font-mono">
+                <span className="text-[#432623]/70 dark:text-[#FAF8E8]/70">Class 3 Repeated Addition</span>
                 <ArrowRight size={14} className="text-[#DE2A35]" />
-                <span className="text-[var(--muted-foreground)]">Class 4 Mult Facts</span>
+                <span className="text-[#432623]/70 dark:text-[#FAF8E8]/70">Class 4 Mult Facts</span>
                 <ArrowRight size={14} className="text-[#DE2A35]" />
-                <span className="font-bold text-[var(--foreground)]">Class 5 Long Division</span>
+                <span className="font-bold text-[#432623] dark:text-[#FAF8E8]">Class 5 Long Division</span>
               </div>
             </div>
 
             {/* Tile 2: Square */}
-            <div className="border border-[var(--border)] p-5 bg-[var(--card)] flex flex-col justify-between">
+            <div className="border border-[#432623]/25 p-6 bg-[#FAF8E8] dark:bg-[#251614] flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-200">
               <div>
-                <div className="text-[10px] font-mono text-[#DFA06E] font-bold mb-1">02 / THREE LANGUAGES</div>
-                <h3 className="font-serif text-lg font-bold mb-2">Regional Languages</h3>
-                <p className="text-xs text-[var(--muted-foreground)] leading-relaxed mb-4">
-                  Questions, practice instructions, and printable sheets are fully translated for Indian classrooms.
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] font-mono text-[#DFA06E] font-bold uppercase tracking-wider">
+                    02 : Three Regional Languages
+                  </span>
+                  <LanguagesBentoIllustration className="w-16 h-auto" />
+                </div>
+                <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2">
+                  Native Vernacular Fluency
+                </h3>
+                <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed mb-4">
+                  Questions, diagnostic instructions, hints, and practice sheets are completely translated for native regional language classrooms.
                 </p>
               </div>
               <div className="flex gap-2 font-mono text-xs">
-                <span className="px-2 py-1 border border-[var(--border)] bg-[var(--background)]">English</span>
-                <span className="px-2 py-1 border border-[var(--border)] bg-[var(--background)] font-bold">हिन्दी</span>
-                <span className="px-2 py-1 border border-[var(--border)] bg-[var(--background)] font-bold">తెలుగు</span>
+                <span className="px-2.5 py-1 border border-[#432623]/20 bg-[#F5F1BC]/50 dark:bg-[#311E1B]">English</span>
+                <span className="px-2.5 py-1 border border-[#432623]/20 bg-[#F5F1BC]/50 dark:bg-[#311E1B] font-bold">हिन्दी</span>
+                <span className="px-2.5 py-1 border border-[#432623]/20 bg-[#F5F1BC]/50 dark:bg-[#311E1B] font-bold">తెలుగు</span>
               </div>
             </div>
 
             {/* Tile 3: Square */}
-            <div className="border border-[var(--border)] p-5 bg-[var(--card)] flex flex-col justify-between">
+            <div className="border border-[#432623]/25 p-6 bg-[#FAF8E8] dark:bg-[#251614] flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-200">
               <div>
-                <div className="text-[10px] font-mono text-[#8ABB93] font-bold mb-1">03 / PRINTABLE SHEETS</div>
-                <h3 className="font-serif text-lg font-bold mb-2">1-Page Paper Worksheets</h3>
-                <p className="text-xs text-[var(--muted-foreground)] leading-relaxed mb-4">
-                  Print ready-to-use worksheets for students who do not have smartphones at home.
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] font-mono text-[#8ABB93] font-bold uppercase tracking-wider">
+                    03 : Printable Worksheets
+                  </span>
+                  <WorksheetBentoIllustration className="w-16 h-auto" />
+                </div>
+                <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2">
+                  Single-Page Paper Sheets
+                </h3>
+                <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed mb-4">
+                  Print ready-to-use worksheets for students who do not have personal smartphones or internet access at home.
                 </p>
               </div>
-              <div className="border border-[var(--border)] p-2 bg-[var(--background)] text-center text-[10px] font-mono uppercase text-[var(--muted-foreground)]">
-                Standard A4 / Single Sheet Print
+              <div className="border border-[#432623]/20 p-2.5 bg-[#F5F1BC]/40 dark:bg-[#311E1B]/50 text-center text-[10px] font-mono uppercase text-[#432623]/70 dark:text-[#FAF8E8]/70">
+                Standard A4 / Single Sheet Print Format
               </div>
             </div>
 
             {/* Tile 4: Wide */}
-            <div className="md:col-span-2 border border-[var(--border)] p-5 bg-[var(--card)] flex flex-col justify-between">
-              <div>
-                <div className="text-[10px] font-mono text-[#432623] dark:text-[#F5F1BC] font-bold mb-1">04 / PRIVACY BY DESIGN</div>
-                <h3 className="font-serif text-lg font-bold mb-2">Child Privacy and DPDP 2023 Compliance</h3>
-                <p className="text-xs text-[var(--muted-foreground)] leading-relaxed mb-4">
-                  No tracking cookies, zero third-party marketing trackers, and strictly necessary local storage only.
-                </p>
+            <div className="md:col-span-2 border border-[#432623]/25 p-6 bg-[#FAF8E8] dark:bg-[#251614] flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                <div>
+                  <div className="text-[10px] font-mono text-[#432623] dark:text-[#FAF8E8] font-bold mb-1 uppercase tracking-wider">
+                    04 : Child Privacy by Design
+                  </div>
+                  <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2">
+                    DPDP 2023 Compliance & Zero Surveillance
+                  </h3>
+                  <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed mb-4">
+                    Zero tracking cookies, zero third-party advertising trackers, and strictly necessary local storage only. Children are never profiled.
+                  </p>
+                </div>
+                <div className="shrink-0 flex justify-center pb-2 sm:pb-0">
+                  <PrivacyBentoIllustration className="w-20 h-auto" />
+                </div>
               </div>
-              <div className="border border-[var(--border)] p-2.5 bg-[var(--background)] flex items-center gap-4 text-[11px] font-mono text-[var(--muted-foreground)]">
-                <span>Tracking Cookies: 0</span>
-                <span>Third-Party Scripts: 0</span>
+              <div className="border border-[#432623]/20 p-3 bg-[#F5F1BC]/40 dark:bg-[#311E1B]/50 flex items-center gap-4 text-[11px] font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70">
+                <span className="flex items-center gap-1"><ShieldCheck size={14} className="text-[#8ABB93]" /> Cookies: 0</span>
+                <span className="flex items-center gap-1"><Lock size={14} className="text-[#8ABB93]" /> Third-Party Scripts: 0</span>
                 <span>Storage: Local Device Only</span>
               </div>
             </div>
           </div>
         </section>
 
-        {/* SECTION 8: Worksheet preview (paper mockup of real worksheet output) */}
-        <section className="border-b border-[var(--border)] px-4 sm:px-8 py-12 max-w-6xl mx-auto">
-          <div className="mb-6">
-            <span className="text-xs font-mono uppercase tracking-widest text-[var(--muted-foreground)]">
-              Classroom Material
-            </span>
-            <h2 className="font-serif text-2xl sm:text-3xl font-normal mt-1 text-[var(--foreground)]">
-              Printable Practice Sheet Preview
-            </h2>
-            <p className="text-xs sm:text-sm text-[var(--muted-foreground)] mt-1 max-w-2xl">
-              Generated directly from the curriculum question bank for {activeClassConfig.label}.
+        {/* SECTION 07: FIELD PARTNERSHIPS & PILOT FORM */}
+        <section id="pilot" className="border-b border-[#432623]/25 px-4 sm:px-8 py-12 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            {/* Left Column: Letter to School Leaders */}
+            <div className="lg:col-span-5 space-y-4">
+              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
+                <span className="text-[#DE2A35] font-bold">07</span>
+                <span>/</span>
+                <span>FIELD PARTNERSHIPS</span>
+              </div>
+              <h2 className="font-serif text-2xl sm:text-4xl font-normal text-[#432623] dark:text-[#FAF8E8]">
+                Request a Classroom Pilot
+              </h2>
+              <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed">
+                Government primary schools, headmasters, and cluster resource persons can request dedicated classroom onboarding support.
+              </p>
+              <div className="border-l-2 border-[#8ABB93] pl-4 py-2 space-y-2 text-xs font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70">
+                <div>Zero license fee for public schools.</div>
+                <div>Includes physical printable templates.</div>
+                <div>Complete DPDP 2023 compliance assurance.</div>
+              </div>
+            </div>
+
+            {/* Right Column: Form */}
+            <div className="lg:col-span-7">
+              <form onSubmit={handlePilotSubmit} className="border-2 border-[#432623]/25 p-6 bg-[#FAF8E8] dark:bg-[#251614] space-y-4 shadow-xs">
+                {/* Bot Honeypot */}
+                <input
+                  type="text"
+                  name="school_url_confirm"
+                  value={pilotHoneypot}
+                  onChange={(e) => setPilotHoneypot(e.target.value)}
+                  className="sr-only"
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+
+                <div>
+                  <label htmlFor={schoolInputId} className="block text-xs font-mono uppercase text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-1 font-bold">
+                    School Name *
+                  </label>
+                  <input
+                    id={schoolInputId}
+                    type="text"
+                    required
+                    value={pilotSchool}
+                    onChange={(e) => setPilotSchool(e.target.value)}
+                    placeholder="e.g. MPPS Gandhi Nagar"
+                    className="w-full min-h-[44px] px-3 border border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#251614] text-xs font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor={teacherInputId} className="block text-xs font-mono uppercase text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-1 font-bold">
+                    Teacher or Headmaster Name *
+                  </label>
+                  <input
+                    id={teacherInputId}
+                    type="text"
+                    required
+                    value={pilotTeacher}
+                    onChange={(e) => setPilotTeacher(e.target.value)}
+                    placeholder="e.g. Smt. Lakshmi Rao"
+                    className="w-full min-h-[44px] px-3 border border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#251614] text-xs font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor={classRangeInputId} className="block text-xs font-mono uppercase text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-1 font-bold">
+                    Class Range *
+                  </label>
+                  <select
+                    id={classRangeInputId}
+                    value={pilotClassRange}
+                    onChange={(e) => setPilotClassRange(e.target.value)}
+                    className="w-full min-h-[44px] px-3 border border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#251614] text-xs font-mono"
+                  >
+                    <option value="Classes 3 to 5">Classes 3 to 5 (Full support)</option>
+                    <option value="Class 3">Class 3 only</option>
+                    <option value="Class 4">Class 4 only</option>
+                    <option value="Class 5">Class 5 only</option>
+                    <option value="All Primary (Classes 1 to 5)">All Primary (Classes 1 to 5)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor={contactInputId} className="block text-xs font-mono uppercase text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-1 font-bold">
+                    Teacher Contact (Phone or Email) *
+                  </label>
+                  <input
+                    id={contactInputId}
+                    type="text"
+                    required
+                    value={pilotContact}
+                    onChange={(e) => setPilotContact(e.target.value)}
+                    placeholder="e.g. 9876543210 or teacher@school.edu"
+                    className="w-full min-h-[44px] px-3 border border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#251614] text-xs font-mono"
+                  />
+                </div>
+
+                <div className="flex items-start gap-2 pt-1">
+                  <input
+                    id={consentInputId}
+                    type="checkbox"
+                    required
+                    checked={pilotConsent}
+                    onChange={(e) => setPilotConsent(e.target.checked)}
+                    className="mt-1"
+                  />
+                  <label htmlFor={consentInputId} className="text-[11px] text-[#432623]/70 dark:text-[#FAF8E8]/70 leading-tight">
+                    I agree that this contact will be used strictly for school pilot onboarding in accordance with our{' '}
+                    <Link href="/privacy" className="underline hover:text-[#432623] dark:hover:text-[#FAF8E8]">
+                      Privacy Policy
+                    </Link>.
+                  </label>
+                </div>
+
+                {pilotSuccess && (
+                  <div className="p-4 border-2 border-[#8ABB93] bg-[#8ABB93]/15 text-[#432623] dark:text-[#FAF8E8] text-xs font-mono text-center space-y-2">
+                    <SuccessIllustration className="mx-auto w-16 h-12" />
+                    <div className="font-bold">{pilotSuccess}</div>
+                  </div>
+                )}
+
+                {pilotError && (
+                  <div className="p-3 border border-[#DE2A35] bg-[#DE2A35]/15 text-[#DE2A35] text-xs font-mono">
+                    {pilotError}
+                  </div>
+                )}
+
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <button
+                    type="submit"
+                    disabled={pilotLoading}
+                    className="w-full sm:w-auto min-h-[44px] px-6 bg-[#DE2A35] text-[#FAF8E8] text-xs font-mono uppercase font-bold hover:bg-[#B51E28] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-xs focus-visible:outline-2 focus-visible:outline-[#DE2A35]"
+                  >
+                    {pilotLoading ? 'Submitting...' : 'Submit Pilot Request'}
+                  </button>
+                  <span className="text-[10px] text-[#432623]/60 dark:text-[#FAF8E8]/60 font-mono">
+                    DPDP 2023 protected : Masked storage
+                  </span>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 08: INQUIRIES & FAQ (Accordion) */}
+        <section id="faq" className="border-b border-[#432623]/25 px-4 sm:px-8 py-12 max-w-7xl mx-auto">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-[#432623]/20 pb-4">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
+                <span className="text-[#DE2A35] font-bold">08</span>
+                <span>/</span>
+                <span>INQUIRIES & DOSSIER</span>
+              </div>
+              <h2 className="font-serif text-2xl sm:text-4xl font-normal mt-1 text-[#432623] dark:text-[#FAF8E8]">
+                Frequently Asked Questions
+              </h2>
+            </div>
+            <p className="text-xs font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 max-w-md">
+              Answers regarding curriculum coverage, teacher autonomy, local device operation, and child privacy protections.
             </p>
           </div>
 
-          <div className="max-w-2xl mx-auto border-2 border-[var(--border)] p-6 bg-white dark:bg-[#FAF8E8] text-[#432623] rounded-[2px] shadow-sm space-y-4">
-            <div className="border-b border-[#432623]/30 pb-3 text-center space-y-1">
-              <div className="text-[10px] font-mono uppercase tracking-wider text-[#432623]/70">
-                {activeClassConfig.label.toUpperCase()} - SECTION A | PRACTICE WORKSHEET
-              </div>
-              <h3 className="font-serif text-xl font-bold uppercase tracking-tight">
-                Daily Classroom Practice
-              </h3>
-              <p className="text-xs font-mono font-semibold text-[#DE2A35]">
-                Target Skill: {targetConcept.replace(/_/g, ' ')}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 border border-[#432623]/20 p-2 text-[11px] font-mono bg-[#F5F1BC]/30">
-              <div>STUDENT: <strong>{currentStudent.name}</strong></div>
-              <div>ROLL NO: <strong>#{currentStudent.rollNo}</strong></div>
-              <div className="text-right">DATE: <strong>Today</strong></div>
-            </div>
-
-            <div className="space-y-3 pt-2">
-              <div className="text-[10px] font-mono uppercase tracking-wider text-[#432623]/70">
-                Solve each problem and show your work:
-              </div>
-
-              <div className="border border-[#432623]/20 p-3 space-y-1 bg-white">
-                <div className="text-xs font-bold">1. Solve the following problem:</div>
-                <div className="text-sm font-mono font-bold">{previewSampleQ1.expression || '4 x 6 = ?'}</div>
-                <div className="h-8 border-b border-dashed border-[#432623]/30 flex items-end text-[10px] text-[#432623]/50">
-                  Answer: _______________________
-                </div>
-              </div>
-
-              <div className="border border-[#432623]/20 p-3 space-y-1 bg-white">
-                <div className="text-xs font-bold">2. Solve the following problem:</div>
-                <div className="text-sm font-mono font-bold">{previewSampleQ2.expression || '7 x 8 = ?'}</div>
-                <div className="h-8 border-b border-dashed border-[#432623]/30 flex items-end text-[10px] text-[#432623]/50">
-                  Answer: _______________________
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-2 text-center text-[10px] font-mono text-[#432623]/60">
-              ShikshaGap Deterministic Practice Sheet | No AI Hallucinations
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 9: Stats row (config-derived facts only) */}
-        <section className="border-b border-[var(--border)] px-4 sm:px-8 py-8 max-w-6xl mx-auto bg-[var(--card)]">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-            <div className="border border-[var(--border)] p-4">
-              <div className="font-serif text-2xl font-bold text-[var(--foreground)]">3</div>
-              <div className="text-[10px] font-mono uppercase text-[var(--muted-foreground)] mt-1">
-                Languages Supported
-              </div>
-            </div>
-            <div className="border border-[var(--border)] p-4">
-              <div className="font-serif text-2xl font-bold text-[var(--foreground)]">
-                {ENABLED_CLASSES.length}
-              </div>
-              <div className="text-[10px] font-mono uppercase text-[var(--muted-foreground)] mt-1">
-                Classes Enabled (3, 4, 5)
-              </div>
-            </div>
-            <div className="border border-[var(--border)] p-4">
-              <div className="font-serif text-2xl font-bold text-[var(--foreground)]">15</div>
-              <div className="text-[10px] font-mono uppercase text-[var(--muted-foreground)] mt-1">
-                Curriculum Concepts in DAG
-              </div>
-            </div>
-            <div className="border border-[var(--border)] p-4">
-              <div className="font-serif text-2xl font-bold text-[#8ABB93]">0</div>
-              <div className="text-[10px] font-mono uppercase text-[var(--muted-foreground)] mt-1">
-                Tracking Cookies
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 10: Pilot Form */}
-        <section id="pilot" className="border-b border-[var(--border)] px-4 sm:px-8 py-12 max-w-6xl mx-auto">
-          <div className="max-w-2xl mx-auto">
-            <div className="mb-6 text-center">
-              <span className="text-xs font-mono uppercase tracking-widest text-[var(--muted-foreground)]">
-                School Partnerships
-              </span>
-              <h2 className="font-serif text-2xl sm:text-3xl font-normal mt-1 text-[var(--foreground)]">
-                Request a Classroom Pilot
-              </h2>
-              <p className="text-xs text-[var(--muted-foreground)] mt-1">
-                Government primary schools and teachers can request classroom onboarding assistance.
-              </p>
-            </div>
-
-            <form onSubmit={handlePilotSubmit} className="border border-[var(--border)] p-6 bg-[var(--card)] space-y-4">
-              {/* Bot Honeypot */}
-              <input
-                type="text"
-                name="school_url_confirm"
-                value={pilotHoneypot}
-                onChange={(e) => setPilotHoneypot(e.target.value)}
-                className="sr-only"
-                tabIndex={-1}
-                autoComplete="off"
-              />
-
-              <div>
-                <label htmlFor={schoolInputId} className="block text-xs font-mono uppercase text-[var(--muted-foreground)] mb-1">
-                  School Name *
-                </label>
-                <input
-                  id={schoolInputId}
-                  type="text"
-                  required
-                  value={pilotSchool}
-                  onChange={(e) => setPilotSchool(e.target.value)}
-                  placeholder="e.g. MPPS Gandhi Nagar"
-                  className="w-full min-h-[44px] px-3 border border-[var(--border)] bg-[var(--background)] text-xs font-mono"
-                />
-              </div>
-
-              <div>
-                <label htmlFor={teacherInputId} className="block text-xs font-mono uppercase text-[var(--muted-foreground)] mb-1">
-                  Teacher or Headmaster Name *
-                </label>
-                <input
-                  id={teacherInputId}
-                  type="text"
-                  required
-                  value={pilotTeacher}
-                  onChange={(e) => setPilotTeacher(e.target.value)}
-                  placeholder="e.g. Smt. Lakshmi Rao"
-                  className="w-full min-h-[44px] px-3 border border-[var(--border)] bg-[var(--background)] text-xs font-mono"
-                />
-              </div>
-
-              <div>
-                <label htmlFor={classRangeInputId} className="block text-xs font-mono uppercase text-[var(--muted-foreground)] mb-1">
-                  Class Range *
-                </label>
-                <select
-                  id={classRangeInputId}
-                  value={pilotClassRange}
-                  onChange={(e) => setPilotClassRange(e.target.value)}
-                  className="w-full min-h-[44px] px-3 border border-[var(--border)] bg-[var(--background)] text-xs font-mono"
-                >
-                  <option value="Classes 3 to 5">Classes 3 to 5 (Full support)</option>
-                  <option value="Class 3">Class 3 only</option>
-                  <option value="Class 4">Class 4 only</option>
-                  <option value="Class 5">Class 5 only</option>
-                  <option value="All Primary (Classes 1 to 5)">All Primary (Classes 1 to 5)</option>
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor={contactInputId} className="block text-xs font-mono uppercase text-[var(--muted-foreground)] mb-1">
-                  Teacher Contact (Phone or Email) *
-                </label>
-                <input
-                  id={contactInputId}
-                  type="text"
-                  required
-                  value={pilotContact}
-                  onChange={(e) => setPilotContact(e.target.value)}
-                  placeholder="e.g. 9876543210 or teacher@school.edu"
-                  className="w-full min-h-[44px] px-3 border border-[var(--border)] bg-[var(--background)] text-xs font-mono"
-                />
-              </div>
-
-              <div className="flex items-start gap-2 pt-1">
-                <input
-                  id={consentInputId}
-                  type="checkbox"
-                  required
-                  checked={pilotConsent}
-                  onChange={(e) => setPilotConsent(e.target.checked)}
-                  className="mt-1"
-                />
-                <label htmlFor={consentInputId} className="text-[11px] text-[var(--muted-foreground)] leading-tight">
-                  I agree that this contact will be used strictly for school pilot onboarding in accordance with our{' '}
-                  <Link href="/privacy" className="underline hover:text-[var(--foreground)]">
-                    Privacy Policy
-                  </Link>.
-                </label>
-              </div>
-
-              {pilotSuccess && (
-                <div className="p-3 border border-[#8ABB93] bg-[#8ABB93]/15 text-[#432623] dark:text-[#F5F1BC] text-xs font-mono">
-                  {pilotSuccess}
-                </div>
-              )}
-
-              {pilotError && (
-                <div className="p-3 border border-[#DE2A35] bg-[#DE2A35]/15 text-[#DE2A35] text-xs font-mono">
-                  {pilotError}
-                </div>
-              )}
-
-              <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <button
-                  type="submit"
-                  disabled={pilotLoading}
-                  className="w-full sm:w-auto min-h-[44px] px-6 bg-[#DE2A35] text-[#F5F1BC] text-xs font-mono uppercase font-bold hover:bg-[#B51E28] disabled:opacity-50"
-                >
-                  {pilotLoading ? 'Submitting...' : 'Submit Pilot Request'}
-                </button>
-                <span className="text-[10px] text-[var(--muted-foreground)] font-mono">
-                  DPDP 2023 protected | Masked storage
-                </span>
-              </div>
-            </form>
-          </div>
-        </section>
-
-        {/* SECTION 11: FAQ as Accordion (one open at a time) */}
-        <section id="faq" className="border-b border-[var(--border)] px-4 sm:px-8 py-12 max-w-6xl mx-auto">
-          <div className="mb-6">
-            <span className="text-xs font-mono uppercase tracking-widest text-[var(--muted-foreground)]">
-              Teacher Inquiries
-            </span>
-            <h2 className="font-serif text-2xl sm:text-3xl font-normal mt-1 text-[var(--foreground)]">
-              Frequently Asked Questions
-            </h2>
-          </div>
-
-          <div className="space-y-3 max-w-3xl">
+          <div className="space-y-3 max-w-3xl mx-auto">
             {FAQS.map((faq, index) => {
               const isOpen = expandedFaq === index;
               return (
-                <div key={index} className="border border-[var(--border)] bg-[var(--card)]">
+                <div key={index} className="border border-[#432623]/20 bg-[#FAF8E8] dark:bg-[#251614]">
                   <button
                     type="button"
                     onClick={() => setExpandedFaq(isOpen ? null : index)}
-                    className="w-full text-left p-4 flex items-center justify-between gap-4 font-serif text-base font-bold text-[var(--foreground)]"
+                    className="w-full text-left p-4 sm:p-5 flex items-center justify-between gap-4 font-serif text-base sm:text-lg font-bold text-[#432623] dark:text-[#FAF8E8] cursor-pointer"
                     aria-expanded={isOpen}
                   >
                     <span>{faq.q}</span>
-                    {isOpen ? <CaretUp size={16} className="shrink-0" /> : <CaretDown size={16} className="shrink-0" />}
+                    {isOpen ? <CaretUp size={16} className="shrink-0 text-[#DE2A35]" /> : <CaretDown size={16} className="shrink-0 text-[#432623]/60 dark:text-[#FAF8E8]/60" />}
                   </button>
                   {isOpen && (
-                    <div className="p-4 pt-0 text-xs text-[var(--muted-foreground)] leading-relaxed border-t border-[var(--border)]">
+                    <div className="p-4 sm:p-5 pt-0 text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed border-t border-[#432623]/15">
                       {faq.a}
                     </div>
                   )}
@@ -1242,74 +1604,103 @@ function PublicLandingPageContent() {
           </div>
         </section>
 
-        {/* SECTION 12: Final CTA Banner (one heading, one line, two buttons) */}
-        <section className="border-b border-[var(--border)] px-4 sm:px-8 py-14 max-w-6xl mx-auto text-center bg-[var(--card)]">
-          <h2 className="font-serif text-3xl font-bold mb-3 text-[var(--foreground)]">
-            Start checking student gaps in your classroom today.
-          </h2>
-          <p className="text-xs sm:text-sm text-[var(--muted-foreground)] mb-6 max-w-xl mx-auto">
-            Free forever for Indian government schools. No special devices or tracking required.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/login"
-              className="min-h-[44px] px-6 bg-[#DE2A35] text-[#F5F1BC] text-xs font-mono uppercase font-bold hover:bg-[#B51E28] inline-flex items-center"
-            >
-              Sign In to Teacher Dashboard
-            </Link>
-            <a
-              href="#pilot"
-              className="min-h-[44px] px-6 border border-[var(--border)] bg-[var(--background)] text-xs font-mono uppercase font-bold hover:bg-[var(--muted)] inline-flex items-center"
-            >
-              Request School Pilot
-            </a>
+        {/* SECTION 09: FINAL EDITORIAL DISPATCH CTA (Repeats Primary Assess Test Button) */}
+        <section className="border-b border-[#432623]/25 px-4 sm:px-8 py-16 max-w-7xl mx-auto text-center bg-[#F5F1BC]/40 dark:bg-[#311E1B]/50">
+          <div className="max-w-2xl mx-auto space-y-4">
+            <div className="text-[10px] font-mono uppercase tracking-widest text-[#DE2A35] font-bold">
+              CLOSING DISPATCH : AUTUMN 2026
+            </div>
+            <h2 className="font-serif text-3xl sm:text-5xl font-bold text-[#432623] dark:text-[#FAF8E8] tracking-tight">
+              Start an assessment to find student learning gaps today.
+            </h2>
+            <p className="text-xs sm:text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 max-w-xl mx-auto leading-relaxed">
+              A 6-minute adaptive test gives you the exact prerequisite concept holding each student back, with a 5-day action plan. Free forever for Indian government schools.
+            </p>
+            <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
+              {/* PRIMARY ACTION: ASSESS TEST BUTTON (Final CTA) */}
+              <Link
+                href="/app"
+                className="min-h-[52px] px-8 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold hover:bg-[#B51E28] focus-visible:outline-2 focus-visible:outline-[#DE2A35] inline-flex items-center gap-2 cursor-pointer shadow-md active:translate-y-[1px] tracking-wider"
+              >
+                <span>Assess Test</span>
+                <ArrowRight size={16} />
+              </Link>
+
+              {/* Visually quieter secondary button */}
+              <a
+                href="#pilot"
+                className="min-h-[48px] px-6 border border-[#432623]/40 dark:border-[#FAF8E8]/40 bg-[#FAF8E8] dark:bg-[#251614] text-[#432623] dark:text-[#FAF8E8] text-xs font-mono uppercase font-bold hover:bg-[#F5F1BC] inline-flex items-center cursor-pointer"
+              >
+                Request School Pilot
+              </a>
+            </div>
           </div>
         </section>
       </main>
 
-      {/* SECTION 13: Footer (grouped into two columns on desktop, all legal links, copyright line) */}
-      <footer className="border-t border-[var(--border)] bg-[var(--background)] px-4 sm:px-8 py-10 text-xs font-mono">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 pb-8 border-b border-[var(--border)]">
+      {/* SECTION 10: EDITORIAL COLOPHON & FOOTER */}
+      <footer className="border-t border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#251614] px-4 sm:px-8 py-12 text-xs font-mono">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 pb-8 border-b border-[#432623]/20">
           <div>
-            <div className="font-serif text-lg font-bold text-[var(--foreground)] flex items-center gap-2">
-              <span className="h-6 w-6 rounded-[2px] bg-[#DE2A35] text-[#F5F1BC] font-mono text-[10px] flex items-center justify-center font-bold">
+            <div className="font-serif text-2xl font-bold text-[#432623] dark:text-[#FAF8E8] flex items-center gap-2.5">
+              <span className="h-6 w-6 rounded-[2px] bg-[#DE2A35] text-[#FAF8E8] font-mono text-[10px] flex items-center justify-center font-bold">
                 SG
               </span>
               <span>ShikshaGap</span>
             </div>
-            <p className="text-[11px] text-[var(--muted-foreground)] mt-2 max-w-md leading-relaxed">
-              Mathematics learning check and practice planning for Indian primary schools, Classes 3 to 5.
+            <p className="text-[11px] text-[#432623]/70 dark:text-[#FAF8E8]/70 mt-2 max-w-md leading-relaxed">
+              AI-powered learning gap detection and personalized remediation for Indian primary schools, Classes 3 to 5.
             </p>
-            <div className="mt-4 text-[10px] text-[var(--muted-foreground)]">
+            <div className="mt-4 text-[10px] text-[#432623]/60 dark:text-[#FAF8E8]/60">
               DPDP Act 2023 Compliant | Made for Indian Government Schools
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-6 justify-between md:justify-end text-[11px] uppercase tracking-wider text-[var(--muted-foreground)]">
+          <div className="flex flex-col sm:flex-row gap-8 justify-between md:justify-end text-[11px] uppercase tracking-wider text-[#432623]/70 dark:text-[#FAF8E8]/70">
             <div className="space-y-2 flex flex-col">
-              <span className="font-bold text-[var(--foreground)]">Product</span>
-              <a href="#demo" className="hover:text-[var(--foreground)]">Interactive Demo</a>
-              <a href="#how-it-works" className="hover:text-[var(--foreground)]">How It Works</a>
-              <a href="#pilot" className="hover:text-[var(--foreground)]">Request Pilot</a>
-              <Link href="/login" className="hover:text-[var(--foreground)]">Teacher Sign In</Link>
+              <span className="font-bold text-[#432623] dark:text-[#FAF8E8]">Diagnostic Actions</span>
+              <Link href="/app" className="text-[#DE2A35] font-bold hover:underline">Assess Test Now</Link>
+              <a href="#how-agent-works" className="hover:text-[#DE2A35]">How Agent Works</a>
+              <a href="#demo" className="hover:text-[#DE2A35]">Interactive Demo</a>
+              <a href="#pilot" className="hover:text-[#DE2A35]">Request Pilot</a>
+              <Link href="/login" className="hover:text-[#DE2A35]">Teacher Sign In</Link>
             </div>
             <div className="space-y-2 flex flex-col">
-              <span className="font-bold text-[var(--foreground)]">Legal & Privacy</span>
-              <Link href="/privacy" className="hover:text-[var(--foreground)]">Privacy Policy</Link>
-              <Link href="/terms" className="hover:text-[var(--foreground)]">Terms of Service</Link>
-              <Link href="/cookies" className="hover:text-[var(--foreground)]">Cookie Notice</Link>
-              <Link href="/notices/guardian" className="hover:text-[var(--foreground)]">Guardian Notice</Link>
-              <Link href="/data-request" className="hover:text-[var(--foreground)]">Data Request</Link>
-              <Link href="/licenses" className="hover:text-[var(--foreground)]">Licenses</Link>
+              <span className="font-bold text-[#432623] dark:text-[#FAF8E8]">Legal & Governance</span>
+              <Link href="/privacy" className="hover:text-[#DE2A35]">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-[#DE2A35]">Terms of Service</Link>
+              <Link href="/cookies" className="hover:text-[#DE2A35]">Cookie Notice</Link>
+              <Link href="/notices/guardian" className="hover:text-[#DE2A35]">Guardian Notice</Link>
+              <Link href="/data-request" className="hover:text-[#DE2A35]">Data Request</Link>
+              <Link href="/licenses" className="hover:text-[#DE2A35]">Licenses</Link>
             </div>
           </div>
         </div>
 
-        <div className="max-w-6xl mx-auto mt-6 flex flex-col sm:flex-row justify-between text-[10px] text-[var(--muted-foreground)] gap-2">
+        <div className="max-w-7xl mx-auto mt-6 flex flex-col sm:flex-row justify-between text-[10px] text-[#432623]/60 dark:text-[#FAF8E8]/60 gap-2">
           <div>Copyright 2026 ShikshaGap. All rights reserved.</div>
           <div>Strictly necessary storage only. Zero third-party tracking.</div>
         </div>
       </footer>
+
+      {/* STICKY MOBILE CTA BAR (Assess Test button visible without scrolling on small screens) */}
+      <div className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-[#FAF8E8]/95 dark:bg-[#251614]/95 border-t border-[#432623]/25 px-4 py-2.5 flex items-center justify-between gap-3 shadow-lg backdrop-blur-xs">
+        <div className="flex flex-col">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-[#DE2A35] font-bold">
+            AI Diagnostic
+          </span>
+          <span className="text-xs font-mono text-[#432623] dark:text-[#FAF8E8] font-bold">
+            Class 3 to 5 Math
+          </span>
+        </div>
+        <Link
+          href="/app"
+          className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-xs font-mono uppercase font-bold inline-flex items-center justify-center gap-1.5 border border-[#DE2A35] shadow-xs active:scale-95"
+        >
+          <span>Assess Test</span>
+          <ArrowRight size={14} />
+        </Link>
+      </div>
     </div>
   );
 }
