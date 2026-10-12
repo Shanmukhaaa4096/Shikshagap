@@ -128,7 +128,7 @@ export default function GuardianNoticeClient() {
         <div className="flex items-center justify-between pb-4 border-b border-[#432623]/20 dark:border-[#F5F1BC]/20">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-xs font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 hover:underline min-h-[44px]"
+            className="inline-flex items-center gap-1.5 text-sm font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 hover:underline min-h-[44px]"
           >
             <ArrowLeft size={16} />
             <span>Back to ShikshaGap</span>
@@ -137,7 +137,7 @@ export default function GuardianNoticeClient() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleShare}
-              className="min-h-[44px] px-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-xs font-mono uppercase inline-flex items-center gap-1.5 hover:bg-[#F5F1BC]/50 dark:hover:bg-[#381f1c]"
+              className="min-h-[44px] px-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-sm font-mono uppercase inline-flex items-center gap-1.5 hover:bg-[#F5F1BC]/50 dark:hover:bg-[#381f1c]"
               aria-label="Share notice template"
             >
               {isCopied ? <Check size={16} className="text-[#8ABB93]" /> : <ShareNetwork size={16} />}
@@ -146,7 +146,7 @@ export default function GuardianNoticeClient() {
 
             <button
               onClick={handlePrint}
-              className="min-h-[44px] px-4 bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] text-xs font-mono uppercase font-bold inline-flex items-center gap-1.5 border border-[#432623] dark:border-[#F5F1BC]"
+              className="min-h-[44px] px-4 bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] text-sm font-mono uppercase font-bold inline-flex items-center gap-1.5 border border-[#432623] dark:border-[#F5F1BC]"
             >
               <Printer size={16} />
               <span>Print A4 Notice</span>
@@ -157,13 +157,13 @@ export default function GuardianNoticeClient() {
         {/* Configuration Toolbar */}
         <div className="mt-4 p-4 border border-[#432623]/20 dark:border-[#F5F1BC]/20 bg-[#FAF8E8] dark:bg-[#381f1c] space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <span className="text-xs font-mono uppercase tracking-wider font-bold">
+            <span className="text-sm font-mono uppercase tracking-wider font-bold">
               Notice Language:
             </span>
             <div className="flex gap-1" role="group" aria-label="Select notice language">
               <button
                 onClick={() => setLang('en')}
-                className={`min-h-[44px] px-3 text-xs font-mono uppercase border ${
+                className={`min-h-[44px] px-3 text-sm font-mono uppercase border ${
                   lang === 'en'
                     ? 'bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] font-bold border-[#432623] dark:border-[#F5F1BC]'
                     : 'border-[#432623]/20 hover:bg-[#F5F1BC]'
@@ -173,7 +173,7 @@ export default function GuardianNoticeClient() {
               </button>
               <button
                 onClick={() => setLang('hi')}
-                className={`min-h-[44px] px-3 text-xs font-mono uppercase border ${
+                className={`min-h-[44px] px-3 text-sm font-mono uppercase border ${
                   lang === 'hi'
                     ? 'bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] font-bold border-[#432623] dark:border-[#F5F1BC]'
                     : 'border-[#432623]/20 hover:bg-[#F5F1BC]'
@@ -183,7 +183,7 @@ export default function GuardianNoticeClient() {
               </button>
               <button
                 onClick={() => setLang('te')}
-                className={`min-h-[44px] px-3 text-xs font-mono uppercase border ${
+                className={`min-h-[44px] px-3 text-sm font-mono uppercase border ${
                   lang === 'te'
                     ? 'bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] font-bold border-[#432623] dark:border-[#F5F1BC]'
                     : 'border-[#432623]/20 hover:bg-[#F5F1BC]'
@@ -196,7 +196,7 @@ export default function GuardianNoticeClient() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-[#432623]/10 dark:border-[#F5F1BC]/10">
             <div>
-              <label htmlFor="school-name-input" className="block text-[11px] font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 mb-1">
+              <label htmlFor="school-name-input" className="block text-sm font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 mb-1">
                 School Name (Print Header)
               </label>
               <input
@@ -204,11 +204,11 @@ export default function GuardianNoticeClient() {
                 type="text"
                 value={schoolName}
                 onChange={(e) => setSchoolName(e.target.value)}
-                className="w-full min-h-[44px] bg-[#FAF8E8] dark:bg-[#432623] border border-[#432623]/30 px-3 py-1.5 text-base sm:text-xs font-mono text-[#432623] dark:text-[#F5F1BC]"
+                className="w-full min-h-[44px] bg-[#FAF8E8] dark:bg-[#432623] border border-[#432623]/30 px-3 py-1.5 text-base sm:text-sm font-mono text-[#432623] dark:text-[#F5F1BC]"
               />
             </div>
             <div>
-              <label htmlFor="contact-info-input" className="block text-[11px] font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 mb-1">
+              <label htmlFor="contact-info-input" className="block text-sm font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 mb-1">
                 Grievance Contact Phone / Email
               </label>
               <input
@@ -216,7 +216,7 @@ export default function GuardianNoticeClient() {
                 type="text"
                 value={contactInfo}
                 onChange={(e) => setContactInfo(e.target.value)}
-                className="w-full min-h-[44px] bg-[#FAF8E8] dark:bg-[#432623] border border-[#432623]/30 px-3 py-1.5 text-base sm:text-xs font-mono text-[#432623] dark:text-[#F5F1BC]"
+                className="w-full min-h-[44px] bg-[#FAF8E8] dark:bg-[#432623] border border-[#432623]/30 px-3 py-1.5 text-base sm:text-sm font-mono text-[#432623] dark:text-[#F5F1BC]"
               />
             </div>
           </div>
@@ -227,30 +227,30 @@ export default function GuardianNoticeClient() {
       <div className="max-w-3xl mx-auto border border-[#432623]/30 dark:border-[#F5F1BC]/30 bg-[#FAF8E8] dark:bg-[#381f1c] print:bg-white print:border-black print:text-black p-6 sm:p-10 shadow-none">
         {/* Document Header */}
         <div className="text-center pb-4 mb-4 border-b-2 border-[#432623] print:border-black">
-          <div className="text-xs font-mono uppercase tracking-widest font-bold">
+          <div className="text-sm font-mono uppercase tracking-widest font-bold">
             {schoolName}
           </div>
           <h1 className="font-serif text-xl sm:text-2xl font-bold mt-1 tracking-tight text-[#432623] print:text-black dark:text-[#F5F1BC]">
             {t.title}
           </h1>
-          <p className="text-xs font-mono text-[#432623]/70 dark:text-[#F5F1BC]/70 print:text-gray-700 mt-1">
+          <p className="text-sm font-mono text-[#432623]/70 dark:text-[#F5F1BC]/70 print:text-gray-700 mt-1">
             {t.subtitle}
           </p>
         </div>
 
         {/* Legal Draft Warning */}
-        <div className="mb-4 p-2.5 border border-[#DE2A35] bg-[#DE2A35]/10 print:border-gray-400 print:bg-gray-100 text-[11px] text-[#432623] print:text-black leading-tight">
+        <div className="mb-4 p-2.5 border border-[#DE2A35] bg-[#DE2A35]/10 print:border-gray-400 print:bg-gray-100 text-sm text-[#432623] print:text-black leading-tight">
           <span className="font-bold text-[#DE2A35] print:text-black">NOTICE: </span>
           <span>{t.disclaimer}</span>
         </div>
 
         {/* Introductory Message */}
-        <p className="text-xs sm:text-sm text-[#432623] dark:text-[#F5F1BC] print:text-black leading-relaxed mb-4">
+        <p className="text-sm sm:text-sm text-[#432623] dark:text-[#F5F1BC] print:text-black leading-relaxed mb-4">
           {t.intro}
         </p>
 
         {/* Structured Legal Disclosures */}
-        <div className="space-y-3 text-xs sm:text-sm border-t border-b border-[#432623]/20 dark:border-[#F5F1BC]/20 print:border-black py-4 mb-6">
+        <div className="space-y-3 text-sm sm:text-sm border-t border-b border-[#432623]/20 dark:border-[#F5F1BC]/20 print:border-black py-4 mb-6">
           <div>
             <h2 className="font-bold font-serif text-sm">{t.sec1Title}</h2>
             <p className="text-[#432623]/85 dark:text-[#F5F1BC]/85 print:text-black mt-0.5 leading-relaxed">{t.sec1Text}</p>
@@ -274,27 +274,27 @@ export default function GuardianNoticeClient() {
         </div>
 
         {/* School Contact Reference */}
-        <div className="text-[11px] font-mono text-[#432623]/70 dark:text-[#F5F1BC]/70 print:text-gray-700 mb-6">
+        <div className="text-sm font-mono text-[#432623]/70 dark:text-[#F5F1BC]/70 print:text-gray-700 mb-6">
           Institutional Contact for Inquiries: <span className="font-bold">{contactInfo}</span>
         </div>
 
         {/* Acknowledgement and Signature Block */}
         <div className="border border-[#432623]/30 dark:border-[#F5F1BC]/30 print:border-black p-4 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-dashed border-[#432623]/30 print:border-black pb-3">
-            <span className="text-xs font-mono font-bold">{t.childNameLabel}</span>
+            <span className="text-sm font-mono font-bold">{t.childNameLabel}</span>
             <div className="w-full sm:w-64 border-b border-dotted border-[#432623] print:border-black h-5" />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
             <div>
-              <div className="text-[11px] font-mono uppercase mb-8">{t.parentSigLabel}</div>
+              <div className="text-sm font-mono uppercase mb-8">{t.parentSigLabel}</div>
               <div className="border-b border-black h-1" />
-              <div className="text-[10px] font-mono text-right mt-1">{t.dateLabel} _______________</div>
+              <div className="text-sm font-mono text-right mt-1">{t.dateLabel} _______________</div>
             </div>
             <div>
-              <div className="text-[11px] font-mono uppercase mb-8">{t.teacherSigLabel}</div>
+              <div className="text-sm font-mono uppercase mb-8">{t.teacherSigLabel}</div>
               <div className="border-b border-black h-1" />
-              <div className="text-[10px] font-mono text-right mt-1">{t.dateLabel} _______________</div>
+              <div className="text-sm font-mono text-right mt-1">{t.dateLabel} _______________</div>
             </div>
           </div>
         </div>

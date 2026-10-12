@@ -106,7 +106,7 @@ export default function LicensesPage() {
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#432623]/15 dark:border-[#F5F1BC]/15 pb-2 mb-3">
                 <div>
                   <h2 className="font-serif text-lg font-bold">{lib.name}</h2>
-                  <div className="text-[11px] font-mono text-[#432623]/70 dark:text-[#F5F1BC]/70">
+                  <div className="text-xs font-mono text-[#432623]/70 dark:text-[#F5F1BC]/70">
                     {lib.author} | {lib.license}
                   </div>
                 </div>
@@ -119,7 +119,7 @@ export default function LicensesPage() {
                   Source Repository
                 </a>
               </div>
-              <pre className="text-[11px] font-mono bg-[#F5F1BC]/40 dark:bg-[#432623] p-3 overflow-x-auto whitespace-pre-wrap border border-[#432623]/10 dark:border-[#F5F1BC]/10">
+              <pre className="text-xs font-mono bg-[#F5F1BC]/40 dark:bg-[#432623] p-3 overflow-x-auto whitespace-pre-wrap border border-[#432623]/10 dark:border-[#F5F1BC]/10">
                 {lib.text}
               </pre>
             </div>

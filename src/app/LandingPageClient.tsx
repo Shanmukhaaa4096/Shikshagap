@@ -434,13 +434,13 @@ function PublicLandingPageContent() {
       {/* Accessible Skip Link */}
       <a 
         href="#main-content" 
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#DE2A35] focus:text-[#FAF8E8] text-xs font-mono uppercase border border-[#432623]"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#DE2A35] focus:text-[#FAF8E8] text-sm font-mono uppercase border border-[#432623]"
       >
         Skip to main content
       </a>
 
       {/* TOP MASTHEAD DATELINE */}
-      <div className="bg-[#FAF8E8] dark:bg-[#251614] border-b border-[#432623]/20 px-4 sm:px-8 py-1.5 text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70 flex flex-wrap items-center justify-between gap-2">
+      <div className="bg-[#FAF8E8] dark:bg-[#251614] border-b border-[#432623]/20 px-4 sm:px-8 py-1.5 text-sm sm:text-sm font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           {/* Vol. 2026 / Issue No. 05 hidden per teacher clarity requirements */}
           <span className="hidden">VOL. 2026 | ISSUE NO. 05</span>
@@ -460,19 +460,19 @@ function PublicLandingPageContent() {
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link href="/" className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#432623] dark:text-[#FAF8E8] flex items-center gap-2.5">
-              <span className="h-7 w-7 rounded-[2px] bg-[#DE2A35] text-[#FAF8E8] font-mono text-xs flex items-center justify-center font-bold tracking-normal shadow-xs">
+              <span className="h-7 w-7 rounded-[2px] bg-[#DE2A35] text-[#FAF8E8] font-mono text-sm flex items-center justify-center font-bold tracking-normal shadow-xs">
                 SG
               </span>
               <span className="tracking-tighter">ShikshaGap</span>
             </Link>
-            <span className="hidden sm:inline-block border border-[#432623]/30 text-[10px] font-mono uppercase px-2 py-0.5 bg-[#F5F1BC]/60 dark:bg-[#311E1B] text-[#432623] dark:text-[#FAF8E8] font-bold">
+            <span className="hidden sm:inline-block border border-[#432623]/30 text-sm font-mono uppercase px-2 py-0.5 bg-[#F5F1BC]/60 dark:bg-[#311E1B] text-[#432623] dark:text-[#FAF8E8] font-bold">
               AI Diagnostic Agent
             </span>
           </div>
 
           <div className="flex items-center gap-2.5 sm:gap-4">
             {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-5 text-[11px] font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80" aria-label="Main Navigation">
+            <nav className="hidden lg:flex items-center gap-5 text-sm font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80" aria-label="Main Navigation">
               <a href="#cover" className="hover:text-[#DE2A35] transition-colors">01 Cover</a>
               <a href="#how-agent-works" className="hover:text-[#DE2A35] transition-colors">02 How Agent Works</a>
               <a href="#demo" className="hover:text-[#DE2A35] transition-colors">03 Interactive Cases</a>
@@ -480,7 +480,7 @@ function PublicLandingPageContent() {
             </nav>
 
             {/* Language Switcher (EN / हिन्दी / తెలుగు) */}
-            <div className="flex items-center border border-[#432623]/30 dark:border-[#FAF8E8]/30 rounded-[2px] p-0.5 text-xs font-mono bg-[#F5F1BC]/40 dark:bg-[#311E1B]">
+            <div className="flex items-center border border-[#432623]/30 dark:border-[#FAF8E8]/30 rounded-[2px] p-0.5 text-sm font-mono bg-[#F5F1BC]/40 dark:bg-[#311E1B]">
               {(['en', 'hi', 'te'] as Lang[]).map((l) => (
                 <button
                   key={l}
@@ -511,7 +511,7 @@ function PublicLandingPageContent() {
             {/* Secondary Link: Sign In (Quiet) */}
             <Link
               href="/login"
-              className="hidden sm:inline-flex border border-[#432623]/30 dark:border-[#FAF8E8]/30 bg-transparent text-[#432623] dark:text-[#FAF8E8] px-3 py-2 min-h-[44px] sm:min-h-[38px] items-center text-xs font-mono uppercase font-bold hover:bg-[#F5F1BC]/60 cursor-pointer focus-visible:outline-2 focus-visible:outline-[#DE2A35]"
+              className="hidden sm:inline-flex border border-[#432623]/30 dark:border-[#FAF8E8]/30 bg-transparent text-[#432623] dark:text-[#FAF8E8] px-3 py-2 min-h-[44px] sm:min-h-[38px] items-center text-sm font-mono uppercase font-bold hover:bg-[#F5F1BC]/60 cursor-pointer focus-visible:outline-2 focus-visible:outline-[#DE2A35]"
             >
               Sign In
             </Link>
@@ -519,7 +519,7 @@ function PublicLandingPageContent() {
             {/* PRIMARY ACTION: ASSESS TEST BUTTON (Sticky Navbar) */}
             <Link
               href="/app"
-              className="inline-flex border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-4 sm:px-5 py-2 min-h-[40px] items-center text-xs font-mono uppercase font-bold hover:bg-[#B51E28] focus-visible:outline-2 focus-visible:outline-[#DE2A35] cursor-pointer shadow-xs active:translate-y-[1px] tracking-wider"
+              className="inline-flex border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-4 sm:px-5 py-2 min-h-[40px] items-center text-sm font-mono uppercase font-bold hover:bg-[#B51E28] focus-visible:outline-2 focus-visible:outline-[#DE2A35] cursor-pointer shadow-xs active:translate-y-[1px] tracking-wider"
             >
               <span>Assess Test</span>
               <ArrowRight size={13} className="ml-1.5" />
@@ -540,7 +540,7 @@ function PublicLandingPageContent() {
 
         {/* Mobile Navigation Drawer */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden mt-3 pt-3 border-t border-[#432623]/20 dark:border-[#FAF8E8]/20 flex flex-col gap-2 font-mono text-xs uppercase tracking-wider">
+          <div className="lg:hidden mt-3 pt-3 border-t border-[#432623]/20 dark:border-[#FAF8E8]/20 flex flex-col gap-2 font-mono text-sm uppercase tracking-wider">
             <Link
               href="/app"
               onClick={() => setIsMobileMenuOpen(false)}
@@ -594,7 +594,7 @@ function PublicLandingPageContent() {
         <section id="cover" className="relative border-b border-[#432623]/25 overflow-hidden bg-[#FAF8E8] dark:bg-[#251614]">
           
           {/* Top Editorial Hairline & Issue Badge */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-4 sm:pt-6 pb-2 flex flex-wrap items-center justify-between gap-2 border-b border-[#432623]/15 text-[11px] font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-4 sm:pt-6 pb-2 flex flex-wrap items-center justify-between gap-2 border-b border-[#432623]/15 text-sm font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 bg-[#DE2A35] rounded-full inline-block"></span>
               <span className="font-bold text-[#432623] dark:text-[#FAF8E8]">01 / THE COVER STORY</span>
@@ -621,7 +621,7 @@ function PublicLandingPageContent() {
                     <LuminousType text="NEEDS TO learn NEXT" italicIndices={[2]} />
                   </span>
                 </h1>
-                <div className="mt-2 text-xs sm:text-sm font-mono tracking-widest uppercase text-[#432623]/60 dark:text-[#FAF8E8]/60">
+                <div className="mt-2 text-sm sm:text-sm font-mono tracking-widest uppercase text-[#432623]/60 dark:text-[#FAF8E8]/60">
                   SHIKSHAGAP AI AGENT : ADAPTIVE DIAGNOSTIC FOR CLASSES 3, 4 & 5
                 </div>
               </div>
@@ -648,7 +648,7 @@ function PublicLandingPageContent() {
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pointer-events-auto">
                 <div className="md:col-span-5 bg-[#FAF8E8]/95 dark:bg-[#251614]/95 p-5 sm:p-6 border-2 border-[#432623]/30 backdrop-blur-xs max-w-md shadow-md">
                   
-                  <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-[#DE2A35] font-bold mb-1.5">
+                  <div className="flex items-center gap-2 text-sm font-mono uppercase tracking-widest text-[#DE2A35] font-bold mb-1.5">
                     <BlinkingDots count={3} activeColor="#DE2A35" />
                     <span>AI DIAGNOSTIC AGENT</span>
                   </div>
@@ -658,17 +658,17 @@ function PublicLandingPageContent() {
                   </h2>
 
                   {/* Copy describing the agent: what it assesses, how long it takes, and what student gets */}
-                  <div className="space-y-1.5 mb-4 text-xs font-mono text-[#432623]/80 dark:text-[#FAF8E8]/80 border-t border-b border-[#432623]/15 py-2.5">
+                  <div className="space-y-1.5 mb-4 text-sm font-mono text-[#432623]/80 dark:text-[#FAF8E8]/80 border-t border-b border-[#432623]/15 py-2.5">
                     <div className="flex items-start gap-2">
-                      <span className="font-bold text-[#DE2A35] w-20 shrink-0 uppercase text-[10px]">Assesses:</span>
+                      <span className="font-bold text-[#DE2A35] w-20 shrink-0 uppercase text-sm">Assesses:</span>
                       <span>Foundational Math in Classes 3 to 5 (place value, regrouping, fractions, division)</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-[#DE2A35] w-20 shrink-0 uppercase text-[10px]">Time:</span>
+                      <span className="font-bold text-[#DE2A35] w-20 shrink-0 uppercase text-sm">Time:</span>
                       <span className="flex items-center gap-1"><Clock size={12} /> 6 to 8 minutes per child</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <span className="font-bold text-[#DE2A35] w-20 shrink-0 uppercase text-[10px]">Output:</span>
+                      <span className="font-bold text-[#DE2A35] w-20 shrink-0 uppercase text-sm">Output:</span>
                       <span className="flex items-center gap-1"><FileText size={12} /> Root gap report & 5-day classroom plan</span>
                     </div>
                   </div>
@@ -693,13 +693,13 @@ function PublicLandingPageContent() {
                     {/* Visually quieter secondary button */}
                     <a
                       href="#how-agent-works"
-                      className="border border-[#432623]/30 dark:border-[#FAF8E8]/30 bg-transparent text-[#432623] dark:text-[#FAF8E8] px-4 py-2.5 min-h-[44px] inline-flex items-center justify-center text-xs font-mono uppercase tracking-wider font-semibold hover:bg-[#F5F1BC]/60 cursor-pointer transition-none"
+                      className="border border-[#432623]/30 dark:border-[#FAF8E8]/30 bg-transparent text-[#432623] dark:text-[#FAF8E8] px-4 py-2.5 min-h-[44px] inline-flex items-center justify-center text-sm font-mono uppercase tracking-wider font-semibold hover:bg-[#F5F1BC]/60 cursor-pointer transition-none"
                     >
                       See how it works
                     </a>
                   </div>
 
-                  <div className="mt-3 text-[10px] font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60 flex items-center gap-2">
+                  <div className="mt-3 text-sm font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60 flex items-center gap-2">
                     <ShieldCheck size={13} className="text-[#8ABB93]" />
                     <span>No login required for initial classroom trial</span>
                   </div>
@@ -707,16 +707,16 @@ function PublicLandingPageContent() {
 
                 {/* Right Side: Issue Contents */}
                 <div className="hidden md:block md:col-start-9 md:col-span-4 bg-[#FAF8E8]/90 dark:bg-[#251614]/90 p-4 border border-[#432623]/25 backdrop-blur-xs text-right">
-                  <div className="text-[10px] font-mono uppercase tracking-widest text-[#8ABB93] font-bold mb-1">
+                  <div className="text-sm font-mono uppercase tracking-widest text-[#8ABB93] font-bold mb-1">
                     WHAT IS INSIDE
                   </div>
-                  <ul className="text-xs font-mono space-y-1.5 text-[#432623]/80 dark:text-[#FAF8E8]/80">
+                  <ul className="text-sm font-mono space-y-1.5 text-[#432623]/80 dark:text-[#FAF8E8]/80">
                     <li><span className="text-[#DE2A35] font-bold">p. 02</span> : The 42% Test Score Fallacy</li>
                     <li><span className="text-[#DE2A35] font-bold">p. 04</span> : How the AI Agent Traces Gaps</li>
                     <li><span className="text-[#DE2A35] font-bold">p. 07</span> : Live Student Gap Report Sample</li>
                     <li><span className="text-[#DE2A35] font-bold">p. 12</span> : Printable 1-Page A4 Worksheets</li>
                   </ul>
-                  <div className="mt-3 pt-2 border-t border-[#432623]/20 text-[10px] font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60">
+                  <div className="mt-3 pt-2 border-t border-[#432623]/20 text-sm font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60">
                     MADE SPECIFICALLY FOR INDIAN GOVT SCHOOLS
                   </div>
                 </div>
@@ -725,17 +725,17 @@ function PublicLandingPageContent() {
               {/* Lower Bar: Editorial Cutout Caption & Sample Barcode */}
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end mt-auto pt-6 pointer-events-auto">
                 <div className="md:col-span-5 bg-[#FAF8E8]/95 dark:bg-[#251614]/95 p-3 border border-[#432623]/25">
-                  <div className="text-[10px] font-mono uppercase text-[#DE2A35] font-bold">
+                  <div className="text-sm font-mono uppercase text-[#DE2A35] font-bold">
                     FIGURE 1.0: GAPPU THE DIAGNOSTIC OWL
                   </div>
-                  <p className="text-[11px] text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-snug mt-0.5">
+                  <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-snug mt-0.5">
                     Friendly AI agent mascot Gappu analyzing foundational math prerequisites. Interactive mascot winks and bobs as it tracks Class 3 and 4 skills that stall multi-digit division.
                   </p>
                 </div>
 
                 <div className="hidden md:flex md:col-start-9 md:col-span-4 justify-end">
                   <div className="bg-[#FAF8E8]/95 dark:bg-[#251614]/95 border border-[#432623]/25 p-2.5 text-center font-mono">
-                    <div className="text-[9px] tracking-widest text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase">
+                    <div className="text-sm tracking-widest text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase">
                       SAMPLE NO. 2026-SG-AGENT
                     </div>
                     <div className="text-sm font-mono tracking-widest font-bold text-[#432623] dark:text-[#FAF8E8] mt-0.5">
@@ -751,7 +751,7 @@ function PublicLandingPageContent() {
 
         {/* SECTION 02: THE CLASSROOM DILEMMA */}
         <section className="border-b border-[#432623]/25 px-4 sm:px-8 py-12 max-w-7xl mx-auto">
-          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-4">
+          <div className="flex items-center gap-2 text-sm font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-4">
             <span className="text-[#DE2A35] font-bold">02</span>
             <span>/</span>
             <span>THE CLASSROOM DILEMMA</span>
@@ -760,13 +760,13 @@ function PublicLandingPageContent() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Pull Quote */}
             <div className="lg:col-span-5 border-l-2 border-[#DE2A35] pl-5 py-2">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#DE2A35] font-bold block mb-2">
+              <span className="text-sm font-mono uppercase tracking-widest text-[#DE2A35] font-bold block mb-2">
                 THE PROBLEM
               </span>
               <blockquote className="font-serif text-2xl sm:text-3xl lg:text-4xl leading-tight text-[#432623] dark:text-[#FAF8E8]">
                 A student scores 42% on a test. The mark confirms struggle, but conceals the root cause.
               </blockquote>
-              <div className="mt-4 text-xs font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70">
+              <div className="mt-4 text-sm font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70">
                 DESIGNED FOR TELANGANA AND ANDHRA PRADESH CLASSROOMS
               </div>
             </div>
@@ -775,13 +775,13 @@ function PublicLandingPageContent() {
             <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="border border-[#432623]/20 bg-[#F5F1BC]/30 dark:bg-[#311E1B]/50 p-5 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-200">
                 <div>
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-[#DE2A35] font-bold mb-1">
+                  <div className="text-sm font-mono uppercase tracking-wider text-[#DE2A35] font-bold mb-1">
                     The Dilemma
                   </div>
                   <h3 className="font-serif text-lg font-bold text-[#432623] dark:text-[#FAF8E8] mb-2">
                     Repeating current class problems creates frustration.
                   </h3>
-                  <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed mb-4">
+                  <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed mb-4">
                     When a Class 5 child fails long division, giving 20 more division sums fails. The real gap is almost always in Class 3 regrouping or Class 4 multiplication table fluency.
                   </p>
                 </div>
@@ -792,13 +792,13 @@ function PublicLandingPageContent() {
 
               <div className="border border-[#432623]/20 bg-[#8ABB93]/15 dark:bg-[#8ABB93]/10 p-5 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-200">
                 <div>
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-[#8ABB93] font-bold mb-1">
+                  <div className="text-sm font-mono uppercase tracking-wider text-[#8ABB93] font-bold mb-1">
                     The AI Agent Solution
                   </div>
                   <h3 className="font-serif text-lg font-bold text-[#432623] dark:text-[#FAF8E8] mb-2">
                     Traces the prerequisite gap and generates a 5-day plan.
                   </h3>
-                  <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed mb-4">
+                  <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed mb-4">
                     ShikshaGap backtracks through the curriculum DAG to identify whether the missing link began in Class 3, 4, or 5, then produces a concrete 5-day plan with single-sheet paper printouts.
                   </p>
                 </div>
@@ -814,7 +814,7 @@ function PublicLandingPageContent() {
         <section id="how-agent-works" className="border-b border-[#432623]/25 px-4 sm:px-8 py-12 max-w-7xl mx-auto bg-[#F5F1BC]/20 dark:bg-[#311E1B]/30">
           <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-[#432623]/20 pb-4">
             <div>
-              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
+              <div className="flex items-center gap-2 text-sm font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
                 <span className="text-[#DE2A35] font-bold">03</span>
                 <span>/</span>
                 <span>HOW THE AI AGENT WORKS : VISUAL SAMPLES</span>
@@ -826,7 +826,7 @@ function PublicLandingPageContent() {
             <div className="flex items-center gap-3">
               <Link
                 href="/app"
-                className="border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
+                className="border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-4 py-2 text-sm font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
               >
                 Start an Assessment Now
               </Link>
@@ -840,16 +840,16 @@ function PublicLandingPageContent() {
             <div className="border-2 border-[#432623]/30 bg-[#FAF8E8] dark:bg-[#251614] p-6 shadow-sm space-y-4">
               <div className="border-b border-[#432623]/20 pb-3 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#DE2A35] font-bold">
+                  <span className="text-sm font-mono uppercase tracking-wider text-[#DE2A35] font-bold">
                     SAMPLE REPORT
                   </span>
                   <h3 className="font-serif text-xl font-bold">Student Gap Report</h3>
                 </div>
                 <div className="flex flex-col items-end gap-1">
-                  <span className="text-xs font-mono px-2 py-1 bg-[#DE2A35]/15 text-[#DE2A35] border border-[#DE2A35]/30 font-bold">
+                  <span className="text-sm font-mono px-2 py-1 bg-[#DE2A35]/15 text-[#DE2A35] border border-[#DE2A35]/30 font-bold">
                     Class 5A : 42%
                   </span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 bg-[#FAF8E8] dark:bg-[#251614] text-[#432623]/80 dark:text-[#FAF8E8]/80 border border-[#432623]/20">
+                  <span className="text-sm font-mono px-1.5 py-0.5 bg-[#FAF8E8] dark:bg-[#251614] text-[#432623]/80 dark:text-[#FAF8E8]/80 border border-[#432623]/20">
                     Sample data. Not a real student.
                   </span>
                 </div>
@@ -857,27 +857,27 @@ function PublicLandingPageContent() {
 
               {/* Diagnosed Root Gap */}
               <div className="border border-[#432623]/20 p-4 bg-[#F5F1BC]/40 dark:bg-[#311E1B]/50 space-y-2">
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-[#432623]/70 dark:text-[#FAF8E8]/70 uppercase text-[10px]">Student:</span>
+                <div className="flex items-center justify-between text-sm font-mono">
+                  <span className="text-[#432623]/70 dark:text-[#FAF8E8]/70 uppercase text-sm">Student:</span>
                   <strong>Rajesh Kumar (Roll #7)</strong>
                 </div>
-                <div className="text-xs font-mono">
-                  <span className="text-[#DE2A35] font-bold uppercase text-[10px] block">Diagnosed Root Cause:</span>
+                <div className="text-sm font-mono">
+                  <span className="text-[#DE2A35] font-bold uppercase text-sm block">Diagnosed Root Cause:</span>
                   <p className="font-serif text-base font-bold text-[#DE2A35]">
                     Class 3 Subtraction Regrouping (Tens to Units Borrowing)
                   </p>
                 </div>
-                <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed italic border-t border-[#432623]/15 pt-2">
+                <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed italic border-t border-[#432623]/15 pt-2">
                   &ldquo;Student attempted long division in 24 / 6 by subtracting 6 repeatedly, but subtracted the smaller ones digit from the larger digit without borrowing.&rdquo;
                 </p>
               </div>
 
               {/* Prerequisite Backtracking Graph Trail */}
-              <div className="border border-[#432623]/20 p-3 bg-white dark:bg-[#311E1B] space-y-2 text-xs font-mono">
-                <span className="text-[10px] uppercase font-bold text-[#432623]/70 dark:text-[#FAF8E8]/70 block">
+              <div className="border border-[#432623]/20 p-3 bg-white dark:bg-[#311E1B] space-y-2 text-sm font-mono">
+                <span className="text-sm uppercase font-bold text-[#432623]/70 dark:text-[#FAF8E8]/70 block">
                   AI Agent Backtracking Trail:
                 </span>
-                <div className="flex items-center justify-between text-[11px] bg-[#FAF8E8] dark:bg-[#251614] p-2 border border-[#432623]/15">
+                <div className="flex items-center justify-between text-sm bg-[#FAF8E8] dark:bg-[#251614] p-2 border border-[#432623]/15">
                   <span className="text-[#DE2A35] font-bold">Class 3 Place Value</span>
                   <ArrowRight size={12} className="text-[#DE2A35]" />
                   <span className="text-[#DE2A35] font-bold">Class 4 Mult Facts</span>
@@ -887,11 +887,11 @@ function PublicLandingPageContent() {
               </div>
 
               {/* 5-Day Plan Summary */}
-              <div className="border border-[#8ABB93]/50 p-3 bg-[#8ABB93]/10 space-y-1.5 text-xs font-mono">
-                <span className="text-[10px] uppercase font-bold text-[#432623] dark:text-[#FAF8E8] block">
+              <div className="border border-[#8ABB93]/50 p-3 bg-[#8ABB93]/10 space-y-1.5 text-sm font-mono">
+                <span className="text-sm uppercase font-bold text-[#432623] dark:text-[#FAF8E8] block">
                   Prescribed 5-Day Classroom Sequence:
                 </span>
-                <div className="text-[11px] text-[#432623]/80 dark:text-[#FAF8E8]/80">
+                <div className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80">
                   Day 1 to 2: Physical pebble bundles for grouping. Day 3: Inverse facts on slate. Day 4 to 5: Single-sheet paper checks.
                 </div>
               </div>
@@ -901,16 +901,16 @@ function PublicLandingPageContent() {
             <div className="border-2 border-[#432623]/30 p-6 bg-[#FAF8E8] text-[#432623] rounded-[2px] shadow-sm space-y-4">
               <div className="border-b border-[#432623]/30 pb-3 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#432623]/70 font-bold">
+                  <span className="text-sm font-mono uppercase tracking-wider text-[#432623]/70 font-bold">
                     SAMPLE WORKSHEET
                   </span>
                   <h3 className="font-serif text-xl font-bold">1-Page Paper Worksheet</h3>
                 </div>
                 <div className="flex flex-col items-end gap-1">
-                  <span className="text-xs font-mono px-2 py-1 bg-[#8ABB93]/20 border border-[#8ABB93] text-[#432623] font-bold">
+                  <span className="text-sm font-mono px-2 py-1 bg-[#8ABB93]/20 border border-[#8ABB93] text-[#432623] font-bold">
                     Standard A4 Print
                   </span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 bg-[#FAF8E8] text-[#432623]/80 border border-[#432623]/20">
+                  <span className="text-sm font-mono px-1.5 py-0.5 bg-[#FAF8E8] text-[#432623]/80 border border-[#432623]/20">
                     Sample data. Not a real student.
                   </span>
                 </div>
@@ -919,35 +919,35 @@ function PublicLandingPageContent() {
                 <WorksheetPreviewIllustration className="max-w-[170px]" />
               </div>
 
-              <div className="grid grid-cols-3 gap-2 border border-[#432623]/20 p-2 text-[11px] font-mono bg-[#F5F1BC]/50">
+              <div className="grid grid-cols-3 gap-2 border border-[#432623]/20 p-2 text-sm font-mono bg-[#F5F1BC]/50">
                 <div>STUDENT: <strong>Rajesh Kumar</strong></div>
                 <div>ROLL NO: <strong>#7</strong></div>
                 <div className="text-right">CLASS: <strong>5A</strong></div>
               </div>
 
               <div className="space-y-3 pt-1">
-                <div className="text-[10px] font-mono uppercase tracking-wider text-[#432623]/70">
+                <div className="text-sm font-mono uppercase tracking-wider text-[#432623]/70">
                   Target Skill: Equal Sharing Division Concept
                 </div>
 
                 <div className="border border-[#432623]/20 p-3 space-y-1 bg-white">
-                  <div className="text-xs font-bold font-sans">1. Solve the following problem:</div>
+                  <div className="text-sm font-bold font-sans">1. Solve the following problem:</div>
                   <div className="text-sm font-mono font-bold">{previewSampleQ1.expression || '4 x 6 = ?'}</div>
-                  <div className="h-8 border-b border-dashed border-[#432623]/30 flex items-end text-[10px] text-[#432623]/50 font-mono">
+                  <div className="h-8 border-b border-dashed border-[#432623]/30 flex items-end text-sm text-[#432623]/50 font-mono">
                     Answer: _______________________
                   </div>
                 </div>
 
                 <div className="border border-[#432623]/20 p-3 space-y-1 bg-white">
-                  <div className="text-xs font-bold font-sans">2. Solve the following problem:</div>
+                  <div className="text-sm font-bold font-sans">2. Solve the following problem:</div>
                   <div className="text-sm font-mono font-bold">{previewSampleQ2.expression || '7 x 8 = ?'}</div>
-                  <div className="h-8 border-b border-dashed border-[#432623]/30 flex items-end text-[10px] text-[#432623]/50 font-mono">
+                  <div className="h-8 border-b border-dashed border-[#432623]/30 flex items-end text-sm text-[#432623]/50 font-mono">
                     Answer: _______________________
                   </div>
                 </div>
               </div>
 
-              <div className="pt-2 text-center text-[10px] font-mono text-[#432623]/60 border-t border-[#432623]/15">
+              <div className="pt-2 text-center text-sm font-mono text-[#432623]/60 border-t border-[#432623]/15">
                 Deterministic Question Bank : Generated for Student Diagnosis : Form SG-A4-2026
               </div>
             </div>
@@ -959,7 +959,7 @@ function PublicLandingPageContent() {
         <section id="demo" className="border-b border-[#432623]/25 px-4 sm:px-8 py-12 max-w-7xl mx-auto">
           <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-[#432623]/20 pb-4">
             <div>
-              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
+              <div className="flex items-center gap-2 text-sm font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
                 <span className="text-[#DE2A35] font-bold">04</span>
                 <span>/</span>
                 <span>INTERACTIVE WORKFLOW CASE FILES</span>
@@ -968,14 +968,14 @@ function PublicLandingPageContent() {
                 How the Agent Runs in Five Steps
               </h2>
             </div>
-            <p className="text-xs font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 max-w-md">
+            <p className="text-sm font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 max-w-md">
               Select a class and student record below to test diagnostic checking, DAG backtracking, and 5-day practice sequences.
             </p>
           </div>
 
           {/* Class Selector Bar */}
           <div className="mb-6 p-4 border border-[#432623]/20 bg-[#F5F1BC]/40 dark:bg-[#311E1B]/60">
-            <div className="text-[10px] font-mono uppercase tracking-wider text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-2 font-bold">
+            <div className="text-sm font-mono uppercase tracking-wider text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-2 font-bold">
               Select Grade to Explore Curriculum Cases:
             </div>
             <ClassSelector
@@ -985,7 +985,7 @@ function PublicLandingPageContent() {
           </div>
 
           {/* Stepper Buttons (Hairline Editorial Numbered Navigation) */}
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-6 font-mono text-xs uppercase">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-6 font-mono text-sm uppercase">
             {[
               { num: 1, label: '01. Select Student' },
               { num: 2, label: '02. Check Learning' },
@@ -1016,7 +1016,7 @@ function PublicLandingPageContent() {
             {/* Student selection bar */}
             <div className="flex flex-wrap items-center justify-between pb-4 mb-5 border-b border-[#432623]/20 gap-3">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 uppercase font-bold">
+                <span className="text-sm font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 uppercase font-bold">
                   {activeClassConfig.label} Case Records:
                 </span>
                 <div className="flex gap-2">
@@ -1025,7 +1025,7 @@ function PublicLandingPageContent() {
                       key={s.id}
                       type="button"
                       onClick={() => setSelectedStudentIndex(idx)}
-                      className={`min-h-[36px] px-3 border text-xs font-mono cursor-pointer transition-none ${
+                      className={`min-h-[36px] px-3 border text-sm font-mono cursor-pointer transition-none ${
                         selectedStudentIndex === idx
                           ? 'border-[#432623] dark:border-[#FAF8E8] bg-[#432623] text-[#FAF8E8] dark:bg-[#FAF8E8] dark:text-[#432623] font-bold'
                           : 'border-[#432623]/20 bg-transparent text-[#432623] dark:text-[#FAF8E8] hover:bg-[#F5F1BC]'
@@ -1036,7 +1036,7 @@ function PublicLandingPageContent() {
                   ))}
                 </div>
               </div>
-              <div className="text-xs font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70">
+              <div className="text-sm font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70">
                 Roll No: #{currentStudent.rollNo}
               </div>
             </div>
@@ -1046,25 +1046,25 @@ function PublicLandingPageContent() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="font-serif text-xl sm:text-2xl font-bold">Step 1: Student Diagnostic Profile</h3>
-                  <span className="text-xs font-mono px-2 py-0.5 border border-[#432623]/20 bg-[#F5F1BC]/60 dark:bg-[#311E1B]">
+                  <span className="text-sm font-mono px-2 py-0.5 border border-[#432623]/20 bg-[#F5F1BC]/60 dark:bg-[#311E1B]">
                     Initial Status: {currentStudent.status}
                   </span>
                 </div>
-                <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed">
+                <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed">
                   The teacher or agent selects <strong>{currentStudent.name}</strong> from {currentStudent.gradeLabel}. Current evaluated topic: <em>{currentStudent.topic}</em>. Initial estimated mastery is {currentStudent.mastery}%.
                 </p>
 
-                <div className="border border-[#432623]/20 p-4 bg-[#F5F1BC]/30 dark:bg-[#311E1B]/30 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono">
+                <div className="border border-[#432623]/20 p-4 bg-[#F5F1BC]/30 dark:bg-[#311E1B]/30 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm font-mono">
                   <div>
-                    <span className="text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-[10px]">Student Name</span>
+                    <span className="text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-sm">Student Name</span>
                     <strong className="text-sm">{currentStudent.name}</strong>
                   </div>
                   <div>
-                    <span className="text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-[10px]">Topic Under Assessment</span>
+                    <span className="text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-sm">Topic Under Assessment</span>
                     <strong>{currentStudent.topic}</strong>
                   </div>
                   <div>
-                    <span className="text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-[10px]">Diagnostic Standing</span>
+                    <span className="text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-sm">Diagnostic Standing</span>
                     <strong className={currentStudent.statusType === 'critical' ? 'text-[#DE2A35]' : 'text-[#8ABB93]'}>
                       {currentStudent.status} ({currentStudent.mastery}%)
                     </strong>
@@ -1075,7 +1075,7 @@ function PublicLandingPageContent() {
                   <button
                     type="button"
                     onClick={() => setActiveWorkflowStep(2)}
-                    className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-xs font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
+                    className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
                   >
                     Next: Check Learning
                   </button>
@@ -1087,14 +1087,14 @@ function PublicLandingPageContent() {
             {activeWorkflowStep === 2 && (
               <div className="space-y-4">
                 <h3 className="font-serif text-xl sm:text-2xl font-bold">Step 2: Diagnostic Check Question</h3>
-                <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80">
+                <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80">
                   The student answers a diagnostic question calibrated specifically for {currentStudent.topic}.
                 </p>
 
                 <div className="border border-[#432623]/20 p-4 bg-[#FAF8E8] dark:bg-[#251614] space-y-3">
-                  <div className="text-xs font-mono text-[#DE2A35] font-bold uppercase">Diagnostic Item:</div>
+                  <div className="text-sm font-mono text-[#DE2A35] font-bold uppercase">Diagnostic Item:</div>
                   <div className="text-sm font-bold font-mono">{currentStudent.question}</div>
-                  <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-2">
+                  <div className="grid grid-cols-2 gap-2 text-sm font-mono pt-2">
                     {currentStudent.options.map((opt, i) => (
                       <div
                         key={i}
@@ -1116,14 +1116,14 @@ function PublicLandingPageContent() {
                   <button
                     type="button"
                     onClick={() => setActiveWorkflowStep(1)}
-                    className="min-h-[44px] px-4 border border-[#432623]/20 text-xs font-mono uppercase hover:bg-[#F5F1BC] cursor-pointer"
+                    className="min-h-[44px] px-4 border border-[#432623]/20 text-sm font-mono uppercase hover:bg-[#F5F1BC] cursor-pointer"
                   >
                     Back
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveWorkflowStep(3)}
-                    className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-xs font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
+                    className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
                   >
                     Next: Find Gaps
                   </button>
@@ -1135,25 +1135,25 @@ function PublicLandingPageContent() {
             {activeWorkflowStep === 3 && (
               <div className="space-y-4">
                 <h3 className="font-serif text-xl sm:text-2xl font-bold">Step 3: Root Cause Analysis</h3>
-                <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80">
+                <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80">
                   The system analyzes the error and traces the prerequisite gap back through the curriculum DAG.
                 </p>
 
-                <div className="border border-[#432623]/20 p-4 bg-[#F5F1BC]/30 dark:bg-[#311E1B]/30 space-y-3 text-xs">
+                <div className="border border-[#432623]/20 p-4 bg-[#F5F1BC]/30 dark:bg-[#311E1B]/30 space-y-3 text-sm">
                   <div>
-                    <span className="font-mono text-[#DE2A35] font-bold uppercase block text-[10px]">Observed Error Pattern:</span>
+                    <span className="font-mono text-[#DE2A35] font-bold uppercase block text-sm">Observed Error Pattern:</span>
                     <p className="text-[#432623] dark:text-[#FAF8E8] mt-0.5">{currentStudent.observedMistake}</p>
                   </div>
                   <div className="border-t border-[#432623]/15 pt-2">
-                    <span className="font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-[10px]">Diagnosed Root Gap:</span>
+                    <span className="font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-sm">Diagnosed Root Gap:</span>
                     <strong className="text-sm font-serif text-[#DE2A35]">{currentStudent.rootGap}</strong>
                   </div>
                   <div className="border-t border-[#432623]/15 pt-2">
-                    <span className="font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-[10px]">Foundational Prerequisite For:</span>
+                    <span className="font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-sm">Foundational Prerequisite For:</span>
                     <p>{currentStudent.prerequisiteFor}</p>
                   </div>
                   <div className="border-t border-[#432623]/15 pt-2">
-                    <span className="font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-[10px]">Diagnostic Evidence:</span>
+                    <span className="font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-sm">Diagnostic Evidence:</span>
                     <p className="italic text-[#432623]/80 dark:text-[#FAF8E8]/80">{currentStudent.evidence}</p>
                   </div>
                 </div>
@@ -1162,14 +1162,14 @@ function PublicLandingPageContent() {
                   <button
                     type="button"
                     onClick={() => setActiveWorkflowStep(2)}
-                    className="min-h-[44px] px-4 border border-[#432623]/20 text-xs font-mono uppercase hover:bg-[#F5F1BC] cursor-pointer"
+                    className="min-h-[44px] px-4 border border-[#432623]/20 text-sm font-mono uppercase hover:bg-[#F5F1BC] cursor-pointer"
                   >
                     Back
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveWorkflowStep(4)}
-                    className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-xs font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
+                    className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
                   >
                     Next: Practice Plan
                   </button>
@@ -1181,13 +1181,13 @@ function PublicLandingPageContent() {
             {activeWorkflowStep === 4 && (
               <div className="space-y-4">
                 <h3 className="font-serif text-xl sm:text-2xl font-bold">Step 4: 5-Day Classroom Practice Plan</h3>
-                <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80">
+                <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80">
                   A concrete, manipulative-assisted 5-day classroom sequence for the teacher.
                 </p>
 
                 <div className="border border-[#432623]/20 p-4 bg-[#FAF8E8] dark:bg-[#251614] space-y-2.5">
                   {currentStudent.plan.map((p, i) => (
-                    <div key={i} className="flex gap-3 text-xs border-b border-[#432623]/15 pb-2 last:border-b-0 last:pb-0">
+                    <div key={i} className="flex gap-3 text-sm border-b border-[#432623]/15 pb-2 last:border-b-0 last:pb-0">
                       <span className="font-mono font-bold text-[#DE2A35] w-14 shrink-0">{p.day}:</span>
                       <span className="text-[#432623]/80 dark:text-[#FAF8E8]/80">{p.task}</span>
                     </div>
@@ -1198,14 +1198,14 @@ function PublicLandingPageContent() {
                   <button
                     type="button"
                     onClick={() => setActiveWorkflowStep(3)}
-                    className="min-h-[44px] px-4 border border-[#432623]/20 text-xs font-mono uppercase hover:bg-[#F5F1BC] cursor-pointer"
+                    className="min-h-[44px] px-4 border border-[#432623]/20 text-sm font-mono uppercase hover:bg-[#F5F1BC] cursor-pointer"
                   >
                     Back
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveWorkflowStep(5)}
-                    className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-xs font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
+                    className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
                   >
                     Next: Check Again
                   </button>
@@ -1217,16 +1217,16 @@ function PublicLandingPageContent() {
             {activeWorkflowStep === 5 && (
               <div className="space-y-4">
                 <h3 className="font-serif text-xl sm:text-2xl font-bold">Step 5: Verification & Check Again</h3>
-                <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80">
+                <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80">
                   After 5 days of practice, the student is checked again to verify mastery.
                 </p>
 
                 <div className="border border-[#8ABB93] p-4 bg-[#8ABB93]/15 space-y-2">
-                  <div className="flex items-center gap-2 text-[#432623] dark:text-[#FAF8E8] font-mono font-bold text-xs uppercase">
+                  <div className="flex items-center gap-2 text-[#432623] dark:text-[#FAF8E8] font-mono font-bold text-sm uppercase">
                     <CheckCircle size={16} className="text-[#8ABB93]" />
                     <span>Learning Verified on Paper & Slate</span>
                   </div>
-                  <p className="text-xs text-[#432623] dark:text-[#FAF8E8] leading-relaxed">
+                  <p className="text-sm text-[#432623] dark:text-[#FAF8E8] leading-relaxed">
                     {currentStudent.reassessmentResult}
                   </p>
                 </div>
@@ -1235,13 +1235,13 @@ function PublicLandingPageContent() {
                   <button
                     type="button"
                     onClick={() => setActiveWorkflowStep(4)}
-                    className="min-h-[44px] px-4 border border-[#432623]/20 text-xs font-mono uppercase hover:bg-[#F5F1BC] cursor-pointer"
+                    className="min-h-[44px] px-4 border border-[#432623]/20 text-sm font-mono uppercase hover:bg-[#F5F1BC] cursor-pointer"
                   >
                     Back to Step 4
                   </button>
                   <Link
                     href="/app"
-                    className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-xs font-mono uppercase font-bold hover:bg-[#B51E28] inline-flex items-center cursor-pointer shadow-xs"
+                    className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold hover:bg-[#B51E28] inline-flex items-center cursor-pointer shadow-xs"
                   >
                     Assess Test Now
                   </Link>
@@ -1253,7 +1253,7 @@ function PublicLandingPageContent() {
 
         {/* SECTION 05: PULL-QUOTE STYLE STAT ROW */}
         <section className="border-b border-[#432623]/25 px-4 sm:px-8 py-12 max-w-7xl mx-auto bg-[#F5F1BC]/30 dark:bg-[#311E1B]/40">
-          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-4">
+          <div className="flex items-center gap-2 text-sm font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-4">
             <span className="text-[#DE2A35] font-bold">05</span>
             <span>/</span>
             <span>VITAL STATISTICS : THE CURRICULUM FOOTPRINT</span>
@@ -1272,10 +1272,10 @@ function PublicLandingPageContent() {
               <div className="font-serif text-5xl sm:text-6xl font-normal text-[#DE2A35] leading-none">
                 <CountUp end={15} />
               </div>
-              <div className="text-[11px] font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80 mt-2 font-bold">
+              <div className="text-sm font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80 mt-2 font-bold">
                 Concepts in DAG
               </div>
-              <div className="text-[10px] text-[#432623]/60 dark:text-[#FAF8E8]/60 mt-0.5">
+              <div className="text-sm text-[#432623]/60 dark:text-[#FAF8E8]/60 mt-0.5">
                 Single unified acyclic prerequisite graph
               </div>
             </div>
@@ -1284,10 +1284,10 @@ function PublicLandingPageContent() {
               <div className="font-serif text-5xl sm:text-6xl font-normal text-[#432623] dark:text-[#FAF8E8] leading-none">
                 0<CountUp end={3} />
               </div>
-              <div className="text-[11px] font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80 mt-2 font-bold">
+              <div className="text-sm font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80 mt-2 font-bold">
                 Languages Supported
               </div>
-              <div className="text-[10px] text-[#432623]/60 dark:text-[#FAF8E8]/60 mt-0.5">
+              <div className="text-sm text-[#432623]/60 dark:text-[#FAF8E8]/60 mt-0.5">
                 Full translation in English, हिन्दी and తెలుగు
               </div>
             </div>
@@ -1296,10 +1296,10 @@ function PublicLandingPageContent() {
               <div className="font-serif text-5xl sm:text-6xl font-normal text-[#DFA06E] leading-none">
                 0<CountUp end={ENABLED_CLASSES.length} />
               </div>
-              <div className="text-[11px] font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80 mt-2 font-bold">
+              <div className="text-sm font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80 mt-2 font-bold">
                 Classes Enabled (3, 4, 5)
               </div>
-              <div className="text-[10px] text-[#432623]/60 dark:text-[#FAF8E8]/60 mt-0.5">
+              <div className="text-sm text-[#432623]/60 dark:text-[#FAF8E8]/60 mt-0.5">
                 Aligned to Class 3 to 5 maths topics
               </div>
             </div>
@@ -1308,10 +1308,10 @@ function PublicLandingPageContent() {
               <div className="font-serif text-5xl sm:text-6xl font-normal text-[#8ABB93] leading-none">
                 00
               </div>
-              <div className="text-[11px] font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80 mt-2 font-bold">
+              <div className="text-sm font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80 mt-2 font-bold">
                 Tracking Cookies
               </div>
-              <div className="text-[10px] text-[#432623]/60 dark:text-[#FAF8E8]/60 mt-0.5">
+              <div className="text-sm text-[#432623]/60 dark:text-[#FAF8E8]/60 mt-0.5">
                 Local device session storage only
               </div>
             </div>
@@ -1322,7 +1322,7 @@ function PublicLandingPageContent() {
         <section className="border-b border-[#432623]/25 px-4 sm:px-8 py-12 max-w-7xl mx-auto">
           <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-[#432623]/20 pb-4">
             <div>
-              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
+              <div className="flex items-center gap-2 text-sm font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
                 <span className="text-[#DE2A35] font-bold">06</span>
                 <span>/</span>
                 <span>CURRICULUM ARCHITECTURE</span>
@@ -1331,7 +1331,7 @@ function PublicLandingPageContent() {
                 Built for Indian Government School Classrooms
               </h2>
             </div>
-            <p className="text-xs font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 max-w-md">
+            <p className="text-sm font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 max-w-md">
               Engineered for multi-grade classrooms, non-English speakers, limited internet, and zero child tracking.
             </p>
           </div>
@@ -1341,13 +1341,13 @@ function PublicLandingPageContent() {
             <div className="md:col-span-2 border border-[#432623]/25 p-6 bg-[#FAF8E8] dark:bg-[#251614] flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-200">
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                 <div>
-                  <div className="text-[10px] font-mono text-[#DE2A35] font-bold mb-1 uppercase tracking-wider">
+                  <div className="text-sm font-mono text-[#DE2A35] font-bold mb-1 uppercase tracking-wider">
                     01 : Prerequisite Tracing Engine
                   </div>
                   <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2">
                     Traces Missing Skills Across Grade Boundaries
                   </h3>
-                  <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed mb-4">
+                  <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed mb-4">
                     When a Class 5 student fails a long division task, the system automatically traverses backwards to check whether the breakdown began in Class 3 repeated addition or Class 4 multiplication facts.
                   </p>
                 </div>
@@ -1355,7 +1355,7 @@ function PublicLandingPageContent() {
                   <DagBentoIllustration className="w-36 h-auto" />
                 </div>
               </div>
-              <div className="border border-[#432623]/20 p-3 bg-[#F5F1BC]/40 dark:bg-[#311E1B]/50 flex items-center justify-between text-[11px] font-mono">
+              <div className="border border-[#432623]/20 p-3 bg-[#F5F1BC]/40 dark:bg-[#311E1B]/50 flex items-center justify-between text-sm font-mono">
                 <span className="text-[#432623]/70 dark:text-[#FAF8E8]/70">Class 3 Repeated Addition</span>
                 <ArrowRight size={14} className="text-[#DE2A35]" />
                 <span className="text-[#432623]/70 dark:text-[#FAF8E8]/70">Class 4 Mult Facts</span>
@@ -1368,7 +1368,7 @@ function PublicLandingPageContent() {
             <div className="border border-[#432623]/25 p-6 bg-[#FAF8E8] dark:bg-[#251614] flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-200">
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-mono text-[#DFA06E] font-bold uppercase tracking-wider">
+                  <span className="text-sm font-mono text-[#DFA06E] font-bold uppercase tracking-wider">
                     02 : Three Regional Languages
                   </span>
                   <LanguagesBentoIllustration className="w-16 h-auto" />
@@ -1376,11 +1376,11 @@ function PublicLandingPageContent() {
                 <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2">
                   Native Vernacular Fluency
                 </h3>
-                <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed mb-4">
+                <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed mb-4">
                   Questions, diagnostic instructions, hints, and practice sheets are completely translated for native regional language classrooms.
                 </p>
               </div>
-              <div className="flex gap-2 font-mono text-xs">
+              <div className="flex gap-2 font-mono text-sm">
                 <span className="px-2.5 py-1 border border-[#432623]/20 bg-[#F5F1BC]/50 dark:bg-[#311E1B]">English</span>
                 <span className="px-2.5 py-1 border border-[#432623]/20 bg-[#F5F1BC]/50 dark:bg-[#311E1B] font-bold">हिन्दी</span>
                 <span className="px-2.5 py-1 border border-[#432623]/20 bg-[#F5F1BC]/50 dark:bg-[#311E1B] font-bold">తెలుగు</span>
@@ -1391,7 +1391,7 @@ function PublicLandingPageContent() {
             <div className="border border-[#432623]/25 p-6 bg-[#FAF8E8] dark:bg-[#251614] flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-200">
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-mono text-[#8ABB93] font-bold uppercase tracking-wider">
+                  <span className="text-sm font-mono text-[#8ABB93] font-bold uppercase tracking-wider">
                     03 : Printable Worksheets
                   </span>
                   <WorksheetBentoIllustration className="w-16 h-auto" />
@@ -1399,11 +1399,11 @@ function PublicLandingPageContent() {
                 <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2">
                   Single-Page Paper Sheets
                 </h3>
-                <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed mb-4">
+                <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed mb-4">
                   Print ready-to-use worksheets for students who do not have personal smartphones or internet access at home.
                 </p>
               </div>
-              <div className="border border-[#432623]/20 p-2.5 bg-[#F5F1BC]/40 dark:bg-[#311E1B]/50 text-center text-[10px] font-mono uppercase text-[#432623]/70 dark:text-[#FAF8E8]/70">
+              <div className="border border-[#432623]/20 p-2.5 bg-[#F5F1BC]/40 dark:bg-[#311E1B]/50 text-center text-sm font-mono uppercase text-[#432623]/70 dark:text-[#FAF8E8]/70">
                 Standard A4 / Single Sheet Print Format
               </div>
             </div>
@@ -1412,13 +1412,13 @@ function PublicLandingPageContent() {
             <div className="md:col-span-2 border border-[#432623]/25 p-6 bg-[#FAF8E8] dark:bg-[#251614] flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-200">
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                 <div>
-                  <div className="text-[10px] font-mono text-[#432623] dark:text-[#FAF8E8] font-bold mb-1 uppercase tracking-wider">
+                  <div className="text-sm font-mono text-[#432623] dark:text-[#FAF8E8] font-bold mb-1 uppercase tracking-wider">
                     04 : Child Privacy by Design
                   </div>
                   <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2">
                     Built Following DPDP Act 2023 Principles & Zero Surveillance
                   </h3>
-                  <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed mb-4">
+                  <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed mb-4">
                     Zero tracking cookies, zero third-party advertising trackers, and strictly necessary local storage only. Children are never profiled.
                   </p>
                 </div>
@@ -1426,7 +1426,7 @@ function PublicLandingPageContent() {
                   <PrivacyBentoIllustration className="w-20 h-auto" />
                 </div>
               </div>
-              <div className="border border-[#432623]/20 p-3 bg-[#F5F1BC]/40 dark:bg-[#311E1B]/50 flex items-center gap-4 text-[11px] font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70">
+              <div className="border border-[#432623]/20 p-3 bg-[#F5F1BC]/40 dark:bg-[#311E1B]/50 flex items-center gap-4 text-sm font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70">
                 <span className="flex items-center gap-1"><ShieldCheck size={14} className="text-[#8ABB93]" /> Cookies: 0</span>
                 <span className="flex items-center gap-1"><Lock size={14} className="text-[#8ABB93]" /> Third-Party Scripts: 0</span>
                 <span>Storage: Local Device Only</span>
@@ -1441,7 +1441,7 @@ function PublicLandingPageContent() {
             
             {/* Left Column: Letter to School Leaders */}
             <div className="lg:col-span-5 space-y-4">
-              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
+              <div className="flex items-center gap-2 text-sm font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
                 <span className="text-[#DE2A35] font-bold">07</span>
                 <span>/</span>
                 <span>FIELD PARTNERSHIPS</span>
@@ -1449,10 +1449,10 @@ function PublicLandingPageContent() {
               <h2 className="font-serif text-2xl sm:text-4xl font-normal text-[#432623] dark:text-[#FAF8E8]">
                 Request a Classroom Pilot
               </h2>
-              <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed">
+              <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed">
                 Government primary schools, headmasters, and cluster resource persons can request dedicated classroom onboarding support.
               </p>
-              <div className="border-l-2 border-[#8ABB93] pl-4 py-2 space-y-2 text-xs font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70">
+              <div className="border-l-2 border-[#8ABB93] pl-4 py-2 space-y-2 text-sm font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70">
                 <div>Zero license fee for public schools.</div>
                 <div>Includes physical printable templates.</div>
                 <div>Built following DPDP Act 2023 principles.</div>
@@ -1465,7 +1465,7 @@ function PublicLandingPageContent() {
                 <div className="border-2 border-[#8ABB93] p-6 sm:p-8 bg-[#FAF8E8] dark:bg-[#251614] text-center space-y-4 shadow-sm animate-in fade-in zoom-in-95 duration-300">
                   <SuccessIllustration className="w-20 h-16 mx-auto mb-2" />
                   
-                  <div className="text-xs font-mono uppercase tracking-widest text-[#8ABB93] font-bold">
+                  <div className="text-sm font-mono uppercase tracking-widest text-[#8ABB93] font-bold">
                     Registration Confirmed
                   </div>
 
@@ -1474,19 +1474,19 @@ function PublicLandingPageContent() {
                   </h3>
 
                   {pilotReferenceId && (
-                    <div className="inline-block px-3 py-1 bg-[#8ABB93]/15 border border-[#8ABB93] font-mono text-xs text-[#432623] dark:text-[#FAF8E8] font-bold">
+                    <div className="inline-block px-3 py-1 bg-[#8ABB93]/15 border border-[#8ABB93] font-mono text-sm text-[#432623] dark:text-[#FAF8E8] font-bold">
                       Reference ID: {pilotReferenceId}
                     </div>
                   )}
 
-                  <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 max-w-md mx-auto leading-relaxed">
+                  <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 max-w-md mx-auto leading-relaxed">
                     {pilotSuccess} Our academic team will verify school details and contact you to provision classroom diagnostic materials and printable worksheets.
                   </p>
 
                   <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
                     <Link
                       href="/app"
-                      className="w-full sm:w-auto min-h-[44px] px-6 bg-[#DE2A35] text-[#FAF8E8] text-xs font-mono uppercase font-bold inline-flex items-center justify-center gap-2 hover:bg-[#B51E28] transition-colors"
+                      className="w-full sm:w-auto min-h-[44px] px-6 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold inline-flex items-center justify-center gap-2 hover:bg-[#B51E28] transition-colors"
                     >
                       <span>Assess Test (Start Assessment)</span>
                       <ArrowRight size={14} />
@@ -1497,7 +1497,7 @@ function PublicLandingPageContent() {
                         setPilotSuccess(null);
                         setPilotReferenceId(null);
                       }}
-                      className="w-full sm:w-auto min-h-[44px] px-4 border border-[#432623]/30 dark:border-[#FAF8E8]/30 bg-transparent text-[#432623] dark:text-[#FAF8E8] text-xs font-mono uppercase hover:bg-[#F5F1BC] dark:hover:bg-[#311E1B] transition-colors cursor-pointer"
+                      className="w-full sm:w-auto min-h-[44px] px-4 border border-[#432623]/30 dark:border-[#FAF8E8]/30 bg-transparent text-[#432623] dark:text-[#FAF8E8] text-sm font-mono uppercase hover:bg-[#F5F1BC] dark:hover:bg-[#311E1B] transition-colors cursor-pointer"
                     >
                       Submit Another Request
                     </button>
@@ -1518,7 +1518,7 @@ function PublicLandingPageContent() {
 
                   {/* School Name */}
                   <div>
-                    <label htmlFor={schoolInputId} className="block text-xs font-mono uppercase text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-1 font-bold">
+                    <label htmlFor={schoolInputId} className="block text-sm font-mono uppercase text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-1 font-bold">
                       School Name *
                     </label>
                     <input
@@ -1532,20 +1532,20 @@ function PublicLandingPageContent() {
                       }}
                       placeholder="e.g. MPPS Gandhi Nagar"
                       aria-invalid={!!pilotFieldErrors.school}
-                      className={`w-full min-h-[44px] px-3 border bg-[#FAF8E8] dark:bg-[#251614] text-xs font-mono ${
+                      className={`w-full min-h-[44px] px-3 border bg-[#FAF8E8] dark:bg-[#251614] text-sm font-mono ${
                         pilotFieldErrors.school
                           ? 'border-[#DE2A35] ring-1 ring-[#DE2A35]'
                           : 'border-[#432623]/25 focus:border-[#DE2A35]'
                       }`}
                     />
                     {pilotFieldErrors.school && (
-                      <p className="text-[11px] font-mono text-[#DE2A35] mt-1">{pilotFieldErrors.school}</p>
+                      <p className="text-sm font-mono text-[#DE2A35] mt-1">{pilotFieldErrors.school}</p>
                     )}
                   </div>
 
                   {/* Teacher Name */}
                   <div>
-                    <label htmlFor={teacherInputId} className="block text-xs font-mono uppercase text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-1 font-bold">
+                    <label htmlFor={teacherInputId} className="block text-sm font-mono uppercase text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-1 font-bold">
                       Teacher or Headmaster Name *
                     </label>
                     <input
@@ -1559,27 +1559,27 @@ function PublicLandingPageContent() {
                       }}
                       placeholder="e.g. Smt. Lakshmi Rao"
                       aria-invalid={!!pilotFieldErrors.teacher}
-                      className={`w-full min-h-[44px] px-3 border bg-[#FAF8E8] dark:bg-[#251614] text-xs font-mono ${
+                      className={`w-full min-h-[44px] px-3 border bg-[#FAF8E8] dark:bg-[#251614] text-sm font-mono ${
                         pilotFieldErrors.teacher
                           ? 'border-[#DE2A35] ring-1 ring-[#DE2A35]'
                           : 'border-[#432623]/25 focus:border-[#DE2A35]'
                       }`}
                     />
                     {pilotFieldErrors.teacher && (
-                      <p className="text-[11px] font-mono text-[#DE2A35] mt-1">{pilotFieldErrors.teacher}</p>
+                      <p className="text-sm font-mono text-[#DE2A35] mt-1">{pilotFieldErrors.teacher}</p>
                     )}
                   </div>
 
                   {/* Class Range */}
                   <div>
-                    <label htmlFor={classRangeInputId} className="block text-xs font-mono uppercase text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-1 font-bold">
+                    <label htmlFor={classRangeInputId} className="block text-sm font-mono uppercase text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-1 font-bold">
                       Class Range *
                     </label>
                     <select
                       id={classRangeInputId}
                       value={pilotClassRange}
                       onChange={(e) => setPilotClassRange(e.target.value)}
-                      className="w-full min-h-[44px] px-3 border border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#251614] text-xs font-mono"
+                      className="w-full min-h-[44px] px-3 border border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#251614] text-sm font-mono"
                     >
                       <option value="Classes 3 to 5">Classes 3 to 5 (Full support)</option>
                       <option value="Class 3">Class 3 only</option>
@@ -1591,7 +1591,7 @@ function PublicLandingPageContent() {
 
                   {/* Contact */}
                   <div>
-                    <label htmlFor={contactInputId} className="block text-xs font-mono uppercase text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-1 font-bold">
+                    <label htmlFor={contactInputId} className="block text-sm font-mono uppercase text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-1 font-bold">
                       Teacher Contact (Phone or Email) *
                     </label>
                     <input
@@ -1605,14 +1605,14 @@ function PublicLandingPageContent() {
                       }}
                       placeholder="e.g. 9876543210 or teacher@school.edu"
                       aria-invalid={!!pilotFieldErrors.contact}
-                      className={`w-full min-h-[44px] px-3 border bg-[#FAF8E8] dark:bg-[#251614] text-xs font-mono ${
+                      className={`w-full min-h-[44px] px-3 border bg-[#FAF8E8] dark:bg-[#251614] text-sm font-mono ${
                         pilotFieldErrors.contact
                           ? 'border-[#DE2A35] ring-1 ring-[#DE2A35]'
                           : 'border-[#432623]/25 focus:border-[#DE2A35]'
                       }`}
                     />
                     {pilotFieldErrors.contact && (
-                      <p className="text-[11px] font-mono text-[#DE2A35] mt-1">{pilotFieldErrors.contact}</p>
+                      <p className="text-sm font-mono text-[#DE2A35] mt-1">{pilotFieldErrors.contact}</p>
                     )}
                   </div>
 
@@ -1629,7 +1629,7 @@ function PublicLandingPageContent() {
                       }}
                       className="mt-1"
                     />
-                    <label htmlFor={consentInputId} className="text-[11px] text-[#432623]/70 dark:text-[#FAF8E8]/70 leading-tight">
+                    <label htmlFor={consentInputId} className="text-sm text-[#432623]/70 dark:text-[#FAF8E8]/70 leading-tight">
                       I agree that this contact will be used strictly for school pilot onboarding in accordance with our{' '}
                       <Link href="/privacy" className="underline hover:text-[#432623] dark:hover:text-[#FAF8E8]">
                         Privacy Policy
@@ -1637,12 +1637,12 @@ function PublicLandingPageContent() {
                     </label>
                   </div>
                   {pilotFieldErrors.consent && (
-                    <p className="text-[11px] font-mono text-[#DE2A35]">{pilotFieldErrors.consent}</p>
+                    <p className="text-sm font-mono text-[#DE2A35]">{pilotFieldErrors.consent}</p>
                   )}
 
                   {/* General / Network Error */}
                   {pilotError && (
-                    <div className="p-3 border border-[#DE2A35] bg-[#DE2A35]/15 text-[#DE2A35] text-xs font-mono" role="alert">
+                    <div className="p-3 border border-[#DE2A35] bg-[#DE2A35]/15 text-[#DE2A35] text-sm font-mono" role="alert">
                       {pilotError}
                     </div>
                   )}
@@ -1652,14 +1652,14 @@ function PublicLandingPageContent() {
                     <button
                       type="submit"
                       disabled={pilotLoading}
-                      className="w-full sm:w-auto min-h-[44px] px-6 bg-[#DE2A35] text-[#FAF8E8] text-xs font-mono uppercase font-bold hover:bg-[#B51E28] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-xs focus-visible:outline-2 focus-visible:outline-[#DE2A35] flex items-center justify-center gap-2"
+                      className="w-full sm:w-auto min-h-[44px] px-6 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold hover:bg-[#B51E28] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-xs focus-visible:outline-2 focus-visible:outline-[#DE2A35] flex items-center justify-center gap-2"
                     >
                       {pilotLoading && (
                         <span className="w-3.5 h-3.5 border-2 border-[#FAF8E8] border-t-transparent rounded-full animate-spin"></span>
                       )}
                       <span>{pilotLoading ? 'Submitting...' : 'Submit Pilot Request'}</span>
                     </button>
-                    <span className="text-[10px] text-[#432623]/60 dark:text-[#FAF8E8]/60 font-mono">
+                    <span className="text-sm text-[#432623]/60 dark:text-[#FAF8E8]/60 font-mono">
                       DPDP 2023 protected : Masked storage
                     </span>
                   </div>
@@ -1673,7 +1673,7 @@ function PublicLandingPageContent() {
         <section id="faq" className="border-b border-[#432623]/25 px-4 sm:px-8 py-12 max-w-7xl mx-auto">
           <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-[#432623]/20 pb-4">
             <div>
-              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
+              <div className="flex items-center gap-2 text-sm font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
                 <span className="text-[#DE2A35] font-bold">08</span>
                 <span>/</span>
                 <span>INQUIRIES &amp; FAQ</span>
@@ -1682,7 +1682,7 @@ function PublicLandingPageContent() {
                 Frequently Asked Questions
               </h2>
             </div>
-            <p className="text-xs font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 max-w-md">
+            <p className="text-sm font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 max-w-md">
               Answers regarding curriculum coverage, teacher autonomy, local device operation, and child privacy protections.
             </p>
           </div>
@@ -1695,7 +1695,7 @@ function PublicLandingPageContent() {
                     <span>{faq.q}</span>
                     <CaretDown size={16} className="shrink-0 text-[#432623]/60 dark:text-[#FAF8E8]/60 transition-transform group-open:rotate-180 group-open:text-[#DE2A35]" />
                   </summary>
-                  <div className="p-4 sm:p-5 pt-0 text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed border-t border-[#432623]/15">
+                  <div className="p-4 sm:p-5 pt-0 text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed border-t border-[#432623]/15">
                     {faq.a}
                   </div>
                 </details>
@@ -1707,13 +1707,13 @@ function PublicLandingPageContent() {
         {/* SECTION 09: FINAL EDITORIAL DISPATCH CTA (Repeats Primary Assess Test Button) */}
         <section className="border-b border-[#432623]/25 px-4 sm:px-8 py-16 max-w-7xl mx-auto text-center bg-[#F5F1BC]/40 dark:bg-[#311E1B]/50">
           <div className="max-w-2xl mx-auto space-y-4">
-            <div className="text-[10px] font-mono uppercase tracking-widest text-[#DE2A35] font-bold">
+            <div className="text-sm font-mono uppercase tracking-widest text-[#DE2A35] font-bold">
               GET STARTED
             </div>
             <h2 className="font-serif text-3xl sm:text-5xl font-bold text-[#432623] dark:text-[#FAF8E8] tracking-tight">
               Start an assessment to find student learning gaps today.
             </h2>
-            <p className="text-xs sm:text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 max-w-xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 max-w-xl mx-auto leading-relaxed">
               A 6-minute adaptive test gives you the exact prerequisite concept holding each student back, with a 5-day action plan. Free for government schools during the pilot.
             </p>
             <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
@@ -1729,7 +1729,7 @@ function PublicLandingPageContent() {
               {/* Visually quieter secondary button */}
               <a
                 href="#pilot"
-                className="min-h-[48px] px-6 border border-[#432623]/40 dark:border-[#FAF8E8]/40 bg-[#FAF8E8] dark:bg-[#251614] text-[#432623] dark:text-[#FAF8E8] text-xs font-mono uppercase font-bold hover:bg-[#F5F1BC] inline-flex items-center cursor-pointer"
+                className="min-h-[48px] px-6 border border-[#432623]/40 dark:border-[#FAF8E8]/40 bg-[#FAF8E8] dark:bg-[#251614] text-[#432623] dark:text-[#FAF8E8] text-sm font-mono uppercase font-bold hover:bg-[#F5F1BC] inline-flex items-center cursor-pointer"
               >
                 Request School Pilot
               </a>
@@ -1739,24 +1739,24 @@ function PublicLandingPageContent() {
       </main>
 
       {/* SECTION 10: EDITORIAL COLOPHON & FOOTER */}
-      <footer className="border-t border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#251614] px-4 sm:px-8 py-12 text-xs font-mono">
+      <footer className="border-t border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#251614] px-4 sm:px-8 py-12 text-sm font-mono">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 pb-8 border-b border-[#432623]/20">
           <div>
             <div className="font-serif text-2xl font-bold text-[#432623] dark:text-[#FAF8E8] flex items-center gap-2.5">
-              <span className="h-6 w-6 rounded-[2px] bg-[#DE2A35] text-[#FAF8E8] font-mono text-[10px] flex items-center justify-center font-bold">
+              <span className="h-6 w-6 rounded-[2px] bg-[#DE2A35] text-[#FAF8E8] font-mono text-sm flex items-center justify-center font-bold">
                 SG
               </span>
               <span>ShikshaGap</span>
             </div>
-            <p className="text-[11px] text-[#432623]/70 dark:text-[#FAF8E8]/70 mt-2 max-w-md leading-relaxed">
+            <p className="text-sm text-[#432623]/70 dark:text-[#FAF8E8]/70 mt-2 max-w-md leading-relaxed">
               AI-powered learning gap detection and personalized remediation for Indian primary schools, Classes 3 to 5.
             </p>
-            <div className="mt-4 text-[10px] text-[#432623]/60 dark:text-[#FAF8E8]/60">
+            <div className="mt-4 text-sm text-[#432623]/60 dark:text-[#FAF8E8]/60">
               Built Following DPDP Act 2023 Principles | Made for Indian Government Schools
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-8 justify-between md:justify-end text-[11px] uppercase tracking-wider text-[#432623]/70 dark:text-[#FAF8E8]/70">
+          <div className="flex flex-col sm:flex-row gap-8 justify-between md:justify-end text-sm uppercase tracking-wider text-[#432623]/70 dark:text-[#FAF8E8]/70">
             <div className="space-y-2 flex flex-col">
               <span className="font-bold text-[#432623] dark:text-[#FAF8E8]">Diagnostic Actions</span>
               <Link href="/app" className="text-[#DE2A35] font-bold hover:underline">Assess Test Now</Link>
@@ -1776,13 +1776,13 @@ function PublicLandingPageContent() {
             </div>
             <div className="space-y-2 flex flex-col">
               <span className="font-bold text-[#432623] dark:text-[#FAF8E8]">Official Contact</span>
-              <div className="text-[11px] text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-snug">
+              <div className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-snug">
                 <span>Email: </span>
                 <a href={`mailto:${siteConfig.contactEmail}`} className="text-[#DE2A35] underline font-bold">
                   {siteConfig.contactEmail}
                 </a>
               </div>
-              <div className="text-[10px] text-[#432623]/60 dark:text-[#FAF8E8]/60">
+              <div className="text-sm text-[#432623]/60 dark:text-[#FAF8E8]/60">
                 Educational Cell : {siteConfig.city}
               </div>
               <Link href="/data-request" className="text-[#432623] dark:text-[#FAF8E8] hover:text-[#DE2A35]">
@@ -1792,7 +1792,7 @@ function PublicLandingPageContent() {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto mt-6 flex flex-col sm:flex-row justify-between text-[10px] text-[#432623]/60 dark:text-[#FAF8E8]/60 gap-2">
+        <div className="max-w-7xl mx-auto mt-6 flex flex-col sm:flex-row justify-between text-sm text-[#432623]/60 dark:text-[#FAF8E8]/60 gap-2">
           <div>Copyright 2026 ShikshaGap. All rights reserved.</div>
           <div>Strictly necessary storage only. Zero third-party tracking.</div>
         </div>
@@ -1801,16 +1801,16 @@ function PublicLandingPageContent() {
       {/* STICKY MOBILE CTA BAR (Assess Test button visible without scrolling on small screens) */}
       <div className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-[#FAF8E8]/95 dark:bg-[#251614]/95 border-t border-[#432623]/25 px-4 py-2.5 flex items-center justify-between gap-3 shadow-lg backdrop-blur-xs">
         <div className="flex flex-col">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-[#DE2A35] font-bold">
+          <span className="text-sm font-mono uppercase tracking-wider text-[#DE2A35] font-bold">
             AI Diagnostic
           </span>
-          <span className="text-xs font-mono text-[#432623] dark:text-[#FAF8E8] font-bold">
+          <span className="text-sm font-mono text-[#432623] dark:text-[#FAF8E8] font-bold">
             Class 3 to 5 Math
           </span>
         </div>
         <Link
           href="/app"
-          className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-xs font-mono uppercase font-bold inline-flex items-center justify-center gap-1.5 border border-[#DE2A35] shadow-xs active:scale-95"
+          className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold inline-flex items-center justify-center gap-1.5 border border-[#DE2A35] shadow-xs active:scale-95"
         >
           <span>Assess Test</span>
           <ArrowRight size={14} />

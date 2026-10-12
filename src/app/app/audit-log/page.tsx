@@ -79,7 +79,7 @@ export default function AuditLogPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/app"
-              className="min-h-[44px] px-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-xs font-mono uppercase inline-flex items-center gap-1.5 hover:bg-[#F5F1BC]"
+              className="min-h-[44px] px-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-sm font-mono uppercase inline-flex items-center gap-1.5 hover:bg-[#F5F1BC]"
             >
               <ArrowLeft size={16} />
               <span>Dashboard</span>
@@ -88,13 +88,13 @@ export default function AuditLogPage() {
               <h1 className="font-serif text-2xl font-bold tracking-tight">
                 Institutional Security Audit Log
               </h1>
-              <p className="text-xs font-mono text-[#432623]/70 dark:text-[#F5F1BC]/70">
+              <p className="text-sm font-mono text-[#432623]/70 dark:text-[#F5F1BC]/70">
                 Append-only log of security events, student data exports, report shares, and overrides.
               </p>
             </div>
           </div>
 
-          <div className="border border-[#432623]/25 px-2.5 py-1 text-xs font-mono uppercase bg-[#F5F1BC] text-[#432623] self-start sm:self-auto">
+          <div className="border border-[#432623]/25 px-2.5 py-1 text-sm font-mono uppercase bg-[#F5F1BC] text-[#432623] self-start sm:self-auto">
             DPDP Act Sec 10 Audit Trail
           </div>
         </div>
@@ -103,13 +103,13 @@ export default function AuditLogPage() {
         <div className="mb-6 p-4 border border-[#432623]/20 dark:border-[#F5F1BC]/20 bg-[#FAF8E8] dark:bg-[#381f1c] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Funnel size={16} className="text-[#432623]/60 dark:text-[#F5F1BC]/60" />
-            <span className="text-xs font-mono uppercase font-bold">Filter By Action:</span>
+            <span className="text-sm font-mono uppercase font-bold">Filter By Action:</span>
           </div>
 
           <select
             value={actionFilter}
             onChange={(e) => setActionFilter(e.target.value)}
-            className="min-h-[44px] bg-[#FAF8E8] dark:bg-[#432623] border border-[#432623]/30 px-3 text-base sm:text-xs font-mono text-[#432623] dark:text-[#F5F1BC]"
+            className="min-h-[44px] bg-[#FAF8E8] dark:bg-[#432623] border border-[#432623]/30 px-3 text-base sm:text-sm font-mono text-[#432623] dark:text-[#F5F1BC]"
           >
             <option value="">All Security Events</option>
             <option value="login_success">Successful Logins</option>
@@ -133,7 +133,7 @@ export default function AuditLogPage() {
           <div>
             {/* Desktop Table View (>= 640px) */}
             <div className="hidden sm:block border border-[#432623]/25 dark:border-[#F5F1BC]/25 overflow-x-auto">
-              <table className="w-full text-left text-xs font-mono">
+              <table className="w-full text-left text-sm font-mono">
                 <thead className="bg-[#F5F1BC]/50 dark:bg-[#381f1c] border-b border-[#432623]/20 dark:border-[#F5F1BC]/20">
                   <tr>
                     <th className="p-3 uppercase">Timestamp</th>
@@ -152,12 +152,12 @@ export default function AuditLogPage() {
                       </td>
                       <td className="p-3 whitespace-nowrap">
                         <span className="font-bold">{log.userId}</span>
-                        <span className="ml-1 text-[10px] px-1 border border-[#432623]/30 uppercase">
+                        <span className="ml-1 text-sm px-1 border border-[#432623]/30 uppercase">
                           {log.userRole}
                         </span>
                       </td>
                       <td className="p-3 whitespace-nowrap">
-                        <span className={`px-1.5 py-0.5 border text-[11px] font-bold ${
+                        <span className={`px-1.5 py-0.5 border text-sm font-bold ${
                           log.action.includes('failure') 
                             ? 'border-[#DE2A35] text-[#DE2A35]' 
                             : log.action.includes('export')
@@ -170,7 +170,7 @@ export default function AuditLogPage() {
                       <td className="p-3 whitespace-nowrap text-[#432623]/80 dark:text-[#F5F1BC]/80">
                         {log.targetRecordId || '-'}
                       </td>
-                      <td className="p-3 font-mono text-[11px] text-[#432623]/60 dark:text-[#F5F1BC]/60">
+                      <td className="p-3 font-mono text-sm text-[#432623]/60 dark:text-[#F5F1BC]/60">
                         {log.ipHash}
                       </td>
                       <td className="p-3 text-[#432623]/85 dark:text-[#F5F1BC]/85">
@@ -187,10 +187,10 @@ export default function AuditLogPage() {
               {logs.map((log) => (
                 <div 
                   key={log.id} 
-                  className="p-4 border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] space-y-2 text-xs font-mono"
+                  className="p-4 border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] space-y-2 text-sm font-mono"
                 >
                   <div className="flex items-center justify-between pb-2 border-b border-[#432623]/15">
-                    <span className={`px-1.5 py-0.5 border text-[10px] font-bold ${
+                    <span className={`px-1.5 py-0.5 border text-sm font-bold ${
                       log.action.includes('failure') 
                         ? 'border-[#DE2A35] text-[#DE2A35]' 
                         : log.action.includes('export')
@@ -199,12 +199,12 @@ export default function AuditLogPage() {
                     }`}>
                       {log.action}
                     </span>
-                    <span className="text-[10px] text-[#432623]/60 dark:text-[#F5F1BC]/60">
+                    <span className="text-sm text-[#432623]/60 dark:text-[#F5F1BC]/60">
                       {new Date(log.timestamp).toLocaleTimeString()}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>
                       <span className="text-[#432623]/60 dark:text-[#F5F1BC]/60">User: </span>
                       <span className="font-bold">{log.userId}</span>
@@ -216,12 +216,12 @@ export default function AuditLogPage() {
                   </div>
 
                   {log.details && (
-                    <div className="text-[11px] text-[#432623]/85 dark:text-[#F5F1BC]/85 bg-[#F5F1BC]/30 p-2 border border-[#432623]/10">
+                    <div className="text-sm text-[#432623]/85 dark:text-[#F5F1BC]/85 bg-[#F5F1BC]/30 p-2 border border-[#432623]/10">
                       {log.details}
                     </div>
                   )}
 
-                  <div className="text-[10px] text-[#432623]/60 dark:text-[#F5F1BC]/60 flex items-center justify-between pt-1">
+                  <div className="text-sm text-[#432623]/60 dark:text-[#F5F1BC]/60 flex items-center justify-between pt-1">
                     <span>Scope: {log.targetRecordId || '-'}</span>
                     <span>IP: {log.ipHash}</span>
                   </div>

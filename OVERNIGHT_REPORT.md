@@ -38,6 +38,7 @@
 | UI Step | Name | Status | Files Touched | Tests Result | Notes / Measurements |
 |---|---|---|---|---|---|
 | UI Step 1 | Measure first, change nothing | Done | `scripts/measureUiBefore.mjs`, `package.json`, `docs/ui-before/` | All 135 tests pass, 0 lint warnings | Installed Playwright & Chromium successfully. Captured screenshots at 360x640 and 1280x800 for home, login, student assessment, teacher dashboard, diagnostic modal, worksheet modal, and report page. Measured baseline: 227 small texts (<14px) on home, 68 on dashboard; 38 small tap targets (<44px) on home, 26 on dashboard; 66 color contrast violations on home, 26 on dashboard. Saved full report to `docs/ui-before/measurements_before.json`. |
+| UI Step 2 | Readable text | Done | `src/app/`, `src/components/`, `tests/readable-text.test.mjs`, `package.json` | All 137 tests pass, 0 lint warnings, clean build | Removed all `text-[8px]`, `text-[9px]`, `text-[10px]`, `text-[11px]` across components. Replaced with `text-sm` (14px) or `text-xs` (12px minimum strictly for legal notices). Upgraded question prompt on student screen to at least 22px (`text-[22px] sm:text-2xl leading-relaxed`) and answer options to at least 18px (`text-[18px] sm:text-xl`). Line height at least 1.5. Added automated test `tests/readable-text.test.mjs` verifying zero occurrences of `text-[Npx]` with N < 12 in `src`. |
 
 ---
 

@@ -98,11 +98,11 @@ export function EmptyState({ lang = 'en', onAction, className = '' }: BaseStateP
         <SvgIcons.Empty />
       </div>
       <h3 className="font-serif text-lg font-bold mb-1 text-[#432623] dark:text-[#FAF8E8]">{text.title}</h3>
-      <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 max-w-md mx-auto mb-5 leading-relaxed">{text.desc}</p>
+      <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 max-w-md mx-auto mb-5 leading-relaxed">{text.desc}</p>
       {onAction && (
         <button
           onClick={onAction}
-          className="border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#B51E28] min-h-[44px] cursor-pointer"
+          className="border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-4 py-2 text-sm font-mono uppercase font-bold hover:bg-[#B51E28] min-h-[44px] cursor-pointer"
         >
           {text.action}
         </button>
@@ -170,14 +170,14 @@ export function ErrorState({
         <SvgIcons.Error />
       </div>
       <h3 className="font-serif text-lg font-bold mb-1 text-[#DE2A35]">{text.title}</h3>
-      <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 max-w-md mx-auto mb-3 leading-relaxed">{text.desc}</p>
-      <div className="text-[11px] font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-5">
+      <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 max-w-md mx-auto mb-3 leading-relaxed">{text.desc}</p>
+      <div className="text-sm font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-5">
         {text.ref}: <span className="font-bold select-all">{referenceId}</span>
       </div>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#B51E28] min-h-[44px] cursor-pointer"
+          className="border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-4 py-2 text-sm font-mono uppercase font-bold hover:bg-[#B51E28] min-h-[44px] cursor-pointer"
         >
           {text.action}
         </button>
@@ -212,11 +212,11 @@ export function OfflineState({ lang = 'en', onRetry, className = '' }: BaseState
         <SvgIcons.Offline />
       </div>
       <h3 className="font-serif text-base font-bold mb-1 text-[#432623] dark:text-[#F5F1BC]">{text.title}</h3>
-      <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 max-w-md mx-auto mb-4">{text.desc}</p>
+      <p className="text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 max-w-md mx-auto mb-4">{text.desc}</p>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="border border-[#432623]/40 dark:border-[#F5F1BC]/40 px-3 py-1.5 text-xs font-mono uppercase hover:bg-[#FAF8E8] dark:hover:bg-[#432623]"
+          className="border border-[#432623]/40 dark:border-[#F5F1BC]/40 px-3 py-1.5 text-sm font-mono uppercase hover:bg-[#FAF8E8] dark:hover:bg-[#432623]"
         >
           {text.action}
         </button>
@@ -252,14 +252,14 @@ export function SlowNetworkState({ lang = 'en', onCancel, className = '' }: { la
           <SvgIcons.SlowNetwork />
         </div>
         <div className="text-left">
-          <div className="text-xs font-bold text-[#432623] dark:text-[#F5F1BC]">{text.title}</div>
-          <div className="text-[11px] text-[#432623]/75 dark:text-[#F5F1BC]/75">{text.desc}</div>
+          <div className="text-sm font-bold text-[#432623] dark:text-[#F5F1BC]">{text.title}</div>
+          <div className="text-sm text-[#432623]/75 dark:text-[#F5F1BC]/75">{text.desc}</div>
         </div>
       </div>
       {onCancel && (
         <button
           onClick={onCancel}
-          className="border border-[#432623]/30 px-3 py-1 text-xs font-mono uppercase shrink-0 hover:bg-[#FAF8E8] dark:hover:bg-[#432623]"
+          className="border border-[#432623]/30 px-3 py-1 text-sm font-mono uppercase shrink-0 hover:bg-[#FAF8E8] dark:hover:bg-[#432623]"
         >
           {text.action}
         </button>
@@ -294,11 +294,11 @@ export function NoSearchResultsState({ lang = 'en', onClear, className = '' }: {
         <SvgIcons.NoSearchResults />
       </div>
       <h3 className="font-serif text-base font-bold mb-1 text-[#432623] dark:text-[#FAF8E8]">{text.title}</h3>
-      <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 mb-4">{text.desc}</p>
+      <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 mb-4">{text.desc}</p>
       {onClear && (
         <button
           onClick={onClear}
-          className="border border-[#432623]/40 dark:border-[#FAF8E8]/40 px-3.5 py-1.5 text-xs font-mono uppercase hover:bg-[#F5F1BC] dark:hover:bg-[#311E1B] min-h-[44px] cursor-pointer"
+          className="border border-[#432623]/40 dark:border-[#FAF8E8]/40 px-3.5 py-1.5 text-sm font-mono uppercase hover:bg-[#F5F1BC] dark:hover:bg-[#311E1B] min-h-[44px] cursor-pointer"
         >
           {text.action}
         </button>
@@ -333,10 +333,10 @@ export function PermissionDeniedState({ lang = 'en', requiredRole = 'School Admi
         <SvgIcons.PermissionDenied />
       </div>
       <h3 className="font-serif text-base font-bold mb-1 text-[#DE2A35]">{text.title}</h3>
-      <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 max-w-md mx-auto mb-5">{text.desc}</p>
+      <p className="text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 max-w-md mx-auto mb-5">{text.desc}</p>
       <Link
         href="/app"
-        className="border border-[#432623] dark:border-[#F5F1BC] bg-[#432623] text-[#F5F1BC] px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#DE2A35]"
+        className="border border-[#432623] dark:border-[#F5F1BC] bg-[#432623] text-[#F5F1BC] px-4 py-2 text-sm font-mono uppercase font-bold hover:bg-[#DE2A35]"
       >
         {text.action}
       </Link>
@@ -370,10 +370,10 @@ export function SessionExpiredState({ lang = 'en', className = '' }: BaseStatePr
         <SvgIcons.SessionExpired />
       </div>
       <h3 className="font-serif text-base font-bold mb-1 text-[#DE2A35]">{text.title}</h3>
-      <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 max-w-md mx-auto mb-5">{text.desc}</p>
+      <p className="text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 max-w-md mx-auto mb-5">{text.desc}</p>
       <Link
         href="/login?redirect=/app"
-        className="border border-[#DE2A35] bg-[#DE2A35] text-[#F5F1BC] px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#432623]"
+        className="border border-[#DE2A35] bg-[#DE2A35] text-[#F5F1BC] px-4 py-2 text-sm font-mono uppercase font-bold hover:bg-[#432623]"
       >
         {text.action}
       </Link>
@@ -407,11 +407,11 @@ export function SuccessState({ lang = 'en', message, onAction, className = '' }:
         <SvgIcons.Success />
       </div>
       <h3 className="font-serif text-base font-bold mb-1 text-[#432623] dark:text-[#F5F1BC]">{text.title}</h3>
-      <p className="text-xs text-[#432623]/85 dark:text-[#F5F1BC]/85 max-w-md mx-auto mb-4">{text.desc}</p>
+      <p className="text-sm text-[#432623]/85 dark:text-[#F5F1BC]/85 max-w-md mx-auto mb-4">{text.desc}</p>
       {onAction && (
         <button
           onClick={onAction}
-          className="border border-[#432623] dark:border-[#F5F1BC] bg-[#432623] text-[#F5F1BC] px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#8ABB93]"
+          className="border border-[#432623] dark:border-[#F5F1BC] bg-[#432623] text-[#F5F1BC] px-4 py-2 text-sm font-mono uppercase font-bold hover:bg-[#8ABB93]"
         >
           {text.action}
         </button>

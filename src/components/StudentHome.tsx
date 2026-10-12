@@ -44,7 +44,7 @@ export function StudentHome({
     <div className="w-full max-w-xl mx-auto py-6 sm:py-10 px-4 space-y-6">
       {/* 1. Welcoming Greeting Card */}
       <div className="bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-6 sm:p-8 space-y-2 text-center">
-        <span className="font-mono text-xs uppercase tracking-wider font-bold text-[#432623]/70 dark:text-[#F5F1BC]/70 block">
+        <span className="font-mono text-sm uppercase tracking-wider font-bold text-[#432623]/70 dark:text-[#F5F1BC]/70 block">
           Class 5 Mathematics
         </span>
         <h1 className="font-serif text-3xl sm:text-4xl font-black text-[#432623] dark:text-[#F5F1BC]">
@@ -58,7 +58,7 @@ export function StudentHome({
       {/* 2. Today's Practice (Primary Action) */}
       <div className="bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-6 sm:p-8 space-y-6">
         <div className="space-y-1">
-          <div className="flex items-center justify-between text-xs font-mono font-bold uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70">
+          <div className="flex items-center justify-between text-sm font-mono font-bold uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70">
             <span>{dict.todaysPractice || "Today's Practice"}</span>
             <span>15 min</span>
           </div>
@@ -82,7 +82,7 @@ export function StudentHome({
 
         {/* Simple Progress Bar */}
         <div className="space-y-2 pt-2 border-t border-[#432623]/15 dark:border-[#F5F1BC]/15">
-          <div className="flex items-center justify-between text-xs font-mono text-[#432623]/75 dark:text-[#F5F1BC]/75">
+          <div className="flex items-center justify-between text-sm font-mono text-[#432623]/75 dark:text-[#F5F1BC]/75">
             <span>Skill Progress</span>
             <span className="font-bold">Step {completedSteps} of {totalSteps}</span>
           </div>
@@ -101,7 +101,7 @@ export function StudentHome({
           <h3 className="font-serif text-base sm:text-lg font-bold text-[#432623] dark:text-[#F5F1BC]">
             {dict.takeAssessment || "Take assessment"}
           </h3>
-          <p className="text-xs sm:text-sm text-[#432623]/75 dark:text-[#F5F1BC]/75">
+          <p className="text-sm sm:text-sm text-[#432623]/75 dark:text-[#F5F1BC]/75">
             Check your progress anytime with a quick check.
           </p>
         </div>

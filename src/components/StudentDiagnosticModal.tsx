@@ -207,7 +207,7 @@ export function StudentDiagnosticModal({
         <div className="bg-[var(--card)] p-5 sm:p-6 sticky top-0 z-20 border-b border-[var(--border)]">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2 text-xs font-mono text-[var(--muted-foreground)]">
+              <div className="flex items-center gap-2 text-sm font-mono text-[var(--muted-foreground)]">
                 <span className="uppercase tracking-wider font-semibold">DIAGNOSTIC REPORT</span>
                 <span>|</span>
                 <span>CLASS 5 SECTION A</span>
@@ -215,13 +215,13 @@ export function StudentDiagnosticModal({
               <h2 className="font-serif text-2xl font-bold text-[var(--foreground)] mt-0.5">
                 {student.name}
               </h2>
-              <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)] mt-1 font-mono">
+              <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)] mt-1 font-mono">
                 <span>Roll #{student.rollNo}</span>
                 <span>|</span>
                 <span>Date: {currentDateStr}</span>
                 <span>|</span>
                 <span
-                  className={`px-1.5 py-0.2 rounded-[2px] text-[10px] font-bold uppercase ${
+                  className={`px-1.5 py-0.2 rounded-[2px] text-sm font-bold uppercase ${
                     profile.status === "on_track"
                       ? "bg-[#8ABB93]/20 text-[#432623] border border-[#8ABB93]"
                       : profile.status === "need_practice"
@@ -241,7 +241,7 @@ export function StudentDiagnosticModal({
             {/* Quick Metrics */}
             <div className="flex items-center gap-4 bg-[var(--background)] p-3 rounded-[2px] border border-[var(--border)]">
               <div className="text-right">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--muted-foreground)]">
+                <span className="text-sm font-mono uppercase tracking-wider text-[var(--muted-foreground)]">
                   OVERALL MASTERY
                 </span>
                 <div className="font-serif text-3xl font-bold text-[var(--foreground)]">
@@ -250,7 +250,7 @@ export function StudentDiagnosticModal({
               </div>
               <div className="w-[1px] h-8 bg-[var(--border)]" />
               <div className="text-right">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--muted-foreground)]">
+                <span className="text-sm font-mono uppercase tracking-wider text-[var(--muted-foreground)]">
                   CONFIDENCE
                 </span>
                 <div className="font-mono text-xl font-bold text-[#8ABB93]">
@@ -261,7 +261,7 @@ export function StudentDiagnosticModal({
           </div>
 
           {/* Sub Navigation */}
-          <div className="flex flex-wrap items-center gap-1.5 mt-4 -mb-6 border-b border-[var(--border)] pb-2 text-xs">
+          <div className="flex flex-wrap items-center gap-1.5 mt-4 -mb-6 border-b border-[var(--border)] pb-2 text-sm">
             <button
               type="button"
               onClick={() => setActiveTab("report")}
@@ -326,7 +326,7 @@ export function StudentDiagnosticModal({
                         : "bg-[#DE2A35]"
                     }`}
                   />
-                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[var(--muted-foreground)]">
+                  <span className="text-sm font-mono font-bold uppercase tracking-wider text-[var(--muted-foreground)]">
                     {dict.oneMainGap || "Primary Learning Gap"}
                   </span>
                 </div>
@@ -343,7 +343,7 @@ export function StudentDiagnosticModal({
                   <h3 className="font-serif text-lg font-bold text-[var(--foreground)]">
                     {dict.whatToDoNext || "What to do next"}
                   </h3>
-                  <span className="text-xs font-mono text-[var(--muted-foreground)]">
+                  <span className="text-sm font-mono text-[var(--muted-foreground)]">
                     {rootCause ? "3 Priority Action Steps" : "Ready for Practice"}
                   </span>
                 </div>
@@ -354,18 +354,18 @@ export function StudentDiagnosticModal({
                       key={step.stepNum}
                       className="p-3.5 bg-[var(--card)] border border-[var(--border)] rounded-[2px] flex items-start gap-3"
                     >
-                      <div className="w-7 h-7 rounded-[2px] bg-[var(--foreground)] text-[var(--background)] font-mono text-xs font-bold flex items-center justify-center shrink-0">
+                      <div className="w-7 h-7 rounded-[2px] bg-[var(--foreground)] text-[var(--background)] font-mono text-sm font-bold flex items-center justify-center shrink-0">
                         0{step.stepNum}
                       </div>
                       <div className="flex-1 space-y-0.5">
-                        <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center justify-between text-sm">
                           <strong className="text-[var(--foreground)] font-serif font-bold">{step.title}</strong>
-                          <span className="font-mono text-[11px] text-[var(--muted-foreground)] flex items-center gap-1">
+                          <span className="font-mono text-sm text-[var(--muted-foreground)] flex items-center gap-1">
                             <Clock size={12} />
                             {step.minutes} min
                           </span>
                         </div>
-                        <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
+                        <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
                           {step.activity}
                         </p>
                       </div>
@@ -379,7 +379,7 @@ export function StudentDiagnosticModal({
                     <button
                       type="button"
                       onClick={() => onPrintWorksheet(data)}
-                      className="min-h-[44px] px-3.5 py-1.5 text-xs font-semibold bg-[var(--card)] text-[var(--foreground)] rounded-[2px] border border-[var(--border)] hover:bg-[var(--muted)] flex items-center gap-1.5"
+                      className="min-h-[44px] px-3.5 py-1.5 text-sm font-semibold bg-[var(--card)] text-[var(--foreground)] rounded-[2px] border border-[var(--border)] hover:bg-[var(--muted)] flex items-center gap-1.5"
                     >
                       <Printer size={15} />
                       <span>{dict.printWorksheet || "Print Worksheet"}</span>
@@ -390,7 +390,7 @@ export function StudentDiagnosticModal({
                     <button
                       type="button"
                       onClick={() => onStartReassessment(student.id, rootCause.rootId)}
-                      className="min-h-[44px] px-5 py-2 text-xs font-bold bg-[#DE2A35] text-[#FAF8E8] rounded-[2px] border border-[#DE2A35] hover:bg-[#B51E28] flex items-center gap-2 cursor-pointer"
+                      className="min-h-[44px] px-5 py-2 text-sm font-bold bg-[#DE2A35] text-[#FAF8E8] rounded-[2px] border border-[#DE2A35] hover:bg-[#B51E28] flex items-center gap-2 cursor-pointer"
                     >
                       <span>{dict.startPractice || "Start Reassessment"}</span>
                       <ArrowRight size={15} />
@@ -404,7 +404,7 @@ export function StudentDiagnosticModal({
                 <button
                   type="button"
                   onClick={() => setShowDetails(!showDetails)}
-                  className="w-full min-h-[44px] px-4 py-2 bg-[var(--card)] border border-[var(--border)] rounded-[2px] flex items-center justify-between text-xs font-mono font-bold uppercase text-[var(--foreground)] hover:bg-[var(--muted)]"
+                  className="w-full min-h-[44px] px-4 py-2 bg-[var(--card)] border border-[var(--border)] rounded-[2px] flex items-center justify-between text-sm font-mono font-bold uppercase text-[var(--foreground)] hover:bg-[var(--muted)]"
                   aria-expanded={showDetails}
                 >
                   <span>{showDetails ? (dict.hideDetails || "Hide details") : (dict.showDetails || "Show details")}</span>
@@ -416,7 +416,7 @@ export function StudentDiagnosticModal({
               {showDetails && (
                 <div className="space-y-4 pt-2">
                   {/* Mandatory AI Decision Support Disclaimer */}
-                  <div className="p-3 bg-[var(--card)] border border-[var(--border)] rounded-[2px] text-xs flex items-start gap-2.5 text-[var(--muted-foreground)]">
+                  <div className="p-3 bg-[var(--card)] border border-[var(--border)] rounded-[2px] text-sm flex items-start gap-2.5 text-[var(--muted-foreground)]">
                     <Warning size={16} className="text-[#DE2A35] shrink-0 mt-0.5" />
                     <div>
                       <strong className="text-[var(--foreground)]">Teacher Notice:</strong> This learning report is an automated helper to support teachers. It helps suggest where students need practice, but the teacher always knows the student best and makes the final decision.
@@ -426,10 +426,10 @@ export function StudentDiagnosticModal({
                   {/* 4 Topic Breakdown */}
                   <div className="bg-[var(--card)] border border-[var(--border)] rounded-[2px] p-5 space-y-3">
                     <div className="flex items-center justify-between border-b border-[var(--border)] pb-2">
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--muted-foreground)]">
+                      <span className="text-sm font-mono uppercase tracking-wider text-[var(--muted-foreground)]">
                         CURRICULUM TOPIC BREAKDOWN
                       </span>
-                      <span className="text-xs font-mono text-[var(--muted-foreground)]">
+                      <span className="text-sm font-mono text-[var(--muted-foreground)]">
                         4 Strands Evaluated
                       </span>
                     </div>
@@ -453,12 +453,12 @@ export function StudentDiagnosticModal({
                             key={tId}
                             className="p-3 bg-[var(--background)] border border-[var(--border)] rounded-[2px] space-y-2"
                           >
-                            <div className="flex items-center justify-between text-xs">
+                            <div className="flex items-center justify-between text-sm">
                               <span className="font-semibold text-[var(--foreground)]">
                                 {TOPIC_DISPLAY_NAMES[tId]?.en}
                               </span>
                               <span className="font-mono font-bold text-[var(--foreground)]">
-                                {pct}% | <span className="text-[10px] uppercase">{statusLabel}</span>
+                                {pct}% | <span className="text-sm uppercase">{statusLabel}</span>
                               </span>
                             </div>
                             <div className="w-full bg-[var(--muted)] h-2 rounded-[2px] overflow-hidden">
@@ -476,21 +476,21 @@ export function StudentDiagnosticModal({
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="w-2.5 h-2.5 rounded-[2px] bg-[#DE2A35]" />
-                          <span className="text-[10px] font-mono uppercase tracking-wider font-bold text-[#DE2A35]">
+                          <span className="text-sm font-mono uppercase tracking-wider font-bold text-[#DE2A35]">
                             ROOT CAUSE IDENTIFIED
                           </span>
                         </div>
-                        <span className="text-[10px] font-mono font-bold uppercase bg-[#DE2A35]/15 text-[#DE2A35] px-2 py-0.5 rounded-[2px] border border-[#DE2A35]">
+                        <span className="text-sm font-mono font-bold uppercase bg-[#DE2A35]/15 text-[#DE2A35] px-2 py-0.5 rounded-[2px] border border-[#DE2A35]">
                           {rootCause.severity === "high" ? "HIGH PRIORITY GAP" : "FOUNDATIONAL GAP"}
                         </span>
                       </div>
 
                       {/* Backtracking Lineage */}
                       <div className="bg-[var(--background)] p-3 rounded-[2px] border border-[var(--border)] space-y-2">
-                        <div className="text-[10px] font-mono uppercase text-[var(--muted-foreground)]">
+                        <div className="text-sm font-mono uppercase text-[var(--muted-foreground)]">
                           Prerequisite Backtracking Lineage:
                         </div>
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs font-semibold text-[var(--foreground)]">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
                           {rootCause.chain.map((cId, idx) => (
                             <React.Fragment key={cId}>
                               <div
@@ -514,7 +514,7 @@ export function StudentDiagnosticModal({
                         </div>
                       </div>
 
-                      <p className="text-xs text-[var(--foreground)] leading-relaxed">
+                      <p className="text-sm text-[var(--foreground)] leading-relaxed">
                         <strong>Diagnosis:</strong> {student.name} shows difficulty on{" "}
                         <span className="font-semibold text-[#DE2A35]">
                           {rootCause.symptomIds.map((s) => t(`c_${s}`)).join(", ")}
@@ -528,10 +528,10 @@ export function StudentDiagnosticModal({
 
                       {/* Why We Think This */}
                       <div className="pt-2 border-t border-[var(--border)] space-y-2">
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--muted-foreground)]">
+                        <span className="text-sm font-mono uppercase tracking-wider text-[var(--muted-foreground)]">
                           WHY WE THINK THIS (EVIDENCE)
                         </span>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                           {evidenceItems.map((item, idx) => (
                             <div
                               key={idx}
@@ -544,7 +544,7 @@ export function StudentDiagnosticModal({
                               )}
                               <div>
                                 <div className="font-semibold text-[var(--foreground)]">{item.label}</div>
-                                <div className="text-[11px] text-[var(--muted-foreground)]">{item.result}</div>
+                                <div className="text-sm text-[var(--muted-foreground)]">{item.result}</div>
                               </div>
                             </div>
                           ))}
@@ -558,7 +558,7 @@ export function StudentDiagnosticModal({
                         <h3 className="font-serif font-bold text-sm text-[var(--foreground)]">
                           No Conceptual Gaps Detected
                         </h3>
-                        <p className="text-xs text-[var(--muted-foreground)]">
+                        <p className="text-sm text-[var(--muted-foreground)]">
                           {student.name} demonstrates sound prerequisite understanding across all tested Class 5 strands.
                         </p>
                       </div>
@@ -570,7 +570,7 @@ export function StudentDiagnosticModal({
                     <button
                       type="button"
                       onClick={handleCopyReport}
-                      className="min-h-[44px] px-3.5 py-1.5 text-xs font-semibold bg-[var(--card)] text-[var(--foreground)] rounded-[2px] border border-[var(--border)] hover:bg-[var(--muted)] flex items-center gap-1.5"
+                      className="min-h-[44px] px-3.5 py-1.5 text-sm font-semibold bg-[var(--card)] text-[var(--foreground)] rounded-[2px] border border-[var(--border)] hover:bg-[var(--muted)] flex items-center gap-1.5"
                     >
                       <Copy size={14} />
                       <span>{copied ? "Copied" : "Copy Report Summary"}</span>
@@ -589,11 +589,11 @@ export function StudentDiagnosticModal({
                   <h3 className="font-serif font-bold text-base text-[var(--foreground)]">
                     5-Day Recovery Action Plan
                   </h3>
-                  <p className="text-xs text-[var(--muted-foreground)]">
+                  <p className="text-sm text-[var(--muted-foreground)]">
                     15 minutes daily | Concrete classroom manipulatives | Zero cost
                   </p>
                 </div>
-                <div className="text-xs font-mono font-semibold bg-[var(--background)] px-2.5 py-1 rounded-[2px] border border-[var(--border)]">
+                <div className="text-sm font-mono font-semibold bg-[var(--background)] px-2.5 py-1 rounded-[2px] border border-[var(--border)]">
                   Progress: {completedDays.length} / 5 Days Completed
                 </div>
               </div>
@@ -622,7 +622,7 @@ export function StudentDiagnosticModal({
                               : "bg-[var(--foreground)] text-[var(--background)] border-[var(--foreground)]"
                           }`}
                         >
-                          <span className="text-[8px] font-mono uppercase">DAY</span>
+                          <span className="text-sm font-mono uppercase">DAY</span>
                           <span className="font-serif font-bold text-sm leading-none">{dayCode}</span>
                         </div>
 
@@ -632,14 +632,14 @@ export function StudentDiagnosticModal({
                               {title}
                             </h4>
                             <div className="flex items-center gap-2">
-                              <span className="text-[11px] font-mono text-[var(--muted-foreground)] flex items-center gap-1">
+                              <span className="text-sm font-mono text-[var(--muted-foreground)] flex items-center gap-1">
                                 <Clock size={12} />
                                 {d.minutes} min
                               </span>
                               <button
                                 type="button"
                                 onClick={() => toggleDayCompletion(d.day)}
-                                className={`text-[11px] font-semibold px-2 py-0.5 rounded-[2px] border ${
+                                className={`text-sm font-semibold px-2 py-0.5 rounded-[2px] border ${
                                   isDone
                                     ? "bg-[#8ABB93] text-[var(--foreground)] border-[#8ABB93]"
                                     : "bg-[var(--background)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--muted)]"
@@ -649,10 +649,10 @@ export function StudentDiagnosticModal({
                               </button>
                             </div>
                           </div>
-                          <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
+                          <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
                             {activity}
                           </p>
-                          <div className="text-[10px] font-mono text-[var(--muted-foreground)]">
+                          <div className="text-sm font-mono text-[var(--muted-foreground)]">
                             Focus: {d.focus}
                           </div>
                         </div>
@@ -666,7 +666,7 @@ export function StudentDiagnosticModal({
                 <button
                   type="button"
                   onClick={() => onPrintWorksheet(data)}
-                  className="px-3 py-1.5 text-xs font-semibold bg-[var(--card)] text-[var(--foreground)] rounded-[2px] border border-[var(--border)] hover:bg-[var(--muted)] flex items-center gap-1.5"
+                  className="px-3 py-1.5 text-sm font-semibold bg-[var(--card)] text-[var(--foreground)] rounded-[2px] border border-[var(--border)] hover:bg-[var(--muted)] flex items-center gap-1.5"
                 >
                   <Printer size={14} />
                   <span>Print Plan Worksheet</span>
@@ -675,7 +675,7 @@ export function StudentDiagnosticModal({
                   <button
                     type="button"
                     onClick={() => onStartReassessment(student.id, rootCause.rootId)}
-                    className="px-4 py-1.5 text-xs font-semibold bg-[var(--primary)] text-[var(--primary-foreground)] rounded-[2px] border border-[var(--primary)] flex items-center gap-1.5"
+                    className="px-4 py-1.5 text-sm font-semibold bg-[var(--primary)] text-[var(--primary-foreground)] rounded-[2px] border border-[var(--primary)] flex items-center gap-1.5"
                   >
                     <span>Start Reassessment</span>
                     <ArrowRight size={14} />
@@ -691,72 +691,72 @@ export function StudentDiagnosticModal({
               <div className="border border-[var(--border)] p-4 bg-[var(--card)] space-y-3">
                 <div className="flex items-center justify-between pb-2 border-b border-[var(--border)]">
                   <div>
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-[var(--muted-foreground)]">
+                    <span className="text-sm font-mono uppercase tracking-wider text-[var(--muted-foreground)]">
                       AI SUGGESTED DIAGNOSIS
                     </span>
                     <h3 className="font-serif text-lg font-bold text-[var(--foreground)]">
                       {rootCause ? t(`c_${rootCause.rootId}`) : "No Critical Gap Detected"}
                     </h3>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 border border-[#DE2A35] text-[#DE2A35] font-bold uppercase">
+                  <span className="text-sm font-mono px-2 py-0.5 border border-[#DE2A35] text-[#DE2A35] font-bold uppercase">
                     AI Decision Support
                   </span>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono uppercase font-bold text-[var(--foreground)] mb-2">
+                  <label className="block text-sm font-mono uppercase font-bold text-[var(--foreground)] mb-2">
                     Teacher Pedagogical Determination:
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <button
                       type="button"
                       onClick={() => setOverrideDecision("accepted")}
-                      className={`min-h-[44px] p-2.5 text-xs font-mono uppercase border text-left ${
+                      className={`min-h-[44px] p-2.5 text-sm font-mono uppercase border text-left ${
                         overrideDecision === "accepted"
                           ? "bg-[var(--foreground)] text-[var(--background)] font-bold border-[var(--foreground)]"
                           : "border-[var(--border)] hover:bg-[var(--muted)]"
                       }`}
                     >
                       <div className="font-bold">Accept Suggestion</div>
-                      <div className="text-[10px] opacity-75">Confirm AI assessment</div>
+                      <div className="text-sm opacity-75">Confirm AI assessment</div>
                     </button>
                     <button
                       type="button"
                       onClick={() => setOverrideDecision("changed")}
-                      className={`min-h-[44px] p-2.5 text-xs font-mono uppercase border text-left ${
+                      className={`min-h-[44px] p-2.5 text-sm font-mono uppercase border text-left ${
                         overrideDecision === "changed"
                           ? "bg-[var(--foreground)] text-[var(--background)] font-bold border-[var(--foreground)]"
                           : "border-[var(--border)] hover:bg-[var(--muted)]"
                       }`}
                     >
                       <div className="font-bold">Change Root Gap</div>
-                      <div className="text-[10px] opacity-75">Select alternate skill</div>
+                      <div className="text-sm opacity-75">Select alternate skill</div>
                     </button>
                     <button
                       type="button"
                       onClick={() => setOverrideDecision("dismissed")}
-                      className={`min-h-[44px] p-2.5 text-xs font-mono uppercase border text-left ${
+                      className={`min-h-[44px] p-2.5 text-sm font-mono uppercase border text-left ${
                         overrideDecision === "dismissed"
                           ? "bg-[var(--foreground)] text-[var(--background)] font-bold border-[var(--foreground)]"
                           : "border-[var(--border)] hover:bg-[var(--muted)]"
                       }`}
                     >
                       <div className="font-bold">Dismiss Gap</div>
-                      <div className="text-[10px] opacity-75">Student on track</div>
+                      <div className="text-sm opacity-75">Student on track</div>
                     </button>
                   </div>
                 </div>
 
                 {overrideDecision === "changed" && (
                   <div>
-                    <label htmlFor="alternate-concept-select" className="block text-xs font-mono uppercase text-[var(--muted-foreground)] mb-1">
+                    <label htmlFor="alternate-concept-select" className="block text-sm font-mono uppercase text-[var(--muted-foreground)] mb-1">
                       Select True Prerequisite Gap:
                     </label>
                     <select
                       id="alternate-concept-select"
                       value={alternateConcept}
                       onChange={(e) => setAlternateConcept(e.target.value)}
-                      className="w-full min-h-[44px] bg-[var(--background)] border border-[var(--border)] px-3 text-base sm:text-xs font-mono text-[var(--foreground)]"
+                      className="w-full min-h-[44px] bg-[var(--background)] border border-[var(--border)] px-3 text-base sm:text-sm font-mono text-[var(--foreground)]"
                     >
                       {Object.entries(CONCEPTS).map(([id, c]) => (
                         <option key={id} value={id}>
@@ -769,10 +769,10 @@ export function StudentDiagnosticModal({
 
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label htmlFor="teacher-note-textarea" className="block text-xs font-mono uppercase text-[var(--muted-foreground)]">
+                    <label htmlFor="teacher-note-textarea" className="block text-sm font-mono uppercase text-[var(--muted-foreground)]">
                       Confidential Teacher Note (Classroom Context):
                     </label>
-                    <span className="text-[10px] font-mono text-[var(--muted-foreground)]">
+                    <span className="text-sm font-mono text-[var(--muted-foreground)]">
                       {500 - teacherNote.length} characters left
                     </span>
                   </div>
@@ -783,12 +783,12 @@ export function StudentDiagnosticModal({
                     value={teacherNote}
                     onChange={(e) => setTeacherNote(e.target.value)}
                     placeholder="e.g. Student understood borrowing with base-10 flats but rushed on zero regrouping..."
-                    className="w-full bg-[var(--background)] border border-[var(--border)] p-3 text-base sm:text-xs font-mono text-[var(--foreground)]"
+                    className="w-full bg-[var(--background)] border border-[var(--border)] p-3 text-base sm:text-sm font-mono text-[var(--foreground)]"
                   />
                 </div>
 
                 {overrideSavedMessage && (
-                  <div className="p-3 border border-[#8ABB93] bg-[#8ABB93]/15 text-xs font-mono">
+                  <div className="p-3 border border-[#8ABB93] bg-[#8ABB93]/15 text-sm font-mono">
                     {overrideSavedMessage}
                   </div>
                 )}
@@ -798,7 +798,7 @@ export function StudentDiagnosticModal({
                     type="button"
                     onClick={handleSaveOverride}
                     disabled={isSavingOverride}
-                    className="w-full sm:w-auto min-h-[44px] px-6 bg-[var(--foreground)] text-[var(--background)] text-xs font-mono uppercase font-bold border border-[var(--foreground)] hover:bg-[#DE2A35]"
+                    className="w-full sm:w-auto min-h-[44px] px-6 bg-[var(--foreground)] text-[var(--background)] text-sm font-mono uppercase font-bold border border-[var(--foreground)] hover:bg-[#DE2A35]"
                   >
                     {isSavingOverride ? "Saving Override..." : "Save Teacher Determination"}
                   </button>
@@ -812,19 +812,19 @@ export function StudentDiagnosticModal({
             <div className="space-y-4">
               <div className="border border-[var(--border)] p-5 bg-[var(--card)] space-y-4">
                 <div>
-                  <span className="text-[10px] font-mono uppercase text-[#DE2A35] font-bold">
+                  <span className="text-sm font-mono uppercase text-[#DE2A35] font-bold">
                     Child Privacy Protected (DPDP Act 2023)
                   </span>
                   <h3 className="font-serif text-lg font-bold text-[var(--foreground)] mt-0.5">
                     Generate Private 7-Day Parent Progress Note
                   </h3>
-                  <p className="text-xs text-[var(--muted-foreground)] leading-relaxed mt-1">
+                  <p className="text-sm text-[var(--muted-foreground)] leading-relaxed mt-1">
                     Creates an unguessable 128-bit cryptographic link containing parent-friendly practice tips and strengths. Contains zero student scores or rankings.
                   </p>
                 </div>
 
                 <div className="p-3 border border-[var(--border)] bg-[var(--background)] space-y-2">
-                  <label className="flex items-start gap-2.5 cursor-pointer text-xs leading-relaxed">
+                  <label className="flex items-start gap-2.5 cursor-pointer text-sm leading-relaxed">
                     <input
                       type="checkbox"
                       checked={confirmedShareNotice}
@@ -838,7 +838,7 @@ export function StudentDiagnosticModal({
                 </div>
 
                 {shareError && (
-                  <div className="p-3 border border-[#DE2A35] bg-[#DE2A35]/10 text-xs text-[#DE2A35]">
+                  <div className="p-3 border border-[#DE2A35] bg-[#DE2A35]/10 text-sm text-[#DE2A35]">
                     {shareError}
                   </div>
                 )}
@@ -848,14 +848,14 @@ export function StudentDiagnosticModal({
                     type="button"
                     onClick={handleGenerateShare}
                     disabled={!confirmedShareNotice || isGeneratingShare}
-                    className="min-h-[44px] px-5 bg-[var(--foreground)] text-[var(--background)] text-xs font-mono uppercase font-bold border border-[var(--foreground)] disabled:opacity-40"
+                    className="min-h-[44px] px-5 bg-[var(--foreground)] text-[var(--background)] text-sm font-mono uppercase font-bold border border-[var(--foreground)] disabled:opacity-40"
                   >
                     {isGeneratingShare ? "Generating Cryptographic Token..." : "Generate Secure Parent Link"}
                   </button>
                 ) : (
                   <div className="space-y-3 pt-2 border-t border-[var(--border)]">
                     <div>
-                      <span className="block text-[11px] font-mono uppercase text-[var(--muted-foreground)] mb-1">
+                      <span className="block text-sm font-mono uppercase text-[var(--muted-foreground)] mb-1">
                         Secure Private Link (Expires in 7 days):
                       </span>
                       <div className="flex flex-col sm:flex-row gap-2">
@@ -863,7 +863,7 @@ export function StudentDiagnosticModal({
                           type="text"
                           readOnly
                           value={shareLink}
-                          className="flex-1 min-h-[44px] bg-[var(--background)] border border-[var(--border)] px-3 font-mono text-xs text-[var(--foreground)] select-all"
+                          className="flex-1 min-h-[44px] bg-[var(--background)] border border-[var(--border)] px-3 font-mono text-sm text-[var(--foreground)] select-all"
                         />
                         <button
                           type="button"
@@ -872,7 +872,7 @@ export function StudentDiagnosticModal({
                             setIsLinkCopied(true);
                             setTimeout(() => setIsLinkCopied(false), 2000);
                           }}
-                          className="min-h-[44px] px-4 border border-[var(--border)] bg-[var(--card)] text-xs font-mono uppercase font-bold shrink-0 hover:bg-[var(--muted)]"
+                          className="min-h-[44px] px-4 border border-[var(--border)] bg-[var(--card)] text-sm font-mono uppercase font-bold shrink-0 hover:bg-[var(--muted)]"
                         >
                           {isLinkCopied ? "Copied!" : "Copy Link"}
                         </button>
@@ -886,7 +886,7 @@ export function StudentDiagnosticModal({
                         )}`}
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="min-h-[44px] px-4 bg-[#8ABB93] text-[var(--foreground)] font-bold text-xs font-mono uppercase inline-flex items-center gap-2 border border-[#8ABB93] hover:bg-[#8ABB93]/80"
+                        className="min-h-[44px] px-4 bg-[#8ABB93] text-[var(--foreground)] font-bold text-sm font-mono uppercase inline-flex items-center gap-2 border border-[#8ABB93] hover:bg-[#8ABB93]/80"
                       >
                         <span>Share on WhatsApp</span>
                       </a>
@@ -895,7 +895,7 @@ export function StudentDiagnosticModal({
                         href={shareLink}
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="min-h-[44px] px-4 border border-[var(--border)] text-xs font-mono uppercase inline-flex items-center gap-1.5 hover:bg-[var(--muted)]"
+                        className="min-h-[44px] px-4 border border-[var(--border)] text-sm font-mono uppercase inline-flex items-center gap-1.5 hover:bg-[var(--muted)]"
                       >
                         <span>Open Parent View</span>
                       </a>

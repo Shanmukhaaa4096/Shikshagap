@@ -62,7 +62,7 @@ export function OfflineSyncBanner() {
   }
 
   return (
-    <aside aria-label="Connectivity and Device Security Status" className="space-y-2 mb-4 font-mono text-xs">
+    <aside aria-label="Connectivity and Device Security Status" className="space-y-2 mb-4 font-mono text-sm">
       {/* Offline Alert Bar */}
       {!isOnline && (
         <div 
@@ -77,7 +77,7 @@ export function OfflineSyncBanner() {
             </span>
           </div>
           {queuedCount > 0 && (
-            <span className="text-[11px] bg-[#DFA06E]/30 px-2 py-0.5 border border-[#DFA06E]/50 shrink-0">
+            <span className="text-sm bg-[#DFA06E]/30 px-2 py-0.5 border border-[#DFA06E]/50 shrink-0">
               {queuedCount} changes queued
             </span>
           )}
@@ -99,7 +99,7 @@ export function OfflineSyncBanner() {
           <button
             onClick={triggerSync}
             disabled={isSyncing}
-            className="min-h-[44px] sm:min-h-[32px] px-3 bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] text-xs font-mono uppercase font-bold shrink-0 hover:bg-[#DE2A35]"
+            className="min-h-[44px] sm:min-h-[32px] px-3 bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] text-sm font-mono uppercase font-bold shrink-0 hover:bg-[#DE2A35]"
           >
             {isSyncing ? 'Syncing...' : 'Sync Now'}
           </button>
@@ -110,7 +110,7 @@ export function OfflineSyncBanner() {
       {showSharedNotice && (
         <div 
           role="note" 
-          className="p-2.5 border border-[#432623]/20 dark:border-[#F5F1BC]/20 bg-[#F5F1BC]/30 dark:bg-[#381f1c] flex items-center justify-between text-[11px] text-[#432623]/80 dark:text-[#F5F1BC]/80 gap-2"
+          className="p-2.5 border border-[#432623]/20 dark:border-[#F5F1BC]/20 bg-[#F5F1BC]/30 dark:bg-[#381f1c] flex items-center justify-between text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 gap-2"
         >
           <div className="flex items-center gap-2">
             <Warning size={14} className="text-[#DE2A35] shrink-0" />

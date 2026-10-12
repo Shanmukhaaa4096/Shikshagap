@@ -9,35 +9,35 @@ export default function NotFound() {
         <div className="flex justify-center sm:justify-start mb-4">
           <NotFoundIllustration className="w-48 h-auto" />
         </div>
-        <div className="text-xs font-mono uppercase text-[#DE2A35] font-bold mb-2">
+        <div className="text-sm font-mono uppercase text-[#DE2A35] font-bold mb-2">
           HTTP 404 : Resource Not Found
         </div>
         <h1 className="font-serif text-3xl font-bold mb-4">Page Not Located</h1>
-        <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed mb-6">
+        <p className="text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed mb-6">
           The requested document or diagnostic route does not exist or has been relocated behind authorized institutional access.
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <Link
             href="/app"
-            className="border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#B51E28] transition-colors"
+            className="border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-4 py-2 text-sm font-mono uppercase font-bold hover:bg-[#B51E28] transition-colors"
           >
             Assess Test (Start Diagnostic)
           </Link>
           <Link
             href="/"
-            className="border border-[#432623] dark:border-[#F5F1BC] bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#DE2A35] hover:text-[#FAF8E8] transition-colors"
+            className="border border-[#432623] dark:border-[#F5F1BC] bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] px-4 py-2 text-sm font-mono uppercase font-bold hover:bg-[#DE2A35] hover:text-[#FAF8E8] transition-colors"
           >
             Return to Home
           </Link>
           <Link
             href="/login"
-            className="border border-[#432623]/30 dark:border-[#F5F1BC]/30 px-4 py-2 text-xs font-mono uppercase hover:bg-[#F5F1BC] dark:hover:bg-[#432623] transition-colors"
+            className="border border-[#432623]/30 dark:border-[#F5F1BC]/30 px-4 py-2 text-sm font-mono uppercase hover:bg-[#F5F1BC] dark:hover:bg-[#432623] transition-colors"
           >
             Teacher Login
           </Link>
         </div>
       </div>
-      <footer className="text-center text-[11px] font-mono text-[#432623]/60 dark:text-[#F5F1BC]/60">
+      <footer className="text-center text-sm font-mono text-[#432623]/60 dark:text-[#F5F1BC]/60">
         ShikshaGap Educational Intelligence
       </footer>
     </div>

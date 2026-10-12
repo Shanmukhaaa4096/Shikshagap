@@ -31,7 +31,7 @@ export function ClassSelector({
                 key={conf.id}
                 type="button"
                 onClick={() => onSelectClass(conf.id)}
-                className={`min-h-[36px] px-2.5 py-1 text-xs font-mono font-bold rounded-[2px] border transition-none shrink-0 ${
+                className={`min-h-[36px] px-2.5 py-1 text-sm font-mono font-bold rounded-[2px] border transition-none shrink-0 ${
                   isSelected
                     ? 'border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)]'
                     : 'border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] hover:bg-[var(--muted)]'
@@ -45,13 +45,13 @@ export function ClassSelector({
           <button
             type="button"
             onClick={() => setShowUpcoming(!showUpcoming)}
-            className="text-[10px] font-mono text-[var(--muted-foreground)] hover:underline shrink-0 px-2 py-1"
+            className="text-sm font-mono text-[var(--muted-foreground)] hover:underline shrink-0 px-2 py-1"
           >
             {showUpcoming ? 'Hide other classes' : 'More classes coming soon'}
           </button>
         </div>
         {showUpcoming && (
-          <div className="flex flex-wrap items-center gap-1 text-[10px] font-mono text-[var(--muted-foreground)] bg-[var(--muted)]/50 p-1.5 rounded-[2px]">
+          <div className="flex flex-wrap items-center gap-1 text-sm font-mono text-[var(--muted-foreground)] bg-[var(--muted)]/50 p-1.5 rounded-[2px]">
             <span>Coming soon:</span>
             {upcomingClasses.map((c) => (
               <span key={c.id} className="px-1.5 py-0.5 border border-[var(--border)] bg-[var(--card)] opacity-60">
@@ -74,7 +74,7 @@ export function ClassSelector({
               key={conf.id}
               type="button"
               onClick={() => onSelectClass(conf.id)}
-              className={`min-h-[44px] px-3.5 py-2 text-xs font-mono font-bold rounded-[2px] border transition-none shrink-0 flex items-center gap-1.5 ${
+              className={`min-h-[44px] px-3.5 py-2 text-sm font-mono font-bold rounded-[2px] border transition-none shrink-0 flex items-center gap-1.5 ${
                 isSelected
                   ? 'border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)]'
                   : 'border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] hover:bg-[var(--muted)]'
@@ -82,7 +82,7 @@ export function ClassSelector({
               aria-pressed={isSelected}
             >
               <span>{conf.label}</span>
-              <span className="text-[10px] font-bold opacity-75">
+              <span className="text-sm font-bold opacity-75">
                 ({conf.topics.length} topics)
               </span>
             </button>
@@ -94,7 +94,7 @@ export function ClassSelector({
         <button
           type="button"
           onClick={() => setShowUpcoming(!showUpcoming)}
-          className="text-xs font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 hover:underline flex items-center gap-1.5 cursor-pointer"
+          className="text-sm font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 hover:underline flex items-center gap-1.5 cursor-pointer"
         >
           <span>{showUpcoming ? 'Hide upcoming classes' : 'More classes coming soon (Classes 1, 2, 6, 7, 8)'}</span>
         </button>
@@ -104,7 +104,7 @@ export function ClassSelector({
             {upcomingClasses.map((conf: ClassConfig) => (
               <span
                 key={conf.id}
-                className="text-[11px] font-mono px-2 py-1 bg-[#F5F1BC]/40 dark:bg-[#311E1B] border border-[#432623]/20 text-[#432623]/60 dark:text-[#FAF8E8]/60"
+                className="text-sm font-mono px-2 py-1 bg-[#F5F1BC]/40 dark:bg-[#311E1B] border border-[#432623]/20 text-[#432623]/60 dark:text-[#FAF8E8]/60"
               >
                 {conf.label} (Coming soon)
               </span>

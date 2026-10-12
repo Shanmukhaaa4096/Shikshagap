@@ -75,7 +75,7 @@ export function Header({
       {/* Accessible skip link */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-[#DE2A35] focus:text-[#F5F1BC] focus:px-3 focus:py-1 focus:text-xs font-mono"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-[#DE2A35] focus:text-[#F5F1BC] focus:px-3 focus:py-1 focus:text-sm font-mono"
       >
         Skip to main content
       </a>
@@ -89,14 +89,14 @@ export function Header({
               className="flex items-center gap-2 text-inherit no-underline"
               aria-label="ShikshaGap Home"
             >
-              <div className="h-8 w-8 rounded-[2px] bg-[#DE2A35] flex items-center justify-center text-[#F5F1BC] font-mono font-bold text-xs border border-[#432623]/30">
+              <div className="h-8 w-8 rounded-[2px] bg-[#DE2A35] flex items-center justify-center text-[#F5F1BC] font-mono font-bold text-sm border border-[#432623]/30">
                 SG
               </div>
               <div>
                 <span className="font-serif font-bold text-lg tracking-tight text-[#432623] dark:text-[#F5F1BC]">
                   ShikshaGap
                 </span>
-                <span className="ml-2 text-xs font-mono font-bold uppercase text-[#432623]/80 dark:text-[#F5F1BC]/80 border border-[#432623]/20 dark:border-[#F5F1BC]/20 px-1.5 py-0.5 rounded-[2px] bg-[#F5F1BC]/40 dark:bg-[#432623]">
+                <span className="ml-2 text-sm font-mono font-bold uppercase text-[#432623]/80 dark:text-[#F5F1BC]/80 border border-[#432623]/20 dark:border-[#F5F1BC]/20 px-1.5 py-0.5 rounded-[2px] bg-[#F5F1BC]/40 dark:bg-[#432623]">
                   {getClassConfig(selectedClassId).shortLabel}
                 </span>
               </div>
@@ -117,7 +117,7 @@ export function Header({
           <div className="flex items-center gap-2">
             {/* View Switcher: Teacher vs Student */}
             {onViewChange && (
-              <div className="hidden sm:flex items-center bg-[#FAF8E8] dark:bg-[#432623] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-0.5 text-xs font-mono">
+              <div className="hidden sm:flex items-center bg-[#FAF8E8] dark:bg-[#432623] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-0.5 text-sm font-mono">
                 <button
                   type="button"
                   onClick={() => onViewChange("teacher")}
@@ -146,7 +146,7 @@ export function Header({
             )}
 
             {/* Language Switcher */}
-            <div className="flex items-center border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-0.5 text-xs font-mono">
+            <div className="flex items-center border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-0.5 text-sm font-mono">
               {(["en", "hi", "te"] as Lang[]).map((l) => (
                 <button
                   key={l}
@@ -188,7 +188,7 @@ export function Header({
 
         {/* Dropdown Menu when toggled */}
         {isMenuOpen && (
-          <div className="border-t border-[#432623]/20 dark:border-[#F5F1BC]/20 py-3 space-y-2 font-mono text-xs">
+          <div className="border-t border-[#432623]/20 dark:border-[#F5F1BC]/20 py-3 space-y-2 font-mono text-sm">
             {/* View switcher on mobile */}
             {onViewChange && (
               <div className="sm:hidden flex items-center gap-2 pb-2 border-b border-[#432623]/10 dark:border-[#F5F1BC]/10">
@@ -228,7 +228,7 @@ export function Header({
             {/* Class switcher on mobile */}
             {onSelectClass && (
               <div className="md:hidden pb-2 border-b border-[#432623]/10 dark:border-[#F5F1BC]/10">
-                <div className="text-[10px] text-[#432623]/70 dark:text-[#F5F1BC]/70 uppercase tracking-wider mb-1">
+                <div className="text-sm text-[#432623]/70 dark:text-[#F5F1BC]/70 uppercase tracking-wider mb-1">
                   Active Class
                 </div>
                 <ClassSelector

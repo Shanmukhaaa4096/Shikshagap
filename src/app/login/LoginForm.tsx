@@ -70,23 +70,23 @@ export default function LoginForm() {
               <Link href="/" className="font-serif text-2xl font-bold tracking-tight text-[#432623] dark:text-[#F5F1BC]">
                 ShikshaGap
               </Link>
-              <p className="text-xs uppercase tracking-widest text-[#432623]/70 dark:text-[#F5F1BC]/70 mt-1">
+              <p className="text-sm uppercase tracking-widest text-[#432623]/70 dark:text-[#F5F1BC]/70 mt-1">
                 Authorized Staff Access
               </p>
             </div>
-            <div className="border border-[#432623]/20 px-2 py-1 text-[11px] font-mono uppercase bg-[#F5F1BC] text-[#432623]">
+            <div className="border border-[#432623]/20 px-2 py-1 text-sm font-mono uppercase bg-[#F5F1BC] text-[#432623]">
               v2.4 Sec
             </div>
           </div>
 
-          <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 mb-6 leading-relaxed">
+          <p className="text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 mb-6 leading-relaxed">
             Restricted portal for verified government school educators and school administrative heads. Student assessment records are protected under India DPDP Act 2023.
           </p>
 
           {errorMessage && (
             <div 
               role="alert" 
-              className="mb-6 p-3 border border-[#DE2A35] bg-[#DE2A35]/10 text-[#432623] dark:text-[#F5F1BC] text-xs flex items-start gap-2"
+              className="mb-6 p-3 border border-[#DE2A35] bg-[#DE2A35]/10 text-[#432623] dark:text-[#F5F1BC] text-sm flex items-start gap-2"
             >
               <WarningCircle size={18} className="text-[#DE2A35] shrink-0 mt-0.5" />
               <div>
@@ -100,7 +100,7 @@ export default function LoginForm() {
             <div>
               <label 
                 htmlFor="email" 
-                className="block text-xs font-mono uppercase tracking-wider text-[#432623]/90 dark:text-[#F5F1BC]/90 mb-1"
+                className="block text-sm font-mono uppercase tracking-wider text-[#432623]/90 dark:text-[#F5F1BC]/90 mb-1"
               >
                 Institutional Email Address
               </label>
@@ -113,7 +113,7 @@ export default function LoginForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="teacher@school.gov.in"
-                  className="w-full min-h-[44px] bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/30 dark:border-[#F5F1BC]/30 px-3 py-2 text-base sm:text-xs font-mono text-[#432623] dark:text-[#F5F1BC] focus:outline-none focus:border-[#432623] dark:focus:border-[#F5F1BC]"
+                  className="w-full min-h-[44px] bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/30 dark:border-[#F5F1BC]/30 px-3 py-2 text-base sm:text-sm font-mono text-[#432623] dark:text-[#F5F1BC] focus:outline-none focus:border-[#432623] dark:focus:border-[#F5F1BC]"
                 />
                 <User size={18} className="absolute right-3 top-3 text-[#432623]/40 dark:text-[#F5F1BC]/40 pointer-events-none" />
               </div>
@@ -123,14 +123,14 @@ export default function LoginForm() {
               <div className="flex items-center justify-between mb-1">
                 <label 
                   htmlFor="password" 
-                  className="block text-xs font-mono uppercase tracking-wider text-[#432623]/90 dark:text-[#F5F1BC]/90"
+                  className="block text-sm font-mono uppercase tracking-wider text-[#432623]/90 dark:text-[#F5F1BC]/90"
                 >
                   Password
                 </label>
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="min-h-[44px] px-2 text-[11px] text-[#432623]/70 dark:text-[#F5F1BC]/70 underline hover:text-[#432623] dark:hover:text-[#F5F1BC] flex items-center gap-1"
+                  className="min-h-[44px] px-2 text-sm text-[#432623]/70 dark:text-[#F5F1BC]/70 underline hover:text-[#432623] dark:hover:text-[#F5F1BC] flex items-center gap-1"
                   aria-label={showPassword ? 'Hide password text' : 'Show password text'}
                 >
                   {showPassword ? <EyeSlash size={16} /> : <Eye size={16} />}
@@ -146,7 +146,7 @@ export default function LoginForm() {
                   placeholder="••••••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full min-h-[44px] bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/30 dark:border-[#F5F1BC]/30 px-3 py-2 text-base sm:text-xs font-mono text-[#432623] dark:text-[#F5F1BC] focus:outline-none focus:border-[#432623] dark:focus:border-[#F5F1BC]"
+                  className="w-full min-h-[44px] bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/30 dark:border-[#F5F1BC]/30 px-3 py-2 text-base sm:text-sm font-mono text-[#432623] dark:text-[#F5F1BC] focus:outline-none focus:border-[#432623] dark:focus:border-[#F5F1BC]"
                 />
                 <Lock size={18} className="absolute right-3 top-3 text-[#432623]/40 dark:text-[#F5F1BC]/40 pointer-events-none" />
               </div>
@@ -156,7 +156,7 @@ export default function LoginForm() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full min-h-[44px] bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] py-2.5 px-4 text-xs font-mono uppercase tracking-wider font-bold border border-[#432623] dark:border-[#F5F1BC] disabled:opacity-50 flex items-center justify-center"
+                className="w-full min-h-[44px] bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] py-2.5 px-4 text-sm font-mono uppercase tracking-wider font-bold border border-[#432623] dark:border-[#F5F1BC] disabled:opacity-50 flex items-center justify-center"
               >
                 {isLoading ? 'Verifying Credentials...' : 'Authenticate & Enter Dashboard'}
               </button>
@@ -165,33 +165,33 @@ export default function LoginForm() {
 
           {/* Quick Demo Credentials for Evaluation */}
           <div className="mt-6 pt-4 border-t border-[#432623]/15 dark:border-[#F5F1BC]/15">
-            <p className="text-[11px] font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 mb-2">
+            <p className="text-sm font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 mb-2">
               Evaluation & Review Credentials
             </p>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={fillDemoTeacher}
-                className="text-left p-2 border border-[#432623]/20 dark:border-[#F5F1BC]/20 hover:bg-[#F5F1BC]/50 dark:hover:bg-[#381f1c] text-[11px]"
+                className="text-left p-2 border border-[#432623]/20 dark:border-[#F5F1BC]/20 hover:bg-[#F5F1BC]/50 dark:hover:bg-[#381f1c] text-sm"
               >
                 <div className="font-bold flex items-center gap-1">
                   <CheckCircle size={12} className="text-[#8ABB93]" />
                   <span>Class Teacher</span>
                 </div>
-                <div className="text-[#432623]/60 dark:text-[#F5F1BC]/60 font-mono text-[10px] mt-0.5">
+                <div className="text-[#432623]/60 dark:text-[#F5F1BC]/60 font-mono text-sm mt-0.5">
                   Class 5 Mathematics
                 </div>
               </button>
               <button
                 type="button"
                 onClick={fillDemoAdmin}
-                className="text-left p-2 border border-[#432623]/20 dark:border-[#F5F1BC]/20 hover:bg-[#F5F1BC]/50 dark:hover:bg-[#381f1c] text-[11px]"
+                className="text-left p-2 border border-[#432623]/20 dark:border-[#F5F1BC]/20 hover:bg-[#F5F1BC]/50 dark:hover:bg-[#381f1c] text-sm"
               >
                 <div className="font-bold flex items-center gap-1">
                   <CheckCircle size={12} className="text-[#DFA06E]" />
                   <span>Headmaster</span>
                 </div>
-                <div className="text-[#432623]/60 dark:text-[#F5F1BC]/60 font-mono text-[10px] mt-0.5">
+                <div className="text-[#432623]/60 dark:text-[#F5F1BC]/60 font-mono text-sm mt-0.5">
                   School Admin Access
                 </div>
               </button>
@@ -200,7 +200,7 @@ export default function LoginForm() {
         </div>
 
         {/* Back Link & Security Notice */}
-        <div className="flex items-center justify-between text-xs text-[#432623]/70 dark:text-[#F5F1BC]/70 px-1">
+        <div className="flex items-center justify-between text-sm text-[#432623]/70 dark:text-[#F5F1BC]/70 px-1">
           <Link href="/" className="hover:underline">
             &larr; Return to Public Landing Page
           </Link>
@@ -210,7 +210,7 @@ export default function LoginForm() {
         </div>
       </div>
 
-      <footer className="w-full text-center text-[11px] text-[#432623]/60 dark:text-[#F5F1BC]/60 py-4 border-t border-[#432623]/10 dark:border-[#F5F1BC]/10">
+      <footer className="w-full text-center text-sm text-[#432623]/60 dark:text-[#F5F1BC]/60 py-4 border-t border-[#432623]/10 dark:border-[#F5F1BC]/10">
         ShikshaGap Educational Intelligence System. All audit trails logged for security compliance.
       </footer>
     </div>

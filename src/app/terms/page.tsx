@@ -99,7 +99,7 @@ export default function TermsPage() {
           <p className="text-[#432623]/80 dark:text-[#F5F1BC]/80">
             ShikshaGap is provided on an &quot;as-is&quot; and &quot;as-available&quot; basis without warranty of any kind. To the fullest extent permitted under Indian law, ShikshaGap contributors shall not be liable for any indirect or consequential damages resulting from pedagogical use. These terms are governed by the laws of India, with exclusive jurisdiction in Hyderabad, Telangana.
           </p>
-          <p className="text-[11px] text-[#432623]/60 dark:text-[#F5F1BC]/60 pt-2">
+          <p className="text-xs text-[#432623]/60 dark:text-[#F5F1BC]/60 pt-2">
             The English version of these Terms of Service is the authoritative legal text.
           </p>
         </section>

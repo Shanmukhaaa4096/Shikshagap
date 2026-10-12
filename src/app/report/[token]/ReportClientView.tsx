@@ -82,7 +82,7 @@ export default function ReportClientView({ expiresAt }: Props) {
             <button
               key={l}
               onClick={() => setLang(l)}
-              className={`min-h-[44px] px-3 text-xs font-mono uppercase border ${
+              className={`min-h-[44px] px-3 text-sm font-mono uppercase border ${
                 lang === l
                   ? 'bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] font-bold border-[#432623] dark:border-[#F5F1BC]'
                   : 'border-[#432623]/25 hover:bg-[#F5F1BC]'
@@ -95,7 +95,7 @@ export default function ReportClientView({ expiresAt }: Props) {
 
         <button
           onClick={() => window.print()}
-          className="min-h-[44px] px-4 bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] text-xs font-mono uppercase font-bold inline-flex items-center gap-2 border border-[#432623] dark:border-[#F5F1BC]"
+          className="min-h-[44px] px-4 bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] text-sm font-mono uppercase font-bold inline-flex items-center gap-2 border border-[#432623] dark:border-[#F5F1BC]"
         >
           <Printer size={16} />
           <span>{content.printBtn}</span>
@@ -106,7 +106,7 @@ export default function ReportClientView({ expiresAt }: Props) {
       <article className="max-w-2xl mx-auto border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] print:bg-white print:border-black print:text-black p-6 sm:p-10 shadow-none">
         {/* Header */}
         <div className="border-b-2 border-[#432623] print:border-black pb-4 mb-6">
-          <div className="flex items-center justify-between text-[11px] font-mono uppercase mb-2">
+          <div className="flex items-center justify-between text-sm font-mono uppercase mb-2">
             <span className="font-bold tracking-wider">ShikshaGap Educational Support</span>
             <span className="border border-[#432623]/30 px-2 py-0.5 print:border-black">
               {content.privacyBadge}
@@ -115,29 +115,29 @@ export default function ReportClientView({ expiresAt }: Props) {
           <h1 className="font-serif text-2xl font-bold tracking-tight text-[#432623] print:text-black dark:text-[#F5F1BC]">
             {content.title}
           </h1>
-          <p className="text-xs text-[#432623]/75 dark:text-[#F5F1BC]/75 print:text-gray-700 mt-1">
+          <p className="text-sm text-[#432623]/75 dark:text-[#F5F1BC]/75 print:text-gray-700 mt-1">
             {content.subtitle}
           </p>
         </div>
 
         {/* Section 1: Strengths */}
         <div className="mb-6">
-          <div className="flex items-center gap-2 font-bold text-xs uppercase tracking-wider text-[#8ABB93] print:text-black font-mono mb-1.5">
+          <div className="flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-[#8ABB93] print:text-black font-mono mb-1.5">
             <CheckCircle size={16} />
             <span>{content.strengthTitle}</span>
           </div>
-          <p className="text-xs sm:text-sm text-[#432623]/90 dark:text-[#F5F1BC]/90 print:text-black leading-relaxed bg-[#F5F1BC]/30 print:bg-gray-50 p-3.5 border border-[#432623]/15 print:border-gray-300">
+          <p className="text-sm sm:text-sm text-[#432623]/90 dark:text-[#F5F1BC]/90 print:text-black leading-relaxed bg-[#F5F1BC]/30 print:bg-gray-50 p-3.5 border border-[#432623]/15 print:border-gray-300">
             {content.strengthText}
           </p>
         </div>
 
         {/* Section 2: Core Learning Gap */}
         <div className="mb-6">
-          <div className="flex items-center gap-2 font-bold text-xs uppercase tracking-wider text-[#DE2A35] print:text-black font-mono mb-1.5">
+          <div className="flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-[#DE2A35] print:text-black font-mono mb-1.5">
             <Warning size={16} />
             <span>{content.gapTitle}</span>
           </div>
-          <p className="text-xs sm:text-sm text-[#432623]/90 dark:text-[#F5F1BC]/90 print:text-black leading-relaxed bg-[#DE2A35]/10 print:bg-gray-50 p-3.5 border border-[#DE2A35]/30 print:border-gray-300 font-medium">
+          <p className="text-sm sm:text-sm text-[#432623]/90 dark:text-[#F5F1BC]/90 print:text-black leading-relaxed bg-[#DE2A35]/10 print:bg-gray-50 p-3.5 border border-[#DE2A35]/30 print:border-gray-300 font-medium">
             {content.gapText}
           </p>
         </div>
@@ -147,7 +147,7 @@ export default function ReportClientView({ expiresAt }: Props) {
           <h2 className="font-serif text-base font-bold mb-3 text-[#432623] dark:text-[#F5F1BC] print:text-black">
             {content.homePracticeTitle}
           </h2>
-          <div className="space-y-2.5 text-xs sm:text-sm text-[#432623]/85 dark:text-[#F5F1BC]/85 print:text-black">
+          <div className="space-y-2.5 text-sm sm:text-sm text-[#432623]/85 dark:text-[#F5F1BC]/85 print:text-black">
             <div className="p-3 border border-[#432623]/15 print:border-gray-300 bg-[#FAF8E8] dark:bg-[#432623] print:bg-white">
               {content.p1}
             </div>
@@ -162,17 +162,17 @@ export default function ReportClientView({ expiresAt }: Props) {
 
         {/* Section 4: Teacher Note */}
         <div className="border-t border-[#432623]/20 dark:border-[#F5F1BC]/20 print:border-black pt-4 mb-6">
-          <div className="flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider font-mono mb-1">
+          <div className="flex items-center gap-1.5 font-bold text-sm uppercase tracking-wider font-mono mb-1">
             <Heart size={14} className="text-[#DE2A35]" />
             <span>{content.teacherNoteTitle}</span>
           </div>
-          <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 print:text-black leading-relaxed italic">
+          <p className="text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 print:text-black leading-relaxed italic">
             &quot;{content.teacherNote}&quot;
           </p>
         </div>
 
         {/* Footer */}
-        <div className="border-t border-dashed border-[#432623]/20 dark:border-[#F5F1BC]/20 print:border-black pt-3 flex flex-col sm:flex-row justify-between text-[11px] font-mono text-[#432623]/60 dark:text-[#F5F1BC]/60 print:text-gray-600 gap-1">
+        <div className="border-t border-dashed border-[#432623]/20 dark:border-[#F5F1BC]/20 print:border-black pt-3 flex flex-col sm:flex-row justify-between text-sm font-mono text-[#432623]/60 dark:text-[#F5F1BC]/60 print:text-gray-600 gap-1">
           <span>Teacher Verified | Decision Support Only</span>
           <span>{content.expiryNotice}</span>
         </div>

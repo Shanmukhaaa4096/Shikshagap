@@ -182,7 +182,7 @@ export function TeacherDashboard({
         <button
           type="button"
           onClick={() => setActiveTab("home")}
-          className={`min-h-[44px] px-4 py-2 font-mono text-xs uppercase font-bold border-b-2 transition-none flex items-center gap-2 ${
+          className={`min-h-[44px] px-4 py-2 font-mono text-sm uppercase font-bold border-b-2 transition-none flex items-center gap-2 ${
             activeTab === "home"
               ? "border-[#DE2A35] text-[#DE2A35] bg-[#FAF8E8] dark:bg-[#381f1c]"
               : "border-transparent text-[#432623]/70 dark:text-[#F5F1BC]/70 hover:text-[#432623]"
@@ -195,7 +195,7 @@ export function TeacherDashboard({
         <button
           type="button"
           onClick={() => setActiveTab("students")}
-          className={`min-h-[44px] px-4 py-2 font-mono text-xs uppercase font-bold border-b-2 transition-none flex items-center gap-2 ${
+          className={`min-h-[44px] px-4 py-2 font-mono text-sm uppercase font-bold border-b-2 transition-none flex items-center gap-2 ${
             activeTab === "students"
               ? "border-[#DE2A35] text-[#DE2A35] bg-[#FAF8E8] dark:bg-[#381f1c]"
               : "border-transparent text-[#432623]/70 dark:text-[#F5F1BC]/70 hover:text-[#432623]"
@@ -208,7 +208,7 @@ export function TeacherDashboard({
         <button
           type="button"
           onClick={() => setActiveTab("gaps")}
-          className={`min-h-[44px] px-4 py-2 font-mono text-xs uppercase font-bold border-b-2 transition-none flex items-center gap-2 ${
+          className={`min-h-[44px] px-4 py-2 font-mono text-sm uppercase font-bold border-b-2 transition-none flex items-center gap-2 ${
             activeTab === "gaps"
               ? "border-[#DE2A35] text-[#DE2A35] bg-[#FAF8E8] dark:bg-[#381f1c]"
               : "border-transparent text-[#432623]/70 dark:text-[#F5F1BC]/70 hover:text-[#432623]"
@@ -221,7 +221,7 @@ export function TeacherDashboard({
         <button
           type="button"
           onClick={() => setActiveTab("reports")}
-          className={`min-h-[44px] px-4 py-2 font-mono text-xs uppercase font-bold border-b-2 transition-none flex items-center gap-2 ${
+          className={`min-h-[44px] px-4 py-2 font-mono text-sm uppercase font-bold border-b-2 transition-none flex items-center gap-2 ${
             activeTab === "reports"
               ? "border-[#DE2A35] text-[#DE2A35] bg-[#FAF8E8] dark:bg-[#381f1c]"
               : "border-transparent text-[#432623]/70 dark:text-[#F5F1BC]/70 hover:text-[#432623]"
@@ -240,7 +240,7 @@ export function TeacherDashboard({
           {/* Main Question & Classroom Heading */}
           <div className="border border-[#432623]/20 dark:border-[#F5F1BC]/20 p-5 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <span className="text-[11px] font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 font-bold block mb-1">
+              <span className="text-sm font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 font-bold block mb-1">
                 {classConfig.label} - Section {classConfig.section} Mathematics Overview • (Demo data)
               </span>
               <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#432623] dark:text-[#F5F1BC]">
@@ -249,7 +249,7 @@ export function TeacherDashboard({
             </div>
             {onSelectClass && (
               <div className="flex flex-col sm:items-end gap-1">
-                <span className="text-[10px] font-mono font-bold uppercase text-[#432623]/60 dark:text-[#F5F1BC]/60">
+                <span className="text-sm font-mono font-bold uppercase text-[#432623]/60 dark:text-[#F5F1BC]/60">
                   Select Grade
                 </span>
                 <ClassSelector
@@ -263,7 +263,7 @@ export function TeacherDashboard({
 
           {/* 1. THREE NUMBERS ONLY: On Track, Need Practice, Critical */}
           <div>
-            <div className="text-[11px] font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 font-bold mb-2">
+            <div className="text-sm font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 font-bold mb-2">
               Class Progress (Tap any number to filter students):
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -274,7 +274,7 @@ export function TeacherDashboard({
                 className="p-4 border border-[#8ABB93] bg-[#8ABB93]/15 rounded-[2px] text-left hover:bg-[#8ABB93]/25 transition-none flex flex-col justify-between min-h-[96px]"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs uppercase font-bold text-[#432623] dark:text-[#F5F1BC]">
+                  <span className="font-mono text-sm uppercase font-bold text-[#432623] dark:text-[#F5F1BC]">
                     {dict.onTrack || "On Track"}
                   </span>
                   <span className="w-3 h-3 rounded-[2px] bg-[#8ABB93]" />
@@ -283,7 +283,7 @@ export function TeacherDashboard({
                   <span className="font-serif text-4xl font-black text-[#432623] dark:text-[#F5F1BC]">
                     {onTrackCount}
                   </span>
-                  <span className="font-mono text-xs text-[#432623]/75 dark:text-[#F5F1BC]/75 font-bold">
+                  <span className="font-mono text-sm text-[#432623]/75 dark:text-[#F5F1BC]/75 font-bold">
                     {Math.round((onTrackCount / (total || 1)) * 100)}%
                   </span>
                 </div>
@@ -296,7 +296,7 @@ export function TeacherDashboard({
                 className="p-4 border border-[#DFA06E] bg-[#DFA06E]/15 rounded-[2px] text-left hover:bg-[#DFA06E]/25 transition-none flex flex-col justify-between min-h-[96px]"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs uppercase font-bold text-[#432623] dark:text-[#F5F1BC]">
+                  <span className="font-mono text-sm uppercase font-bold text-[#432623] dark:text-[#F5F1BC]">
                     {dict.needPractice || "Need Practice"}
                   </span>
                   <span className="w-3 h-3 rounded-[2px] bg-[#DFA06E]" />
@@ -305,7 +305,7 @@ export function TeacherDashboard({
                   <span className="font-serif text-4xl font-black text-[#432623] dark:text-[#F5F1BC]">
                     {needPracticeCount}
                   </span>
-                  <span className="font-mono text-xs text-[#432623]/75 dark:text-[#F5F1BC]/75 font-bold">
+                  <span className="font-mono text-sm text-[#432623]/75 dark:text-[#F5F1BC]/75 font-bold">
                     {Math.round((needPracticeCount / (total || 1)) * 100)}%
                   </span>
                 </div>
@@ -318,7 +318,7 @@ export function TeacherDashboard({
                 className="p-4 border border-[#DE2A35] bg-[#DE2A35]/15 rounded-[2px] text-left hover:bg-[#DE2A35]/25 transition-none flex flex-col justify-between min-h-[96px]"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs uppercase font-bold text-[#DE2A35]">
+                  <span className="font-mono text-sm uppercase font-bold text-[#DE2A35]">
                     {dict.criticalGaps || "Critical"}
                   </span>
                   <span className="w-3 h-3 rounded-[2px] bg-[#DE2A35]" />
@@ -327,7 +327,7 @@ export function TeacherDashboard({
                   <span className="font-serif text-4xl font-black text-[#DE2A35]">
                     {criticalCount}
                   </span>
-                  <span className="font-mono text-xs text-[#DE2A35] font-bold">
+                  <span className="font-mono text-sm text-[#DE2A35] font-bold">
                     {Math.round((criticalCount / (total || 1)) * 100)}%
                   </span>
                 </div>
@@ -342,11 +342,11 @@ export function TeacherDashboard({
                 <h2 className="font-serif text-lg sm:text-xl font-bold text-[#432623] dark:text-[#F5F1BC]">
                   {dict.whoNeedsHelpToday || "Who needs help today"}
                 </h2>
-                <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 mt-0.5">
+                <p className="text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 mt-0.5">
                   Top 5 learners needing teacher support in class today.
                 </p>
               </div>
-              <span className="text-xs font-mono font-bold text-[#DE2A35] bg-[#DE2A35]/10 px-2.5 py-1 rounded-[2px] border border-[#DE2A35]/30">
+              <span className="text-sm font-mono font-bold text-[#DE2A35] bg-[#DE2A35]/10 px-2.5 py-1 rounded-[2px] border border-[#DE2A35]/30">
                 {urgentStudents.length} Students
               </span>
             </div>
@@ -372,11 +372,11 @@ export function TeacherDashboard({
                         >
                           {s.student.name}
                         </button>
-                        <span className="text-[11px] font-mono text-[#432623]/60 dark:text-[#F5F1BC]/60">
+                        <span className="text-sm font-mono text-[#432623]/60 dark:text-[#F5F1BC]/60">
                           (Roll #{s.student.rollNo})
                         </span>
                         <span
-                          className={`text-[10px] font-mono font-bold uppercase px-1.5 py-0.2 rounded-[2px] border ${
+                          className={`text-sm font-mono font-bold uppercase px-1.5 py-0.2 rounded-[2px] border ${
                             isCritical
                               ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]"
                               : "bg-[#DFA06E]/20 text-[#432623] border-[#DFA06E]"
@@ -385,7 +385,7 @@ export function TeacherDashboard({
                           {isCritical ? "Critical" : "Need Practice"}
                         </span>
                       </div>
-                      <p className="text-xs text-[#432623]/85 dark:text-[#F5F1BC]/85">
+                      <p className="text-sm text-[#432623]/85 dark:text-[#F5F1BC]/85">
                         <strong className="text-[#DE2A35]">{problemDesc}</strong>
                       </p>
                     </div>
@@ -395,14 +395,14 @@ export function TeacherDashboard({
                       <button
                         type="button"
                         onClick={() => onSelectStudent(s)}
-                        className="min-h-[44px] px-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-xs font-mono uppercase text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC]/50"
+                        className="min-h-[44px] px-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-sm font-mono uppercase text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC]/50"
                       >
                         Details
                       </button>
                       <button
                         type="button"
                         onClick={() => onOpenAssessment(s.student.id, root?.rootId || "number_ops")}
-                        className="min-h-[44px] px-4 bg-[#DE2A35] text-[#F5F1BC] text-xs font-mono uppercase font-bold border border-[#DE2A35] hover:bg-[#DE2A35]/90 flex items-center gap-1.5"
+                        className="min-h-[44px] px-4 bg-[#DE2A35] text-[#F5F1BC] text-sm font-mono uppercase font-bold border border-[#DE2A35] hover:bg-[#DE2A35]/90 flex items-center gap-1.5"
                       >
                         <span>Practice</span>
                         <ArrowRight size={14} />
@@ -421,7 +421,7 @@ export function TeacherDashboard({
                   setFilterStatus("all");
                   setActiveTab("students");
                 }}
-                className="min-h-[44px] px-4 py-2 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-xs font-mono uppercase font-bold text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC] dark:hover:bg-[#432623] inline-flex items-center gap-1.5"
+                className="min-h-[44px] px-4 py-2 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-sm font-mono uppercase font-bold text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC] dark:hover:bg-[#432623] inline-flex items-center gap-1.5"
               >
                 <span>{dict.seeAllStudents || "See all students"} ({total})</span>
                 <ArrowRight size={14} />
@@ -441,7 +441,7 @@ export function TeacherDashboard({
               <h2 className="font-serif text-xl font-bold text-[#432623] dark:text-[#F5F1BC]">
                 {classConfig.label} - Section {classConfig.section} Student Cohort ({filteredStudents.length} of {total}) • Demo data
               </h2>
-              <p className="text-xs text-[#432623]/70 dark:text-[#F5F1BC]/70">
+              <p className="text-sm text-[#432623]/70 dark:text-[#F5F1BC]/70">
                 Tap any student to view their diagnosis and 5-day action plan.
               </p>
             </div>
@@ -455,14 +455,14 @@ export function TeacherDashboard({
                   placeholder="Search student or roll no..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 min-h-[44px] text-base sm:text-xs font-mono bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px]"
+                  className="pl-9 min-h-[44px] text-base sm:text-sm font-mono bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px]"
                 />
               </div>
 
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="min-h-[44px] px-3 text-base sm:text-xs font-mono bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] text-[#432623] dark:text-[#F5F1BC]"
+                className="min-h-[44px] px-3 text-base sm:text-sm font-mono bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] text-[#432623] dark:text-[#F5F1BC]"
               >
                 <option value="all">All Students ({total})</option>
                 <option value="critical">Critical Support ({criticalCount})</option>
@@ -505,13 +505,13 @@ export function TeacherDashboard({
                           <span className="font-serif font-bold text-base text-[#432623] dark:text-[#F5F1BC]">
                             {s.student.name}
                           </span>
-                          <span className="text-xs font-mono text-[#432623]/60 dark:text-[#F5F1BC]/60 ml-1.5">
+                          <span className="text-sm font-mono text-[#432623]/60 dark:text-[#F5F1BC]/60 ml-1.5">
                             #{s.student.rollNo}
                           </span>
                         </div>
 
                         <span
-                          className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-[2px] border ${
+                          className={`text-sm font-mono font-bold uppercase px-2 py-0.5 rounded-[2px] border ${
                             isCritical
                               ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]"
                               : isNeedPractice
@@ -523,7 +523,7 @@ export function TeacherDashboard({
                         </span>
                       </div>
 
-                      <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80">
+                      <p className="text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80">
                         {root ? (
                           <span>Needs practice with: <strong className="text-[#DE2A35]">{t(`c_${root.rootId}`)}</strong></span>
                         ) : (
@@ -531,7 +531,7 @@ export function TeacherDashboard({
                         )}
                       </p>
 
-                      <div className="flex items-center justify-between pt-1 border-t border-[#432623]/10 dark:border-[#F5F1BC]/10 text-xs font-mono">
+                      <div className="flex items-center justify-between pt-1 border-t border-[#432623]/10 dark:border-[#F5F1BC]/10 text-sm font-mono">
                         <span className="text-[#432623]/70 dark:text-[#F5F1BC]/70">
                           Understanding: {Math.round((s.profile.overallMastery ?? 0) * 100)}%
                         </span>
@@ -545,8 +545,8 @@ export function TeacherDashboard({
               {/* Desktop Table View (>= 640px) */}
               <div className="hidden sm:block border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] overflow-hidden">
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs sm:text-sm">
-                    <thead className="bg-[#F5F1BC]/50 dark:bg-[#432623]/60 text-[#432623] dark:text-[#F5F1BC] font-bold text-xs border-b border-[#432623]/20 dark:border-[#F5F1BC]/20">
+                  <table className="w-full text-left text-sm sm:text-sm">
+                    <thead className="bg-[#F5F1BC]/50 dark:bg-[#432623]/60 text-[#432623] dark:text-[#F5F1BC] font-bold text-sm border-b border-[#432623]/20 dark:border-[#F5F1BC]/20">
                       <tr>
                         <th className="py-3 px-4">Student</th>
                         <th className="py-3 px-4">Status</th>
@@ -565,13 +565,13 @@ export function TeacherDashboard({
                           <tr key={s.student.id} className="hover:bg-[#F5F1BC]/30 dark:hover:bg-[#432623]/40">
                             <td className="py-3 px-4 font-semibold text-[#432623] dark:text-[#F5F1BC]">
                               <div className="font-bold">{s.student.name}</div>
-                              <div className="text-[11px] text-[#432623]/60 dark:text-[#F5F1BC]/60 font-mono">
+                              <div className="text-sm text-[#432623]/60 dark:text-[#F5F1BC]/60 font-mono">
                                 Roll #{s.student.rollNo}
                               </div>
                             </td>
                             <td className="py-3 px-4">
                               <span
-                                className={`inline-block px-2 py-0.5 rounded-[2px] text-[10px] font-mono font-bold uppercase border ${
+                                className={`inline-block px-2 py-0.5 rounded-[2px] text-sm font-mono font-bold uppercase border ${
                                   isCritical
                                     ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]"
                                     : isNeedPractice
@@ -582,14 +582,14 @@ export function TeacherDashboard({
                                 {isCritical ? "Need Immediate Help" : isNeedPractice ? "Need Practice" : "On Track"}
                               </span>
                             </td>
-                            <td className="py-3 px-4 text-xs">
+                            <td className="py-3 px-4 text-sm">
                               {root ? (
                                 <span className="font-bold text-[#DE2A35]">{t(`c_${root.rootId}`)}</span>
                               ) : (
                                 <span className="text-[#8ABB93] font-semibold">Understands foundational concepts</span>
                               )}
                             </td>
-                            <td className="py-3 px-4 font-mono font-bold text-xs">
+                            <td className="py-3 px-4 font-mono font-bold text-sm">
                               {Math.round((s.profile.overallMastery ?? 0) * 100)}%
                             </td>
                             <td className="py-3 px-4 text-right">
@@ -597,14 +597,14 @@ export function TeacherDashboard({
                                 <button
                                   type="button"
                                   onClick={() => onSelectStudent(s)}
-                                  className="min-h-[36px] px-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-xs font-mono uppercase font-bold hover:bg-[#F5F1BC]"
+                                  className="min-h-[36px] px-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-sm font-mono uppercase font-bold hover:bg-[#F5F1BC]"
                                 >
                                   Report
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => onPrintWorksheet(s)}
-                                  className="min-h-[36px] px-2.5 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-xs font-mono uppercase font-bold hover:bg-[#F5F1BC] inline-flex items-center gap-1"
+                                  className="min-h-[36px] px-2.5 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-sm font-mono uppercase font-bold hover:bg-[#F5F1BC] inline-flex items-center gap-1"
                                   title="Print 1-page paper worksheet"
                                 >
                                   <Printer size={13} />
@@ -614,7 +614,7 @@ export function TeacherDashboard({
                                   <button
                                     type="button"
                                     onClick={() => onOpenAssessment(s.student.id, root.rootId)}
-                                    className="min-h-[36px] px-3 bg-[#DE2A35] text-[#FAF8E8] text-xs font-mono uppercase font-bold border border-[#DE2A35] hover:bg-[#B51E28] cursor-pointer"
+                                    className="min-h-[36px] px-3 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold border border-[#DE2A35] hover:bg-[#B51E28] cursor-pointer"
                                   >
                                     Practice
                                   </button>
@@ -643,13 +643,13 @@ export function TeacherDashboard({
               <h2 className="font-serif text-xl font-bold text-[#432623] dark:text-[#F5F1BC]">
                 Classroom Learning Gaps & Prerequisite Map
               </h2>
-              <p className="text-xs text-[#432623]/70 dark:text-[#F5F1BC]/70">
+              <p className="text-sm text-[#432623]/70 dark:text-[#F5F1BC]/70">
                 Explore root-cause bottlenecks and curriculum prerequisite dependencies.
               </p>
             </div>
 
             {/* Sub-view toggles */}
-            <div className="flex items-center bg-[#FAF8E8] dark:bg-[#432623] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-0.5 text-xs font-mono">
+            <div className="flex items-center bg-[#FAF8E8] dark:bg-[#432623] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-0.5 text-sm font-mono">
               <button
                 type="button"
                 onClick={() => setGapsSubView("common")}
@@ -695,11 +695,11 @@ export function TeacherDashboard({
                   className="p-5 border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] space-y-3"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold text-[#432623]/70 dark:text-[#F5F1BC]/70">
+                    <span className="font-mono text-sm font-bold text-[#432623]/70 dark:text-[#F5F1BC]/70">
                       GAP 0{index + 1}
                     </span>
                     <span
-                      className={`text-xs font-mono font-bold px-2 py-0.5 rounded-[2px] border ${
+                      className={`text-sm font-mono font-bold px-2 py-0.5 rounded-[2px] border ${
                         gap.severity === "high"
                           ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]/30"
                           : "bg-[#DFA06E]/20 text-[#432623] border-[#DFA06E]/40"
@@ -713,7 +713,7 @@ export function TeacherDashboard({
                     <h3 className="font-serif font-bold text-lg text-[#432623] dark:text-[#F5F1BC]">
                       {t(`c_${gap.conceptId}`)}
                     </h3>
-                    <div className="text-xs text-[#432623]/70 dark:text-[#F5F1BC]/70 mt-0.5">
+                    <div className="text-sm text-[#432623]/70 dark:text-[#F5F1BC]/70 mt-0.5">
                       Strand: {CONCEPTS[gap.conceptId]?.strand?.toUpperCase()} (Grade {CONCEPTS[gap.conceptId]?.grade})
                     </div>
                   </div>
@@ -728,7 +728,7 @@ export function TeacherDashboard({
                     />
                   </div>
 
-                  <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
+                  <p className="text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
                     Affects {gap.count} learners in {classConfig.label} - Section {classConfig.section}. Practice this skill before moving to higher topics.
                   </p>
                 </div>
@@ -743,14 +743,14 @@ export function TeacherDashboard({
                 <h3 className="font-serif text-lg font-bold text-[#432623] dark:text-[#F5F1BC]">
                   Prerequisite Lineage Traversal
                 </h3>
-                <p className="text-xs text-[#432623]/75 dark:text-[#F5F1BC]/75">
+                <p className="text-sm text-[#432623]/75 dark:text-[#F5F1BC]/75">
                   Earlier concepts lead into upper grade mathematics. Tap any box to see prerequisites and dependents.
                 </p>
               </div>
 
               {/* Stage 1 */}
               <div className="space-y-2">
-                <span className="text-[10px] font-mono uppercase font-bold text-[#432623]/70">STAGE 1: FOUNDATION</span>
+                <span className="text-sm font-mono uppercase font-bold text-[#432623]/70">STAGE 1: FOUNDATION</span>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {(["number_sense", "place_value", "addition"] as ConceptId[]).map((cId) => {
                     const st = conceptStats[cId];
@@ -765,7 +765,7 @@ export function TeacherDashboard({
                             : "border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#432623]/30 hover:border-[#432623]"
                         }`}
                       >
-                        <div className="flex items-center justify-between text-xs font-bold text-[#432623] dark:text-[#F5F1BC]">
+                        <div className="flex items-center justify-between text-sm font-bold text-[#432623] dark:text-[#F5F1BC]">
                           <span>{t(`c_${cId}`)}</span>
                           <span>{st.avg}%</span>
                         </div>
@@ -779,7 +779,7 @@ export function TeacherDashboard({
 
               {/* Stage 2 */}
               <div className="space-y-2">
-                <span className="text-[10px] font-mono uppercase font-bold text-[#432623]/70">STAGE 2: OPERATIONS</span>
+                <span className="text-sm font-mono uppercase font-bold text-[#432623]/70">STAGE 2: OPERATIONS</span>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {(["subtraction", "mult_concept", "mult_facts"] as ConceptId[]).map((cId) => {
                     const st = conceptStats[cId];
@@ -794,7 +794,7 @@ export function TeacherDashboard({
                             : "border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#432623]/30 hover:border-[#432623]"
                         }`}
                       >
-                        <div className="flex items-center justify-between text-xs font-bold text-[#432623] dark:text-[#F5F1BC]">
+                        <div className="flex items-center justify-between text-sm font-bold text-[#432623] dark:text-[#F5F1BC]">
                           <span>{t(`c_${cId}`)}</span>
                           <span>{st.avg}%</span>
                         </div>
@@ -808,7 +808,7 @@ export function TeacherDashboard({
 
               {/* Stage 3 */}
               <div className="space-y-2">
-                <span className="text-[10px] font-mono uppercase font-bold text-[#432623]/70">STAGE 3: DIVISION & FRACTIONS</span>
+                <span className="text-sm font-mono uppercase font-bold text-[#432623]/70">STAGE 3: DIVISION & FRACTIONS</span>
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                   {(["multi_digit_mult", "division_concept", "division_facts", "fraction_basics"] as ConceptId[]).map((cId) => {
                     const st = conceptStats[cId];
@@ -823,7 +823,7 @@ export function TeacherDashboard({
                             : "border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#432623]/30 hover:border-[#432623]"
                         }`}
                       >
-                        <div className="flex items-center justify-between text-xs font-bold text-[#432623] dark:text-[#F5F1BC]">
+                        <div className="flex items-center justify-between text-sm font-bold text-[#432623] dark:text-[#F5F1BC]">
                           <span className="truncate">{t(`c_${cId}`)}</span>
                           <span>{st.avg}%</span>
                         </div>
@@ -835,7 +835,7 @@ export function TeacherDashboard({
 
               {/* Selected Concept Info */}
               {selectedConceptForMap && (
-                <div className="p-4 border border-[#432623]/25 bg-[#F5F1BC]/40 dark:bg-[#432623]/50 rounded-[2px] text-xs space-y-1">
+                <div className="p-4 border border-[#432623]/25 bg-[#F5F1BC]/40 dark:bg-[#432623]/50 rounded-[2px] text-sm space-y-1">
                   <div className="font-bold text-[#432623] dark:text-[#F5F1BC]">
                     Selected: {t(`c_${selectedConceptForMap}`)}
                   </div>
@@ -857,7 +857,7 @@ export function TeacherDashboard({
                 <span className="font-serif font-bold text-base text-[#432623] dark:text-[#F5F1BC]">
                   Student × Concept Matrix
                 </span>
-                <div className="flex items-center gap-3 text-xs font-mono">
+                <div className="flex items-center gap-3 text-sm font-mono">
                   <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-[#8ABB93]" /> &ge;75%</span>
                   <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-[#DFA06E]" /> 50-74%</span>
                   <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-[#DE2A35]" /> &lt;50%</span>
@@ -865,12 +865,12 @@ export function TeacherDashboard({
               </div>
 
               <div className="overflow-x-auto max-h-[500px]">
-                <table className="w-full text-left text-xs">
+                <table className="w-full text-left text-sm">
                   <thead className="bg-[#FAF8E8] dark:bg-[#381f1c] sticky top-0 border-b border-[#432623]/20">
                     <tr>
                       <th className="py-2.5 px-3 font-bold w-40">Student</th>
                       {CONCEPT_IDS.map((cId) => (
-                        <th key={cId} className="py-2.5 px-2 text-center text-[10px] whitespace-nowrap">
+                        <th key={cId} className="py-2.5 px-2 text-center text-sm whitespace-nowrap">
                           {t(`c_${cId}`).split(" ")[0]}
                         </th>
                       ))}
@@ -887,7 +887,7 @@ export function TeacherDashboard({
                           const m = est?.mastery ?? 0;
                           const bg = m >= 0.75 ? "bg-[#8ABB93]" : m >= 0.5 ? "bg-[#DFA06E]" : "bg-[#DE2A35] text-white";
                           return (
-                            <td key={cId} className="py-2 px-1 text-center font-mono text-[10px]">
+                            <td key={cId} className="py-2 px-1 text-center font-mono text-sm">
                               <span className={`inline-block px-1 py-0.5 rounded-[2px] ${bg}`}>
                                 {Math.round(m * 100)}%
                               </span>
@@ -913,7 +913,7 @@ export function TeacherDashboard({
             <h2 className="font-serif text-xl font-bold text-[#432623] dark:text-[#F5F1BC]">
               Classroom Reports & Institutional Exports
             </h2>
-            <p className="text-xs text-[#432623]/70 dark:text-[#F5F1BC]/70">
+            <p className="text-sm text-[#432623]/70 dark:text-[#F5F1BC]/70">
               Download student records, guardian notices, and inspect security audit trails.
             </p>
           </div>
@@ -924,11 +924,11 @@ export function TeacherDashboard({
               <h3 className="font-serif font-bold text-base text-[#432623] dark:text-[#F5F1BC]">
                 Data Export (CSV & JSON)
               </h3>
-              <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
+              <p className="text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
                 Download {classConfig.label} - Section {classConfig.section} student records with formula injection protection and UTF-8 encoding for Excel.
               </p>
               {exportError && (
-                <div className="p-2 border border-[#DE2A35] bg-[#DE2A35]/10 text-xs text-[#DE2A35]">
+                <div className="p-2 border border-[#DE2A35] bg-[#DE2A35]/10 text-sm text-[#DE2A35]">
                   {exportError}
                 </div>
               )}
@@ -937,7 +937,7 @@ export function TeacherDashboard({
                   type="button"
                   onClick={() => handleExport("csv")}
                   disabled={isExporting}
-                  className="min-h-[44px] px-4 bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] text-xs font-mono uppercase font-bold hover:bg-[#DE2A35]"
+                  className="min-h-[44px] px-4 bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] text-sm font-mono uppercase font-bold hover:bg-[#DE2A35]"
                 >
                   {isExporting ? "Exporting..." : "Export CSV"}
                 </button>
@@ -945,7 +945,7 @@ export function TeacherDashboard({
                   type="button"
                   onClick={() => handleExport("json")}
                   disabled={isExporting}
-                  className="min-h-[44px] px-4 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-xs font-mono uppercase hover:bg-[#F5F1BC]/40"
+                  className="min-h-[44px] px-4 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-sm font-mono uppercase hover:bg-[#F5F1BC]/40"
                 >
                   Export JSON
                 </button>
@@ -957,13 +957,13 @@ export function TeacherDashboard({
               <h3 className="font-serif font-bold text-base text-[#432623] dark:text-[#F5F1BC]">
                 Guardian DPDP Notices
               </h3>
-              <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
+              <p className="text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
                 Print statutory 1-page parent notices in English, Hindi, and Telugu under DPDP Act 2023.
               </p>
               <div className="pt-1">
                 <Link
                   href="/notices/guardian"
-                  className="min-h-[44px] px-4 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-xs font-mono uppercase font-bold inline-flex items-center gap-1.5 hover:bg-[#F5F1BC]"
+                  className="min-h-[44px] px-4 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-sm font-mono uppercase font-bold inline-flex items-center gap-1.5 hover:bg-[#F5F1BC]"
                 >
                   <FileText size={16} />
                   <span>Open Printable Notices</span>
@@ -976,13 +976,13 @@ export function TeacherDashboard({
               <h3 className="font-serif font-bold text-base text-[#432623] dark:text-[#F5F1BC]">
                 Security Audit Trail
               </h3>
-              <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
+              <p className="text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
                 Review immutable access logs, export events, share links, and teacher override determinations.
               </p>
               <div className="pt-1">
                 <Link
                   href="/app/audit-log"
-                  className="min-h-[44px] px-4 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-xs font-mono uppercase font-bold inline-flex items-center gap-1.5 hover:bg-[#F5F1BC]"
+                  className="min-h-[44px] px-4 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-sm font-mono uppercase font-bold inline-flex items-center gap-1.5 hover:bg-[#F5F1BC]"
                 >
                   <span>View Audit Log</span>
                 </Link>
@@ -993,11 +993,11 @@ export function TeacherDashboard({
           {/* Re-auth Password Modal */}
           {showReauthModal && (
             <div className="p-4 border border-[#DE2A35] bg-[#DE2A35]/10 rounded-[2px] space-y-3">
-              <div className="text-xs font-bold text-[#DE2A35] flex items-center gap-1.5">
+              <div className="text-sm font-bold text-[#DE2A35] flex items-center gap-1.5">
                 <Warning size={16} />
                 <span>Re-authentication Required Prior to Exporting Child Records</span>
               </div>
-              <p className="text-xs text-[#432623] dark:text-[#F5F1BC] leading-relaxed">
+              <p className="text-sm text-[#432623] dark:text-[#F5F1BC] leading-relaxed">
                 To protect student data, verify your teacher credentials:
               </p>
               <div className="flex flex-col sm:flex-row gap-2 max-w-md">
@@ -1006,19 +1006,19 @@ export function TeacherDashboard({
                   placeholder="Enter password to confirm"
                   value={exportPassword}
                   onChange={(e) => setExportPassword(e.target.value)}
-                  className="flex-1 min-h-[44px] px-3 border border-[#432623]/30 bg-[#FAF8E8] text-base sm:text-xs font-mono"
+                  className="flex-1 min-h-[44px] px-3 border border-[#432623]/30 bg-[#FAF8E8] text-base sm:text-sm font-mono"
                 />
                 <button
                   type="button"
                   onClick={() => handleExport("csv")}
-                  className="min-h-[44px] px-4 bg-[#DE2A35] text-[#F5F1BC] text-xs font-mono uppercase font-bold"
+                  className="min-h-[44px] px-4 bg-[#DE2A35] text-[#F5F1BC] text-sm font-mono uppercase font-bold"
                 >
                   Download
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowReauthModal(false)}
-                  className="min-h-[44px] px-3 border border-[#432623]/30 text-xs font-mono uppercase"
+                  className="min-h-[44px] px-3 border border-[#432623]/30 text-sm font-mono uppercase"
                 >
                   Cancel
                 </button>
@@ -1035,7 +1035,7 @@ export function TeacherDashboard({
         <button
           type="button"
           onClick={() => setActiveTab("home")}
-          className={`flex-1 min-h-[48px] flex flex-col items-center justify-center gap-1 text-[11px] font-mono font-bold uppercase ${
+          className={`flex-1 min-h-[48px] flex flex-col items-center justify-center gap-1 text-sm font-mono font-bold uppercase ${
             activeTab === "home" ? "text-[#DE2A35]" : "text-[#432623]/60 dark:text-[#F5F1BC]/60"
           }`}
         >
@@ -1046,7 +1046,7 @@ export function TeacherDashboard({
         <button
           type="button"
           onClick={() => setActiveTab("students")}
-          className={`flex-1 min-h-[48px] flex flex-col items-center justify-center gap-1 text-[11px] font-mono font-bold uppercase ${
+          className={`flex-1 min-h-[48px] flex flex-col items-center justify-center gap-1 text-sm font-mono font-bold uppercase ${
             activeTab === "students" ? "text-[#DE2A35]" : "text-[#432623]/60 dark:text-[#F5F1BC]/60"
           }`}
         >
@@ -1057,7 +1057,7 @@ export function TeacherDashboard({
         <button
           type="button"
           onClick={() => setActiveTab("gaps")}
-          className={`flex-1 min-h-[48px] flex flex-col items-center justify-center gap-1 text-[11px] font-mono font-bold uppercase ${
+          className={`flex-1 min-h-[48px] flex flex-col items-center justify-center gap-1 text-sm font-mono font-bold uppercase ${
             activeTab === "gaps" ? "text-[#DE2A35]" : "text-[#432623]/60 dark:text-[#F5F1BC]/60"
           }`}
         >
@@ -1068,7 +1068,7 @@ export function TeacherDashboard({
         <button
           type="button"
           onClick={() => setActiveTab("reports")}
-          className={`flex-1 min-h-[48px] flex flex-col items-center justify-center gap-1 text-[11px] font-mono font-bold uppercase ${
+          className={`flex-1 min-h-[48px] flex flex-col items-center justify-center gap-1 text-sm font-mono font-bold uppercase ${
             activeTab === "reports" ? "text-[#DE2A35]" : "text-[#432623]/60 dark:text-[#F5F1BC]/60"
           }`}
         >

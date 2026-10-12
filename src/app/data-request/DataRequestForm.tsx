@@ -58,25 +58,25 @@ export default function DataRequestForm() {
         <div className="flex items-center justify-between border-b border-[#432623]/20 pb-4">
           <Link
             href="/"
-            className="text-xs font-bold text-[#432623] dark:text-[#F5F1BC] hover:underline flex items-center gap-1.5"
+            className="text-sm font-bold text-[#432623] dark:text-[#F5F1BC] hover:underline flex items-center gap-1.5"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Home</span>
           </Link>
-          <span className="font-mono text-xs text-[#432623]/70 dark:text-[#F5F1BC]/70">
+          <span className="font-mono text-sm text-[#432623]/70 dark:text-[#F5F1BC]/70">
             DPDP Act 2023 Form
           </span>
         </div>
 
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F5F1BC] text-[#432623] text-xs font-mono font-bold rounded-[2px] border border-[#432623]/25">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F5F1BC] text-[#432623] text-sm font-mono font-bold rounded-[2px] border border-[#432623]/25">
             <IdentificationCard className="w-4 h-4 text-[#432623]" />
             <span>DATA PRINCIPAL EXERCISE OF RIGHTS</span>
           </div>
           <h1 className="font-serif text-3xl font-extrabold text-[#432623] dark:text-[#F5F1BC]">
             Data Access, Correction &amp; Deletion Request
           </h1>
-          <p className="text-xs sm:text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
+          <p className="text-sm sm:text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
             Parents, legal guardians, and school teachers can request access to, correction of, or permanent deletion of student records processed by ShikshaGap.
           </p>
         </div>
@@ -87,12 +87,12 @@ export default function DataRequestForm() {
               <CheckCircle className="w-5 h-5 text-[#8ABB93]" />
               <span className="text-base">Request Successfully Logged</span>
             </div>
-            <p className="text-xs text-[#432623]/90 leading-relaxed">
+            <p className="text-sm text-[#432623]/90 leading-relaxed">
               {result.message}
             </p>
-            <div className="p-3 bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] font-mono text-xs text-[#432623]">
+            <div className="p-3 bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] font-mono text-sm text-[#432623]">
               <div>Reference Tracking ID: <strong>{result.referenceId}</strong></div>
-              <div className="text-[10px] text-[#432623]/70 mt-1">Please preserve this reference ID for any communication with our Privacy Officer.</div>
+              <div className="text-sm text-[#432623]/70 mt-1">Please preserve this reference ID for any communication with our Privacy Officer.</div>
             </div>
             <button
               onClick={() => {
@@ -110,13 +110,13 @@ export default function DataRequestForm() {
                   consentConfirmed: false,
                 });
               }}
-              className="neo-btn neo-btn-secondary px-4 py-2 text-xs font-bold rounded-[2px]"
+              className="neo-btn neo-btn-secondary px-4 py-2 text-sm font-bold rounded-[2px]"
             >
               Submit Another Request
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="p-6 bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] space-y-4 text-xs">
+          <form onSubmit={handleSubmit} className="p-6 bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] space-y-4 text-sm">
             {/* Honeypot field */}
             <input
               type="text"
@@ -252,7 +252,7 @@ export default function DataRequestForm() {
                   onChange={(e) => setFormData({ ...formData, consentConfirmed: e.target.checked })}
                   className="mt-0.5 rounded-[2px] border border-[#432623]/40"
                 />
-                <span className="text-[11px] text-[#432623]/90 leading-tight">
+                <span className="text-sm text-[#432623]/90 leading-tight">
                   I confirm that I am the authorized parent, legal guardian, or school authority for this student, and I consent to the processing of this request in accordance with the ShikshaGap <Link href="/privacy" className="underline font-bold">Privacy Policy</Link>.
                 </span>
               </label>
@@ -262,7 +262,7 @@ export default function DataRequestForm() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="neo-btn neo-btn-primary px-5 py-2.5 text-xs font-bold rounded-[2px] w-full sm:w-auto"
+                className="neo-btn neo-btn-primary px-5 py-2.5 text-sm font-bold rounded-[2px] w-full sm:w-auto"
               >
                 {isSubmitting ? "Submitting Request..." : "Submit Data Request"}
               </button>

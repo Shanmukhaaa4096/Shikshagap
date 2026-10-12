@@ -54,14 +54,14 @@ export default function PrivacyPage() {
 
         {/* Data Fiduciary Callout */}
         <div className="p-4 bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] space-y-1 text-xs">
-          <div className="font-mono font-bold text-[#DE2A35] uppercase text-[11px]">Data Fiduciary Identification</div>
+          <div className="font-mono font-bold text-[#DE2A35] uppercase text-xs">Data Fiduciary Identification</div>
           <div className="text-[#432623] dark:text-[#F5F1BC]">
             <strong>Legal Entity Name:</strong> {siteConfig.legalEntityName}
           </div>
           <div className="text-[#432623] dark:text-[#F5F1BC]">
             <strong>Registered Location:</strong> {siteConfig.city}, India
           </div>
-          <div className="text-[#432623]/80 dark:text-[#F5F1BC]/80 text-[11px] mt-1">
+          <div className="text-[#432623]/80 dark:text-[#F5F1BC]/80 text-xs mt-1">
             {siteConfig.legalEntityName} acts as the Data Fiduciary responsible for defining the pedagogical purposes and safeguards for data processed across ShikshaGap.
           </div>
         </div>
@@ -128,7 +128,7 @@ export default function PrivacyPage() {
             </table>
           </div>
           {/* Legal wording requires review by qualified legal counsel under DPDP Act 2023 */}
-          <p className="text-[11px] text-[#432623]/70 dark:text-[#F5F1BC]/70 italic mt-2">
+          <p className="text-xs text-[#432623]/70 dark:text-[#F5F1BC]/70 italic mt-2">
             Note: All persistent question quality telemetry and session summaries are strictly anonymised and decoupled from student identities. Session summaries are automatically purged after 90 days. Formal legal text requires review by qualified legal counsel under the DPDP Act 2023.
           </p>
         </section>
@@ -229,7 +229,7 @@ export default function PrivacyPage() {
             <div>Email: <a href={`mailto:${siteConfig.contactEmail}`} className="underline">{siteConfig.contactEmail}</a></div>
             <div>Jurisdiction: {siteConfig.city}</div>
           </div>
-          <p className="text-[11px] text-[#432623]/60 dark:text-[#F5F1BC]/60">
+          <p className="text-xs text-[#432623]/60 dark:text-[#F5F1BC]/60">
             Note: While ShikshaGap provides multilingual interfaces in English, Hindi, and Telugu, this English legal document governs in the event of any interpretive ambiguity.
           </p>
         </section>

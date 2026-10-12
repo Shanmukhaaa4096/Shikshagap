@@ -521,7 +521,7 @@ export function AdaptiveAssessmentView({
             <h2 className="editorial-title text-2xl sm:text-3xl text-[#432623] mt-1">
               Class {classConfig.grade} Maths Check
             </h2>
-            <p className="text-xs sm:text-sm text-[#432623]/80 mt-1 leading-relaxed max-w-2xl">
+            <p className="text-sm sm:text-sm text-[#432623]/80 mt-1 leading-relaxed max-w-2xl">
               A calm check across curriculum maths topics using the difficulty staircase.
               Each topic starts at medium difficulty (level 2) and adjusts based on the student&apos;s answer.
             </p>
@@ -534,7 +534,7 @@ export function AdaptiveAssessmentView({
                 <span className="editorial-meta text-[#432623]/70">LEARNER</span>
                 <div className="font-serif font-bold text-lg text-[#432623] dark:text-[#F5F1BC]">{activeStudent?.student.name}</div>
               </div>
-              <span className="font-mono text-xs font-bold text-[#432623]/70 dark:text-[#F5F1BC]/70">Roll #{activeStudent?.student.rollNo}</span>
+              <span className="font-mono text-sm font-bold text-[#432623]/70 dark:text-[#F5F1BC]/70">Roll #{activeStudent?.student.rollNo}</span>
             </div>
           ) : (
             <div className="space-y-2">
@@ -562,19 +562,19 @@ export function AdaptiveAssessmentView({
                   key={tId}
                   className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-left"
                 >
-                  <div className="text-[10px] font-mono font-bold text-[#432623]/70 uppercase">
+                  <div className="text-sm font-mono font-bold text-[#432623]/70 uppercase">
                     STAGE 0{idx + 1}
                   </div>
-                  <div className="text-xs font-bold text-[#432623] mt-0.5">
+                  <div className="text-sm font-bold text-[#432623] mt-0.5">
                     {TOPIC_DISPLAY_NAMES[tId]?.en || tId}
                   </div>
-                  <div className="text-[10px] text-[#432623]/70 mt-1 truncate">
+                  <div className="text-sm text-[#432623]/70 mt-1 truncate">
                     {TOPICS[tId]?.targets.map((c: ConceptId) => t(`c_${c}`) || c).join(", ")}
                   </div>
                 </div>
               ))}
             </div>
-            <p className="text-xs text-[#432623]/80 pt-1">
+            <p className="text-sm text-[#432623]/80 pt-1">
               The check moves topic by topic. At most 2 questions per topic, starting at Level 2.
             </p>
           </div>
@@ -583,7 +583,7 @@ export function AdaptiveAssessmentView({
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#432623]/20">
             <button
               onClick={onCancel}
-              className="neo-btn neo-btn-secondary px-5 py-2.5 text-xs font-bold w-full sm:w-auto rounded-[2px]"
+              className="neo-btn neo-btn-secondary px-5 py-2.5 text-sm font-bold w-full sm:w-auto rounded-[2px]"
             >
               Back to Dashboard
             </button>
@@ -608,15 +608,15 @@ export function AdaptiveAssessmentView({
             <div>
               <div className="flex items-center gap-2">
                 <span className="editorial-meta text-[#432623] font-bold">TEST COMPLETE</span>
-                <span className="text-[#432623]/40 text-xs">•</span>
-                <span className="text-xs font-mono font-bold text-[#432623]">
+                <span className="text-[#432623]/40 text-sm">•</span>
+                <span className="text-sm font-mono font-bold text-[#432623]">
                   {activeStudent?.student.name} • CLASS {classConfig.grade}
                 </span>
               </div>
               <h2 className="editorial-title text-2xl sm:text-3xl text-[#432623] mt-1">
                 Assessment Results
               </h2>
-              <p className="text-xs sm:text-sm text-[#432623]/80 mt-0.5">
+              <p className="text-sm sm:text-sm text-[#432623]/80 mt-0.5">
                 Staircase check completed. Topics are grouped below by mastery status.
               </p>
             </div>
@@ -675,25 +675,25 @@ export function AdaptiveAssessmentView({
                       <div className="font-bold text-base text-[#432623]">
                         {TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}
                       </div>
-                      <p className="text-xs text-[#432623]/80 mt-0.5">
+                      <p className="text-sm text-[#432623]/80 mt-0.5">
                         Failed level 2 and level 1. Foundational support needed before advancing.
                       </p>
                       {topicMem.misconceptions && topicMem.misconceptions.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1.5">
                           {topicMem.misconceptions.map((m) => (
-                            <span key={m} className="text-[10px] font-mono uppercase bg-[#DE2A35]/15 text-[#DE2A35] px-2 py-0.5 rounded-[2px] border border-[#DE2A35]/25">
+                            <span key={m} className="text-sm font-mono uppercase bg-[#DE2A35]/15 text-[#DE2A35] px-2 py-0.5 rounded-[2px] border border-[#DE2A35]/25">
                               {m.replace(/_/g, " ")}
                             </span>
                           ))}
                         </div>
                       )}
                       {topicMem.notes && topicMem.notes.length > 0 && (
-                        <p className="text-[11px] italic text-[#432623]/70 mt-1">
+                        <p className="text-sm italic text-[#432623]/70 mt-1">
                           Teacher Note: {topicMem.notes.join("; ")}
                         </p>
                       )}
                     </div>
-                    <span className="bg-[#DE2A35]/15 text-[#DE2A35] text-xs font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#DE2A35]/30 uppercase">
+                    <span className="bg-[#DE2A35]/15 text-[#DE2A35] text-sm font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#DE2A35]/30 uppercase">
                       GAP
                     </span>
                   </div>
@@ -716,25 +716,25 @@ export function AdaptiveAssessmentView({
                       <div className="font-bold text-base text-[#432623]">
                         {TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}
                       </div>
-                      <p className="text-xs text-[#432623]/80 mt-0.5">
+                      <p className="text-sm text-[#432623]/80 mt-0.5">
                         Concept partially established. Additional practice recommended.
                       </p>
                       {topicMem.misconceptions && topicMem.misconceptions.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1.5">
                           {topicMem.misconceptions.map((m) => (
-                            <span key={m} className="text-[10px] font-mono uppercase bg-[#DFA06E]/15 text-[#DFA06E] px-2 py-0.5 rounded-[2px] border border-[#DFA06E]/25">
+                            <span key={m} className="text-sm font-mono uppercase bg-[#DFA06E]/15 text-[#DFA06E] px-2 py-0.5 rounded-[2px] border border-[#DFA06E]/25">
                               {m.replace(/_/g, " ")}
                             </span>
                           ))}
                         </div>
                       )}
                       {topicMem.notes && topicMem.notes.length > 0 && (
-                        <p className="text-[11px] italic text-[#432623]/70 mt-1">
+                        <p className="text-sm italic text-[#432623]/70 mt-1">
                           Teacher Note: {topicMem.notes.join("; ")}
                         </p>
                       )}
                     </div>
-                    <span className="bg-[#DFA06E]/15 text-[#DFA06E] text-xs font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#DFA06E]/30 uppercase">
+                    <span className="bg-[#DFA06E]/15 text-[#DFA06E] text-sm font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#DFA06E]/30 uppercase">
                       NEEDS PRACTICE
                     </span>
                   </div>
@@ -759,7 +759,7 @@ export function AdaptiveAssessmentView({
                         {TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}
                       </div>
                     </div>
-                    <span className="bg-[#8ABB93]/15 text-[#8ABB93] text-xs font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#8ABB93]/30 uppercase">
+                    <span className="bg-[#8ABB93]/15 text-[#8ABB93] text-sm font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#8ABB93]/30 uppercase">
                       DONE
                     </span>
                   </div>
@@ -772,7 +772,7 @@ export function AdaptiveAssessmentView({
           {isLoadingFinish ? (
             <div className="p-6 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/20 rounded-[2px] text-center space-y-2">
               <div className="inline-block animate-spin w-5 h-5 border-2 border-[#432623] border-t-transparent rounded-full" />
-              <p className="text-xs font-mono font-bold text-[#432623]/80">
+              <p className="text-sm font-mono font-bold text-[#432623]/80">
                 Finding targeted study materials and generating assessment summary...
               </p>
             </div>
@@ -791,7 +791,7 @@ export function AdaptiveAssessmentView({
                     className="p-4 bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] space-y-3"
                   >
                     <div className="border-b border-[#432623]/15 pb-2">
-                      <span className="text-xs font-mono font-bold text-[#432623]/70 uppercase">
+                      <span className="text-sm font-mono font-bold text-[#432623]/70 uppercase">
                         RESOURCES FOR
                       </span>
                       <h4 className="font-serif font-bold text-base text-[#432623]">
@@ -807,14 +807,14 @@ export function AdaptiveAssessmentView({
                         >
                           <div>
                             <div className="flex items-center justify-between gap-2">
-                              <span className="text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 bg-[#432623]/10 text-[#432623] rounded-[2px]">
+                              <span className="text-sm font-mono font-bold uppercase px-1.5 py-0.5 bg-[#432623]/10 text-[#432623] rounded-[2px]">
                                 {item.source} • {item.type}
                               </span>
                             </div>
-                            <h5 className="font-bold text-xs text-[#432623] mt-1.5 leading-snug">
+                            <h5 className="font-bold text-sm text-[#432623] mt-1.5 leading-snug">
                               {item.title}
                             </h5>
-                            <p className="text-[11px] text-[#432623]/80 mt-1 italic">
+                            <p className="text-sm text-[#432623]/80 mt-1 italic">
                               &ldquo;{item.reason}&rdquo;
                             </p>
                           </div>
@@ -824,7 +824,7 @@ export function AdaptiveAssessmentView({
                               href={item.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-[11px] font-bold text-[#432623] hover:underline"
+                              className="inline-flex items-center gap-1 text-sm font-bold text-[#432623] hover:underline"
                             >
                               <span>Open Resource</span>
                               <ArrowSquareOut className="w-3.5 h-3.5" />
@@ -859,14 +859,14 @@ export function AdaptiveAssessmentView({
                 setIsFinished(false);
                 setSessionMemory(null);
               }}
-              className="neo-btn neo-btn-secondary px-4 py-2.5 text-xs font-bold flex items-center gap-1.5 rounded-[2px]"
+              className="neo-btn neo-btn-secondary px-4 py-2.5 text-sm font-bold flex items-center gap-1.5 rounded-[2px]"
             >
               <ArrowCounterClockwise className="w-3.5 h-3.5" />
               <span>Check Another Student</span>
             </button>
             <button
               onClick={handleSaveAndFinish}
-              className="neo-btn neo-btn-primary px-6 py-2.5 text-xs sm:text-sm font-bold flex items-center gap-2 rounded-[2px]"
+              className="neo-btn neo-btn-primary px-6 py-2.5 text-sm sm:text-sm font-bold flex items-center gap-2 rounded-[2px]"
             >
               <span>SAVE &amp; RETURN TO DASHBOARD</span>
               <ArrowRight className="w-4 h-4" />
@@ -891,7 +891,7 @@ export function AdaptiveAssessmentView({
               {/* Compact Assessment Status */}
               <div className="text-right">
                 <span className="editorial-meta text-[#432623]/70">TOPIC BEING CHECKED</span>
-                <div className="font-mono text-xs font-bold text-[#432623] mt-0.5">
+                <div className="font-mono text-sm font-bold text-[#432623] mt-0.5">
                   {currentTopicName} • Question {((currentTopicMemory?.attempts.length || 0) + 1)} of 2
                 </div>
               </div>
@@ -907,7 +907,7 @@ export function AdaptiveAssessmentView({
                 return (
                   <div
                     key={tMem.topicId}
-                    className={`px-3 py-1.5 rounded-[2px] border text-xs font-semibold flex items-center justify-between ${
+                    className={`px-3 py-1.5 rounded-[2px] border text-sm font-semibold flex items-center justify-between ${
                       isCurrent
                         ? "bg-[#432623] text-[#F5F1BC] border-[#432623]"
                         : isPast
@@ -938,12 +938,12 @@ export function AdaptiveAssessmentView({
                   <span className="editorial-meta text-[#432623]/70">
                     QUESTION {totalQuestionsAnswered + 1}
                   </span>
-                  <span className="text-xs text-[#432623]/40">•</span>
-                  <span className="text-xs font-semibold text-[#432623]">{currentTopicName}</span>
+                  <span className="text-sm text-[#432623]/40">•</span>
+                  <span className="text-sm font-semibold text-[#432623]">{currentTopicName}</span>
                   {isBackupQuestion && (
                     <span
                       data-testid="backup-question-note"
-                      className="ml-2 inline-flex items-center text-[10px] sm:text-xs px-2 py-0.5 rounded font-medium bg-amber-50 text-amber-800 border border-amber-200"
+                      className="ml-2 inline-flex items-center text-sm sm:text-sm px-2 py-0.5 rounded font-medium bg-amber-50 text-amber-800 border border-amber-200"
                     >
                       Using backup question
                     </span>
@@ -955,7 +955,7 @@ export function AdaptiveAssessmentView({
                     onClick={handleReportQuestion}
                     disabled={reportedQuestionId === (currentQuestion.id || `${currentQuestion.conceptId}_${currentQuestion.difficulty}`)}
                     data-testid="report-question-btn"
-                    className="inline-flex items-center gap-1 text-[10px] text-[#432623]/70 hover:text-[#DE2A35] px-2 py-0.5 rounded border border-[#432623]/20 hover:border-[#DE2A35]/30 transition-colors"
+                    className="inline-flex items-center gap-1 text-sm text-[#432623]/70 hover:text-[#DE2A35] px-2 py-0.5 rounded border border-[#432623]/20 hover:border-[#DE2A35]/30 transition-colors"
                     title="Report question for teacher review"
                   >
                     <Flag className="w-3 h-3" />
@@ -965,7 +965,7 @@ export function AdaptiveAssessmentView({
                         : "Report this question"}
                     </span>
                   </button>
-                  <span className="bg-[#FAF8E8] dark:bg-[#432623]/30 text-[#432623] text-[10px] font-mono font-bold px-2 py-0.5 rounded-[2px] border border-[#432623]/25 uppercase">
+                  <span className="bg-[#FAF8E8] dark:bg-[#432623]/30 text-[#432623] text-sm font-mono font-bold px-2 py-0.5 rounded-[2px] border border-[#432623]/25 uppercase">
                     DIFFICULTY LEVEL {currentQuestion.difficulty}
                   </span>
                 </div>
@@ -973,7 +973,7 @@ export function AdaptiveAssessmentView({
 
               {/* Large Question Text */}
               <div className="space-y-4">
-                <h3 className="font-serif font-bold text-xl sm:text-2xl text-[#432623] leading-snug">
+                <h3 className="font-serif font-bold text-[22px] sm:text-2xl text-[#432623] leading-relaxed">
                   {formatTxt(currentQuestion.prompt)}
                 </h3>
 
@@ -996,10 +996,10 @@ export function AdaptiveAssessmentView({
                           key={opt.id}
                           onClick={() => handleSubmit(opt.value)}
                           disabled={isEvaluating}
-                          className="neo-btn neo-btn-secondary p-4 text-left text-base sm:text-lg font-bold flex items-center justify-between rounded-[2px] group"
+                          className="neo-btn neo-btn-secondary p-4 text-left text-[18px] sm:text-xl font-bold flex items-center justify-between rounded-[2px] group leading-relaxed"
                         >
                           <span className="font-mono">{formatTxt(opt.label)}</span>
-                          <span className="text-xs font-mono text-[#432623]/70 group-hover:text-[#432623]">
+                          <span className="text-sm font-mono text-[#432623]/70 group-hover:text-[#432623]">
                             [Select]
                           </span>
                         </button>
@@ -1032,13 +1032,13 @@ export function AdaptiveAssessmentView({
                         <button
                           type="button"
                           onClick={() => setShowHint(true)}
-                          className="text-xs text-[#432623] font-semibold flex items-center gap-1 hover:underline"
+                          className="text-sm text-[#432623] font-semibold flex items-center gap-1 hover:underline"
                         >
                           <QuestionIcon className="w-3.5 h-3.5" />
                           <span>Need a hint?</span>
                         </button>
                       ) : (
-                        <div className="bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#DFA06E]/40 p-3 rounded-[2px] text-xs text-[#432623]">
+                        <div className="bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#DFA06E]/40 p-3 rounded-[2px] text-sm text-[#432623]">
                           <strong className="text-[#DFA06E]">Hint:</strong> {formatTxt(currentQuestion.hint)}
                         </div>
                       )}
@@ -1067,7 +1067,7 @@ export function AdaptiveAssessmentView({
                     <button
                       onClick={handleNextStep}
                       disabled={isEvaluating}
-                      className="neo-btn neo-btn-primary px-5 py-2 text-xs font-bold flex items-center gap-1.5 shrink-0 rounded-[2px]"
+                      className="neo-btn neo-btn-primary px-5 py-2 text-sm font-bold flex items-center gap-1.5 shrink-0 rounded-[2px]"
                     >
                       <span>Continue</span>
                       <ArrowRight className="w-3.5 h-3.5" />
