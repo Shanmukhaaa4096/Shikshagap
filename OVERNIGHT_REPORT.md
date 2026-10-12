@@ -5,7 +5,7 @@
 - Baseline commit: `2244574` on `main`
 - Node version: `v24.18.1`
 - Gemini API Key status: No key found in `.env.local` (file has length 0). All Gemini integration steps are verified using unit test mocks and deterministic fallback mechanisms per instructions.
-- Test Suite: 121 / 121 automated tests passing across 13 test suites.
+- Test Suite: 135 / 135 automated tests passing across 15 test suites.
 - ESLint: 0 errors, 0 warnings.
 - Build: Next.js optimized production build succeeds cleanly.
 
@@ -29,6 +29,7 @@
 | Step 12 | Question variety in shape | Done | `src/lib/types.ts`, `src/lib/i18n/keys.ts`, `src/lib/i18n/dict.ts`, `src/lib/questions/generator.ts`, `src/app/api/assessment/agent/route.ts`, `src/components/AdaptiveAssessmentView.tsx`, `tests/question-formats.test.mjs`, `package.json` | All 135 tests pass, 0 lint warnings | Added 5 question format variations: `missing_number`, `find_mistake`, `true_false`, `choose_working`, and `compare_answers`. All answers, operand values, and wrong choices are strictly computed by code with zero AI hallucination. Enforced invariant: never use the same format twice in a row, and use at least 3 formats per test where the concept allows. Added 7 tests in `tests/question-formats.test.mjs`. |
 | Step 13 | Quality report script | Done | `scripts/evalQuestions.mjs`, `package.json`, `docs/QUALITY_REPORT.md` | All 135 tests pass, 0 lint warnings | Created `scripts/evalQuestions.mjs` and npm script `eval:questions`. Generated 300 questions per class (Classes 3, 4, 5) totaling 900 questions. Wrote `docs/QUALITY_REPORT.md` detailing: answer recomputation accuracy (96-100%), class number range compliance (100%), blind-solver agreement (95-100%), repeat rate, format distribution (8-9 shapes per grade), average word count (3-4 words), and deterministic template fallback rate (100% when no key). |
 | Step 14 | Docs and CI | Done | `README.md`, `.github/workflows/ci.yml` | All 135 tests pass, 0 lint warnings | Updated `README.md` documenting Node 24 requirement, Classes 3 to 5 curriculum scopes, all environment variables (`GEMINI_API_KEY`, `DATABASE_URL`, `CRON_SECRET`, `SESSION_SECRET`, `IP_SALT`, `GEMINI_MODEL`), memory privacy architecture and DPDP 90-day retention policies, and `npm run eval:questions` instructions. Updated `.github/workflows/ci.yml` verifying all dummy environment variables on Node 24 for clean install, lint, test, and build execution. |
+| Step 15 | Final report and push | Done | `scripts/verifyBackToBackAssessments.mjs`, `OVERNIGHT_REPORT.md` | All 135 tests pass, 0 lint warnings, clean build | Ran full regression suite (135 tests pass, 0 lint warnings, Next.js build succeeds cleanly). Executed simulated back-to-back assessments per class confirming sequential memory increments. Verified zero TODOs, zero student data console logs, zero tracked secrets. Updated final report with complete Part 1 & Part 2 status table, morning action items, and branch deletion instructions. Ready for git push to `overnight/question-engine`. |
 
 ---
 
