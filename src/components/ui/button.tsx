@@ -21,14 +21,14 @@ const buttonVariants = cva(
       },
       size: {
         default:
-          "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
-        xs: "h-6 gap-1 rounded-[2px] px-2 text-sm has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: "h-7 gap-1 rounded-[2px] px-2.5 text-[0.8rem] has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
-        lg: "h-9 gap-1.5 px-3 text-sm has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
-        icon: "size-8 rounded-[2px]",
-        "icon-xs": "size-6 rounded-[2px] [&_svg:not([class*='size-'])]:size-3",
-        "icon-sm": "size-7 rounded-[2px]",
-        "icon-lg": "size-9 rounded-[2px]",
+          "min-h-[44px] min-w-[44px] gap-2 px-3.5 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
+        xs: "min-h-[44px] min-w-[44px] gap-1.5 rounded-[2px] px-3 text-sm has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        sm: "min-h-[44px] min-w-[44px] gap-1.5 rounded-[2px] px-3 text-sm has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        lg: "min-h-[48px] min-w-[48px] gap-2 px-4 text-base has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
+        icon: "size-11 min-h-[44px] min-w-[44px] rounded-[2px]",
+        "icon-xs": "size-11 min-h-[44px] min-w-[44px] rounded-[2px]",
+        "icon-sm": "size-11 min-h-[44px] min-w-[44px] rounded-[2px]",
+        "icon-lg": "size-12 min-h-[48px] min-w-[48px] rounded-[2px]",
       },
     },
     defaultVariants: {

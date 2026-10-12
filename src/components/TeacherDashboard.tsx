@@ -756,10 +756,11 @@ export function TeacherDashboard({
                     const st = conceptStats[cId];
                     const isSelected = selectedConceptForMap === cId;
                     return (
-                      <div
+                      <button
+                        type="button"
                         key={cId}
                         onClick={() => setSelectedConceptForMap(cId)}
-                        className={`p-3 rounded-[2px] border cursor-pointer ${
+                        className={`min-h-[44px] p-3 rounded-[2px] border text-left w-full ${
                           isSelected
                             ? "border-[#DE2A35] bg-[#F5F1BC]"
                             : "border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#432623]/30 hover:border-[#432623]"
@@ -769,7 +770,7 @@ export function TeacherDashboard({
                           <span>{t(`c_${cId}`)}</span>
                           <span>{st.avg}%</span>
                         </div>
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
@@ -785,10 +786,11 @@ export function TeacherDashboard({
                     const st = conceptStats[cId];
                     const isSelected = selectedConceptForMap === cId;
                     return (
-                      <div
+                      <button
+                        type="button"
                         key={cId}
                         onClick={() => setSelectedConceptForMap(cId)}
-                        className={`p-3 rounded-[2px] border cursor-pointer ${
+                        className={`min-h-[44px] p-3 rounded-[2px] border text-left w-full ${
                           isSelected
                             ? "border-[#DE2A35] bg-[#F5F1BC]"
                             : "border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#432623]/30 hover:border-[#432623]"
@@ -798,7 +800,7 @@ export function TeacherDashboard({
                           <span>{t(`c_${cId}`)}</span>
                           <span>{st.avg}%</span>
                         </div>
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
@@ -814,10 +816,11 @@ export function TeacherDashboard({
                     const st = conceptStats[cId];
                     const isSelected = selectedConceptForMap === cId;
                     return (
-                      <div
+                      <button
+                        type="button"
                         key={cId}
                         onClick={() => setSelectedConceptForMap(cId)}
-                        className={`p-3 rounded-[2px] border cursor-pointer ${
+                        className={`min-h-[44px] p-3 rounded-[2px] border text-left w-full ${
                           isSelected
                             ? "border-[#DE2A35] bg-[#F5F1BC]"
                             : "border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#432623]/30 hover:border-[#432623]"
@@ -827,7 +830,7 @@ export function TeacherDashboard({
                           <span className="truncate">{t(`c_${cId}`)}</span>
                           <span>{st.avg}%</span>
                         </div>
-                      </div>
+                      </button>
                     );
                   })}
                 </div>

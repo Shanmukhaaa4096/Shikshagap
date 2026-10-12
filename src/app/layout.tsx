@@ -95,6 +95,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)] font-sans antialiased">
+        <a href="#main-content" className="skip-to-content">
+          Skip to main content
+        </a>
         <ServiceWorkerRegister />
         {children}
         <CookieBanner />

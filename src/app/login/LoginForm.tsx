@@ -70,9 +70,9 @@ export default function LoginForm() {
               <Link href="/" className="font-serif text-2xl font-bold tracking-tight text-[#432623] dark:text-[#F5F1BC]">
                 ShikshaGap
               </Link>
-              <p className="text-sm uppercase tracking-widest text-[#432623]/70 dark:text-[#F5F1BC]/70 mt-1">
+              <h1 className="text-sm font-bold uppercase tracking-widest text-[#432623]/80 dark:text-[#F5F1BC]/80 mt-1">
                 Authorized Staff Access
-              </p>
+              </h1>
             </div>
             <div className="border border-[#432623]/20 px-2 py-1 text-sm font-mono uppercase bg-[#F5F1BC] text-[#432623]">
               v2.4 Sec

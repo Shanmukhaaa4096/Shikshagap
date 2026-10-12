@@ -518,9 +518,9 @@ export function AdaptiveAssessmentView({
         <div className="neo-panel p-6 sm:p-8 space-y-6 rounded-[2px] border border-[#432623]/25 bg-[var(--surface)]">
           <div className="border-b border-[#432623]/20 pb-5">
             <span className="editorial-meta text-[#432623]/80">START LEARNING CHECK</span>
-            <h2 className="editorial-title text-2xl sm:text-3xl text-[#432623] mt-1">
+            <h1 className="editorial-title text-2xl sm:text-3xl text-[#432623] mt-1 font-serif font-black">
               Class {classConfig.grade} Maths Check
-            </h2>
+            </h1>
             <p className="text-sm sm:text-sm text-[#432623]/80 mt-1 leading-relaxed max-w-2xl">
               A calm check across curriculum maths topics using the difficulty staircase.
               Each topic starts at medium difficulty (level 2) and adjusts based on the student&apos;s answer.

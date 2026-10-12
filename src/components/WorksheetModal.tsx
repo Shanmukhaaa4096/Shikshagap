@@ -73,10 +73,10 @@ export function WorksheetModal({ data, isOpen, onClose }: Props) {
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-[2px] border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)]"
+              className="min-h-[44px] min-w-[44px] p-2 flex items-center justify-center rounded-[2px] border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)]"
               aria-label="Close worksheet"
             >
-              <X size={14} />
+              <X size={16} />
             </button>
           </div>
         </div>

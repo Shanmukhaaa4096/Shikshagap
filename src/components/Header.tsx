@@ -117,46 +117,50 @@ export function Header({
           <div className="flex items-center gap-2">
             {/* View Switcher: Teacher vs Student */}
             {onViewChange && (
-              <div className="hidden sm:flex items-center bg-[#FAF8E8] dark:bg-[#432623] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-0.5 text-sm font-mono">
+              <div className="hidden sm:flex items-center gap-1 bg-[#FAF8E8] dark:bg-[#432623] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-1 text-sm font-mono">
                 <button
                   type="button"
                   onClick={() => onViewChange("teacher")}
-                  className={`min-h-[36px] px-2.5 rounded-[2px] flex items-center gap-1.5 font-bold ${
+                  className={`min-h-[44px] px-3 rounded-[2px] flex items-center gap-1.5 font-bold ${
                     currentView === "teacher"
                       ? "bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623]"
                       : "text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC]/40"
                   }`}
+                  aria-label="Switch to teacher view"
                 >
-                  <GraduationCap size={15} />
+                  <GraduationCap size={16} />
                   <span>Teacher</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => onViewChange("student")}
-                  className={`min-h-[36px] px-2.5 rounded-[2px] flex items-center gap-1.5 font-bold ${
+                  className={`min-h-[44px] px-3 rounded-[2px] flex items-center gap-1.5 font-bold ${
                     currentView === "student"
                       ? "bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623]"
                       : "text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC]/40"
                   }`}
+                  aria-label="Switch to student view"
                 >
-                  <BookOpen size={15} />
+                  <BookOpen size={16} />
                   <span>Student</span>
                 </button>
               </div>
             )}
 
             {/* Language Switcher */}
-            <div className="flex items-center border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-0.5 text-sm font-mono">
+            <div className="flex items-center gap-1 border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-1 text-sm font-mono" role="group" aria-label="Select language">
               {(["en", "hi", "te"] as Lang[]).map((l) => (
                 <button
                   key={l}
                   type="button"
                   onClick={() => setLang(l)}
-                  className={`min-h-[36px] px-2 rounded-[2px] font-bold ${
+                  className={`min-h-[44px] min-w-[44px] px-2.5 rounded-[2px] font-bold ${
                     lang === l
                       ? "bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623]"
                       : "text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC]/40"
                   }`}
+                  aria-label={l === "en" ? "Switch language to English" : l === "hi" ? "Switch language to Hindi" : "Switch language to Telugu"}
+                  aria-pressed={lang === l}
                 >
                   {l === "en" ? "EN" : l === "hi" ? "हिन्दी" : "తెలుగు"}
                 </button>
