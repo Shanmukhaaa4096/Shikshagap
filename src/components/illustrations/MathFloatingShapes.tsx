@@ -106,19 +106,17 @@ export function MathFloatingShapes() {
 
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden z-15" aria-hidden="true">
-      {shapes.map((s) => (
+      {shapes.map((s, index) => (
         <motion.div
           key={s.id}
-          className="absolute opacity-80 hidden sm:block"
+          className="absolute opacity-80 hidden sm:block pointer-events-none select-none"
           style={{ left: s.x, top: s.y }}
-          animate={{
-            y: [0, -14, 0],
-            rotate: [0, 6, -6, 0],
-          }}
+          initial={{ opacity: 0, scale: 0.85, y: 10 }}
+          animate={{ opacity: 0.8, scale: 1, y: 0 }}
           transition={{
-            duration: s.duration,
-            repeat: Infinity,
-            ease: 'easeInOut',
+            duration: 0.5,
+            delay: 0.12 + index * 0.07,
+            ease: 'easeOut',
           }}
         >
           {s.content}

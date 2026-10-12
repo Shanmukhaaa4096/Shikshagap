@@ -19,7 +19,7 @@ export function MascotHero({
 
   const handleInteraction = () => {
     setIsWinking(true);
-    setTimeout(() => setIsWinking(false), 900);
+    setTimeout(() => setIsWinking(false), 600);
   };
 
   return (
@@ -27,17 +27,13 @@ export function MascotHero({
       className={`relative inline-block cursor-pointer select-none ${className}`}
       onClick={handleInteraction}
       onMouseEnter={handleInteraction}
-      animate={
-        shouldReduceMotion
-          ? {}
-          : {
-              y: [0, -9, 0],
-            }
-      }
+      initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={shouldReduceMotion ? undefined : { scale: 1.015, y: -2 }}
+      whileTap={shouldReduceMotion ? undefined : { scale: 0.985 }}
       transition={{
-        duration: 3.8,
-        repeat: Infinity,
-        ease: 'easeInOut',
+        duration: 0.6,
+        ease: [0.16, 1, 0.3, 1],
       }}
       title="Click or hover Gappu the Diagnostic Owl!"
     >

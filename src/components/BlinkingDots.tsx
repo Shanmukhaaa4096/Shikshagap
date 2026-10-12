@@ -47,13 +47,12 @@ export function BlinkingDots({
         <motion.span
           key={i}
           animate={{
-            opacity: [0.25, 1, 0.25],
-            scale: [0.85, 1.15, 0.85],
+            opacity: [0.35, 1, 0.35],
           }}
           transition={{
-            duration: 1.4,
+            duration: 1.2,
             repeat: Infinity,
-            delay: i * 0.25,
+            delay: i * 0.2,
             ease: 'easeInOut',
           }}
           style={{

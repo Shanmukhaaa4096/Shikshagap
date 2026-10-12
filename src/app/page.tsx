@@ -706,13 +706,14 @@ function PublicLandingPageContent() {
                   {/* PRIMARY ACTION BUTTON: ASSESS TEST (Single most prominent button on the page) */}
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                     <motion.div
-                      whileHover={{ y: -2, scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      whileHover={{ y: -1, scale: 1.01 }}
+                      whileTap={{ scale: 0.985 }}
+                      transition={{ duration: 0.18, ease: 'easeOut' }}
                       className="inline-block"
                     >
                       <Link
                         href="/app"
-                        className="border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-6 py-3.5 min-h-[50px] inline-flex items-center justify-center gap-2 text-sm font-mono uppercase tracking-wider font-bold hover:bg-[#B51E28] focus-visible:outline-2 focus-visible:outline-[#DE2A35] cursor-pointer shadow-md active:translate-y-[1px] transition-transform duration-150 animate-pulse-subtle"
+                        className="border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-6 py-3.5 min-h-[50px] inline-flex items-center justify-center gap-2 text-sm font-mono uppercase tracking-wider font-bold hover:bg-[#B51E28] focus-visible:outline-2 focus-visible:outline-[#DE2A35] cursor-pointer shadow-md active:translate-y-[1px] transition-transform duration-150"
                       >
                         <span>Assess Test</span>
                         <ArrowRight size={16} />
