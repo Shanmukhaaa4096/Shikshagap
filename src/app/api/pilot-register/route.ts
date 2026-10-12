@@ -49,13 +49,16 @@ export interface PilotRegistrationRecord {
 // In-memory registry for pilot registrations
 export const PILOT_REGISTRATIONS: PilotRegistrationRecord[] = [];
 
+export function checkPilotRateLimit(ip: string): boolean {
+  return checkRateLimit(`pilot_${ip}`, 5, 10 * 60 * 1000).allowed;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1";
 
     // Rate limiting: 5 requests per 10 minutes per IP
-    const rateCheck = checkRateLimit(`pilot_${ip}`, 5, 10 * 60 * 1000);
-    if (!rateCheck.allowed) {
+    if (!checkPilotRateLimit(ip)) {
       return NextResponse.json(
         { error: "Too many submission attempts. Please wait 10 minutes before trying again." },
         { status: 429 }

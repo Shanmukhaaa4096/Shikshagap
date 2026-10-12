@@ -163,7 +163,7 @@ Rules:
 6. You can call update_memory(note) to record an observational note about the student's thinking.
 Your actions are checked by a strict code gate; illegal actions will be rejected.`;
 
-    const response = await ai.models.generateContent({
+    const generatePromise = ai.models.generateContent({
       model,
       contents: [
         {
@@ -176,6 +176,13 @@ Your actions are checked by a strict code gate; illegal actions will be rejected
         temperature: 0.1,
       },
     });
+
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Gemini examiner call timed out (6s)")), 6000)
+    );
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const response: any = await Promise.race([generatePromise, timeoutPromise]);
 
     const calls = response.functionCalls || [];
     const notes: string[] = [];

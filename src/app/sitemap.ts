@@ -2,7 +2,8 @@ import { MetadataRoute } from 'next';
 import { siteConfig } from '@/config/site';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = siteConfig.siteUrl;
+  // Configured production domain: https://shikshagap.vercel.app
+  const baseUrl = siteConfig.siteUrl || "https://shikshagap.vercel.app";
   const lastModified = new Date();
 
   return [
