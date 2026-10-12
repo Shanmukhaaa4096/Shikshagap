@@ -439,14 +439,14 @@ function PublicLandingPageContent() {
         Skip to main content
       </a>
 
-      {/* EDITORIAL TOP MASTHEAD DATELINE */}
+      {/* TOP MASTHEAD DATELINE */}
       <div className="bg-[#FAF8E8] dark:bg-[#251614] border-b border-[#432623]/20 px-4 sm:px-8 py-1.5 text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="font-bold text-[#DE2A35]">VOL. 2026</span>
-          <span className="opacity-40">|</span>
-          <span>ISSUE NO. 05: CLASS 5 MATHEMATICS</span>
+          {/* Vol. 2026 / Issue No. 05 hidden per teacher clarity requirements */}
+          <span className="hidden">VOL. 2026 | ISSUE NO. 05</span>
+          <span className="font-bold text-[#DE2A35]">PRIMARY MATHEMATICS</span>
           <span className="opacity-40 hidden md:inline">|</span>
-          <span className="hidden md:inline">AI AGENT LEARNING GAP DIAGNOSTIC</span>
+          <span className="hidden md:inline">FOUNDATIONAL LEARNING GAP DIAGNOSTIC</span>
         </div>
         <div className="flex items-center gap-3">
           <span className="hidden sm:inline">INDIAN PRIMARY SCHOOLS EDITION</span>
@@ -705,15 +705,15 @@ function PublicLandingPageContent() {
                   </div>
                 </div>
 
-                {/* Right Side: Editorial Issue Contents Dossier */}
+                {/* Right Side: Issue Contents */}
                 <div className="hidden md:block md:col-start-9 md:col-span-4 bg-[#FAF8E8]/90 dark:bg-[#251614]/90 p-4 border border-[#432623]/25 backdrop-blur-xs text-right">
                   <div className="text-[10px] font-mono uppercase tracking-widest text-[#8ABB93] font-bold mb-1">
-                    INSIDE THIS DOSSIER
+                    WHAT IS INSIDE
                   </div>
                   <ul className="text-xs font-mono space-y-1.5 text-[#432623]/80 dark:text-[#FAF8E8]/80">
                     <li><span className="text-[#DE2A35] font-bold">p. 02</span> : The 42% Test Score Fallacy</li>
                     <li><span className="text-[#DE2A35] font-bold">p. 04</span> : How the AI Agent Traces Gaps</li>
-                    <li><span className="text-[#DE2A35] font-bold">p. 07</span> : Live Student Gap Report Specimen</li>
+                    <li><span className="text-[#DE2A35] font-bold">p. 07</span> : Live Student Gap Report Sample</li>
                     <li><span className="text-[#DE2A35] font-bold">p. 12</span> : Printable 1-Page A4 Worksheets</li>
                   </ul>
                   <div className="mt-3 pt-2 border-t border-[#432623]/20 text-[10px] font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60">
@@ -722,7 +722,7 @@ function PublicLandingPageContent() {
                 </div>
               </div>
 
-              {/* Lower Bar: Editorial Cutout Caption & Specimen Barcode */}
+              {/* Lower Bar: Editorial Cutout Caption & Sample Barcode */}
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end mt-auto pt-6 pointer-events-auto">
                 <div className="md:col-span-5 bg-[#FAF8E8]/95 dark:bg-[#251614]/95 p-3 border border-[#432623]/25">
                   <div className="text-[10px] font-mono uppercase text-[#DE2A35] font-bold">
@@ -736,7 +736,7 @@ function PublicLandingPageContent() {
                 <div className="hidden md:flex md:col-start-9 md:col-span-4 justify-end">
                   <div className="bg-[#FAF8E8]/95 dark:bg-[#251614]/95 border border-[#432623]/25 p-2.5 text-center font-mono">
                     <div className="text-[9px] tracking-widest text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase">
-                      SPECIMEN NO. 2026-SG-AGENT
+                      SAMPLE NO. 2026-SG-AGENT
                     </div>
                     <div className="text-sm font-mono tracking-widest font-bold text-[#432623] dark:text-[#FAF8E8] mt-0.5">
                       ||| | |||| || ||| |||||
@@ -761,7 +761,7 @@ function PublicLandingPageContent() {
             {/* Pull Quote */}
             <div className="lg:col-span-5 border-l-2 border-[#DE2A35] pl-5 py-2">
               <span className="text-[10px] font-mono uppercase tracking-widest text-[#DE2A35] font-bold block mb-2">
-                THE FOUNDATIONAL ANOMALY
+                THE PROBLEM
               </span>
               <blockquote className="font-serif text-2xl sm:text-3xl lg:text-4xl leading-tight text-[#432623] dark:text-[#FAF8E8]">
                 A student scores 42% on a test. The mark confirms struggle, but conceals the root cause.
@@ -817,7 +817,7 @@ function PublicLandingPageContent() {
               <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
                 <span className="text-[#DE2A35] font-bold">03</span>
                 <span>/</span>
-                <span>HOW THE AI AGENT WORKS : VISUAL SPECIMENS</span>
+                <span>HOW THE AI AGENT WORKS : VISUAL SAMPLES</span>
               </div>
               <h2 className="font-serif text-2xl sm:text-4xl font-normal mt-1 text-[#432623] dark:text-[#FAF8E8]">
                 From 6-Minute Check to Actionable Gap Report
@@ -841,7 +841,7 @@ function PublicLandingPageContent() {
               <div className="border-b border-[#432623]/20 pb-3 flex items-center justify-between">
                 <div>
                   <span className="text-[10px] font-mono uppercase tracking-wider text-[#DE2A35] font-bold">
-                    EXHIBIT A : DIAGNOSTIC OUTPUT
+                    SAMPLE REPORT
                   </span>
                   <h3 className="font-serif text-xl font-bold">Student Gap Report</h3>
                 </div>
@@ -902,7 +902,7 @@ function PublicLandingPageContent() {
               <div className="border-b border-[#432623]/30 pb-3 flex items-center justify-between">
                 <div>
                   <span className="text-[10px] font-mono uppercase tracking-wider text-[#432623]/70 font-bold">
-                    EXHIBIT B : CLASSROOM SPECIMEN
+                    SAMPLE WORKSHEET
                   </span>
                   <h3 className="font-serif text-xl font-bold">1-Page Paper Worksheet</h3>
                 </div>
@@ -1676,7 +1676,7 @@ function PublicLandingPageContent() {
               <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
                 <span className="text-[#DE2A35] font-bold">08</span>
                 <span>/</span>
-                <span>INQUIRIES & DOSSIER</span>
+                <span>INQUIRIES &amp; FAQ</span>
               </div>
               <h2 className="font-serif text-2xl sm:text-4xl font-normal mt-1 text-[#432623] dark:text-[#FAF8E8]">
                 Frequently Asked Questions
@@ -1708,7 +1708,7 @@ function PublicLandingPageContent() {
         <section className="border-b border-[#432623]/25 px-4 sm:px-8 py-16 max-w-7xl mx-auto text-center bg-[#F5F1BC]/40 dark:bg-[#311E1B]/50">
           <div className="max-w-2xl mx-auto space-y-4">
             <div className="text-[10px] font-mono uppercase tracking-widest text-[#DE2A35] font-bold">
-              CLOSING DISPATCH : AUTUMN 2026
+              GET STARTED
             </div>
             <h2 className="font-serif text-3xl sm:text-5xl font-bold text-[#432623] dark:text-[#FAF8E8] tracking-tight">
               Start an assessment to find student learning gaps today.

@@ -16,63 +16,102 @@ export function ClassSelector({
   className = '',
   compact = false,
 }: ClassSelectorProps) {
-  return (
-    <div className={`flex items-center gap-1.5 overflow-x-auto py-1 ${className}`}>
-      {SUPPORTED_CLASSES.map((conf: ClassConfig) => {
-        const isSelected = conf.id === selectedClassId;
-        const isEnabled = conf.enabled;
+  const [showUpcoming, setShowUpcoming] = React.useState(false);
+  const enabledClasses = SUPPORTED_CLASSES.filter((c) => c.enabled);
+  const upcomingClasses = SUPPORTED_CLASSES.filter((c) => !c.enabled);
 
-        if (compact) {
+  if (compact) {
+    return (
+      <div className={`flex flex-col gap-1.5 ${className}`}>
+        <div className="flex items-center gap-1.5 overflow-x-auto py-1">
+          {enabledClasses.map((conf: ClassConfig) => {
+            const isSelected = conf.id === selectedClassId;
+            return (
+              <button
+                key={conf.id}
+                type="button"
+                onClick={() => onSelectClass(conf.id)}
+                className={`min-h-[36px] px-2.5 py-1 text-xs font-mono font-bold rounded-[2px] border transition-none shrink-0 ${
+                  isSelected
+                    ? 'border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)]'
+                    : 'border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] hover:bg-[var(--muted)]'
+                }`}
+                title={conf.label}
+              >
+                {conf.shortLabel}
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => setShowUpcoming(!showUpcoming)}
+            className="text-[10px] font-mono text-[var(--muted-foreground)] hover:underline shrink-0 px-2 py-1"
+          >
+            {showUpcoming ? 'Hide other classes' : 'More classes coming soon'}
+          </button>
+        </div>
+        {showUpcoming && (
+          <div className="flex flex-wrap items-center gap-1 text-[10px] font-mono text-[var(--muted-foreground)] bg-[var(--muted)]/50 p-1.5 rounded-[2px]">
+            <span>Coming soon:</span>
+            {upcomingClasses.map((c) => (
+              <span key={c.id} className="px-1.5 py-0.5 border border-[var(--border)] bg-[var(--card)] opacity-60">
+                {c.label}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className={`flex flex-col gap-2 ${className}`}>
+      <div className="flex items-center gap-2 overflow-x-auto py-1">
+        {enabledClasses.map((conf: ClassConfig) => {
+          const isSelected = conf.id === selectedClassId;
           return (
             <button
               key={conf.id}
               type="button"
-              disabled={!isEnabled}
-              onClick={() => isEnabled && onSelectClass(conf.id)}
-              className={`min-h-[36px] px-2.5 py-1 text-xs font-mono font-bold rounded-[2px] border transition-none shrink-0 ${
-                !isEnabled
-                  ? 'border-[var(--border)] bg-[var(--muted)] text-[var(--muted-foreground)] opacity-50 cursor-not-allowed'
-                  : isSelected
+              onClick={() => onSelectClass(conf.id)}
+              className={`min-h-[44px] px-3.5 py-2 text-xs font-mono font-bold rounded-[2px] border transition-none shrink-0 flex items-center gap-1.5 ${
+                isSelected
                   ? 'border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)]'
                   : 'border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] hover:bg-[var(--muted)]'
               }`}
-              title={isEnabled ? conf.label : `${conf.label} (Coming soon)`}
+              aria-pressed={isSelected}
             >
-              {conf.shortLabel}
-              {!isEnabled && <span className="ml-1 text-[9px] font-normal tracking-tight">(Soon)</span>}
-            </button>
-          );
-        }
-
-        return (
-          <button
-            key={conf.id}
-            type="button"
-            disabled={!isEnabled}
-            onClick={() => isEnabled && onSelectClass(conf.id)}
-            className={`min-h-[44px] px-3.5 py-2 text-xs font-mono font-bold rounded-[2px] border transition-none shrink-0 flex items-center gap-1.5 ${
-              !isEnabled
-                ? 'border-[var(--border)] bg-[var(--muted)] text-[var(--muted-foreground)] opacity-50 cursor-not-allowed'
-                : isSelected
-                ? 'border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)]'
-                : 'border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] hover:bg-[var(--muted)]'
-            }`}
-            aria-pressed={isSelected}
-            aria-disabled={!isEnabled}
-          >
-            <span>{conf.label}</span>
-            {!isEnabled ? (
-              <span className="text-[10px] font-normal uppercase px-1 py-0.2 bg-[var(--background)] border border-[var(--border)] rounded-[2px]">
-                Soon
-              </span>
-            ) : (
+              <span>{conf.label}</span>
               <span className="text-[10px] font-bold opacity-75">
                 ({conf.topics.length} topics)
               </span>
-            )}
-          </button>
-        );
-      })}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="pt-1">
+        <button
+          type="button"
+          onClick={() => setShowUpcoming(!showUpcoming)}
+          className="text-xs font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 hover:underline flex items-center gap-1.5 cursor-pointer"
+        >
+          <span>{showUpcoming ? 'Hide upcoming classes' : 'More classes coming soon (Classes 1, 2, 6, 7, 8)'}</span>
+        </button>
+
+        {showUpcoming && (
+          <div className="mt-2 flex flex-wrap gap-1.5 p-2 bg-[#FAF8E8] dark:bg-[#251614] border border-[#432623]/20 rounded-[2px]">
+            {upcomingClasses.map((conf: ClassConfig) => (
+              <span
+                key={conf.id}
+                className="text-[11px] font-mono px-2 py-1 bg-[#F5F1BC]/40 dark:bg-[#311E1B] border border-[#432623]/20 text-[#432623]/60 dark:text-[#FAF8E8]/60"
+              >
+                {conf.label} (Coming soon)
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

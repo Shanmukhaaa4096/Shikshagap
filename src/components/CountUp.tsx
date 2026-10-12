@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useReducedMotion } from 'motion/react';
 
 interface CountUpProps {
@@ -17,9 +17,7 @@ export function CountUp({
   className = '',
 }: CountUpProps) {
   const shouldReduceMotion = useReducedMotion();
-  const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
-  const [hasStarted, setHasStarted] = useState(false);
 
   useEffect(() => {
     if (shouldReduceMotion) return;
@@ -27,47 +25,50 @@ export function CountUp({
     const element = ref.current;
     if (!element) return;
 
+    let animationFrameId: number;
+    let startTime: number | null = null;
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          setHasStarted(true);
+          observer.disconnect();
+
+          const animate = (timestamp: number) => {
+            if (!startTime) startTime = timestamp;
+            const progress = Math.min((timestamp - startTime) / (duration * 1000), 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const val = Math.round(eased * end);
+            const formatted = padZero && val < 10 ? `0${val}` : `${val}`;
+            if (element) {
+              element.textContent = formatted;
+            }
+
+            if (progress < 1) {
+              animationFrameId = requestAnimationFrame(animate);
+            }
+          };
+
+          // Start progressive count-up from 0
+          element.textContent = padZero && 0 < 10 ? '00' : '0';
+          animationFrameId = requestAnimationFrame(animate);
         }
       },
       { threshold: 0.2 }
     );
 
     observer.observe(element);
-    return () => observer.disconnect();
-  }, [shouldReduceMotion]);
 
-  useEffect(() => {
-    if (!hasStarted || shouldReduceMotion) return;
-
-    let startTime: number | null = null;
-    let animationFrameId: number;
-
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / (duration * 1000), 1);
-      // Ease out cubic
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.round(eased * end));
-
-      if (progress < 1) {
-        animationFrameId = requestAnimationFrame(animate);
-      }
+    return () => {
+      observer.disconnect();
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
+  }, [end, duration, padZero, shouldReduceMotion]);
 
-    animationFrameId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [hasStarted, end, duration, shouldReduceMotion]);
-
-  const currentVal = shouldReduceMotion ? end : count;
-  const formatted = padZero && currentVal < 10 ? `0${currentVal}` : `${currentVal}`;
+  const initialVal = padZero && end < 10 ? `0${end}` : `${end}`;
 
   return (
     <span ref={ref} className={className}>
-      {formatted}
+      {initialVal}
     </span>
   );
 }
