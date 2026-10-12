@@ -117,6 +117,17 @@ export default function DataRequestForm() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-6 bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] space-y-4 text-xs">
+            {/* Honeypot field */}
+            <input
+              type="text"
+              name="portal_confirm_code"
+              value={(formData as { honeypot?: string }).honeypot || ""}
+              onChange={(e) => setFormData({ ...formData, ...{ honeypot: e.target.value } })}
+              className="sr-only"
+              tabIndex={-1}
+              autoComplete="off"
+            />
+
             {error && (
               <div className="p-3 bg-[#DE2A35]/15 border border-[#DE2A35] rounded-[2px] text-[#DE2A35] flex items-center gap-2">
                 <Warning className="w-4 h-4 shrink-0" />
