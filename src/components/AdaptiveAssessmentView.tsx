@@ -8,24 +8,25 @@ import type {
   TopicId,
   Attempt,
   SessionMemory,
-  TopicMemory,
   MasteryEstimate,
   ResourceRecommendation,
 } from "@/lib/types";
 import type { DemoStudentData } from "@/lib/data/demo";
 import { useI18n } from "@/lib/i18n/context";
+import type { Lang } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import {
   Brain,
   CheckCircle,
-  XCircle,
   ArrowRight,
   Question as QuestionIcon,
   ArrowCounterClockwise,
   BookOpen,
   ArrowSquareOut,
   Flag,
+  WarningCircle,
 } from "@phosphor-icons/react";
+import { MascotHero } from "@/components/illustrations/MascotHero";
 import {
   CURRICULUM_TOPICS,
   TOPIC_DISPLAY_NAMES,
@@ -64,7 +65,7 @@ export function AdaptiveAssessmentView({
   onAssessmentCompleted,
   onCancel,
 }: Props) {
-  const { lang, dict, t, formatTxt } = useI18n();
+  const { lang, setLang, dict, t, formatTxt } = useI18n();
   const classConfig = getClassConfig(selectedClassId);
 
   const [selectedStudentId, setSelectedStudentId] = useState<string>(
@@ -83,11 +84,23 @@ export function AdaptiveAssessmentView({
   const [isLoadingFinish, setIsLoadingFinish] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
+  const [evaluatingSeconds, setEvaluatingSeconds] = useState(0);
+  const [hasError, setHasError] = useState(false);
   const [isBackupQuestion, setIsBackupQuestion] = useState(false);
   const [reportedQuestionId, setReportedQuestionId] = useState<string | null>(null);
   const lastAttemptRef = useRef<Attempt | null>(null);
   const clientSessionIdRef = useRef<string>("");
   const sessionClosedRef = useRef<boolean>(false);
+
+  // Track evaluating duration for calm loading message after 3s without calling setState synchronously in effect body
+  useEffect(() => {
+    if (!isEvaluating) return;
+    const startTime = Date.now();
+    const interval = setInterval(() => {
+      setEvaluatingSeconds(Math.floor((Date.now() - startTime) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isEvaluating]);
 
   // Flush queued offline sessions on load
   useEffect(() => {
@@ -358,8 +371,8 @@ export function AdaptiveAssessmentView({
     setFeedback({
       isCorrect,
       message: isCorrect
-        ? "Good job! Let's continue."
-        : "Let's check another question to understand this.",
+        ? dict.correctFeedback || "Good job! Let's continue."
+        : dict.incorrectFeedback || "Needs practice with this step.",
     });
 
     lastAttemptRef.current = newAttempt;
@@ -875,75 +888,169 @@ export function AdaptiveAssessmentView({
         </div>
       ) : (
         /* ============================================================== */
-        /* SCREEN 2: ACTIVE ADAPTIVE ASSESSMENT                           */
+        /* SCREEN 2: ACTIVE ADAPTIVE ASSESSMENT (CHILD-FRIENDLY ONE THING AT A TIME) */
         /* ============================================================== */
-        <div className="space-y-4">
-          {/* Top Editorial Diagnostic Bar */}
+        <div className="space-y-4 max-w-2xl mx-auto">
+          {/* Top Bar: Progress and Language Switcher */}
           <div className="bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] p-4 sm:p-5 space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#432623]/20 pb-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <span className="editorial-meta text-[#432623]/80">CLASS {classConfig.grade} MATHS CHECK</span>
-                <div className="font-serif font-bold text-base sm:text-lg text-[#432623]">
-                  {activeStudent?.student.name} • Class {classConfig.grade}
+                <span className="editorial-meta text-[#432623]/80">
+                  {classConfig.label.toUpperCase()} MATHS
+                </span>
+                <div className="font-serif font-bold text-lg text-[#432623]">
+                  {activeStudent?.student.name}
                 </div>
               </div>
 
-              {/* Compact Assessment Status */}
-              <div className="text-right">
-                <span className="editorial-meta text-[#432623]/70">TOPIC BEING CHECKED</span>
-                <div className="font-mono text-sm font-bold text-[#432623] mt-0.5">
-                  {currentTopicName} • Question {((currentTopicMemory?.attempts.length || 0) + 1)} of 2
-                </div>
+              {/* Accessible Language Switcher directly reachable on screen */}
+              <div
+                className="flex items-center gap-1 border border-[#432623]/25 rounded-[2px] p-1 bg-[#FAF8E8] dark:bg-[#432623]/30"
+                role="group"
+                aria-label="Language selection"
+              >
+                {(["en", "hi", "te"] as Lang[]).map((l) => (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => setLang(l)}
+                    className={`min-h-[44px] min-w-[44px] px-2.5 rounded-[2px] font-bold text-sm font-mono ${
+                      lang === l
+                        ? "bg-[#432623] text-[#F5F1BC]"
+                        : "text-[#432623] hover:bg-[#F5F1BC]/40"
+                    }`}
+                    aria-label={
+                      l === "en"
+                        ? "Switch language to English"
+                        : l === "hi"
+                        ? "Switch language to Hindi"
+                        : "Switch language to Telugu"
+                    }
+                    aria-pressed={lang === l}
+                  >
+                    {l === "en" ? "EN" : l === "hi" ? "हिन्दी" : "తెలుగు"}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Assessment Progress Breadcrumbs */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-              {(sessionMemory?.topics || []).map((tMem: TopicMemory, idx: number) => {
-                const currentIdx = sessionMemory?.currentTopicIndex ?? 0;
-                const isPast = idx < currentIdx;
-                const isCurrent = idx === currentIdx;
-
-                return (
-                  <div
-                    key={tMem.topicId}
-                    className={`px-3 py-1.5 rounded-[2px] border text-sm font-semibold flex items-center justify-between ${
-                      isCurrent
-                        ? "bg-[#432623] text-[#F5F1BC] border-[#432623]"
-                        : isPast
-                        ? tMem.status === "mastered"
-                          ? "bg-[#8ABB93]/20 text-[#432623] border-[#8ABB93]/40"
-                          : tMem.status === "gap"
-                          ? "bg-[#DE2A35]/20 text-[#432623] border-[#DE2A35]/40"
-                          : "bg-[#DFA06E]/20 text-[#432623] border-[#DFA06E]/40"
-                        : "bg-[#FAF8E8] dark:bg-[#432623]/30 text-[#432623]/70 border-[#432623]/20 opacity-70"
-                    }`}
-                  >
-                    <span className="truncate">{TOPIC_DISPLAY_NAMES[tMem.topicId]?.en || tMem.topicId}</span>
-                    <span className="font-mono font-bold ml-1.5">
-                      {isPast ? (tMem.status === "mastered" ? "✓" : tMem.status === "gap" ? "✗" : "~") : isCurrent ? "●" : "○"}
-                    </span>
-                  </div>
-                );
-              })}
+            {/* Simple Progress Bar: e.g. "Question 3 of 8" with no jargon */}
+            <div className="space-y-1.5 pt-1 border-t border-[#432623]/15">
+              <div className="flex items-center justify-between text-base font-bold text-[#432623]">
+                <span>
+                  {dict.questionLabel || "Question"} {totalQuestionsAnswered + (currentQuestion ? 1 : 0)} of {Math.max(totalQuestionsAnswered + (currentQuestion ? 1 : 0), (sessionMemory?.topics.length || 4) * 2)}
+                </span>
+                <span className="text-sm font-mono text-[#432623]/70">
+                  {currentTopicName}
+                </span>
+              </div>
+              <div className="w-full bg-[#432623]/15 h-3 rounded-[2px] overflow-hidden">
+                <div
+                  className="bg-[#8ABB93] h-full rounded-[2px] transition-all duration-300"
+                  style={{
+                    width: `${Math.min(
+                      100,
+                      Math.round(
+                        ((totalQuestionsAnswered + (currentQuestion ? 1 : 0)) /
+                          Math.max(1, (sessionMemory?.topics.length || 4) * 2)) *
+                          100
+                      )
+                    )}%`,
+                  }}
+                />
+              </div>
             </div>
           </div>
 
-          {/* Large Prominent Question Card */}
-          {currentQuestion && (
+          {/* Friendly Mascot Gappu placed unobtrusively beside header, never blocking question */}
+          <div className="flex items-center gap-3 p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/20 rounded-[2px]">
+            <div className="w-12 h-14 shrink-0 overflow-hidden flex items-center justify-center">
+              <MascotHero width={48} height={58} className="scale-90" />
+            </div>
+            <div className="text-sm font-medium text-[#432623] leading-relaxed">
+              {lang === "hi"
+                ? "गप्पू आपके साथ सीख रहा है! आराम से उत्तर दें।"
+                : lang === "te"
+                ? "గప్పు మీతో పాటు నేర్చుకుంటున్నాడు! నిదానంగా ఆలోచించి సమాధానం ఇవ్వండి."
+                : "Gappu is learning with you! Take your time and choose the best answer."}
+            </div>
+          </div>
+
+          {/* Calm Loading State: skeleton with reassuring message */}
+          {isEvaluating ? (
+            <div className="bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] p-8 sm:p-12 space-y-6 text-center">
+              <div className="space-y-4 max-w-md mx-auto">
+                <div className="h-8 bg-[#432623]/10 rounded-[2px] animate-pulse w-3/4 mx-auto" />
+                <div className="h-16 bg-[#432623]/10 rounded-[2px] animate-pulse w-full mx-auto" />
+                <div className="space-y-3 pt-4">
+                  <div className="h-12 bg-[#432623]/10 rounded-[2px] animate-pulse w-full" />
+                  <div className="h-12 bg-[#432623]/10 rounded-[2px] animate-pulse w-full" />
+                </div>
+              </div>
+              <div className="pt-4 border-t border-[#432623]/15">
+                <p className="font-serif text-lg font-bold text-[#432623]">
+                  {evaluatingSeconds >= 3
+                    ? lang === "hi"
+                      ? "अगला प्रश्न तैयार हो रहा है... कृपया थोड़ा इंतज़ार करें।"
+                      : lang === "te"
+                      ? "తదుపరి ప్రశ్న సిద్ధమవుతోంది... దయచేసి వేచి ఉండండి."
+                      : "Getting your next question ready... Thank you for waiting."
+                    : lang === "hi"
+                    ? "तैयार हो रहा है..."
+                    : lang === "te"
+                    ? "సిద్ధమవుతోంది..."
+                    : "Preparing your next step..."}
+                </p>
+              </div>
+            </div>
+          ) : hasError ? (
+            /* Friendly Error State with Retry Button */
+            <div className="bg-[var(--surface)] border border-[#DE2A35]/30 rounded-[2px] p-6 sm:p-8 space-y-4 text-center">
+              <div className="w-12 h-12 mx-auto rounded-full bg-[#FAF8E8] border border-[#DE2A35] flex items-center justify-center text-[#B51E28]">
+                <WarningCircle size={28} weight="bold" />
+              </div>
+              <h3 className="font-serif text-xl font-bold text-[#432623]">
+                {lang === "hi"
+                  ? "इंटरनेट में थोड़ी रुकावट आई"
+                  : lang === "te"
+                  ? "నెట్‌వర్క్ సమస్య ఎదురైంది"
+                  : "We had trouble loading the next question"}
+              </h3>
+              <p className="text-base text-[#432623]/80 max-w-md mx-auto">
+                {lang === "hi"
+                  ? "चिंता न करें, आपका काम सुरक्षित है। पुनः प्रयास करने के लिए नीचे बटन दबाएं।"
+                  : lang === "te"
+                  ? "చింతించకండి, మీ సమాధానాలు సురక్షితంగా ఉన్నాయి. మళ్ళీ ప్రయత్నించడానికి కింద బటన్ నొక్కండి."
+                  : "Don't worry, your progress is safe. Tap the button below to try again."}
+              </p>
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setHasError(false);
+                    handleNextStep();
+                  }}
+                  className="neo-btn neo-btn-primary min-h-[48px] px-8 text-base font-bold rounded-[2px]"
+                >
+                  {lang === "hi" ? "फिर से कोशिश करें (Retry)" : lang === "te" ? "మళ్ళీ ప్రయత్నించండి" : "Try Again"}
+                </button>
+              </div>
+            </div>
+          ) : currentQuestion ? (
+            /* Active Question Card */
             <div className="bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] p-6 sm:p-8 space-y-6">
               {/* Question Eyebrow */}
               <div className="flex items-center justify-between border-b border-[#432623]/20 pb-3">
                 <div className="flex items-center gap-2">
                   <span className="editorial-meta text-[#432623]/70">
-                    QUESTION {totalQuestionsAnswered + 1}
+                    {dict.questionLabel || "Question"} {totalQuestionsAnswered + 1}
                   </span>
                   <span className="text-sm text-[#432623]/40">•</span>
                   <span className="text-sm font-semibold text-[#432623]">{currentTopicName}</span>
                   {isBackupQuestion && (
                     <span
                       data-testid="backup-question-note"
-                      className="ml-2 inline-flex items-center text-sm sm:text-sm px-2 py-0.5 rounded font-medium bg-amber-50 text-amber-800 border border-amber-200"
+                      className="ml-2 inline-flex items-center text-sm px-2 py-0.5 rounded font-medium bg-amber-50 text-amber-800 border border-amber-200"
                     >
                       Using backup question
                     </span>
@@ -955,19 +1062,16 @@ export function AdaptiveAssessmentView({
                     onClick={handleReportQuestion}
                     disabled={reportedQuestionId === (currentQuestion.id || `${currentQuestion.conceptId}_${currentQuestion.difficulty}`)}
                     data-testid="report-question-btn"
-                    className="inline-flex items-center gap-1 text-sm text-[#432623]/70 hover:text-[#B51E28] px-2 py-0.5 rounded border border-[#432623]/20 hover:border-[#DE2A35]/30 transition-colors"
+                    className="inline-flex items-center gap-1 min-h-[44px] text-sm text-[#432623]/70 hover:text-[#B51E28] px-2 py-0.5 rounded border border-[#432623]/20 hover:border-[#DE2A35]/30 transition-colors"
                     title="Report question for teacher review"
                   >
-                    <Flag className="w-3 h-3" />
+                    <Flag className="w-3.5 h-3.5" />
                     <span>
                       {reportedQuestionId === (currentQuestion.id || `${currentQuestion.conceptId}_${currentQuestion.difficulty}`)
                         ? "Reported"
                         : "Report this question"}
                     </span>
                   </button>
-                  <span className="bg-[#FAF8E8] dark:bg-[#432623]/30 text-[#432623] text-sm font-mono font-bold px-2 py-0.5 rounded-[2px] border border-[#432623]/25 uppercase">
-                    DIFFICULTY LEVEL {currentQuestion.difficulty}
-                  </span>
                 </div>
               </div>
 
@@ -986,17 +1090,18 @@ export function AdaptiveAssessmentView({
                 )}
               </div>
 
-              {/* Answer Options or Input */}
+              {/* Answer Options as large full-width buttons */}
               {!feedback ? (
                 <div className="space-y-4 pt-2">
                   {currentQuestion.options && currentQuestion.options.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-3">
                       {currentQuestion.options.map((opt) => (
                         <button
                           key={opt.id}
+                          type="button"
                           onClick={() => handleSubmit(opt.value)}
                           disabled={isEvaluating}
-                          className="neo-btn neo-btn-secondary p-4 text-left text-[18px] sm:text-xl font-bold flex items-center justify-between rounded-[2px] group leading-relaxed"
+                          className="w-full neo-btn neo-btn-secondary min-h-[56px] p-4 text-left text-[18px] sm:text-xl font-bold flex items-center justify-between rounded-[2px] group leading-relaxed"
                         >
                           <span className="font-mono">{formatTxt(opt.label)}</span>
                           <span className="text-sm font-mono text-[#432623]/70 group-hover:text-[#432623]">
@@ -1006,77 +1111,84 @@ export function AdaptiveAssessmentView({
                       ))}
                     </div>
                   ) : (
-                    <div className="flex flex-col sm:flex-row gap-2 max-w-md">
+                    <div className="flex flex-col sm:flex-row gap-2 w-full">
                       <Input
                         placeholder={dict.enterAnswer}
                         value={userAnswer}
                         onChange={(e) => setUserAnswer(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSubmit(userAnswer)}
                         disabled={isEvaluating}
-                        className="h-12 font-mono text-lg bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623]"
+                        className="h-14 font-mono text-xl bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623] w-full"
                       />
                       <button
+                        type="button"
                         onClick={() => handleSubmit(userAnswer)}
                         disabled={isEvaluating}
-                        className="neo-btn neo-btn-primary px-6 h-12 text-sm font-bold shrink-0 rounded-[2px]"
+                        className="neo-btn neo-btn-primary px-8 min-h-[56px] text-lg font-bold shrink-0 rounded-[2px]"
                       >
                         {dict.submitAnswer}
                       </button>
                     </div>
                   )}
 
-                  {/* Student Hint Button */}
+                  {/* Student Visible Hint Button where hints exist */}
                   {currentQuestion.hint && (
-                    <div className="pt-2">
+                    <div className="pt-3">
                       {!showHint ? (
                         <button
                           type="button"
                           onClick={() => setShowHint(true)}
-                          className="text-sm text-[#432623] font-semibold flex items-center gap-1 hover:underline"
+                          className="min-h-[44px] px-3 py-2 text-base text-[#432623] font-bold flex items-center gap-1.5 hover:underline border border-[#432623]/20 rounded-[2px] bg-[#FAF8E8]"
                         >
-                          <QuestionIcon className="w-3.5 h-3.5" />
-                          <span>Need a hint?</span>
+                          <QuestionIcon className="w-5 h-5 text-[#B51E28]" />
+                          <span>{dict.showHint || "Need a hint?"}</span>
                         </button>
                       ) : (
-                        <div className="bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#DFA06E]/40 p-3 rounded-[2px] text-sm text-[#432623]">
-                          <strong className="text-[#432623] bg-[#DFA06E] px-1 rounded-[2px]">Hint:</strong> {formatTxt(currentQuestion.hint)}
+                        <div className="bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#DFA06E]/60 p-4 rounded-[2px] text-base text-[#432623] leading-relaxed">
+                          <strong className="text-[#432623] bg-[#DFA06E] px-1.5 py-0.5 rounded-[2px] mr-1">
+                            {dict.hintLabel || "Hint"}:
+                          </strong>{" "}
+                          {formatTxt(currentQuestion.hint)}
                         </div>
                       )}
                     </div>
                   )}
                 </div>
               ) : (
-                /* Post-Submission Feedback */
+                /* Post-Submission Calm Feedback and one clear Next Button */
                 <div className="space-y-4 pt-2">
                   <div
-                    className={`p-4 rounded-[2px] border flex items-center justify-between gap-4 ${
+                    className={`p-5 rounded-[2px] border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                       feedback.isCorrect
-                        ? "bg-[#8ABB93]/15 border-[#8ABB93] text-[#432623]"
-                        : "bg-[#DE2A35]/15 border-[#DE2A35] text-[#432623]"
+                        ? "bg-[#8ABB93]/20 border-[#8ABB93] text-[#432623]"
+                        : "bg-[#FAF8E8] border-[#DFA06E] text-[#432623]"
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       {feedback.isCorrect ? (
-                        <CheckCircle className="w-5 h-5 shrink-0 text-[#8ABB93]" />
+                        <CheckCircle className="w-6 h-6 shrink-0 text-[#8ABB93]" />
                       ) : (
-                        <XCircle className="w-5 h-5 shrink-0 text-[#DE2A35]" />
+                        <CheckCircle className="w-6 h-6 shrink-0 text-[#DFA06E]" />
                       )}
-                      <span className="text-sm font-bold text-[#432623]">{feedback.message}</span>
+                      <span className="text-base sm:text-lg font-bold text-[#432623]">
+                        {feedback.message}
+                      </span>
                     </div>
 
                     <button
+                      type="button"
                       onClick={handleNextStep}
                       disabled={isEvaluating}
-                      className="neo-btn neo-btn-primary px-5 py-2 text-sm font-bold flex items-center gap-1.5 shrink-0 rounded-[2px]"
+                      className="neo-btn neo-btn-primary min-h-[48px] px-8 text-base font-bold flex items-center justify-center gap-2 shrink-0 rounded-[2px]"
                     >
-                      <span>Continue</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <span>{dict.nextQuestion || "Next"}</span>
+                      <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
               )}
             </div>
-          )}
+          ) : null}
         </div>
       )}
     </div>
