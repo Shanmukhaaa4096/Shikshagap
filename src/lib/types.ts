@@ -409,4 +409,29 @@ export interface SessionMemory {
   seenSignatures?: string[];
 }
 
+export interface EducationalResource {
+  id: string;
+  title: string;
+  url: string;
+  source: "NCERT" | "DIKSHA" | "Khan Academy" | string;
+  topicId: TopicId;
+  conceptIds: ConceptId[];
+  grade: number[];
+  language: "en" | "hi" | "te" | string;
+  type: "video" | "worksheet" | "article" | "exercise";
+  description: string;
+}
+
+export interface ResourceRecommendation {
+  topicId: TopicId;
+  resources: Array<{
+    id: string;
+    title: string;
+    url: string;
+    source: string;
+    type: string;
+    reason: string;
+  }>;
+}
+
 
