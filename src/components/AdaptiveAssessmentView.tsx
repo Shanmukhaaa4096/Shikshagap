@@ -465,6 +465,20 @@ export function AdaptiveAssessmentView({
                       <p className="text-xs text-[#432623]/80 mt-0.5">
                         Failed level 2 and level 1. Foundational support needed before advancing.
                       </p>
+                      {topicMem.misconceptions && topicMem.misconceptions.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {topicMem.misconceptions.map((m) => (
+                            <span key={m} className="text-[10px] font-mono uppercase bg-[#DE2A35]/15 text-[#DE2A35] px-2 py-0.5 rounded-[2px] border border-[#DE2A35]/25">
+                              {m.replace(/_/g, " ")}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {topicMem.notes && topicMem.notes.length > 0 && (
+                        <p className="text-[11px] italic text-[#432623]/70 mt-1">
+                          Teacher Note: {topicMem.notes.join("; ")}
+                        </p>
+                      )}
                     </div>
                     <span className="bg-[#DE2A35]/15 text-[#DE2A35] text-xs font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#DE2A35]/30 uppercase">
                       GAP
@@ -492,6 +506,20 @@ export function AdaptiveAssessmentView({
                       <p className="text-xs text-[#432623]/80 mt-0.5">
                         Concept partially established. Additional practice recommended.
                       </p>
+                      {topicMem.misconceptions && topicMem.misconceptions.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {topicMem.misconceptions.map((m) => (
+                            <span key={m} className="text-[10px] font-mono uppercase bg-[#DFA06E]/15 text-[#DFA06E] px-2 py-0.5 rounded-[2px] border border-[#DFA06E]/25">
+                              {m.replace(/_/g, " ")}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {topicMem.notes && topicMem.notes.length > 0 && (
+                        <p className="text-[11px] italic text-[#432623]/70 mt-1">
+                          Teacher Note: {topicMem.notes.join("; ")}
+                        </p>
+                      )}
                     </div>
                     <span className="bg-[#DFA06E]/15 text-[#DFA06E] text-xs font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#DFA06E]/30 uppercase">
                       NEEDS PRACTICE

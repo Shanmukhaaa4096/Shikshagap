@@ -6,6 +6,8 @@ import {
   applyAttemptToMemory,
   type StaircaseAction,
 } from "@/lib/agents/staircase";
+import { runExaminerStep } from "@/lib/agents/examiner";
+import { analyzeErrors } from "@/lib/agents/errorAnalyst";
 import type {
   Attempt,
   SessionMemory,
@@ -78,24 +80,46 @@ export async function POST(req: NextRequest) {
     let nextAction: StaircaseAction;
 
     if (lastAttempt) {
+      // 1. Advance session memory with student's attempt
       const advanced = applyAttemptToMemory(currentMemory, lastAttempt);
       currentMemory = advanced.memory;
       nextAction = advanced.action;
+
+      // 2. If a topic closed as developing or gap, run Error Analyst
+      if (
+        advanced.closedTopic &&
+        (advanced.closedTopic.status === "developing" || advanced.closedTopic.status === "gap")
+      ) {
+        const closedTopicMem = currentMemory.topics.find(
+          (t) => t.topicId === advanced.closedTopic!.topicId
+        );
+        if (closedTopicMem) {
+          const analystRes = await analyzeErrors({
+            topicId: closedTopicMem.topicId,
+            attempts: closedTopicMem.attempts,
+            pseudonymousId: currentMemory.pseudonymousId,
+            grade: currentMemory.grade,
+          });
+          closedTopicMem.misconceptions = analystRes.labels;
+        }
+      }
     } else {
       nextAction = getNextStaircaseAction(currentMemory);
     }
 
-    if (nextAction.type === "finish") {
-      return NextResponse.json({
-        memory: currentMemory,
-        isFinished: true,
-        nextQuestion: null,
-        action: nextAction,
-      });
+    // 3. Consult Examiner agent via function calling through code gate
+    const examinerRes = await runExaminerStep(currentMemory, lastAttempt);
+    if (examinerRes.notes.length > 0) {
+      const activeTopic =
+        currentMemory.topics[currentMemory.currentTopicIndex] ||
+        currentMemory.topics[currentMemory.currentTopicIndex - 1];
+      if (activeTopic) {
+        activeTopic.notes.push(...examinerRes.notes);
+      }
     }
+    nextAction = examinerRes.action;
 
     if (nextAction.type === "close_topic") {
-      // If closing, advance memory to next topic
       const advanced = applyAttemptToMemory(currentMemory, {
         conceptId: "number_sense",
         level: 2,
@@ -105,15 +129,6 @@ export async function POST(req: NextRequest) {
       });
       currentMemory = advanced.memory;
       nextAction = advanced.action;
-
-      if (nextAction.type === "finish") {
-        return NextResponse.json({
-          memory: currentMemory,
-          isFinished: true,
-          nextQuestion: null,
-          action: nextAction,
-        });
-      }
     }
 
     if (nextAction.type !== "ask") {
@@ -125,7 +140,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Generate unique question for the legal staircase action
+    // 4. Generate unique question (never written by LLM; generated purely by code)
     const seen = new Set<string>(currentMemory.seenSignatures || []);
     const nextQuestion = generateUnique(
       nextAction.conceptId,
@@ -140,7 +155,6 @@ export async function POST(req: NextRequest) {
       isFinished: false,
       nextQuestion,
       action: nextAction,
-      // Compatibility decision mapping
       decision: {
         action: nextAction.type,
         topicId: nextAction.topicId,
