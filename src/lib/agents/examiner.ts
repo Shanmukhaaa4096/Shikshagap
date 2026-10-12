@@ -27,7 +27,6 @@ import type {
   Attempt,
   ConceptId,
   SessionMemory,
-  TopicId,
 } from "../types";
 
 export const EXAMINER_TOOLS: FunctionDeclaration[] = [
@@ -242,7 +241,7 @@ Your actions are checked by a strict code gate; illegal actions will be rejected
       usedFallback: true,
       rejectedIllegalCall: false,
     };
-  } catch (err) {
+  } catch {
     // LLM call failure fallback
     return {
       action: legalAction,

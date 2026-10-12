@@ -2,10 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   stepAssessment,
-  finalizeAssessment,
 } from "../src/lib/agents/orchestrator.ts";
 import {
-  writeReport,
   generateFallbackSummary,
 } from "../src/lib/agents/reportWriter.ts";
 import { createSessionMemory } from "../src/lib/agents/staircase.ts";

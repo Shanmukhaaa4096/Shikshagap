@@ -426,6 +426,7 @@ export interface EducationalResource {
   language: "en" | "hi" | "te" | string;
   type: "video" | "worksheet" | "article" | "exercise";
   description: string;
+  needsHumanCheck?: boolean;
 }
 
 export interface ResourceRecommendation {

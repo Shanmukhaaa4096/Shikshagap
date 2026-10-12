@@ -9,7 +9,6 @@ import {
   checkIpWordingLimit,
   DAILY_BUDGET_LIMIT,
   getFallbackHistory,
-  clearFallbackHistory,
 } from '../src/lib/questions/hybridGenerator.ts';
 import { generateQuestion } from '../src/lib/questions/generator.ts';
 import { makeRng } from '../src/lib/rng.ts';

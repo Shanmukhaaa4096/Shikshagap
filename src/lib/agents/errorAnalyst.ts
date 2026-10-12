@@ -194,7 +194,7 @@ Return ONLY valid JSON matching this schema:
     }
 
     return { labels: validatedLabels, details: validatedDetails };
-  } catch (err) {
+  } catch {
     // If Gemini call fails for any reason, fall back gracefully
     return { labels: fallback, details: fallbackDetails };
   }

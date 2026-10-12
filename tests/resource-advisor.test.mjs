@@ -163,3 +163,32 @@ test("Resource Advisor: Falls back to top-3 if Gemini returns ONLY invalid IDs",
     assert.ok(r.id.startsWith("res_div_"));
   }
 });
+
+test("Resource Advisor: Ranking changes with the query via cosine similarity of embeddings", () => {
+  const numberCandidates = filterCandidates(resourcesData, "number_ops", 4, "en");
+  assert.ok(numberCandidates.length >= 2, "Should have multiple candidates to rank");
+
+  // Query 1: place value and units
+  const query1 = "Place Value Introduction Units to Thousands";
+  const emb1 = computeDeterministicQueryEmbedding(query1);
+  const ranked1 = rankCandidates(numberCandidates, emb1, embeddingsData);
+
+  // Query 2: subtraction with borrowing across zeros
+  const query2 = "Subtraction with Regrouping Borrowing Across Zeros";
+  const emb2 = computeDeterministicQueryEmbedding(query2);
+  const ranked2 = rankCandidates(numberCandidates, emb2, embeddingsData);
+
+  assert.ok(ranked1.length > 0 && ranked2.length > 0);
+  assert.ok(ranked1[0].score > 0, "Top candidate should have positive similarity score");
+  assert.ok(ranked2[0].score > 0, "Top candidate should have positive similarity score");
+
+  // Top candidate differs based on misconception query
+  const top1Id = ranked1[0].resource.id;
+  const top2Id = ranked2[0].resource.id;
+  assert.notEqual(top1Id, top2Id, "Top recommended candidate should differ based on query misconceptions");
+
+  // Verify cosine similarity function properties
+  const simIdentical = cosineSimilarity(emb1, emb1);
+  assert.ok(Math.abs(simIdentical - 1.0) < 0.0001, "Self-similarity should be 1.0");
+});
+

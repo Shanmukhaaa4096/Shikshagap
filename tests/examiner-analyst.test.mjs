@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { runExaminerStep } from '../src/lib/agents/examiner.ts';
-import { analyzeErrors, getFallbackMisconceptions } from '../src/lib/agents/errorAnalyst.ts';
+import { analyzeErrors } from '../src/lib/agents/errorAnalyst.ts';
 import {
   createSessionMemory,
   getNextStaircaseAction,

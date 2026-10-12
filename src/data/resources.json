@@ -478,5 +478,44 @@
     "language": "hi",
     "type": "article",
     "description": "एनसीईआरटी कक्षा 5 गणित का पाठ 'हिस्से और पूरे' - भिन्न, समतुल्य भिन्न और दैनिक जीवन में भागों का उपयोग।"
+  },
+  {
+    "id": "res_frac_11",
+    "title": "Halves and Quarters Introduction (భాగములు మరియు భిన్నాలు)",
+    "url": "https://te.khanacademy.org/math/in-in-class-4th-math-cbse/x20a811ad36e8aa3a:halves-and-quarters",
+    "source": "Khan Academy",
+    "topicId": "fractions",
+    "conceptIds": ["fraction_basics", "equivalent_fractions"],
+    "grade": [3, 4, 5],
+    "language": "te",
+    "type": "video",
+    "description": "అర్ధభాగం, పావుభాగం మరియు ప్రాథమిక భిన్నాల భావనలపై తెలుగులో సచిత్ర వివరణ.",
+    "needsHumanCheck": false
+  },
+  {
+    "id": "res_num_11",
+    "title": "Give and Take: 3-Digit Addition & Subtraction (लेन देन)",
+    "url": "https://hi.khanacademy.org/math/in-in-class-3rd-math-cbse",
+    "source": "Khan Academy",
+    "topicId": "number_ops",
+    "conceptIds": ["addition_3digit", "subtraction_3digit", "addition"],
+    "grade": [3],
+    "language": "hi",
+    "type": "video",
+    "description": "कक्षा 3 एनसीईआरटी गणित का जादू अध्याय 3 लेन देन: 3-अंकीय जोड़ और घटाव की अभ्यास गतिविधियाँ।",
+    "needsHumanCheck": false
+  },
+  {
+    "id": "res_mul_11",
+    "title": "Ways to Multiply and Divide (గుణకార మరియు భాగహార పద్ధతులు)",
+    "url": "https://te.khanacademy.org/math/in-in-class-5th-math-cbse",
+    "source": "Khan Academy",
+    "topicId": "multiplication",
+    "conceptIds": ["multi_digit_mult", "mult_facts"],
+    "grade": [4, 5],
+    "language": "te",
+    "type": "video",
+    "description": "తరగతి 5 గుణకారం మరియు నిత్యజీవిత లెక్కల సాధన పద్ధతులపై ప్రాథమిక అభ్యాస వనరు.",
+    "needsHumanCheck": false
   }
 ]

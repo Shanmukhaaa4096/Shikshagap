@@ -8,8 +8,6 @@ import type {
   Attempt,
   SessionMemory,
   TopicMemory,
-  TopicStatus,
-  DiagnosticResult,
   MasteryEstimate,
   ResourceRecommendation,
 } from "@/lib/types";
@@ -22,8 +20,6 @@ import {
   XCircle,
   ArrowRight,
   Question as QuestionIcon,
-  CaretDown,
-  CaretUp,
   ArrowCounterClockwise,
   BookOpen,
   ArrowSquareOut,
@@ -31,14 +27,12 @@ import {
 import {
   CURRICULUM_TOPICS,
   TOPIC_DISPLAY_NAMES,
-  estimateMastery,
 } from "@/lib/engine/diagnostic";
 import { TOPICS } from "@/lib/concepts/graph";
 import {
   createSessionMemory,
   getNextStaircaseAction,
   applyAttemptToMemory,
-  getConceptForTopic,
 } from "@/lib/agents/staircase";
 import { generateUnique } from "@/lib/questions/generator";
 import { makeRng } from "@/lib/rng";
@@ -80,7 +74,6 @@ export function AdaptiveAssessmentView({
   const [reportSummary, setReportSummary] = useState<string>("");
   const [isLoadingFinish, setIsLoadingFinish] = useState(false);
   const [showHint, setShowHint] = useState(false);
-  const [showTeacherTrace, setShowTeacherTrace] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [isBackupQuestion, setIsBackupQuestion] = useState(false);
   const lastAttemptRef = useRef<Attempt | null>(null);
