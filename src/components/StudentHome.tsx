@@ -3,22 +3,86 @@
 import React from "react";
 import type { DemoStudentData } from "@/lib/data/demo";
 import { useI18n } from "@/lib/i18n/context";
-import { ArrowRight } from "@phosphor-icons/react";
+import { ArrowRight, WarningCircle } from "@phosphor-icons/react";
 
 interface Props {
-  studentData: DemoStudentData;
+  studentData?: DemoStudentData | null;
+  isLoading?: boolean;
+  isError?: boolean;
+  onRetry?: () => void;
   onStartPractice: (conceptId: string) => void;
   onTakeAssessment: (studentId: string, conceptId: string) => void;
 }
 
 export function StudentHome({
   studentData,
+  isLoading = false,
+  isError = false,
+  onRetry,
   onStartPractice,
   onTakeAssessment,
 }: Props) {
   const { dict, t, lang } = useI18n();
-  const { student, profile, activePlan } = studentData;
 
+  // 1. Loading State
+  if (isLoading) {
+    return (
+      <div className="w-full max-w-xl mx-auto py-8 sm:py-12 px-4 space-y-6 text-center">
+        <div className="bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-8 space-y-4">
+          <div className="h-8 bg-[#432623]/10 rounded-[2px] animate-pulse w-2/3 mx-auto" />
+          <div className="h-4 bg-[#432623]/10 rounded-[2px] animate-pulse w-1/2 mx-auto" />
+          <div className="h-24 bg-[#432623]/10 rounded-[2px] animate-pulse w-full mt-6" />
+        </div>
+        <p className="font-serif text-base font-bold text-[#432623] dark:text-[#F5F1BC]">
+          {lang === "hi"
+            ? "सीखने का विवरण लोड हो रहा है..."
+            : lang === "te"
+            ? "పాఠ్యాంశాల వివరాలు లోడ్ అవుతున్నాయి..."
+            : "Loading your learning details..."}
+        </p>
+      </div>
+    );
+  }
+
+  // 2. Error State
+  if (isError || !studentData) {
+    return (
+      <div className="w-full max-w-xl mx-auto py-8 sm:py-12 px-4 space-y-6 text-center">
+        <div className="bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#DE2A35]/30 rounded-[2px] p-8 space-y-4">
+          <div className="w-12 h-12 mx-auto rounded-full bg-[#FAF8E8] border border-[#DE2A35] flex items-center justify-center text-[#B51E28]">
+            <WarningCircle size={28} weight="bold" />
+          </div>
+          <h2 className="font-serif text-2xl font-bold text-[#432623] dark:text-[#F5F1BC]">
+            {lang === "hi"
+              ? "विद्यार्थी की जानकारी नहीं मिल सकी"
+              : lang === "te"
+              ? "విద్యార్థి సమాచారం లోడ్ కాలేదు"
+              : "Could not load student information"}
+          </h2>
+          <p className="text-base text-[#432623]/80 dark:text-[#F5F1BC]/80">
+            {lang === "hi"
+              ? "कृपया दोबारा प्रयास करें।"
+              : lang === "te"
+              ? "దయచేసి మళ్ళీ ప్రయత్నించండి."
+              : "Please check your network and try again."}
+          </p>
+          {onRetry && (
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={onRetry}
+                className="neo-btn neo-btn-primary min-h-[48px] px-8 text-base font-bold rounded-[2px]"
+              >
+                {lang === "hi" ? "फिर से कोशिश करें" : lang === "te" ? "మళ్ళీ ప్రయత్నించండి" : "Try Again"}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  const { student, profile, activePlan } = studentData;
   const rootCause = profile.rootCauses[0];
   const targetConcept = rootCause?.rootId || "mult_facts";
   const targetConceptName = t(`c_${targetConcept}`) || "Multiplication Tables";

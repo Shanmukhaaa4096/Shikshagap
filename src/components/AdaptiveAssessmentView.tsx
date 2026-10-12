@@ -25,8 +25,12 @@ import {
   ArrowSquareOut,
   Flag,
   WarningCircle,
+  Printer,
+  Sparkle,
 } from "@phosphor-icons/react";
 import { MascotHero } from "@/components/illustrations/MascotHero";
+import { WorksheetModal } from "@/components/WorksheetModal";
+import { getSkillEntry } from "@/data/skillSheet";
 import {
   CURRICULUM_TOPICS,
   TOPIC_DISPLAY_NAMES,
@@ -88,6 +92,7 @@ export function AdaptiveAssessmentView({
   const [hasError, setHasError] = useState(false);
   const [isBackupQuestion, setIsBackupQuestion] = useState(false);
   const [reportedQuestionId, setReportedQuestionId] = useState<string | null>(null);
+  const [isWorksheetOpen, setIsWorksheetOpen] = useState(false);
   const lastAttemptRef = useRef<Attempt | null>(null);
   const clientSessionIdRef = useRef<string>("");
   const sessionClosedRef = useRef<boolean>(false);
@@ -652,136 +657,171 @@ export function AdaptiveAssessmentView({
             </div>
           </div>
 
-          {/* Clean 3-Metric Summary Line */}
+          {/* Clean 3-Metric Summary Line with friendly child-level wording */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#DE2A35]/30 text-center">
-              <div className="editorial-meta text-[#DE2A35]">GAPS ISOLATED</div>
+              <div className="editorial-meta text-[#DE2A35] flex items-center justify-center gap-1">
+                <WarningCircle className="w-3.5 h-3.5" />
+                <span>NEEDS PRACTICE</span>
+              </div>
               <div className="font-serif text-2xl font-bold text-[#DE2A35] mt-1">
                 {gapTopics.length}
               </div>
             </div>
             <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#DFA06E]/30 text-center">
-              <div className="editorial-meta text-[#432623] font-bold">NEEDS PRACTICE</div>
+              <div className="editorial-meta text-[#432623] font-bold flex items-center justify-center gap-1">
+                <Sparkle className="w-3.5 h-3.5 text-[#DFA06E]" />
+                <span>GETTING THERE</span>
+              </div>
               <div className="font-serif text-2xl font-bold text-[#432623] mt-1">
                 {devTopics.length}
               </div>
             </div>
             <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#8ABB93]/30 text-center">
-              <div className="editorial-meta text-[#432623] font-bold">MASTERED</div>
+              <div className="editorial-meta text-[#432623] font-bold flex items-center justify-center gap-1">
+                <CheckCircle className="w-3.5 h-3.5 text-[#8ABB93]" />
+                <span>STRONG</span>
+              </div>
               <div className="font-serif text-2xl font-bold text-[#432623] mt-1">
                 {masteredTopics.length}
               </div>
             </div>
           </div>
 
-          {/* 1. GAP TOPICS FIRST per SPEC.md */}
+          {/* 1. TOPICS TO PRACTISE FIRST (GAP TOPICS) */}
           {gapTopics.length > 0 && (
             <div className="space-y-3">
-              <span className="editorial-meta text-[#DE2A35]">LEARNING GAPS (NEEDS FOUNDATIONAL SUPPORT)</span>
+              <div className="flex items-center justify-between">
+                <span className="editorial-meta text-[#DE2A35] font-bold">
+                  TOPICS TO PRACTISE FIRST
+                </span>
+                <span className="text-sm text-[#432623]/70 font-mono">
+                  {gapTopics.length} {gapTopics.length === 1 ? "topic" : "topics"}
+                </span>
+              </div>
               <div className="grid grid-cols-1 gap-2.5">
-                {gapTopics.map((topicMem) => (
-                  <div
-                    key={topicMem.topicId}
-                    className="p-4 bg-[var(--surface)] border border-[#DE2A35]/40 rounded-[2px] flex items-center justify-between"
-                  >
-                    <div>
-                      <div className="font-bold text-base text-[#432623]">
-                        {TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}
-                      </div>
-                      <p className="text-sm text-[#432623]/80 mt-0.5">
-                        Failed level 2 and level 1. Foundational support needed before advancing.
-                      </p>
-                      {topicMem.misconceptions && topicMem.misconceptions.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1.5">
-                          {topicMem.misconceptions.map((m) => (
-                            <span key={m} className="text-sm font-mono uppercase bg-[#DE2A35]/15 text-[#B51E28] px-2 py-0.5 rounded-[2px] border border-[#DE2A35]/25">
-                              {m.replace(/_/g, " ")}
-                            </span>
-                          ))}
+                {gapTopics.map((topicMem) => {
+                  const targetConcept = TOPICS[topicMem.topicId]?.targets[0];
+                  const skill = targetConcept ? getSkillEntry(targetConcept, classConfig.grade) : undefined;
+                  const outcomeText = skill?.outcome || "Foundational skills in this topic need extra practice before moving on.";
+
+                  return (
+                    <div
+                      key={topicMem.topicId}
+                      className="p-4 bg-[var(--surface)] border border-[#DE2A35]/40 rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    >
+                      <div className="space-y-1">
+                        <div className="font-serif font-bold text-lg text-[#432623]">
+                          {TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}
                         </div>
-                      )}
-                      {topicMem.notes && topicMem.notes.length > 0 && (
-                        <p className="text-sm italic text-[#432623]/70 mt-1">
-                          Teacher Note: {topicMem.notes.join("; ")}
+                        <p className="text-base text-[#432623]/80 leading-relaxed max-w-xl">
+                          {outcomeText}
                         </p>
-                      )}
+                      </div>
+                      <span className="inline-flex items-center gap-1.5 bg-[#FAF8E8] border border-[#DE2A35] text-[#B51E28] font-bold text-sm px-3 py-1 rounded-[2px] shrink-0 self-start sm:self-center">
+                        <WarningCircle className="w-4 h-4 text-[#B51E28]" weight="bold" />
+                        <span>Needs Practice</span>
+                      </span>
                     </div>
-                    <span className="bg-[#DE2A35]/15 text-[#B51E28] text-sm font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#DE2A35]/30 uppercase">
-                      GAP
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
 
-          {/* 2. DEVELOPING TOPICS SECOND per SPEC.md */}
+          {/* 2. DEVELOPING TOPICS (GETTING THERE) */}
           {devTopics.length > 0 && (
             <div className="space-y-3">
-              <span className="editorial-meta text-[#432623] font-bold">NEEDS PRACTICE (DEVELOPING)</span>
+              <span className="editorial-meta text-[#432623] font-bold">
+                NEXT STEPS TO PRACTISE
+              </span>
               <div className="grid grid-cols-1 gap-2.5">
-                {devTopics.map((topicMem) => (
-                  <div
-                    key={topicMem.topicId}
-                    className="p-4 bg-[var(--surface)] border border-[#DFA06E]/40 rounded-[2px] flex items-center justify-between"
-                  >
-                    <div>
-                      <div className="font-bold text-base text-[#432623]">
-                        {TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}
-                      </div>
-                      <p className="text-sm text-[#432623]/80 mt-0.5">
-                        Concept partially established. Additional practice recommended.
-                      </p>
-                      {topicMem.misconceptions && topicMem.misconceptions.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1.5">
-                          {topicMem.misconceptions.map((m) => (
-                            <span key={m} className="text-sm font-mono uppercase bg-[#DFA06E] text-[#432623] font-bold px-2 py-0.5 rounded-[2px] border border-[#DFA06E]/25">
-                              {m.replace(/_/g, " ")}
-                            </span>
-                          ))}
+                {devTopics.map((topicMem) => {
+                  const targetConcept = TOPICS[topicMem.topicId]?.targets[0];
+                  const skill = targetConcept ? getSkillEntry(targetConcept, classConfig.grade) : undefined;
+                  const outcomeText = skill?.outcome || "Good foundation established; a few more exercises will build full confidence.";
+
+                  return (
+                    <div
+                      key={topicMem.topicId}
+                      className="p-4 bg-[var(--surface)] border border-[#DFA06E]/40 rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    >
+                      <div className="space-y-1">
+                        <div className="font-serif font-bold text-lg text-[#432623]">
+                          {TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}
                         </div>
-                      )}
-                      {topicMem.notes && topicMem.notes.length > 0 && (
-                        <p className="text-sm italic text-[#432623]/70 mt-1">
-                          Teacher Note: {topicMem.notes.join("; ")}
+                        <p className="text-base text-[#432623]/80 leading-relaxed max-w-xl">
+                          {outcomeText}
                         </p>
-                      )}
+                      </div>
+                      <span className="inline-flex items-center gap-1.5 bg-[#DFA06E] text-[#432623] font-bold text-sm px-3 py-1 rounded-[2px] border border-[#DFA06E] shrink-0 self-start sm:self-center">
+                        <Sparkle className="w-4 h-4 text-[#432623]" weight="fill" />
+                        <span>Getting There</span>
+                      </span>
                     </div>
-                    <span className="bg-[#DFA06E] text-[#432623] font-bold text-sm font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#DFA06E]/30 uppercase">
-                      NEEDS PRACTICE
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
 
-          {/* 3. MASTERED TOPICS LAST per SPEC.md */}
+          {/* 3. MASTERED TOPICS (STRONG) */}
           {masteredTopics.length > 0 && (
             <div className="space-y-3">
-              <span className="editorial-meta text-[#432623] font-bold">COMPLETED (MASTERED)</span>
+              <span className="editorial-meta text-[#432623] font-bold">
+                CONCEPTS COMPLETED
+              </span>
               <div className="grid grid-cols-1 gap-2.5">
-                {masteredTopics.map((topicMem) => (
-                  <div
-                    key={topicMem.topicId}
-                    className="p-4 bg-[var(--surface)] border border-[#8ABB93]/40 rounded-[2px] flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <CheckCircle className="w-5 h-5 text-[#8ABB93]" />
-                      <div className="font-bold text-base text-[#432623]">
-                        {TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}
+                {masteredTopics.map((topicMem) => {
+                  const targetConcept = TOPICS[topicMem.topicId]?.targets[0];
+                  const skill = targetConcept ? getSkillEntry(targetConcept, classConfig.grade) : undefined;
+                  const outcomeText = skill?.outcome || "Learner demonstrates solid understanding across target curriculum concepts.";
+
+                  return (
+                    <div
+                      key={topicMem.topicId}
+                      className="p-4 bg-[var(--surface)] border border-[#8ABB93]/40 rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    >
+                      <div className="space-y-1">
+                        <div className="font-serif font-bold text-lg text-[#432623]">
+                          {TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}
+                        </div>
+                        <p className="text-base text-[#432623]/80 leading-relaxed max-w-xl">
+                          {outcomeText}
+                        </p>
                       </div>
+                      <span className="inline-flex items-center gap-1.5 bg-[#8ABB93] text-[#432623] font-bold text-sm px-3 py-1 rounded-[2px] border border-[#8ABB93] shrink-0 self-start sm:self-center">
+                        <CheckCircle className="w-4 h-4 text-[#432623]" weight="bold" />
+                        <span>Strong</span>
+                      </span>
                     </div>
-                    <span className="bg-[#8ABB93] text-[#432623] font-bold text-sm font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#8ABB93]/30 uppercase">
-                      DONE
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
 
-          {/* 4. RECOMMENDED RESOURCES WITH REASONS per SPEC.md */}
+          {/* Prominent Large Print Worksheet Button */}
+          <div className="p-4 sm:p-6 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="space-y-1 text-center sm:text-left">
+              <h3 className="font-serif text-lg font-bold text-[#432623]">
+                Print Practice Worksheet
+              </h3>
+              <p className="text-base text-[#432623]/80">
+                Generate a ready-to-print practice sheet matched to this student&apos;s exact needs.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsWorksheetOpen(true)}
+              className="neo-btn neo-btn-primary min-h-[52px] px-8 text-base font-bold flex items-center justify-center gap-2.5 w-full sm:w-auto shrink-0 rounded-[2px]"
+            >
+              <Printer className="w-5 h-5 text-[#F5F1BC]" />
+              <span>Print Worksheet</span>
+            </button>
+          </div>
+
+          {/* 4. RECOMMENDED RESOURCES WITH REASONS */}
           {isLoadingFinish ? (
             <div className="p-6 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/20 rounded-[2px] text-center space-y-2">
               <div className="inline-block animate-spin w-5 h-5 border-2 border-[#432623] border-t-transparent rounded-full" />
@@ -852,13 +892,13 @@ export function AdaptiveAssessmentView({
             </div>
           ) : null}
 
-          {/* 5. ASSESSMENT SUMMARY per SPEC.md */}
+          {/* 5. ASSESSMENT SUMMARY */}
           {reportSummary && (
             <div className="p-4 sm:p-5 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] space-y-2">
               <span className="editorial-meta text-[#432623]">
                 ASSESSMENT SUMMARY ({sessionMemory?.language.toUpperCase()})
               </span>
-              <p className="font-serif text-sm sm:text-base text-[#432623] leading-relaxed">
+              <p className="font-serif text-base text-[#432623] leading-relaxed">
                 {reportSummary}
               </p>
             </div>
@@ -867,24 +907,35 @@ export function AdaptiveAssessmentView({
           {/* Actions */}
           <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#432623]/20">
             <button
+              type="button"
               onClick={() => {
                 setIsStarted(false);
                 setIsFinished(false);
                 setSessionMemory(null);
               }}
-              className="neo-btn neo-btn-secondary px-4 py-2.5 text-sm font-bold flex items-center gap-1.5 rounded-[2px]"
+              className="neo-btn neo-btn-secondary min-h-[48px] px-6 text-base font-bold flex items-center justify-center gap-2 rounded-[2px] w-full sm:w-auto"
             >
-              <ArrowCounterClockwise className="w-3.5 h-3.5" />
+              <ArrowCounterClockwise className="w-4 h-4" />
               <span>Check Another Student</span>
             </button>
             <button
+              type="button"
               onClick={handleSaveAndFinish}
-              className="neo-btn neo-btn-primary px-6 py-2.5 text-sm sm:text-sm font-bold flex items-center gap-2 rounded-[2px]"
+              className="neo-btn neo-btn-primary min-h-[48px] px-8 text-base font-bold flex items-center justify-center gap-2 rounded-[2px] w-full sm:w-auto"
             >
               <span>SAVE &amp; RETURN TO DASHBOARD</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
+
+          {/* Modal for Printable Practice Worksheet */}
+          {activeStudent && (
+            <WorksheetModal
+              data={activeStudent}
+              isOpen={isWorksheetOpen}
+              onClose={() => setIsWorksheetOpen(false)}
+            />
+          )}
         </div>
       ) : (
         /* ============================================================== */
