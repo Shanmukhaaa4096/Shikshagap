@@ -16,6 +16,7 @@ import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 import type { ConceptId, Difficulty, Lang, Question } from "../types.ts";
 import { getSkillEntry, getSkillRange } from "../../data/skillSheet.ts";
+import { retrieveQuestionMemory, saveValidatedQuestion } from "../db/questionMemory.ts";
 
 // ---------------------------------------------------------------------------
 // 1. Zod Schema for Structured Output
@@ -482,6 +483,19 @@ export async function enhanceQuestionWithHybridWording(
     const runtimeTheme = pickRuntimeTheme();
 
     const sessionHistory = Array.from(seenSignatures).slice(-5);
+    let pastExamplesSection = "";
+    try {
+      const memory = await retrieveQuestionMemory(grade, baseQuestion.conceptId, language);
+      if (memory.nearDuplicates.length > 0) {
+        pastExamplesSection += `\nAvoid making near-duplicates of these previous questions:\n${memory.nearDuplicates.map((q, idx) => `${idx + 1}. ${q.text}`).join("\n")}\n`;
+      }
+      if (memory.goodExamples.length > 0) {
+        pastExamplesSection += `\nHigh quality reference examples (use for style and variety inspiration):\n${memory.goodExamples.map((q, idx) => `${idx + 1}. ${q.text}`).join("\n")}\n`;
+      }
+    } catch {
+      // Graceful fallback: continue without memory context
+    }
+
     const historySection =
       sessionHistory.length > 0
         ? `\nQuestions already asked in this session (do NOT repeat their stories, sentence structures, or phrasing):\n${sessionHistory.map((s, idx) => `${idx + 1}. ${s}`).join("\n")}`
@@ -497,6 +511,7 @@ Operands to include: exactly ${JSON.stringify(operands)}.
 Mathematical operation / focus: ${opDescription}.
 ${baseQuestion.visual ? `Note: The problem includes an accompanying visual diagram (${baseQuestion.visual.kind}). Write ONLY the sentence directing the student to solve the problem shown.` : ""}
 ${historySection}
+${pastExamplesSection}
 
 STRICT MANDATORY RULES:
 1. Write the question in ${langName}.
@@ -737,6 +752,20 @@ STRICT MANDATORY RULES:
         // Blind solver confirmed answer! Cache and return.
         setCachedWording(cacheKey, generatedText);
         seenSignatures.add(generatedText);
+
+        // Safely persist to question memory (async, non-blocking)
+        saveValidatedQuestion({
+          grade,
+          conceptId: baseQuestion.conceptId,
+          language,
+          theme: runtimeTheme,
+          text: generatedText,
+          operands,
+          embedding: [],
+        }).catch(() => {
+          // Non-blocking persistent memory save
+        });
+
         return {
           ...baseQuestion,
           prompt: { raw: generatedText },

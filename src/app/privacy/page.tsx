@@ -107,6 +107,12 @@ export default function PrivacyPage() {
                   <td className="p-2.5">Current academic year (deleted after annual cycle)</td>
                 </tr>
                 <tr>
+                  <td className="p-2.5 font-bold">Question Memory &amp; Quality Metrics</td>
+                  <td className="p-2.5">Validated mathematical problem text, operands, anonymised success tallies, aggregate error category counts</td>
+                  <td className="p-2.5">Question engine quality calibration and difficulty tuning; zero student names, roll numbers, or personal telemetry stored</td>
+                  <td className="p-2.5">Persistent mathematical library (retained without student identifiers)</td>
+                </tr>
+                <tr>
                   <td className="p-2.5 font-bold">Technical Logs</td>
                   <td className="p-2.5">IP address, browser type, timestamp of errors</td>
                   <td className="p-2.5">System security, rate-limiting, audit compliance</td>
@@ -115,6 +121,10 @@ export default function PrivacyPage() {
               </tbody>
             </table>
           </div>
+          {/* Legal wording requires review by qualified legal counsel under DPDP Act 2023 */}
+          <p className="text-[11px] text-[#432623]/70 dark:text-[#F5F1BC]/70 italic mt-2">
+            Note: All persistent question quality telemetry is strictly anonymised and decoupled from student identities. Formal legal text requires review by qualified legal counsel under the DPDP Act 2023.
+          </p>
         </section>
 
         {/* Section on Parental / Guardian Consent */}

@@ -102,6 +102,23 @@ Rules:
 - The DAG (`src/lib/concepts/graph.ts`) stays for the teacher dashboard and existing features. The new staircase does not use it.
 - Keep `gemini-2.5-flash` as the default model, but read the model name from an env var `GEMINI_MODEL`.
 
+## Persistent Question Memory & Anonymised Telemetry
+
+<!-- Legal wording requires review by qualified legal counsel under DPDP Act 2023 -->
+A safe question memory layer (`src/lib/db/questionMemory.ts`) optionally persists validated questions and aggregated performance tallies:
+1. **Validated Questions Table (`validated_questions`)**:
+   - Stores mathematical problem text, operands, theme, grade, concept, and pgvector embeddings.
+   - Questions are saved ONLY after passing all mathematical validation, script checks, reading level limits, and blind solver validation.
+   - Questions are tracked anonymously by `timesShown`, `timesCorrect`, and `timesReported`.
+   - Quality score degrades and questions are automatically retired if success rate < 15% (too hard), > 98% (too trivial), or reported by teachers.
+2. **Zero Student PII Guarantee**:
+   - Strictly NO student names, roll numbers, typed free-form responses, device fingerprints, or student identifiers are ever stored in the database.
+   - Only mathematical item text and aggregate misconception category tallies (`anonymous_misconception_tallies`) are retained to refine curriculum analytics.
+3. **Teacher Reporting**:
+   - Teachers can flag questions ("Report this question"). Reported items are immediately marked unapproved and retired from student rotation until explicit teacher approval.
+4. **Database-Optional Architecture**:
+   - If `DATABASE_URL` is unset or database connectivity is lost, the entire system falls back to in-memory handling with zero user-facing errors or interruptions.
+
 ## Out of scope
 
 Auth, teacher dashboard redesign, offline sync, and legal pages.

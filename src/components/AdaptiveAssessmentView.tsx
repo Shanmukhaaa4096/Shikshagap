@@ -23,6 +23,7 @@ import {
   ArrowCounterClockwise,
   BookOpen,
   ArrowSquareOut,
+  Flag,
 } from "@phosphor-icons/react";
 import {
   CURRICULUM_TOPICS,
@@ -76,7 +77,23 @@ export function AdaptiveAssessmentView({
   const [showHint, setShowHint] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [isBackupQuestion, setIsBackupQuestion] = useState(false);
+  const [reportedQuestionId, setReportedQuestionId] = useState<string | null>(null);
   const lastAttemptRef = useRef<Attempt | null>(null);
+
+  const handleReportQuestion = async () => {
+    if (!currentQuestion) return;
+    const qId = currentQuestion.id || `${currentQuestion.conceptId}_${currentQuestion.difficulty}`;
+    setReportedQuestionId(qId);
+    try {
+      await fetch("/api/assessment/report-question", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questionId: qId, conceptId: currentQuestion.conceptId }),
+      });
+    } catch {
+      // Graceful offline fallback
+    }
+  };
 
   const activeStudent = students.find((s) => s.student.id === selectedStudentId);
 
@@ -783,9 +800,26 @@ export function AdaptiveAssessmentView({
                     </span>
                   )}
                 </div>
-                <span className="bg-[#FAF8E8] dark:bg-[#432623]/30 text-[#432623] text-[10px] font-mono font-bold px-2 py-0.5 rounded-[2px] border border-[#432623]/25 uppercase">
-                  DIFFICULTY LEVEL {currentQuestion.difficulty}
-                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleReportQuestion}
+                    disabled={reportedQuestionId === (currentQuestion.id || `${currentQuestion.conceptId}_${currentQuestion.difficulty}`)}
+                    data-testid="report-question-btn"
+                    className="inline-flex items-center gap-1 text-[10px] text-[#432623]/70 hover:text-[#DE2A35] px-2 py-0.5 rounded border border-[#432623]/20 hover:border-[#DE2A35]/30 transition-colors"
+                    title="Report question for teacher review"
+                  >
+                    <Flag className="w-3 h-3" />
+                    <span>
+                      {reportedQuestionId === (currentQuestion.id || `${currentQuestion.conceptId}_${currentQuestion.difficulty}`)
+                        ? "Reported"
+                        : "Report this question"}
+                    </span>
+                  </button>
+                  <span className="bg-[#FAF8E8] dark:bg-[#432623]/30 text-[#432623] text-[10px] font-mono font-bold px-2 py-0.5 rounded-[2px] border border-[#432623]/25 uppercase">
+                    DIFFICULTY LEVEL {currentQuestion.difficulty}
+                  </span>
+                </div>
               </div>
 
               {/* Large Question Text */}
