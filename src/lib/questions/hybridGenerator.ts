@@ -15,6 +15,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 import type { ConceptId, Difficulty, Lang, Question } from "../types.ts";
+import { getSkillEntry, getSkillRange } from "../../data/skillSheet.ts";
 
 // ---------------------------------------------------------------------------
 // 1. Zod Schema for Structured Output
@@ -248,8 +249,25 @@ export function setCachedWording(key: string, wording: string): void {
 }
 
 // ---------------------------------------------------------------------------
-// 6. Operand Extraction from Question
+// 6. Operand Extraction from Question & Runtime Themes
 // ---------------------------------------------------------------------------
+
+export const RUNTIME_THEMES = [
+  "local weekly market (haat / santhe)",
+  "school sports day and playground games",
+  "classroom library and reading corner",
+  "community kitchen and food sharing",
+  "bus or train journey ticket counter",
+  "planting saplings in the village garden",
+  "craft workshop with origami and clay",
+  "nature walk and bird sanctuary",
+];
+
+export function pickRuntimeTheme(rng?: () => number): string {
+  const r = rng ? rng() : Math.random();
+  const idx = Math.floor(r * RUNTIME_THEMES.length);
+  return RUNTIME_THEMES[idx] || RUNTIME_THEMES[0];
+}
 
 export interface ExtractedQuestionOperands {
   operands: number[];
@@ -262,26 +280,25 @@ export function extractQuestionOperands(q: Question): ExtractedQuestionOperands 
   const b = q.meta?.b;
   const op = q.meta?.op;
 
-  // Determine if question is a word problem or contextual probe
-  const isEligible =
-    q.format === "word_problem" ||
-    (q.prompt &&
-      "key" in q.prompt &&
-      (q.prompt.key === "q.add.word" ||
-        q.prompt.key === "q.sub.word" ||
-        q.prompt.key === "q.mdm.word" ||
-        q.prompt.key === "q.mc.groups" ||
-        q.prompt.key === "q.dc.share" ||
-        q.prompt.key === "q.dc.groups" ||
-        q.prompt.key.startsWith("q.dw.") ||
-        q.prompt.key === "q.fa.word" ||
-        q.prompt.key === "q.fb.of"));
-
+  // Dual numeric operands (covers addition, subtraction, multiplication, division, fractions)
   if (typeof a === "number" && typeof b === "number") {
     return {
       operands: [a, b],
       operation: op,
-      isEligibleForWordProblem: Boolean(isEligible),
+      isEligibleForWordProblem: true,
+    };
+  }
+
+  // Single operand with digit param (e.g. place value)
+  if (typeof a === "number") {
+    const digit =
+      q.prompt && "key" in q.prompt && typeof q.prompt.params?.digit === "number"
+        ? q.prompt.params.digit
+        : undefined;
+    return {
+      operands: digit !== undefined ? [a, digit] : [a],
+      operation: op,
+      isEligibleForWordProblem: true,
     };
   }
 
@@ -295,11 +312,13 @@ export function extractQuestionOperands(q: Question): ExtractedQuestionOperands 
     if (typeof params.n === "number") nums.push(params.n);
     if (typeof params.groups === "number") nums.push(params.groups);
     if (typeof params.each === "number") nums.push(params.each);
-    if (nums.length >= 2) {
+    if (typeof params.spent === "number") nums.push(params.spent);
+    if (typeof params.cost === "number") nums.push(params.cost);
+    if (nums.length > 0) {
       return {
         operands: nums,
         operation: op,
-        isEligibleForWordProblem: Boolean(isEligible),
+        isEligibleForWordProblem: true,
       };
     }
   }
@@ -412,24 +431,41 @@ export async function enhanceQuestionWithHybridWording(
         ? "division (equal sharing or finding groups)"
         : "arithmetic problem solving";
 
+    const skillEntry = getSkillEntry(baseQuestion.conceptId, grade);
+    const skillOutcome = skillEntry?.outcome || "Solve the mathematics problem accurately.";
+    const skillRange = getSkillRange(baseQuestion.conceptId, grade, baseQuestion.difficulty);
+    const runtimeTheme = pickRuntimeTheme();
+
+    const sessionHistory = Array.from(seenSignatures).slice(-5);
+    const historySection =
+      sessionHistory.length > 0
+        ? `\nQuestions already asked in this session (do NOT repeat their stories, sentence structures, or phrasing):\n${sessionHistory.map((s, idx) => `${idx + 1}. ${s}`).join("\n")}`
+        : "";
+
     const systemInstruction = `You are an educational mathematics item writer for Class ${grade} in India.
-Write a clear, realistic single-sentence or two-sentence word problem in ${langName}.
-Context: An Indian primary school, village library, local market, sports day, or classroom.
+Concept: ${baseQuestion.conceptId} (Difficulty Level ${baseQuestion.difficulty}).
+Learning Outcome: "${skillOutcome}".
+Target Number Range: min ${skillRange.min}, max ${skillRange.max}.
+Theme: ${runtimeTheme}.
+Write a clear, realistic single-sentence or two-sentence problem in ${langName}.
 Operands to include: exactly ${JSON.stringify(operands)}.
-Mathematical operation: ${opDescription}.
+Mathematical operation / focus: ${opDescription}.
+${baseQuestion.visual ? `Note: The problem includes an accompanying visual diagram (${baseQuestion.visual.kind}). Write ONLY the sentence directing the student to solve the problem shown.` : ""}
+${historySection}
 
 STRICT MANDATORY RULES:
-1. Write the story problem in ${langName}.
-2. Use role titles like 'a teacher', 'a student', 'a gardener', 'a shopkeeper', 'a librarian', 'a child'.
+1. Write the question in ${langName}.
+2. Use role titles like 'a teacher', 'a student', 'a gardener', 'a shopkeeper', 'a librarian', 'a tailor', 'a farmer', 'a child'.
 3. NEVER use real personal names (no Rajesh, Priya, Rahul, Ananya, etc.).
 4. Use the required numbers ${JSON.stringify(operands)} as standard numeric digits.
-5. Do NOT include ANY other numbers, digits, or extra quantities in the story (e.g. do NOT say 'Class ${grade}', do NOT say '3 boxes' if 3 is not an operand).
+5. Do NOT include ANY other numbers, digits, or extra quantities in the story (e.g. do NOT say 'Class ${grade}', do NOT introduce unlisted numbers).
 6. NEVER include humans in images or describe physical looks.
 7. NEVER calculate or reveal the correct answer. End with a clear question asking for the solution.
-8. Output MUST be valid JSON matching this schema:
+8. Vary your sentence structure and story setting; avoid repetitive phrasing or rigid openings like 'There are...'.
+9. Output MUST be valid JSON matching this schema:
 {
   "wordProblem": "text of the word problem ending with the question",
-  "scenarioTopic": "classroom or library or market"
+  "scenarioTopic": "${runtimeTheme}"
 }`;
 
     const generatePromise = ai.models.generateContent({
