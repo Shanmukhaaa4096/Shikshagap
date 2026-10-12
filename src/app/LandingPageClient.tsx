@@ -845,9 +845,14 @@ function PublicLandingPageContent() {
                   </span>
                   <h3 className="font-serif text-xl font-bold">Student Gap Report</h3>
                 </div>
-                <span className="text-xs font-mono px-2 py-1 bg-[#DE2A35]/15 text-[#DE2A35] border border-[#DE2A35]/30 font-bold">
-                  Class 5A : 42%
-                </span>
+                <div className="flex flex-col items-end gap-1">
+                  <span className="text-xs font-mono px-2 py-1 bg-[#DE2A35]/15 text-[#DE2A35] border border-[#DE2A35]/30 font-bold">
+                    Class 5A : 42%
+                  </span>
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 bg-[#FAF8E8] dark:bg-[#251614] text-[#432623]/80 dark:text-[#FAF8E8]/80 border border-[#432623]/20">
+                    Sample data. Not a real student.
+                  </span>
+                </div>
               </div>
 
               {/* Diagnosed Root Gap */}
@@ -901,9 +906,14 @@ function PublicLandingPageContent() {
                   </span>
                   <h3 className="font-serif text-xl font-bold">1-Page Paper Worksheet</h3>
                 </div>
-                <span className="text-xs font-mono px-2 py-1 bg-[#8ABB93]/20 border border-[#8ABB93] text-[#432623] font-bold">
-                  Standard A4 Print
-                </span>
+                <div className="flex flex-col items-end gap-1">
+                  <span className="text-xs font-mono px-2 py-1 bg-[#8ABB93]/20 border border-[#8ABB93] text-[#432623] font-bold">
+                    Standard A4 Print
+                  </span>
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 bg-[#FAF8E8] text-[#432623]/80 border border-[#432623]/20">
+                    Sample data. Not a real student.
+                  </span>
+                </div>
               </div>
               <div className="flex justify-center py-2">
                 <WorksheetPreviewIllustration className="max-w-[170px]" />
