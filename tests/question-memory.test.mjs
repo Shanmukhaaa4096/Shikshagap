@@ -21,6 +21,7 @@ import {
   getAnonymousMisconceptionTallies,
   processAnonymousSession,
   getInMemoryQuestionStats,
+  runMemoryUpkeep,
   resetQuestionMemoryForTesting,
   isDatabaseConfigured,
 } from "../src/lib/db/questionMemory.ts";
@@ -461,4 +462,94 @@ test("Step 10: Next session's retrieval reads updated quality scores", async () 
   assert.equal(retrieved.timesShown, 35);
   assert.ok(retrieved.qualityScore > 0.7);
 });
+
+test("Step 11: Memory upkeep recomputes scores, prunes >90 day retired questions/sessions, caps size, and logs summary", async () => {
+  resetQuestionMemoryForTesting();
+
+  const nowMs = Date.now();
+  const ninetyFiveDaysAgo = new Date(nowMs - 95 * 24 * 60 * 60 * 1000).toISOString();
+  const tenDaysAgo = new Date(nowMs - 10 * 24 * 60 * 60 * 1000).toISOString();
+
+  // 1. Create a retired question older than 90 days (should be deleted)
+  const qOldRetired = await saveValidatedQuestion({
+    id: "q_old_retired",
+    grade: 3,
+    conceptId: "addition_facts",
+    language: "en",
+    theme: "market",
+    text: "Old question 1",
+    operands: [1, 2],
+    embedding: [],
+  });
+  qOldRetired.isRetired = true;
+  qOldRetired.updatedAt = ninetyFiveDaysAgo;
+
+  // 2. Create a retired question younger than 90 days (should be kept)
+  const qRecentRetired = await saveValidatedQuestion({
+    id: "q_recent_retired",
+    grade: 3,
+    conceptId: "addition_facts",
+    language: "en",
+    theme: "market",
+    text: "Recent retired question",
+    operands: [2, 3],
+    embedding: [],
+  });
+  qRecentRetired.isRetired = true;
+  qRecentRetired.updatedAt = tenDaysAgo;
+
+  // 3. Create active questions
+  for (let i = 1; i <= 5; i++) {
+    await saveValidatedQuestion({
+      id: `q_active_${i}`,
+      grade: 3,
+      conceptId: "addition_facts",
+      language: "en",
+      theme: "market",
+      text: `Active question ${i}`,
+      operands: [i, 1],
+      embedding: [],
+    });
+  }
+
+  // 4. Create an old session summary (> 90 days) and a recent one
+  await processAnonymousSession({
+    sessionId: "sess_old_summary",
+    grade: 3,
+    language: "en",
+    hourTimestamp: ninetyFiveDaysAgo,
+    questions: [],
+    topicOutcomes: [],
+  });
+  // Manually backdate the createdAt
+  const summaries = (await import("../src/lib/db/questionMemory.ts")).getAnonymousSessionSummaries();
+  const oldSummary = summaries.find((s) => s.sessionId === "sess_old_summary");
+  if (oldSummary) oldSummary.createdAt = ninetyFiveDaysAgo;
+
+  await processAnonymousSession({
+    sessionId: "sess_recent_summary",
+    grade: 3,
+    language: "en",
+    hourTimestamp: tenDaysAgo,
+    questions: [],
+    topicOutcomes: [],
+  });
+
+  // Run upkeep with max cap of 4 items
+  const res = await runMemoryUpkeep(4);
+
+  // Assertions:
+  // q_old_retired was pruned
+  assert.equal(res.prunedQuestions, 1);
+  // sess_old_summary was pruned
+  assert.equal(res.prunedSessions, 1);
+  // Total questions was 7 initially; 1 pruned -> 6 remaining; cap is 4 -> 2 capped
+  assert.equal(res.sizeCapped, 2);
+  // logSummary contains memory health keyword
+  assert.ok(res.logSummary.includes("[MemoryHealth]"));
+  assert.ok(res.logSummary.includes("active="));
+  assert.ok(res.logSummary.includes("retired="));
+  assert.ok(res.logSummary.includes("sessions=1"));
+});
+
 

@@ -536,6 +536,97 @@ export function getInMemoryQuestionStats(): Map<string, { timesShown: number; ti
   return memoryStore.questionStats;
 }
 
+export interface MemoryUpkeepResult {
+  activeQuestionsCount: number;
+  retiredQuestionsCount: number;
+  sessionsCount: number;
+  prunedQuestions: number;
+  prunedSessions: number;
+  sizeCapped: number;
+  logSummary: string;
+}
+
+/**
+ * Executes Step 11 Memory Upkeep:
+ * 1. Recomputes quality scores for all questions.
+ * 2. Deletes retired questions older than 90 days.
+ * 3. Deletes anonymous session summaries older than 90 days.
+ * 4. Keeps the questions table under a max size cap (e.g. 5,000 items) so free DB tiers are not exceeded.
+ * 5. Logs a one-line memory health summary.
+ */
+export async function runMemoryUpkeep(maxQuestionsCap = 5000): Promise<MemoryUpkeepResult> {
+  const ninetyDaysAgoMs = Date.now() - 90 * 24 * 60 * 60 * 1000;
+  let prunedQuestions = 0;
+  let prunedSessions = 0;
+  let sizeCapped = 0;
+
+  // 1. Recompute quality scores and prune retired > 90 days
+  for (const [id, q] of memoryStore.questions.entries()) {
+    recomputeQualityScore(q);
+
+    const updatedMs = new Date(q.updatedAt || q.createdAt).getTime();
+    if (q.isRetired && updatedMs < ninetyDaysAgoMs) {
+      memoryStore.questions.delete(id);
+      prunedQuestions++;
+    }
+  }
+
+  // 2. Prune anonymous session summaries older than 90 days
+  for (const [sessionId, session] of memoryStore.processedSessions.entries()) {
+    const createdMs = new Date(session.createdAt).getTime();
+    if (createdMs < ninetyDaysAgoMs) {
+      memoryStore.processedSessions.delete(sessionId);
+      prunedSessions++;
+    }
+  }
+
+  // 3. Enforce table size cap to safeguard free DB tiers
+  if (memoryStore.questions.size > maxQuestionsCap) {
+    const all = Array.from(memoryStore.questions.values());
+    // Sort to prioritize keeping active, high quality, recent items
+    all.sort((a, b) => {
+      // Prioritize active over retired
+      if (a.isRetired !== b.isRetired) {
+        return a.isRetired ? 1 : -1;
+      }
+      // Prioritize higher quality score
+      return b.qualityScore - a.qualityScore;
+    });
+
+    const excess = all.slice(maxQuestionsCap);
+    for (const q of excess) {
+      memoryStore.questions.delete(q.id);
+      sizeCapped++;
+    }
+  }
+
+  // Count active vs retired
+  let activeQuestionsCount = 0;
+  let retiredQuestionsCount = 0;
+  for (const q of memoryStore.questions.values()) {
+    if (q.isRetired) {
+      retiredQuestionsCount++;
+    } else {
+      activeQuestionsCount++;
+    }
+  }
+
+  const sessionsCount = memoryStore.processedSessions.size;
+
+  const logSummary = `[MemoryHealth] active=${activeQuestionsCount} retired=${retiredQuestionsCount} sessions=${sessionsCount} prunedQ=${prunedQuestions} prunedS=${prunedSessions} capped=${sizeCapped}`;
+  console.log(logSummary);
+
+  return {
+    activeQuestionsCount,
+    retiredQuestionsCount,
+    sessionsCount,
+    prunedQuestions,
+    prunedSessions,
+    sizeCapped,
+    logSummary,
+  };
+}
+
 export function resetQuestionMemoryForTesting(): void {
   memoryStore.reset();
 }
