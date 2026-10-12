@@ -108,6 +108,14 @@ This document tracks all relocations and design hierarchy changes made to make S
     11. FAQ Accordion (single open, includes multi-class answer)
     12. Final CTA Banner (heading, line, two buttons)
     13. Footer (two columns, all legal links, copyright line)
-* **Pilot Data Registration Endpoint (`/api/pilot-register`)**:
-  * Captures school pilot registrations with bot honeypot, 5 req/min rate limit, email/phone validation, contact masking, and append-only audit logging in `src/lib/server/store.ts`.
+## 6. Privacy Claims & Accuracy Audit (Phase 3)
+* **Accurate Claims Alignment**:
+  * Replaced "Audited across primary school cohorts in Telangana and Andhra Pradesh" with "Designed for Telangana and Andhra Pradesh classrooms".
+  * Replaced "Verified against state syllabus standards" with "Aligned to Class 3 to 5 maths topics".
+  * Replaced "Free forever" with "Free for government schools during the pilot".
+  * Replaced "DPDP 2023 Compliant" and "complete DPDP compliance assurance" with "Built following DPDP Act 2023 principles".
+  * Updated Terms of Service and Landing Page to clearly reflect that ShikshaGap is currently a pilot-stage research and diagnostic tool.
+* **Third-Party Domain Audit**:
+  * Confirmed all fonts are self-hosted via `next/font` with zero external requests to `fonts.googleapis.com` or third-party CDNs.
+  * Confirmed 0 third-party tracking scripts, 0 advertising beacons, and 0 external CDNs are loaded by client bundles.
 

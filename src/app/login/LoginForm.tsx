@@ -1,21 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeSlash, Lock, User, WarningCircle, CheckCircle } from '@phosphor-icons/react';
 
 export default function LoginForm() {
   const router = useRouter();
-  const [redirectUrl, setRedirectUrl] = useState('/app');
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const r = params.get('redirect');
-      if (r) setRedirectUrl(r);
-    }
-  }, []);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,6 +18,11 @@ export default function LoginForm() {
     e.preventDefault();
     setIsLoading(true);
     setErrorMessage(null);
+
+    const redirectUrl =
+      typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('redirect') || '/app'
+        : '/app';
 
     try {
       const res = await fetch('/api/auth/login', {

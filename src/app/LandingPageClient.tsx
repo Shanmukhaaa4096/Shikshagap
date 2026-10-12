@@ -451,7 +451,7 @@ function PublicLandingPageContent() {
         <div className="flex items-center gap-3">
           <span className="hidden sm:inline">INDIAN PRIMARY SCHOOLS EDITION</span>
           <span className="opacity-40 hidden sm:inline">|</span>
-          <span className="text-[#DE2A35] font-bold">DPDP 2023 COMPLIANT</span>
+          <span className="text-[#DE2A35] font-bold">BUILT FOLLOWING DPDP ACT 2023 PRINCIPLES</span>
         </div>
       </div>
 
@@ -767,7 +767,7 @@ function PublicLandingPageContent() {
                 A student scores 42% on a test. The mark confirms struggle, but conceals the root cause.
               </blockquote>
               <div className="mt-4 text-xs font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70">
-                AUDITED ACROSS PRIMARY SCHOOL COHORTS IN TELANGANA AND ANDHRA PRADESH
+                DESIGNED FOR TELANGANA AND ANDHRA PRADESH CLASSROOMS
               </div>
             </div>
 
@@ -1252,7 +1252,7 @@ function PublicLandingPageContent() {
           {/* Editorial Pull-Quote */}
           <div className="max-w-4xl mb-10">
             <blockquote className="font-serif text-2xl sm:text-3xl lg:text-4xl leading-tight text-[#432623] dark:text-[#FAF8E8]">
-              &ldquo;A curriculum map of 15 connected concepts, taught across 3 Indian regional languages, with zero tracking cookies and complete DPDP 2023 compliance.&rdquo;
+              &ldquo;A curriculum map of 15 connected concepts, taught across 3 Indian regional languages, with zero tracking cookies and built following DPDP Act 2023 principles.&rdquo;
             </blockquote>
           </div>
 
@@ -1290,7 +1290,7 @@ function PublicLandingPageContent() {
                 Classes Enabled (3, 4, 5)
               </div>
               <div className="text-[10px] text-[#432623]/60 dark:text-[#FAF8E8]/60 mt-0.5">
-                Verified against state syllabus standards
+                Aligned to Class 3 to 5 maths topics
               </div>
             </div>
 
@@ -1406,7 +1406,7 @@ function PublicLandingPageContent() {
                     04 : Child Privacy by Design
                   </div>
                   <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2">
-                    DPDP 2023 Compliance & Zero Surveillance
+                    Built Following DPDP Act 2023 Principles & Zero Surveillance
                   </h3>
                   <p className="text-xs text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed mb-4">
                     Zero tracking cookies, zero third-party advertising trackers, and strictly necessary local storage only. Children are never profiled.
@@ -1445,7 +1445,7 @@ function PublicLandingPageContent() {
               <div className="border-l-2 border-[#8ABB93] pl-4 py-2 space-y-2 text-xs font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70">
                 <div>Zero license fee for public schools.</div>
                 <div>Includes physical printable templates.</div>
-                <div>Complete DPDP 2023 compliance assurance.</div>
+                <div>Built following DPDP Act 2023 principles.</div>
               </div>
             </div>
 
@@ -1704,7 +1704,7 @@ function PublicLandingPageContent() {
               Start an assessment to find student learning gaps today.
             </h2>
             <p className="text-xs sm:text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 max-w-xl mx-auto leading-relaxed">
-              A 6-minute adaptive test gives you the exact prerequisite concept holding each student back, with a 5-day action plan. Free forever for Indian government schools.
+              A 6-minute adaptive test gives you the exact prerequisite concept holding each student back, with a 5-day action plan. Free for government schools during the pilot.
             </p>
             <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
               {/* PRIMARY ACTION: ASSESS TEST BUTTON (Final CTA) */}
@@ -1742,7 +1742,7 @@ function PublicLandingPageContent() {
               AI-powered learning gap detection and personalized remediation for Indian primary schools, Classes 3 to 5.
             </p>
             <div className="mt-4 text-[10px] text-[#432623]/60 dark:text-[#FAF8E8]/60">
-              DPDP Act 2023 Compliant | Made for Indian Government Schools
+              Built Following DPDP Act 2023 Principles | Made for Indian Government Schools
             </div>
           </div>
 

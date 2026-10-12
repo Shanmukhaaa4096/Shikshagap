@@ -56,7 +56,7 @@ export default function TermsPage() {
             <span>Independent Academic Tool Notice:</span>
           </div>
           <p className="text-[#432623]/90 leading-relaxed">
-            ShikshaGap is an independent research and educational intelligence prototype. It is not affiliated with, endorsed by, or representing any government department, state education board, or government initiative (such as PM SHRI or Samagra Shiksha). Mention of curriculum standards (e.g., NCERT or SCERT Classes 3 to 5) is solely for pedagogical alignment.
+            ShikshaGap is an independent, pilot-stage research and educational intelligence prototype provided free of charge for Indian government schools during the pilot phase. It is not affiliated with, endorsed by, or representing any government department, state education board, or government initiative (such as PM SHRI or Samagra Shiksha). Mention of curriculum standards (e.g., NCERT or SCERT Classes 3 to 5) is solely for pedagogical alignment.
           </p>
         </div>
 

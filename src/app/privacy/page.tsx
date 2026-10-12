@@ -40,7 +40,7 @@ export default function PrivacyPage() {
         <div className="space-y-3">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F5F1BC] text-[#432623] text-xs font-mono font-bold rounded-[2px] border border-[#432623]/25">
             <ShieldCheck className="w-4 h-4 text-[#432623]" />
-            <span>DPDP ACT 2023 COMPLIANT SPECIFICATION</span>
+            <span>BUILT FOLLOWING DPDP ACT 2023 PRINCIPLES</span>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-[#432623] dark:text-[#F5F1BC]">
             Privacy Policy &amp; Child Data Protection
