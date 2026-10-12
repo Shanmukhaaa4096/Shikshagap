@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { queueOfflineAction, syncOfflineQueue } from "@/lib/offline/sync";
 import type {
   ConceptId,
   Question,
@@ -38,6 +39,12 @@ import {
 import { generateUnique } from "@/lib/questions/generator";
 import { makeRng } from "@/lib/rng";
 import { getClassConfig, DEFAULT_CLASS_ID } from "@/lib/curriculum/classes";
+
+function generateClientSessionId(): string {
+  const ts = typeof Date !== "undefined" ? Date.now() : 0;
+  const rand = typeof Math !== "undefined" ? Math.random().toString(36).slice(2, 10) : "seed";
+  return `sess_${ts}_${rand}`;
+}
 
 interface Props {
   students: DemoStudentData[];
@@ -79,6 +86,78 @@ export function AdaptiveAssessmentView({
   const [isBackupQuestion, setIsBackupQuestion] = useState(false);
   const [reportedQuestionId, setReportedQuestionId] = useState<string | null>(null);
   const lastAttemptRef = useRef<Attempt | null>(null);
+  const clientSessionIdRef = useRef<string>("");
+  const sessionClosedRef = useRef<boolean>(false);
+
+  // Flush queued offline sessions on load
+  useEffect(() => {
+    syncOfflineQueue().catch(() => {});
+  }, []);
+
+  // Send anonymous session close on visibilitychange if student leaves after answering >= 1 question
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (
+        document.visibilityState === "hidden" &&
+        sessionMemory &&
+        !sessionClosedRef.current &&
+        !isFinished
+      ) {
+        // Count total questions answered so far
+        const totalAttempts = sessionMemory.topics.reduce((acc, t) => acc + t.attempts.length, 0);
+        if (totalAttempts >= 1 && clientSessionIdRef.current) {
+          sessionClosedRef.current = true;
+          const questionsList = sessionMemory.topics.flatMap((t) =>
+            t.attempts.map((att) => ({
+              questionId: att.questionId || `${att.conceptId}_${att.level}`,
+              conceptId: att.conceptId,
+              level: att.level,
+              correct: att.correct,
+              errorType: att.errorType,
+            }))
+          );
+
+          const topicOutcomes = sessionMemory.topics.map((t) => ({
+            topicId: t.topicId,
+            status: t.status,
+          }));
+
+          const now = new Date();
+          now.setMinutes(0, 0, 0);
+
+          const payload = {
+            sessionId: clientSessionIdRef.current,
+            grade: sessionMemory.grade,
+            language: sessionMemory.language,
+            hourTimestamp: now.toISOString(),
+            questions: questionsList,
+            topicOutcomes,
+          };
+
+          const payloadStr = JSON.stringify(payload);
+          let sent = false;
+          if (typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
+            const blob = new Blob([payloadStr], { type: "application/json" });
+            sent = navigator.sendBeacon("/api/assessment/session-close", blob);
+          }
+
+          if (!sent) {
+            // Queue in client outbox for retry
+            queueOfflineAction({
+              type: "session_close",
+              timestamp: Date.now(),
+              payload,
+            });
+          }
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [sessionMemory, isFinished]);
 
   const handleReportQuestion = async () => {
     if (!currentQuestion) return;
@@ -102,19 +181,79 @@ export function AdaptiveAssessmentView({
     setIsFinished(true);
     setCurrentQuestion(null);
     setIsLoadingFinish(true);
+    sessionClosedRef.current = true; // Assessment finalized cleanly
     try {
       const res = await fetch("/api/assessment/finish", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ memory: finalMem }),
+        body: JSON.stringify({
+          memory: finalMem,
+          sessionId: clientSessionIdRef.current || undefined,
+        }),
       });
       if (res.ok) {
         const data = await res.json();
         setRecommendations(data.recommendations || []);
         setReportSummary(data.summary || "");
+      } else {
+        // Queue payload offline if finish endpoint is unreachable
+        const questionsList = finalMem.topics.flatMap((t) =>
+          t.attempts.map((att) => ({
+            questionId: att.questionId || `${att.conceptId}_${att.level}`,
+            conceptId: att.conceptId,
+            level: att.level,
+            correct: att.correct,
+            errorType: att.errorType,
+          }))
+        );
+        const topicOutcomes = finalMem.topics.map((t) => ({
+          topicId: t.topicId,
+          status: t.status,
+        }));
+        const now = new Date();
+        now.setMinutes(0, 0, 0);
+        const fallbackId = generateClientSessionId();
+        queueOfflineAction({
+          type: "session_close",
+          payload: {
+            sessionId: clientSessionIdRef.current || fallbackId,
+            grade: finalMem.grade,
+            language: finalMem.language,
+            hourTimestamp: now.toISOString(),
+            questions: questionsList,
+            topicOutcomes,
+          },
+        });
       }
     } catch {
-      // Ignore network errors in finish fetch; fallback remains gracefully empty or populated
+      // Graceful offline fallback: queue offline update
+      const questionsList = finalMem.topics.flatMap((t) =>
+        t.attempts.map((att) => ({
+          questionId: att.questionId || `${att.conceptId}_${att.level}`,
+          conceptId: att.conceptId,
+          level: att.level,
+          correct: att.correct,
+          errorType: att.errorType,
+        }))
+      );
+      const topicOutcomes = finalMem.topics.map((t) => ({
+        topicId: t.topicId,
+        status: t.status,
+      }));
+      const now = new Date();
+      now.setMinutes(0, 0, 0);
+      const fallbackId = generateClientSessionId();
+      queueOfflineAction({
+        type: "session_close",
+        payload: {
+          sessionId: clientSessionIdRef.current || fallbackId,
+          grade: finalMem.grade,
+          language: finalMem.language,
+          hourTimestamp: now.toISOString(),
+          questions: questionsList,
+          topicOutcomes,
+        },
+      });
     } finally {
       setIsLoadingFinish(false);
     }
@@ -123,6 +262,10 @@ export function AdaptiveAssessmentView({
   // Start Multi-Topic Staircase Assessment
   const handleStart = async () => {
     if (!activeStudent) return;
+
+    // Generate random anonymous sessionId on client (never built from student data)
+    clientSessionIdRef.current = generateClientSessionId();
+    sessionClosedRef.current = false;
 
     // Use strictly pseudonymous ID (DPDP compliance)
     const pseudonymousId = "anon_" + (activeStudent.student.id ? activeStudent.student.id.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8) : "learner");

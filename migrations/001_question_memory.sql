@@ -66,3 +66,32 @@ CREATE TABLE IF NOT EXISTS daily_budget_counters (
     call_count INTEGER NOT NULL DEFAULT 0,
     max_budget INTEGER NOT NULL DEFAULT 150
 );
+
+-- 5. Anonymous Session Summaries Table (Step 10)
+-- Strictly anonymous: sessionId generated client-side, hour-precision timestamp, zero student PII.
+-- 90-day retention policy: entries older than 90 days are purged by memory upkeep cron.
+CREATE TABLE IF NOT EXISTS anonymous_session_summaries (
+    session_id VARCHAR(64) PRIMARY KEY,
+    grade INTEGER NOT NULL CHECK (grade IN (3, 4, 5)),
+    language VARCHAR(8) NOT NULL CHECK (language IN ('en', 'hi', 'te')),
+    hour_timestamp TIMESTAMPTZ NOT NULL,
+    questions_attempted INTEGER NOT NULL DEFAULT 0,
+    questions_correct INTEGER NOT NULL DEFAULT 0,
+    topic_outcomes JSONB NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_session_summaries_created_at
+ON anonymous_session_summaries (created_at);
+
+-- 6. Anonymous Topic Outcome Tallies (Step 10)
+-- Aggregate performance counts per topic status (mastered, developing, gap).
+CREATE TABLE IF NOT EXISTS anonymous_topic_outcome_tallies (
+    id SERIAL PRIMARY KEY,
+    grade INTEGER NOT NULL CHECK (grade IN (3, 4, 5)),
+    topic_id VARCHAR(64) NOT NULL,
+    status VARCHAR(32) NOT NULL CHECK (status IN ('mastered', 'developing', 'gap', 'pending')),
+    count INTEGER NOT NULL DEFAULT 1,
+    last_updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT uq_topic_outcome UNIQUE (grade, topic_id, status)
+);

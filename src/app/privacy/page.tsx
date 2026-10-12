@@ -113,6 +113,12 @@ export default function PrivacyPage() {
                   <td className="p-2.5">Persistent mathematical library (retained without student identifiers)</td>
                 </tr>
                 <tr>
+                  <td className="p-2.5 font-bold">Anonymous Session Summaries</td>
+                  <td className="p-2.5">Random client session ID, grade, language, hour-precision timestamp, question IDs attempted/correct, topic mastery outcomes</td>
+                  <td className="p-2.5">Measuring question engine reliability and curriculum progression across classrooms; strictly decoupled from student identity</td>
+                  <td className="p-2.5">90 days rolling retention (purged via automated upkeep cron; aggregate mathematical tallies retained)</td>
+                </tr>
+                <tr>
                   <td className="p-2.5 font-bold">Technical Logs</td>
                   <td className="p-2.5">IP address, browser type, timestamp of errors</td>
                   <td className="p-2.5">System security, rate-limiting, audit compliance</td>
@@ -123,7 +129,7 @@ export default function PrivacyPage() {
           </div>
           {/* Legal wording requires review by qualified legal counsel under DPDP Act 2023 */}
           <p className="text-[11px] text-[#432623]/70 dark:text-[#F5F1BC]/70 italic mt-2">
-            Note: All persistent question quality telemetry is strictly anonymised and decoupled from student identities. Formal legal text requires review by qualified legal counsel under the DPDP Act 2023.
+            Note: All persistent question quality telemetry and session summaries are strictly anonymised and decoupled from student identities. Session summaries are automatically purged after 90 days. Formal legal text requires review by qualified legal counsel under the DPDP Act 2023.
           </p>
         </section>
 

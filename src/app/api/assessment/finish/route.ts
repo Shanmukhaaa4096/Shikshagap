@@ -56,6 +56,58 @@ export async function POST(req: NextRequest) {
 
     const result = await finalizeAssessment(memory);
 
+    // Step 10: In background, record anonymous session memory update
+    try {
+      const questionsList: Array<{
+        questionId: string;
+        conceptId: string;
+        level: number;
+        correct: boolean;
+        errorType?: string;
+      }> = [];
+
+      for (const topic of memory.topics) {
+        for (const att of topic.attempts) {
+          questionsList.push({
+            questionId: att.questionId || `${att.conceptId}_${att.level}`,
+            conceptId: att.conceptId,
+            level: att.level,
+            correct: att.correct,
+            errorType: att.errorType,
+          });
+        }
+      }
+
+      if (questionsList.length > 0) {
+        const topicOutcomes = memory.topics.map((t) => ({
+          topicId: t.topicId,
+          status: t.status,
+        }));
+
+        const now = new Date();
+        now.setMinutes(0, 0, 0); // truncate to hour precision
+
+        const sessionId =
+          (body && typeof body.sessionId === "string" && body.sessionId.length >= 8)
+            ? body.sessionId
+            : `sess_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+        const { processAnonymousSession } = await import("@/lib/db/questionMemory");
+        await processAnonymousSession({
+          sessionId,
+          grade: memory.grade,
+          language: memory.language,
+          hourTimestamp: now.toISOString(),
+          questions: questionsList,
+          topicOutcomes,
+        }).catch(() => {
+          // Non-blocking
+        });
+      }
+    } catch {
+      // Non-blocking memory update
+    }
+
     return NextResponse.json({
       success: true,
       recommendations: result.recommendations,

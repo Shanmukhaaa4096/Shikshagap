@@ -41,6 +41,15 @@ export async function POST(req: NextRequest) {
         });
 
         processedCount++;
+      } else if (item.type === 'session_close' && item.payload) {
+        try {
+          const { processAnonymousSession } = await import('@/lib/db/questionMemory');
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await processAnonymousSession(item.payload as any);
+          processedCount++;
+        } catch {
+          // If individual session payload fails or is malformed, skip it
+        }
       }
     }
 

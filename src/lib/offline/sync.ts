@@ -5,7 +5,7 @@
 
 export interface QueuedAction {
   id: string;
-  type: 'teacher_override' | 'practice_result';
+  type: 'teacher_override' | 'practice_result' | 'session_close';
   timestamp: number;
   payload: Record<string, unknown>;
   retryCount: number;
@@ -24,10 +24,13 @@ export function getOfflineQueue(): QueuedAction[] {
   }
 }
 
-export function queueOfflineAction(action: Omit<QueuedAction, 'id' | 'retryCount'>): QueuedAction {
+export function queueOfflineAction(
+  action: Omit<QueuedAction, 'id' | 'retryCount' | 'timestamp'> & { timestamp?: number }
+): QueuedAction {
   const queue = getOfflineQueue();
   const newAction: QueuedAction = {
     ...action,
+    timestamp: action.timestamp ?? Date.now(),
     id: `queue_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
     retryCount: 0,
   };
