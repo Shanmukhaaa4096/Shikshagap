@@ -13,10 +13,18 @@ function createMockGeminiClient(wordingGenerator) {
   return {
     models: {
       generateContent: async (args) => {
-        const text = wordingGenerator(args);
+        const text = args.contents?.[0]?.parts?.[0]?.text || "";
+        if (text.includes("Question:")) {
+          return {
+            text: JSON.stringify({
+              wordProblem: "legacy mock response",
+            }),
+          };
+        }
+        const generated = wordingGenerator(args);
         return {
           text: JSON.stringify({
-            wordProblem: text,
+            wordProblem: generated,
             scenarioTopic: "local weekly market",
           }),
         };

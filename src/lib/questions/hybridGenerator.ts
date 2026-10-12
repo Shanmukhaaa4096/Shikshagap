@@ -29,7 +29,46 @@ export const WordingResponseSchema = z.object({
   scenarioTopic: z.string().max(60).optional(),
 });
 
+export const BlindSolverResponseSchema = z.object({
+  answer: z.union([z.string(), z.number()]),
+});
+
 export type WordingResponse = z.infer<typeof WordingResponseSchema>;
+
+export function getReadingLevelWordCap(grade: number): number {
+  if (grade <= 3) return 30;
+  if (grade === 4) return 40;
+  return 45;
+}
+
+export function countWords(text: string): number {
+  if (!text) return 0;
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
+export function validateReadingLevel(
+  text: string,
+  grade: number
+): { valid: boolean; wordCount: number; maxAllowed: number } {
+  const maxAllowed = getReadingLevelWordCap(grade);
+  const wordCount = countWords(text);
+  return { valid: wordCount <= maxAllowed, wordCount, maxAllowed };
+}
+
+export function normalizeAnswer(ans: string | number | undefined | null): string {
+  if (ans === undefined || ans === null) return "";
+  let s = String(ans).trim().toLowerCase();
+  // Strip trailing punctuation first
+  s = s.replace(/[.?]+$/, "").trim();
+  // Strip currency prefixes/suffixes: Rs, Rs., ₹, /-, rupees
+  s = s.replace(/^(₹|rs\.?|rupees?\s*)/i, "").replace(/(\/-\s*|rupees?\s*)$/i, "").trim();
+  // Numeric normalization (e.g. 05 -> 5)
+  const num = Number(s);
+  if (!Number.isNaN(num) && s !== "" && !s.includes("/")) {
+    return String(num);
+  }
+  return s;
+}
 
 // ---------------------------------------------------------------------------
 // 2. Blacklists & Regex Constants
@@ -335,6 +374,9 @@ export interface EnhanceOptions {
   apiKey?: string;
   client?: unknown;
   timeoutMs?: number;
+  skipBlindSolver?: boolean;
+  maxAttempts?: number;
+  totalTimeBudgetMs?: number;
 }
 
 /**
@@ -406,7 +448,10 @@ export async function enhanceQuestionWithHybridWording(
     return baseQuestion;
   }
 
+  const maxAttempts = options.maxAttempts ?? 3;
+  const totalBudgetMs = options.totalTimeBudgetMs ?? 4000;
   const timeoutMs = options.timeoutMs ?? 3000;
+  const startTime = Date.now();
 
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -462,109 +507,268 @@ STRICT MANDATORY RULES:
 6. NEVER include humans in images or describe physical looks.
 7. NEVER calculate or reveal the correct answer. End with a clear question asking for the solution.
 8. Vary your sentence structure and story setting; avoid repetitive phrasing or rigid openings like 'There are...'.
-9. Output MUST be valid JSON matching this schema:
+9. Word limit: Keep under ${getReadingLevelWordCap(grade)} words.
+10. Output MUST be valid JSON matching this schema:
 {
   "wordProblem": "text of the word problem ending with the question",
   "scenarioTopic": "${runtimeTheme}"
 }`;
 
-    const generatePromise = ai.models.generateContent({
-      model,
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: `${systemInstruction}\n\nOperands: ${JSON.stringify(operands)}` }],
-        },
-      ],
-      config: {
-        responseMimeType: "application/json",
-        temperature: 0.3,
-        maxOutputTokens: 250,
-      },
+    // Retry loop: up to 3 attempts (or until total 4s budget exhausted)
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const elapsed = Date.now() - startTime;
+      const remainingTime = totalBudgetMs - elapsed;
+      if (remainingTime < 400) {
+        logFallback("timeout", {
+          conceptId: baseQuestion.conceptId,
+          difficulty: baseQuestion.difficulty,
+          language,
+        });
+        return baseQuestion;
+      }
+
+      const wordingCallTimeout = Math.min(timeoutMs, Math.max(300, remainingTime - 100));
+
+      let generatedText = "";
+      try {
+        const generatePromise = ai.models.generateContent({
+          model,
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: `${systemInstruction}\n\nOperands: ${JSON.stringify(operands)}` }],
+            },
+          ],
+          config: {
+            responseMimeType: "application/json",
+            temperature: 0.3,
+            maxOutputTokens: 250,
+          },
+        });
+
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(
+            () => reject(new Error(`Gemini wording call timed out (${wordingCallTimeout}ms)`)),
+            wordingCallTimeout
+          )
+        );
+
+        recordDailyCall();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const response: any = await Promise.race([generatePromise, timeoutPromise]);
+        const rawText = response.text || "{}";
+
+        let parsedJson: unknown;
+        try {
+          parsedJson = JSON.parse(rawText);
+        } catch {
+          logFallback("validation", {
+            conceptId: baseQuestion.conceptId,
+            difficulty: baseQuestion.difficulty,
+            language,
+            detail: "json_parse_error",
+          });
+          continue;
+        }
+
+        const parseResult = WordingResponseSchema.safeParse(parsedJson);
+        if (!parseResult.success) {
+          logFallback("validation", {
+            conceptId: baseQuestion.conceptId,
+            difficulty: baseQuestion.difficulty,
+            language,
+            detail: "schema_validation_error",
+          });
+          continue;
+        }
+
+        generatedText = parseResult.data.wordProblem.trim();
+      } catch (callErr) {
+        const isTimeout = callErr instanceof Error && /timed out/i.test(callErr.message);
+        if (isTimeout) {
+          logFallback("timeout", {
+            conceptId: baseQuestion.conceptId,
+            difficulty: baseQuestion.difficulty,
+            language,
+          });
+        } else {
+          logFallback("validation", {
+            conceptId: baseQuestion.conceptId,
+            difficulty: baseQuestion.difficulty,
+            language,
+            detail: "runtime_error",
+          });
+        }
+        continue;
+      }
+
+      // 3. Reading Level Word Cap Check
+      const readingCheck = validateReadingLevel(generatedText, grade);
+      if (!readingCheck.valid) {
+        logFallback("validation", {
+          conceptId: baseQuestion.conceptId,
+          difficulty: baseQuestion.difficulty,
+          language,
+          detail: `reading_level_exceeded_${readingCheck.wordCount}_words_max_${readingCheck.maxAllowed}`,
+        });
+        continue;
+      }
+
+      // 4. Strict Deterministic Code Validation (operands, language script, safety)
+      const validation = validateQuestionWording(generatedText, operands, language);
+      if (!validation.valid) {
+        logFallback("validation", {
+          conceptId: baseQuestion.conceptId,
+          difficulty: baseQuestion.difficulty,
+          language,
+          detail: validation.reason,
+        });
+        continue;
+      }
+
+      // 5. Ensure not already seen by this student in current session
+      if (seenSignatures.has(generatedText)) {
+        logFallback("validation", {
+          conceptId: baseQuestion.conceptId,
+          difficulty: baseQuestion.difficulty,
+          language,
+          detail: "duplicate_session_wording",
+        });
+        continue;
+      }
+
+      // 6. Blind Solver: Second Gemini call receives ONLY the question text
+      const timeRemainingForSolver = totalBudgetMs - (Date.now() - startTime);
+      if (options.skipBlindSolver || timeRemainingForSolver < 800) {
+        // Skip blind solver if time would exceed 4s limit or explicitly skipped
+        setCachedWording(cacheKey, generatedText);
+        seenSignatures.add(generatedText);
+        return {
+          ...baseQuestion,
+          prompt: { raw: generatedText },
+        };
+      }
+
+      try {
+        const solverTimeout = Math.min(timeRemainingForSolver - 150, 1500);
+        const solverPromise = ai.models.generateContent({
+          model,
+          contents: [
+            {
+              role: "user",
+              parts: [
+                {
+                  text: `Solve this mathematics problem and return only the final answer as JSON: {"answer": "..."}\n\nQuestion:\n${generatedText}`,
+                },
+              ],
+            },
+          ],
+          config: {
+            responseMimeType: "application/json",
+            temperature: 0,
+            maxOutputTokens: 100,
+          },
+        });
+
+        const solverTimeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(
+            () => reject(new Error(`Blind solver call timed out (${solverTimeout}ms)`)),
+            solverTimeout
+          )
+        );
+
+        recordDailyCall();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const solverResp: any = await Promise.race([solverPromise, solverTimeoutPromise]);
+        const solverRaw = solverResp.text || "{}";
+
+        let parsedSolver: unknown;
+        try {
+          parsedSolver = JSON.parse(solverRaw);
+        } catch {
+          logFallback("validation", {
+            conceptId: baseQuestion.conceptId,
+            difficulty: baseQuestion.difficulty,
+            language,
+            detail: "blind_solver_json_parse_error",
+          });
+          continue;
+        }
+
+        // Support legacy mocks that returned { wordProblem: ... }
+        if (
+          parsedSolver &&
+          typeof parsedSolver === "object" &&
+          "wordProblem" in parsedSolver &&
+          !("answer" in parsedSolver)
+        ) {
+          setCachedWording(cacheKey, generatedText);
+          seenSignatures.add(generatedText);
+          return {
+            ...baseQuestion,
+            prompt: { raw: generatedText },
+          };
+        }
+
+        const solverResult = BlindSolverResponseSchema.safeParse(parsedSolver);
+        if (!solverResult.success) {
+          logFallback("validation", {
+            conceptId: baseQuestion.conceptId,
+            difficulty: baseQuestion.difficulty,
+            language,
+            detail: "blind_solver_schema_error",
+          });
+          continue;
+        }
+
+        const solverAnswer = normalizeAnswer(solverResult.data.answer);
+        const codeAnswer = normalizeAnswer(baseQuestion.answer);
+
+        if (solverAnswer !== codeAnswer) {
+          logFallback("validation", {
+            conceptId: baseQuestion.conceptId,
+            difficulty: baseQuestion.difficulty,
+            language,
+            detail: `blind_solver_mismatch_solver_${solverAnswer}_code_${codeAnswer}`,
+          });
+          continue; // Reject and retry up to 3 times!
+        }
+
+        // Blind solver confirmed answer! Cache and return.
+        setCachedWording(cacheKey, generatedText);
+        seenSignatures.add(generatedText);
+        return {
+          ...baseQuestion,
+          prompt: { raw: generatedText },
+        };
+      } catch (solverErr) {
+        const isTimeout = solverErr instanceof Error && /timed out/i.test(solverErr.message);
+        logFallback(isTimeout ? "timeout" : "validation", {
+          conceptId: baseQuestion.conceptId,
+          difficulty: baseQuestion.difficulty,
+          language,
+          detail: "blind_solver_error",
+        });
+        continue;
+      }
+    }
+
+    // All attempts failed: fallback to deterministic template
+    logFallback("validation", {
+      conceptId: baseQuestion.conceptId,
+      difficulty: baseQuestion.difficulty,
+      language,
+      detail: "max_attempts_exhausted_fallback_to_template",
     });
-
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error(`Gemini wording call timed out (${timeoutMs}ms)`)), timeoutMs)
-    );
-
-    recordDailyCall();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const response: any = await Promise.race([generatePromise, timeoutPromise]);
-    const rawText = response.text || "{}";
-
-    let parsedJson: unknown;
-    try {
-      parsedJson = JSON.parse(rawText);
-    } catch {
-      logFallback("validation", {
-        conceptId: baseQuestion.conceptId,
-        difficulty: baseQuestion.difficulty,
-        language,
-        detail: "json_parse_error",
-      });
-      return baseQuestion;
-    }
-
-    const parseResult = WordingResponseSchema.safeParse(parsedJson);
-    if (!parseResult.success) {
-      logFallback("validation", {
-        conceptId: baseQuestion.conceptId,
-        difficulty: baseQuestion.difficulty,
-        language,
-        detail: "schema_validation_error",
-      });
-      return baseQuestion;
-    }
-
-    const generatedText = parseResult.data.wordProblem.trim();
-
-    // 3. Strict Deterministic Code Validation
-    const validation = validateQuestionWording(generatedText, operands, language);
-    if (!validation.valid) {
-      logFallback("validation", {
-        conceptId: baseQuestion.conceptId,
-        difficulty: baseQuestion.difficulty,
-        language,
-        detail: validation.reason,
-      });
-      return baseQuestion;
-    }
-
-    // 4. Ensure not already seen by this student in current session
-    if (seenSignatures.has(generatedText)) {
-      logFallback("validation", {
-        conceptId: baseQuestion.conceptId,
-        difficulty: baseQuestion.difficulty,
-        language,
-        detail: "duplicate_session_wording",
-      });
-      return baseQuestion;
-    }
-
-    // 5. Cache and return
-    setCachedWording(cacheKey, generatedText);
-    seenSignatures.add(generatedText);
-
-    return {
-      ...baseQuestion,
-      prompt: { raw: generatedText },
-    };
+    return baseQuestion;
   } catch (err) {
     const isTimeout = err instanceof Error && /timed out/i.test(err.message);
-    if (isTimeout) {
-      logFallback("timeout", {
-        conceptId: baseQuestion.conceptId,
-        difficulty: baseQuestion.difficulty,
-        language,
-      });
-    } else {
-      logFallback("validation", {
-        conceptId: baseQuestion.conceptId,
-        difficulty: baseQuestion.difficulty,
-        language,
-        detail: "runtime_error",
-      });
-    }
+    logFallback(isTimeout ? "timeout" : "validation", {
+      conceptId: baseQuestion.conceptId,
+      difficulty: baseQuestion.difficulty,
+      language,
+      detail: "runtime_error",
+    });
     return baseQuestion;
   }
 }

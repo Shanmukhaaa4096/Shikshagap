@@ -15,7 +15,7 @@
 | Step 3 | Make the class change the numbers | Done | `src/lib/questions/generator.ts`, `src/app/api/assessment/agent/route.ts`, `src/components/AdaptiveAssessmentView.tsx`, `src/components/WorksheetModal.tsx`, `src/data/skillSheet.ts`, `tests/class-numbers-range.test.mjs`, `package.json` | All 95 tests pass | Added grade parameter across question generators and callers. Number ranges are dynamically read from the skill sheet per grade and difficulty. Added comprehensive range test (200 random questions per class and concept) verifying every number is within range bounds and answers are correct. |
 | Step 4 | More Class 3 concepts | Done | `src/lib/types.ts`, `src/lib/concepts/graph.ts`, `src/lib/curriculum/classes.ts`, `src/data/skillSheet.ts`, `src/lib/i18n/keys.ts`, `src/lib/i18n/dict.ts`, `src/lib/questions/generator.ts`, `src/lib/engine/remediation.ts`, `tests/class3-concepts.test.mjs`, `package.json` | All 103 tests pass | Added 4 NCERT Class 3 concepts (addition_3digit, subtraction_3digit, division_sharing, money_math) marked with needsTeacherCheck: true. Added generator implementations with computed answers and misconception distractors across levels 1, 2, 3 in en, hi, and te. Added remediation templates and tests. |
 | Step 5 | Fresh wording for every concept | Done | `src/lib/questions/hybridGenerator.ts`, `tests/hybrid-all-concepts.test.mjs`, `package.json` | All 108 tests pass | Extended hybridGenerator to generate varied wording across all concepts (not just 9) using structured Zod schema. Code strictly computes numbers, answers, and wrong options. Prompt includes grade, concept learning outcome from skill sheet, number range, language, runtime theme, and last 5 session questions to avoid repetitive stories or sentence structures. Diagram questions retain visual structure while Gemini generates the problem wording. Added 5 tests. |
-| Step 6 | Blind solver and reading level | Pending | - | - | - |
+| Step 6 | Blind solver and reading level | Done | `src/lib/questions/hybridGenerator.ts`, `tests/blind-solver.test.mjs`, `package.json` | All 114 tests pass | Added blind solver: after Gemini writes a question, a second Gemini call receives ONLY the question text and returns its own computed answer. If answer differs from the code answer, question is rejected and retried up to 3 times before falling back to the deterministic template. Added reading-level limit (Class 3: max 30 words, Class 4: max 40 words, Class 5: max 45 words). Total time budget kept under 4s per question, skipping blind solver if time would exceed budget. Added 6 tests. |
 | Step 7 | Fix the study resources | Pending | - | - | - |
 | Step 8 | Persistent question memory, built safely | Pending | - | - | - |
 | Step 9 | Final check and report | Pending | - | - | - |
@@ -49,6 +49,12 @@
   - Added 8 realistic Indian primary contexts as runtime themes (`haat / santhe`, sports day, classroom library, community kitchen, bus ticket counter, tree planting, craft workshop, nature walk).
   - Prompt provides the exact grade, NCERT learning outcome, target number range, language name, runtime theme, and recent session question history to ensure sentence variety and prevent repetitive phrasing.
   - Diagram questions (like visual fractions) preserve their `visual` object while Gemini generates the accompanying question sentence.
-  - Added `tests/hybrid-all-concepts.test.mjs` verifying theme rotation, operand extraction across all concept types, diagram question preservation, session history inclusion, and multilingual prompting.
+- Step 6:
+  - Implemented blind solver verification: after wording generation, a second Gemini call receives ONLY the question text (no operands, hints, answer, or curriculum grade).
+  - Implemented `normalizeAnswer` handling integer/decimal simplification, fractional answers, and stripping currency terms (₹, Rs., /-, rupees).
+  - If blind solver answer mismatches the code-computed answer, question is rejected and retried up to 3 times. If all 3 attempts fail, system falls back to the deterministic question template.
+  - Added reading-level limit: 30 words for Class 3, 40 words for Class 4, 45 words for Class 5. Any generated wording exceeding this is rejected and retried.
+  - Maintained overall question time under 4 seconds (`totalTimeBudgetMs = 4000`), skipping the blind solver if remaining budget is under 800ms.
+  - Added `tests/blind-solver.test.mjs` verifying reading level caps, answer normalization, mismatch rejection and retry, 3-retry fallback, and <800ms solver skip.
 
 
