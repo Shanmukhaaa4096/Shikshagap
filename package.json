@@ -9,7 +9,7 @@
     "lint": "eslint",
     "build:embeddings": "node scripts/buildEmbeddings.mjs",
     "check:links": "node scripts/checkLinks.mjs",
-    "test": "node --test tests/security.test.mjs tests/product-audit.test.mjs tests/multi-class.test.mjs tests/staircase.test.mjs tests/examiner-analyst.test.mjs tests/resource-advisor.test.mjs tests/orchestrator.test.mjs"
+    "test": "node --test tests/security.test.mjs tests/product-audit.test.mjs tests/multi-class.test.mjs tests/staircase.test.mjs tests/examiner-analyst.test.mjs tests/resource-advisor.test.mjs tests/orchestrator.test.mjs tests/hybrid-generator.test.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.27.0",

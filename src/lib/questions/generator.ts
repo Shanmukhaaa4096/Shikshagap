@@ -13,9 +13,9 @@ import type {
   Question,
   QuestionMeta,
   Txt,
-} from "@/lib/types";
-import type { TKey } from "@/lib/i18n/keys";
-import { gcd, pick, randInt, shuffle, uid, type Rng } from "@/lib/rng";
+} from "../types.ts";
+import type { TKey } from "../i18n/keys.ts";
+import { gcd, pick, randInt, shuffle, uid, type Rng } from "../rng.ts";
 
 const T = (key: TKey, params?: Record<string, string | number>): Txt => ({ key, params });
 const R = (raw: string | number): Txt => ({ raw: String(raw) });

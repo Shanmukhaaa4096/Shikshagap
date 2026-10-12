@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateUnique } from "@/lib/questions/generator";
+import { enhanceQuestionWithHybridWording } from "@/lib/questions/hybridGenerator";
 import { makeRng } from "@/lib/rng";
 import {
   getNextStaircaseAction,
@@ -167,13 +168,22 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 4. Generate unique question (never written by LLM; generated purely by code)
+    // 4. Generate unique question (math operands, answer key, and distractors computed deterministically)
     const seen = new Set<string>(currentMemory.seenSignatures || []);
-    const nextQuestion = generateUnique(
+    const baseQuestion = generateUnique(
       nextAction.conceptId,
       nextAction.level,
       rng,
       seen
+    );
+
+    // 5. Enhance wording with Gemini hybrid generator (validated against operands, script, and safety)
+    const nextQuestion = await enhanceQuestionWithHybridWording(
+      baseQuestion,
+      currentMemory.language,
+      currentMemory.grade,
+      seen,
+      { ip }
     );
     currentMemory.seenSignatures = Array.from(seen);
 
