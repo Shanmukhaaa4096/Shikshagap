@@ -1,0 +1,647 @@
+{
+  "timestamp": "2026-10-12T22:01:56.775Z",
+  "pages": {
+    "home": {
+      "axeIssues": 3,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 66,
+          "desc": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds"
+        },
+        {
+          "id": "label",
+          "impact": "critical",
+          "nodes": 1,
+          "desc": "Ensure every form element has a label"
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "nodes": 4,
+          "desc": "Ensure all page content is contained by landmarks"
+        }
+      ],
+      "smallTextCount": 227,
+      "smallTargetCount": 38,
+      "sampleSmallText": [
+        {
+          "tag": "a",
+          "fontSize": "12px",
+          "text": "Skip to main content"
+        },
+        {
+          "tag": "span",
+          "fontSize": "11px",
+          "text": "VOL. 2026 | ISSUE NO. 05"
+        },
+        {
+          "tag": "span",
+          "fontSize": "11px",
+          "text": "PRIMARY MATHEMATICS"
+        },
+        {
+          "tag": "span",
+          "fontSize": "11px",
+          "text": "|"
+        },
+        {
+          "tag": "span",
+          "fontSize": "11px",
+          "text": "FOUNDATIONAL LEARNING GAP DIAG"
+        },
+        {
+          "tag": "span",
+          "fontSize": "11px",
+          "text": "INDIAN PRIMARY SCHOOLS EDITION"
+        },
+        {
+          "tag": "span",
+          "fontSize": "11px",
+          "text": "|"
+        },
+        {
+          "tag": "span",
+          "fontSize": "11px",
+          "text": "BUILT FOLLOWING DPDP ACT 2023 "
+        },
+        {
+          "tag": "span",
+          "fontSize": "12px",
+          "text": "SG"
+        },
+        {
+          "tag": "span",
+          "fontSize": "10px",
+          "text": "AI Diagnostic Agent"
+        }
+      ],
+      "sampleSmallTargets": [
+        {
+          "tag": "a",
+          "w": 2,
+          "h": 2,
+          "text": "Skip to main content"
+        },
+        {
+          "tag": "a",
+          "w": 145,
+          "h": 36,
+          "text": "SGShikshaGap"
+        },
+        {
+          "tag": "a",
+          "w": 53,
+          "h": 17,
+          "text": "01 Cover"
+        },
+        {
+          "tag": "a",
+          "w": 119,
+          "h": 17,
+          "text": "02 How Agent Works"
+        },
+        {
+          "tag": "a",
+          "w": 132,
+          "h": 17,
+          "text": "03 Interactive Cases"
+        },
+        {
+          "tag": "a",
+          "w": 40,
+          "h": 17,
+          "text": "04 FAQ"
+        },
+        {
+          "tag": "button",
+          "w": 33,
+          "h": 36,
+          "text": "EN"
+        },
+        {
+          "tag": "button",
+          "w": 46,
+          "h": 36,
+          "text": "हिन्दी"
+        },
+        {
+          "tag": "button",
+          "w": 61,
+          "h": 36,
+          "text": "తెలుగు"
+        },
+        {
+          "tag": "button",
+          "w": 38,
+          "h": 38,
+          "text": ""
+        }
+      ]
+    },
+    "login": {
+      "axeIssues": 4,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 4,
+          "desc": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds"
+        },
+        {
+          "id": "landmark-one-main",
+          "impact": "moderate",
+          "nodes": 1,
+          "desc": "Ensure the document has a main landmark"
+        },
+        {
+          "id": "page-has-heading-one",
+          "impact": "moderate",
+          "nodes": 1,
+          "desc": "Ensure that the page, or at least one of its frames contains a level-one heading"
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "nodes": 8,
+          "desc": "Ensure all page content is contained by landmarks"
+        }
+      ],
+      "smallTextCount": 21,
+      "smallTargetCount": 8,
+      "sampleSmallText": [
+        {
+          "tag": "p",
+          "fontSize": "12px",
+          "text": "Authorized Staff Access"
+        },
+        {
+          "tag": "div",
+          "fontSize": "11px",
+          "text": "v2.4 Sec"
+        },
+        {
+          "tag": "p",
+          "fontSize": "12px",
+          "text": "Restricted portal for verified"
+        },
+        {
+          "tag": "label",
+          "fontSize": "12px",
+          "text": "Institutional Email Address"
+        },
+        {
+          "tag": "label",
+          "fontSize": "12px",
+          "text": "Password"
+        },
+        {
+          "tag": "span",
+          "fontSize": "11px",
+          "text": "Show"
+        },
+        {
+          "tag": "button",
+          "fontSize": "12px",
+          "text": "Authenticate & Enter Dashboard"
+        },
+        {
+          "tag": "p",
+          "fontSize": "11px",
+          "text": "Evaluation & Review Credential"
+        },
+        {
+          "tag": "span",
+          "fontSize": "11px",
+          "text": "Class Teacher"
+        },
+        {
+          "tag": "div",
+          "fontSize": "10px",
+          "text": "Class 5 Mathematics"
+        }
+      ],
+      "sampleSmallTargets": [
+        {
+          "tag": "a",
+          "w": 92,
+          "h": 31,
+          "text": "ShikshaGap"
+        },
+        {
+          "tag": "a",
+          "w": 179,
+          "h": 16,
+          "text": "← Return to Public L"
+        },
+        {
+          "tag": "a",
+          "w": 135,
+          "h": 16,
+          "text": "DPDP Compliance Poli"
+        },
+        {
+          "tag": "button",
+          "w": 20,
+          "h": 20,
+          "text": ""
+        },
+        {
+          "tag": "a",
+          "w": 408,
+          "h": 34,
+          "text": "Privacy Policy"
+        },
+        {
+          "tag": "a",
+          "w": 79,
+          "h": 14,
+          "text": "Cookie Notice"
+        },
+        {
+          "tag": "button",
+          "w": 202,
+          "h": 38,
+          "text": "Accept Analytics"
+        },
+        {
+          "tag": "button",
+          "w": 202,
+          "h": 38,
+          "text": "Reject Non-Essential"
+        }
+      ]
+    },
+    "student_assessment": {
+      "axeIssues": 2,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 26,
+          "desc": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds"
+        },
+        {
+          "id": "skip-link",
+          "impact": "moderate",
+          "nodes": 1,
+          "desc": "Ensure all skip links have a focusable target"
+        }
+      ],
+      "smallTextCount": 68,
+      "smallTargetCount": 26,
+      "sampleSmallText": [
+        {
+          "tag": "div",
+          "fontSize": "12px",
+          "text": "SG"
+        },
+        {
+          "tag": "span",
+          "fontSize": "12px",
+          "text": "5A"
+        },
+        {
+          "tag": "button",
+          "fontSize": "12px",
+          "text": "3A"
+        },
+        {
+          "tag": "button",
+          "fontSize": "12px",
+          "text": "4A"
+        },
+        {
+          "tag": "button",
+          "fontSize": "12px",
+          "text": "5A"
+        },
+        {
+          "tag": "button",
+          "fontSize": "10px",
+          "text": "More classes coming soon"
+        },
+        {
+          "tag": "span",
+          "fontSize": "12px",
+          "text": "Teacher"
+        },
+        {
+          "tag": "span",
+          "fontSize": "12px",
+          "text": "Student"
+        },
+        {
+          "tag": "button",
+          "fontSize": "12px",
+          "text": "EN"
+        },
+        {
+          "tag": "button",
+          "fontSize": "12px",
+          "text": "हिन्दी"
+        }
+      ],
+      "sampleSmallTargets": [
+        {
+          "tag": "a",
+          "w": 1,
+          "h": 1,
+          "text": "Skip to main content"
+        },
+        {
+          "tag": "a",
+          "w": 144,
+          "h": 32,
+          "text": "SGShikshaGap5A"
+        },
+        {
+          "tag": "button",
+          "w": 35,
+          "h": 36,
+          "text": "3A"
+        },
+        {
+          "tag": "button",
+          "w": 35,
+          "h": 36,
+          "text": "4A"
+        },
+        {
+          "tag": "button",
+          "w": 35,
+          "h": 36,
+          "text": "5A"
+        },
+        {
+          "tag": "button",
+          "w": 144,
+          "h": 23,
+          "text": "More classes coming "
+        },
+        {
+          "tag": "button",
+          "w": 86,
+          "h": 36,
+          "text": "Teacher"
+        },
+        {
+          "tag": "button",
+          "w": 86,
+          "h": 36,
+          "text": "Student"
+        },
+        {
+          "tag": "button",
+          "w": 29,
+          "h": 36,
+          "text": "EN"
+        },
+        {
+          "tag": "button",
+          "w": 42,
+          "h": 36,
+          "text": "हिन्दी"
+        }
+      ]
+    },
+    "teacher_dashboard": {
+      "axeIssues": 2,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 26,
+          "desc": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds"
+        },
+        {
+          "id": "skip-link",
+          "impact": "moderate",
+          "nodes": 1,
+          "desc": "Ensure all skip links have a focusable target"
+        }
+      ],
+      "smallTextCount": 68,
+      "smallTargetCount": 26,
+      "sampleSmallText": [
+        {
+          "tag": "div",
+          "fontSize": "12px",
+          "text": "SG"
+        },
+        {
+          "tag": "span",
+          "fontSize": "12px",
+          "text": "5A"
+        },
+        {
+          "tag": "button",
+          "fontSize": "12px",
+          "text": "3A"
+        },
+        {
+          "tag": "button",
+          "fontSize": "12px",
+          "text": "4A"
+        },
+        {
+          "tag": "button",
+          "fontSize": "12px",
+          "text": "5A"
+        },
+        {
+          "tag": "button",
+          "fontSize": "10px",
+          "text": "More classes coming soon"
+        },
+        {
+          "tag": "span",
+          "fontSize": "12px",
+          "text": "Teacher"
+        },
+        {
+          "tag": "span",
+          "fontSize": "12px",
+          "text": "Student"
+        },
+        {
+          "tag": "button",
+          "fontSize": "12px",
+          "text": "EN"
+        },
+        {
+          "tag": "button",
+          "fontSize": "12px",
+          "text": "हिन्दी"
+        }
+      ],
+      "sampleSmallTargets": [
+        {
+          "tag": "a",
+          "w": 1,
+          "h": 1,
+          "text": "Skip to main content"
+        },
+        {
+          "tag": "a",
+          "w": 144,
+          "h": 32,
+          "text": "SGShikshaGap5A"
+        },
+        {
+          "tag": "button",
+          "w": 35,
+          "h": 36,
+          "text": "3A"
+        },
+        {
+          "tag": "button",
+          "w": 35,
+          "h": 36,
+          "text": "4A"
+        },
+        {
+          "tag": "button",
+          "w": 35,
+          "h": 36,
+          "text": "5A"
+        },
+        {
+          "tag": "button",
+          "w": 144,
+          "h": 23,
+          "text": "More classes coming "
+        },
+        {
+          "tag": "button",
+          "w": 86,
+          "h": 36,
+          "text": "Teacher"
+        },
+        {
+          "tag": "button",
+          "w": 86,
+          "h": 36,
+          "text": "Student"
+        },
+        {
+          "tag": "button",
+          "w": 29,
+          "h": 36,
+          "text": "EN"
+        },
+        {
+          "tag": "button",
+          "w": 42,
+          "h": 36,
+          "text": "हिन्दी"
+        }
+      ]
+    },
+    "report": {
+      "axeIssues": 3,
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 2,
+          "desc": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds"
+        },
+        {
+          "id": "landmark-one-main",
+          "impact": "moderate",
+          "nodes": 1,
+          "desc": "Ensure the document has a main landmark"
+        },
+        {
+          "id": "page-has-heading-one",
+          "impact": "moderate",
+          "nodes": 1,
+          "desc": "Ensure that the page, or at least one of its frames contains a level-one heading"
+        }
+      ],
+      "smallTextCount": 9,
+      "smallTargetCount": 5,
+      "sampleSmallText": [
+        {
+          "tag": "p",
+          "fontSize": "12px",
+          "text": "This parent report link is inv"
+        },
+        {
+          "tag": "div",
+          "fontSize": "11px",
+          "text": "Reference ID: LINK-EXPIRED-404"
+        },
+        {
+          "tag": "span",
+          "fontSize": "11px",
+          "text": "LINK-EXPIRED-404"
+        },
+        {
+          "tag": "span",
+          "fontSize": "12px",
+          "text": "DPDP 2023 : Privacy Choices"
+        },
+        {
+          "tag": "p",
+          "fontSize": "12px",
+          "text": "ShikshaGap uses strictly neces"
+        },
+        {
+          "tag": "a",
+          "fontSize": "12px",
+          "text": "Privacy Policy"
+        },
+        {
+          "tag": "a",
+          "fontSize": "12px",
+          "text": "Cookie Notice"
+        },
+        {
+          "tag": "button",
+          "fontSize": "12px",
+          "text": "Accept Analytics"
+        },
+        {
+          "tag": "button",
+          "fontSize": "12px",
+          "text": "Reject Non-Essential"
+        }
+      ],
+      "sampleSmallTargets": [
+        {
+          "tag": "button",
+          "w": 20,
+          "h": 20,
+          "text": ""
+        },
+        {
+          "tag": "a",
+          "w": 408,
+          "h": 34,
+          "text": "Privacy Policy"
+        },
+        {
+          "tag": "a",
+          "w": 79,
+          "h": 14,
+          "text": "Cookie Notice"
+        },
+        {
+          "tag": "button",
+          "w": 202,
+          "h": 38,
+          "text": "Accept Analytics"
+        },
+        {
+          "tag": "button",
+          "w": 202,
+          "h": 38,
+          "text": "Reject Non-Essential"
+        }
+      ]
+    }
+  }
+}

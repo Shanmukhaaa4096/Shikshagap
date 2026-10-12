@@ -33,6 +33,14 @@
 
 ---
 
+## Part 3: UI and UX Modernization
+
+| UI Step | Name | Status | Files Touched | Tests Result | Notes / Measurements |
+|---|---|---|---|---|---|
+| UI Step 1 | Measure first, change nothing | Done | `scripts/measureUiBefore.mjs`, `package.json`, `docs/ui-before/` | All 135 tests pass, 0 lint warnings | Installed Playwright & Chromium successfully. Captured screenshots at 360x640 and 1280x800 for home, login, student assessment, teacher dashboard, diagnostic modal, worksheet modal, and report page. Measured baseline: 227 small texts (<14px) on home, 68 on dashboard; 38 small tap targets (<44px) on home, 26 on dashboard; 66 color contrast violations on home, 26 on dashboard. Saved full report to `docs/ui-before/measurements_before.json`. |
+
+---
+
 ## Decisions Log
 - Base branch is `overnight/question-engine`.
 - No Gemini API key was present in `.env.local`; all tests use strict unit mocks or fallback generators.
