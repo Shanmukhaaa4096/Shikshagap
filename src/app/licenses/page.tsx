@@ -114,7 +114,7 @@ export default function LicensesPage() {
                   href={lib.url} 
                   target="_blank" 
                   rel="noreferrer noopener" 
-                  className="text-xs font-mono underline hover:text-[#DE2A35]"
+                  className="text-xs font-mono underline hover:text-[#B51E28]"
                 >
                   Source Repository
                 </a>

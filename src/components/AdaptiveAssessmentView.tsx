@@ -648,14 +648,14 @@ export function AdaptiveAssessmentView({
               </div>
             </div>
             <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#DFA06E]/30 text-center">
-              <div className="editorial-meta text-[#DFA06E]">NEEDS PRACTICE</div>
-              <div className="font-serif text-2xl font-bold text-[#DFA06E] mt-1">
+              <div className="editorial-meta text-[#432623] font-bold">NEEDS PRACTICE</div>
+              <div className="font-serif text-2xl font-bold text-[#432623] mt-1">
                 {devTopics.length}
               </div>
             </div>
             <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#8ABB93]/30 text-center">
-              <div className="editorial-meta text-[#8ABB93]">MASTERED</div>
-              <div className="font-serif text-2xl font-bold text-[#8ABB93] mt-1">
+              <div className="editorial-meta text-[#432623] font-bold">MASTERED</div>
+              <div className="font-serif text-2xl font-bold text-[#432623] mt-1">
                 {masteredTopics.length}
               </div>
             </div>
@@ -681,7 +681,7 @@ export function AdaptiveAssessmentView({
                       {topicMem.misconceptions && topicMem.misconceptions.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1.5">
                           {topicMem.misconceptions.map((m) => (
-                            <span key={m} className="text-sm font-mono uppercase bg-[#DE2A35]/15 text-[#DE2A35] px-2 py-0.5 rounded-[2px] border border-[#DE2A35]/25">
+                            <span key={m} className="text-sm font-mono uppercase bg-[#DE2A35]/15 text-[#B51E28] px-2 py-0.5 rounded-[2px] border border-[#DE2A35]/25">
                               {m.replace(/_/g, " ")}
                             </span>
                           ))}
@@ -693,7 +693,7 @@ export function AdaptiveAssessmentView({
                         </p>
                       )}
                     </div>
-                    <span className="bg-[#DE2A35]/15 text-[#DE2A35] text-sm font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#DE2A35]/30 uppercase">
+                    <span className="bg-[#DE2A35]/15 text-[#B51E28] text-sm font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#DE2A35]/30 uppercase">
                       GAP
                     </span>
                   </div>
@@ -705,7 +705,7 @@ export function AdaptiveAssessmentView({
           {/* 2. DEVELOPING TOPICS SECOND per SPEC.md */}
           {devTopics.length > 0 && (
             <div className="space-y-3">
-              <span className="editorial-meta text-[#DFA06E]">NEEDS PRACTICE (DEVELOPING)</span>
+              <span className="editorial-meta text-[#432623] font-bold">NEEDS PRACTICE (DEVELOPING)</span>
               <div className="grid grid-cols-1 gap-2.5">
                 {devTopics.map((topicMem) => (
                   <div
@@ -722,7 +722,7 @@ export function AdaptiveAssessmentView({
                       {topicMem.misconceptions && topicMem.misconceptions.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1.5">
                           {topicMem.misconceptions.map((m) => (
-                            <span key={m} className="text-sm font-mono uppercase bg-[#DFA06E]/15 text-[#DFA06E] px-2 py-0.5 rounded-[2px] border border-[#DFA06E]/25">
+                            <span key={m} className="text-sm font-mono uppercase bg-[#DFA06E] text-[#432623] font-bold px-2 py-0.5 rounded-[2px] border border-[#DFA06E]/25">
                               {m.replace(/_/g, " ")}
                             </span>
                           ))}
@@ -734,7 +734,7 @@ export function AdaptiveAssessmentView({
                         </p>
                       )}
                     </div>
-                    <span className="bg-[#DFA06E]/15 text-[#DFA06E] text-sm font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#DFA06E]/30 uppercase">
+                    <span className="bg-[#DFA06E] text-[#432623] font-bold text-sm font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#DFA06E]/30 uppercase">
                       NEEDS PRACTICE
                     </span>
                   </div>
@@ -746,7 +746,7 @@ export function AdaptiveAssessmentView({
           {/* 3. MASTERED TOPICS LAST per SPEC.md */}
           {masteredTopics.length > 0 && (
             <div className="space-y-3">
-              <span className="editorial-meta text-[#8ABB93]">COMPLETED (MASTERED)</span>
+              <span className="editorial-meta text-[#432623] font-bold">COMPLETED (MASTERED)</span>
               <div className="grid grid-cols-1 gap-2.5">
                 {masteredTopics.map((topicMem) => (
                   <div
@@ -759,7 +759,7 @@ export function AdaptiveAssessmentView({
                         {TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}
                       </div>
                     </div>
-                    <span className="bg-[#8ABB93]/15 text-[#8ABB93] text-sm font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#8ABB93]/30 uppercase">
+                    <span className="bg-[#8ABB93] text-[#432623] font-bold text-sm font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#8ABB93]/30 uppercase">
                       DONE
                     </span>
                   </div>
@@ -955,7 +955,7 @@ export function AdaptiveAssessmentView({
                     onClick={handleReportQuestion}
                     disabled={reportedQuestionId === (currentQuestion.id || `${currentQuestion.conceptId}_${currentQuestion.difficulty}`)}
                     data-testid="report-question-btn"
-                    className="inline-flex items-center gap-1 text-sm text-[#432623]/70 hover:text-[#DE2A35] px-2 py-0.5 rounded border border-[#432623]/20 hover:border-[#DE2A35]/30 transition-colors"
+                    className="inline-flex items-center gap-1 text-sm text-[#432623]/70 hover:text-[#B51E28] px-2 py-0.5 rounded border border-[#432623]/20 hover:border-[#DE2A35]/30 transition-colors"
                     title="Report question for teacher review"
                   >
                     <Flag className="w-3 h-3" />
@@ -1039,7 +1039,7 @@ export function AdaptiveAssessmentView({
                         </button>
                       ) : (
                         <div className="bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#DFA06E]/40 p-3 rounded-[2px] text-sm text-[#432623]">
-                          <strong className="text-[#DFA06E]">Hint:</strong> {formatTxt(currentQuestion.hint)}
+                          <strong className="text-[#432623] bg-[#DFA06E] px-1 rounded-[2px]">Hint:</strong> {formatTxt(currentQuestion.hint)}
                         </div>
                       )}
                     </div>

@@ -248,7 +248,7 @@ export function SlowNetworkState({ lang = 'en', onCancel, className = '' }: { la
   return (
     <div className={`border border-[#DFA06E] p-4 bg-[#DFA06E]/10 flex flex-col sm:flex-row items-center justify-between gap-3 ${className}`}>
       <div className="flex items-center gap-3">
-        <div className="text-[#DFA06E] shrink-0">
+        <div className="text-[#432623] dark:text-[#F5F1BC] shrink-0">
           <SvgIcons.SlowNetwork />
         </div>
         <div className="text-left">

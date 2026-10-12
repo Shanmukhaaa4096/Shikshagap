@@ -318,7 +318,7 @@ export function TeacherDashboard({
                 className="p-4 border border-[#DE2A35] bg-[#DE2A35]/15 rounded-[2px] text-left hover:bg-[#DE2A35]/25 transition-none flex flex-col justify-between min-h-[96px]"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-sm uppercase font-bold text-[#DE2A35]">
+                  <span className="font-mono text-sm uppercase font-bold text-[#B51E28]">
                     {dict.criticalGaps || "Critical"}
                   </span>
                   <span className="w-3 h-3 rounded-[2px] bg-[#DE2A35]" />
@@ -327,7 +327,7 @@ export function TeacherDashboard({
                   <span className="font-serif text-4xl font-black text-[#DE2A35]">
                     {criticalCount}
                   </span>
-                  <span className="font-mono text-sm text-[#DE2A35] font-bold">
+                  <span className="font-mono text-sm text-[#B51E28] font-bold">
                     {Math.round((criticalCount / (total || 1)) * 100)}%
                   </span>
                 </div>
@@ -346,7 +346,7 @@ export function TeacherDashboard({
                   Top 5 learners needing teacher support in class today.
                 </p>
               </div>
-              <span className="text-sm font-mono font-bold text-[#DE2A35] bg-[#DE2A35]/10 px-2.5 py-1 rounded-[2px] border border-[#DE2A35]/30">
+              <span className="text-sm font-mono font-bold text-[#B51E28] bg-[#DE2A35]/10 px-2.5 py-1 rounded-[2px] border border-[#DE2A35]/30">
                 {urgentStudents.length} Students
               </span>
             </div>
@@ -516,7 +516,7 @@ export function TeacherDashboard({
                               ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]"
                               : isNeedPractice
                               ? "bg-[#DFA06E]/20 text-[#432623] dark:text-[#F5F1BC] border-[#DFA06E]"
-                              : "bg-[#8ABB93]/20 text-[#8ABB93] border-[#8ABB93]"
+                              : "bg-[#8ABB93] text-[#432623] font-bold border-[#8ABB93]"
                           }`}
                         >
                           {isCritical ? "Need Immediate Help" : isNeedPractice ? "Need Practice" : "On Track"}
@@ -527,7 +527,7 @@ export function TeacherDashboard({
                         {root ? (
                           <span>Needs practice with: <strong className="text-[#DE2A35]">{t(`c_${root.rootId}`)}</strong></span>
                         ) : (
-                          <span className="text-[#8ABB93] font-semibold">Understands foundational concepts</span>
+                          <span className="text-[#432623] font-bold bg-[#8ABB93]/40 px-1.5 py-0.5 rounded-[2px]">Understands foundational concepts</span>
                         )}
                       </p>
 
@@ -576,7 +576,7 @@ export function TeacherDashboard({
                                     ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]"
                                     : isNeedPractice
                                     ? "bg-[#DFA06E]/20 text-[#432623] dark:text-[#F5F1BC] border-[#DFA06E]"
-                                    : "bg-[#8ABB93]/20 text-[#8ABB93] border-[#8ABB93]"
+                                    : "bg-[#8ABB93] text-[#432623] font-bold border-[#8ABB93]"
                                 }`}
                               >
                                 {isCritical ? "Need Immediate Help" : isNeedPractice ? "Need Practice" : "On Track"}
@@ -586,7 +586,7 @@ export function TeacherDashboard({
                               {root ? (
                                 <span className="font-bold text-[#DE2A35]">{t(`c_${root.rootId}`)}</span>
                               ) : (
-                                <span className="text-[#8ABB93] font-semibold">Understands foundational concepts</span>
+                                <span className="text-[#432623] font-bold bg-[#8ABB93]/40 px-1.5 py-0.5 rounded-[2px]">Understands foundational concepts</span>
                               )}
                             </td>
                             <td className="py-3 px-4 font-mono font-bold text-sm">
@@ -928,7 +928,7 @@ export function TeacherDashboard({
                 Download {classConfig.label} - Section {classConfig.section} student records with formula injection protection and UTF-8 encoding for Excel.
               </p>
               {exportError && (
-                <div className="p-2 border border-[#DE2A35] bg-[#DE2A35]/10 text-sm text-[#DE2A35]">
+                <div className="p-2 border border-[#DE2A35] bg-[#DE2A35]/10 text-sm text-[#B51E28]">
                   {exportError}
                 </div>
               )}
@@ -993,7 +993,7 @@ export function TeacherDashboard({
           {/* Re-auth Password Modal */}
           {showReauthModal && (
             <div className="p-4 border border-[#DE2A35] bg-[#DE2A35]/10 rounded-[2px] space-y-3">
-              <div className="text-sm font-bold text-[#DE2A35] flex items-center gap-1.5">
+              <div className="text-sm font-bold text-[#B51E28] flex items-center gap-1.5">
                 <Warning size={16} />
                 <span>Re-authentication Required Prior to Exporting Child Records</span>
               </div>

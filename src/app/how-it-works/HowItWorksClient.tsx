@@ -114,7 +114,7 @@ export default function HowItWorksClient() {
 
         {/* Teacher Feedback / Report Problem Form */}
         <div className="border border-[#432623]/25 dark:border-[#F5F1BC]/25 p-6 bg-[#F5F1BC]/30 dark:bg-[#381f1c] mb-12">
-          <div className="flex items-center gap-2 text-sm font-mono uppercase font-bold text-[#DE2A35] mb-1">
+          <div className="flex items-center gap-2 text-sm font-mono uppercase font-bold text-[#B51E28] mb-1">
             <Warning size={16} />
             <span>Educator Feedback</span>
           </div>

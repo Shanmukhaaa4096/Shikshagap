@@ -54,7 +54,7 @@ export default function PrivacyPage() {
 
         {/* Data Fiduciary Callout */}
         <div className="p-4 bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] space-y-1 text-xs">
-          <div className="font-mono font-bold text-[#DE2A35] uppercase text-xs">Data Fiduciary Identification</div>
+          <div className="font-mono font-bold text-[#B51E28] uppercase text-xs">Data Fiduciary Identification</div>
           <div className="text-[#432623] dark:text-[#F5F1BC]">
             <strong>Legal Entity Name:</strong> {siteConfig.legalEntityName}
           </div>

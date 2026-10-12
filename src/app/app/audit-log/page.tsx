@@ -161,8 +161,8 @@ export default function AuditLogPage() {
                           log.action.includes('failure') 
                             ? 'border-[#DE2A35] text-[#DE2A35]' 
                             : log.action.includes('export')
-                              ? 'border-[#DFA06E] text-[#DFA06E]'
-                              : 'border-[#8ABB93] text-[#8ABB93]'
+                              ? 'bg-[#DFA06E] text-[#432623] border-[#432623]/30'
+                              : 'bg-[#8ABB93] text-[#432623] border-[#432623]/30'
                         }`}>
                           {log.action}
                         </span>
@@ -194,8 +194,8 @@ export default function AuditLogPage() {
                       log.action.includes('failure') 
                         ? 'border-[#DE2A35] text-[#DE2A35]' 
                         : log.action.includes('export')
-                          ? 'border-[#DFA06E] text-[#DFA06E]'
-                          : 'border-[#8ABB93] text-[#8ABB93]'
+                          ? 'bg-[#DFA06E] text-[#432623] border-[#432623]/30'
+                          : 'bg-[#8ABB93] text-[#432623] border-[#432623]/30'
                     }`}>
                       {log.action}
                     </span>

@@ -253,7 +253,7 @@ export function StudentDiagnosticModal({
                 <span className="text-sm font-mono uppercase tracking-wider text-[var(--muted-foreground)]">
                   CONFIDENCE
                 </span>
-                <div className="font-mono text-xl font-bold text-[#8ABB93]">
+                <div className="font-mono text-xl font-bold text-[#432623]">
                   {Math.round(profile.confidence * 100)}%
                 </div>
               </div>
@@ -476,11 +476,11 @@ export function StudentDiagnosticModal({
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="w-2.5 h-2.5 rounded-[2px] bg-[#DE2A35]" />
-                          <span className="text-sm font-mono uppercase tracking-wider font-bold text-[#DE2A35]">
+                          <span className="text-sm font-mono uppercase tracking-wider font-bold text-[#B51E28]">
                             ROOT CAUSE IDENTIFIED
                           </span>
                         </div>
-                        <span className="text-sm font-mono font-bold uppercase bg-[#DE2A35]/15 text-[#DE2A35] px-2 py-0.5 rounded-[2px] border border-[#DE2A35]">
+                        <span className="text-sm font-mono font-bold uppercase bg-[#DE2A35]/15 text-[#B51E28] px-2 py-0.5 rounded-[2px] border border-[#DE2A35]">
                           {rootCause.severity === "high" ? "HIGH PRIORITY GAP" : "FOUNDATIONAL GAP"}
                         </span>
                       </div>
@@ -698,7 +698,7 @@ export function StudentDiagnosticModal({
                       {rootCause ? t(`c_${rootCause.rootId}`) : "No Critical Gap Detected"}
                     </h3>
                   </div>
-                  <span className="text-sm font-mono px-2 py-0.5 border border-[#DE2A35] text-[#DE2A35] font-bold uppercase">
+                  <span className="text-sm font-mono px-2 py-0.5 border border-[#DE2A35] text-[#B51E28] font-bold uppercase">
                     AI Decision Support
                   </span>
                 </div>
@@ -812,7 +812,7 @@ export function StudentDiagnosticModal({
             <div className="space-y-4">
               <div className="border border-[var(--border)] p-5 bg-[var(--card)] space-y-4">
                 <div>
-                  <span className="text-sm font-mono uppercase text-[#DE2A35] font-bold">
+                  <span className="text-sm font-mono uppercase text-[#B51E28] font-bold">
                     Child Privacy Protected (DPDP Act 2023)
                   </span>
                   <h3 className="font-serif text-lg font-bold text-[var(--foreground)] mt-0.5">
@@ -838,7 +838,7 @@ export function StudentDiagnosticModal({
                 </div>
 
                 {shareError && (
-                  <div className="p-3 border border-[#DE2A35] bg-[#DE2A35]/10 text-sm text-[#DE2A35]">
+                  <div className="p-3 border border-[#DE2A35] bg-[#DE2A35]/10 text-sm text-[#B51E28]">
                     {shareError}
                   </div>
                 )}

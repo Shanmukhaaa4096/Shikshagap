@@ -9,7 +9,7 @@ export default function NotFound() {
         <div className="flex justify-center sm:justify-start mb-4">
           <NotFoundIllustration className="w-48 h-auto" />
         </div>
-        <div className="text-sm font-mono uppercase text-[#DE2A35] font-bold mb-2">
+        <div className="text-sm font-mono uppercase text-[#B51E28] font-bold mb-2">
           HTTP 404 : Resource Not Found
         </div>
         <h1 className="font-serif text-3xl font-bold mb-4">Page Not Located</h1>

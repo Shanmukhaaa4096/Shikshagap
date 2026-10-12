@@ -69,9 +69,9 @@
   --accent: #DE2A35;
   --accent-foreground: #FAF8E8;
   --destructive: #B51E28;
-  --border: rgba(67, 38, 35, 0.16);
-  --input: rgba(67, 38, 35, 0.22);
-  --ring: #DE2A35;
+  --border: rgba(67, 38, 35, 0.35);
+  --input: rgba(67, 38, 35, 0.40);
+  --ring: #B51E28;
   --radius: 2px;
 
   /* Learning Status Tokens (reserved strictly for learning mastery and alerts) */
@@ -103,9 +103,9 @@
   --accent: #DE2A35;
   --accent-foreground: #FAF8E8;
   --destructive: #DE2A35;
-  --border: rgba(250, 248, 232, 0.18);
-  --input: rgba(250, 248, 232, 0.25);
-  --ring: #DE2A35;
+  --border: rgba(250, 248, 232, 0.35);
+  --input: rgba(250, 248, 232, 0.45);
+  --ring: #FAF8E8;
 
   /* Learning Status Tokens (Dark) */
   --status-good: #4ADE80;
@@ -144,10 +144,10 @@
     border-radius: 2px;
   }
 
-  /* Keyboard focus ring */
+  /* Keyboard focus ring with >= 3:1 contrast */
   *:focus-visible {
-    outline: 2px solid var(--primary) !important;
-    outline-offset: 1px !important;
+    outline: 2px solid var(--ring) !important;
+    outline-offset: 2px !important;
   }
 }
 

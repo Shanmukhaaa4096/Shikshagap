@@ -648,7 +648,7 @@ function PublicLandingPageContent() {
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pointer-events-auto">
                 <div className="md:col-span-5 bg-[#FAF8E8]/95 dark:bg-[#251614]/95 p-5 sm:p-6 border-2 border-[#432623]/30 backdrop-blur-xs max-w-md shadow-md">
                   
-                  <div className="flex items-center gap-2 text-sm font-mono uppercase tracking-widest text-[#DE2A35] font-bold mb-1.5">
+                  <div className="flex items-center gap-2 text-sm font-mono uppercase tracking-widest text-[#B51E28] font-bold mb-1.5">
                     <BlinkingDots count={3} activeColor="#DE2A35" />
                     <span>AI DIAGNOSTIC AGENT</span>
                   </div>
@@ -660,15 +660,15 @@ function PublicLandingPageContent() {
                   {/* Copy describing the agent: what it assesses, how long it takes, and what student gets */}
                   <div className="space-y-1.5 mb-4 text-sm font-mono text-[#432623]/80 dark:text-[#FAF8E8]/80 border-t border-b border-[#432623]/15 py-2.5">
                     <div className="flex items-start gap-2">
-                      <span className="font-bold text-[#DE2A35] w-20 shrink-0 uppercase text-sm">Assesses:</span>
+                      <span className="font-bold text-[#B51E28] w-20 shrink-0 uppercase text-sm">Assesses:</span>
                       <span>Foundational Math in Classes 3 to 5 (place value, regrouping, fractions, division)</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-[#DE2A35] w-20 shrink-0 uppercase text-sm">Time:</span>
+                      <span className="font-bold text-[#B51E28] w-20 shrink-0 uppercase text-sm">Time:</span>
                       <span className="flex items-center gap-1"><Clock size={12} /> 6 to 8 minutes per child</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <span className="font-bold text-[#DE2A35] w-20 shrink-0 uppercase text-sm">Output:</span>
+                      <span className="font-bold text-[#B51E28] w-20 shrink-0 uppercase text-sm">Output:</span>
                       <span className="flex items-center gap-1"><FileText size={12} /> Root gap report & 5-day classroom plan</span>
                     </div>
                   </div>
@@ -707,7 +707,7 @@ function PublicLandingPageContent() {
 
                 {/* Right Side: Issue Contents */}
                 <div className="hidden md:block md:col-start-9 md:col-span-4 bg-[#FAF8E8]/90 dark:bg-[#251614]/90 p-4 border border-[#432623]/25 backdrop-blur-xs text-right">
-                  <div className="text-sm font-mono uppercase tracking-widest text-[#8ABB93] font-bold mb-1">
+                  <div className="text-sm font-mono uppercase tracking-widest text-[#432623] dark:text-[#FAF8E8] font-bold mb-1">
                     WHAT IS INSIDE
                   </div>
                   <ul className="text-sm font-mono space-y-1.5 text-[#432623]/80 dark:text-[#FAF8E8]/80">
@@ -725,7 +725,7 @@ function PublicLandingPageContent() {
               {/* Lower Bar: Editorial Cutout Caption & Sample Barcode */}
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end mt-auto pt-6 pointer-events-auto">
                 <div className="md:col-span-5 bg-[#FAF8E8]/95 dark:bg-[#251614]/95 p-3 border border-[#432623]/25">
-                  <div className="text-sm font-mono uppercase text-[#DE2A35] font-bold">
+                  <div className="text-sm font-mono uppercase text-[#B51E28] font-bold">
                     FIGURE 1.0: GAPPU THE DIAGNOSTIC OWL
                   </div>
                   <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-snug mt-0.5">
@@ -760,7 +760,7 @@ function PublicLandingPageContent() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Pull Quote */}
             <div className="lg:col-span-5 border-l-2 border-[#DE2A35] pl-5 py-2">
-              <span className="text-sm font-mono uppercase tracking-widest text-[#DE2A35] font-bold block mb-2">
+              <span className="text-sm font-mono uppercase tracking-widest text-[#B51E28] font-bold block mb-2">
                 THE PROBLEM
               </span>
               <blockquote className="font-serif text-2xl sm:text-3xl lg:text-4xl leading-tight text-[#432623] dark:text-[#FAF8E8]">
@@ -775,7 +775,7 @@ function PublicLandingPageContent() {
             <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="border border-[#432623]/20 bg-[#F5F1BC]/30 dark:bg-[#311E1B]/50 p-5 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-200">
                 <div>
-                  <div className="text-sm font-mono uppercase tracking-wider text-[#DE2A35] font-bold mb-1">
+                  <div className="text-sm font-mono uppercase tracking-wider text-[#B51E28] font-bold mb-1">
                     The Dilemma
                   </div>
                   <h3 className="font-serif text-lg font-bold text-[#432623] dark:text-[#FAF8E8] mb-2">
@@ -792,7 +792,7 @@ function PublicLandingPageContent() {
 
               <div className="border border-[#432623]/20 bg-[#8ABB93]/15 dark:bg-[#8ABB93]/10 p-5 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-200">
                 <div>
-                  <div className="text-sm font-mono uppercase tracking-wider text-[#8ABB93] font-bold mb-1">
+                  <div className="text-sm font-mono uppercase tracking-wider text-[#432623] dark:text-[#FAF8E8] font-bold mb-1">
                     The AI Agent Solution
                   </div>
                   <h3 className="font-serif text-lg font-bold text-[#432623] dark:text-[#FAF8E8] mb-2">
@@ -840,13 +840,13 @@ function PublicLandingPageContent() {
             <div className="border-2 border-[#432623]/30 bg-[#FAF8E8] dark:bg-[#251614] p-6 shadow-sm space-y-4">
               <div className="border-b border-[#432623]/20 pb-3 flex items-center justify-between">
                 <div>
-                  <span className="text-sm font-mono uppercase tracking-wider text-[#DE2A35] font-bold">
+                  <span className="text-sm font-mono uppercase tracking-wider text-[#B51E28] font-bold">
                     SAMPLE REPORT
                   </span>
                   <h3 className="font-serif text-xl font-bold">Student Gap Report</h3>
                 </div>
                 <div className="flex flex-col items-end gap-1">
-                  <span className="text-sm font-mono px-2 py-1 bg-[#DE2A35]/15 text-[#DE2A35] border border-[#DE2A35]/30 font-bold">
+                  <span className="text-sm font-mono px-2 py-1 bg-[#DE2A35]/15 text-[#B51E28] border border-[#DE2A35]/30 font-bold">
                     Class 5A : 42%
                   </span>
                   <span className="text-sm font-mono px-1.5 py-0.5 bg-[#FAF8E8] dark:bg-[#251614] text-[#432623]/80 dark:text-[#FAF8E8]/80 border border-[#432623]/20">
@@ -862,7 +862,7 @@ function PublicLandingPageContent() {
                   <strong>Rajesh Kumar (Roll #7)</strong>
                 </div>
                 <div className="text-sm font-mono">
-                  <span className="text-[#DE2A35] font-bold uppercase text-sm block">Diagnosed Root Cause:</span>
+                  <span className="text-[#B51E28] font-bold uppercase text-sm block">Diagnosed Root Cause:</span>
                   <p className="font-serif text-base font-bold text-[#DE2A35]">
                     Class 3 Subtraction Regrouping (Tens to Units Borrowing)
                   </p>
@@ -1065,7 +1065,7 @@ function PublicLandingPageContent() {
                   </div>
                   <div>
                     <span className="text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-sm">Diagnostic Standing</span>
-                    <strong className={currentStudent.statusType === 'critical' ? 'text-[#DE2A35]' : 'text-[#8ABB93]'}>
+                    <strong className={currentStudent.statusType === 'critical' ? 'text-[#B51E28]' : 'text-[#432623] dark:text-[#FAF8E8] font-bold'}>
                       {currentStudent.status} ({currentStudent.mastery}%)
                     </strong>
                   </div>
@@ -1092,7 +1092,7 @@ function PublicLandingPageContent() {
                 </p>
 
                 <div className="border border-[#432623]/20 p-4 bg-[#FAF8E8] dark:bg-[#251614] space-y-3">
-                  <div className="text-sm font-mono text-[#DE2A35] font-bold uppercase">Diagnostic Item:</div>
+                  <div className="text-sm font-mono text-[#B51E28] font-bold uppercase">Diagnostic Item:</div>
                   <div className="text-sm font-bold font-mono">{currentStudent.question}</div>
                   <div className="grid grid-cols-2 gap-2 text-sm font-mono pt-2">
                     {currentStudent.options.map((opt, i) => (
@@ -1141,12 +1141,12 @@ function PublicLandingPageContent() {
 
                 <div className="border border-[#432623]/20 p-4 bg-[#F5F1BC]/30 dark:bg-[#311E1B]/30 space-y-3 text-sm">
                   <div>
-                    <span className="font-mono text-[#DE2A35] font-bold uppercase block text-sm">Observed Error Pattern:</span>
+                    <span className="font-mono text-[#B51E28] font-bold uppercase block text-sm">Observed Error Pattern:</span>
                     <p className="text-[#432623] dark:text-[#FAF8E8] mt-0.5">{currentStudent.observedMistake}</p>
                   </div>
                   <div className="border-t border-[#432623]/15 pt-2">
                     <span className="font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-sm">Diagnosed Root Gap:</span>
-                    <strong className="text-sm font-serif text-[#DE2A35]">{currentStudent.rootGap}</strong>
+                    <strong className="text-sm font-serif text-[#B51E28]">{currentStudent.rootGap}</strong>
                   </div>
                   <div className="border-t border-[#432623]/15 pt-2">
                     <span className="font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-sm">Foundational Prerequisite For:</span>
@@ -1293,7 +1293,7 @@ function PublicLandingPageContent() {
             </div>
 
             <div className="border-l border-[#432623]/30 pl-4 py-1">
-              <div className="font-serif text-5xl sm:text-6xl font-normal text-[#DFA06E] leading-none">
+              <div className="font-serif text-5xl sm:text-6xl font-normal text-[#432623] leading-none">
                 0<CountUp end={ENABLED_CLASSES.length} />
               </div>
               <div className="text-sm font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80 mt-2 font-bold">
@@ -1305,7 +1305,7 @@ function PublicLandingPageContent() {
             </div>
 
             <div className="border-l border-[#432623]/30 pl-4 py-1">
-              <div className="font-serif text-5xl sm:text-6xl font-normal text-[#8ABB93] leading-none">
+              <div className="font-serif text-5xl sm:text-6xl font-normal text-[#432623] leading-none">
                 00
               </div>
               <div className="text-sm font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80 mt-2 font-bold">
@@ -1341,7 +1341,7 @@ function PublicLandingPageContent() {
             <div className="md:col-span-2 border border-[#432623]/25 p-6 bg-[#FAF8E8] dark:bg-[#251614] flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-200">
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                 <div>
-                  <div className="text-sm font-mono text-[#DE2A35] font-bold mb-1 uppercase tracking-wider">
+                  <div className="text-sm font-mono text-[#B51E28] font-bold mb-1 uppercase tracking-wider">
                     01 : Prerequisite Tracing Engine
                   </div>
                   <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2">
@@ -1368,7 +1368,7 @@ function PublicLandingPageContent() {
             <div className="border border-[#432623]/25 p-6 bg-[#FAF8E8] dark:bg-[#251614] flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-200">
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-mono text-[#DFA06E] font-bold uppercase tracking-wider">
+                  <span className="text-sm font-mono text-[#432623] dark:text-[#FAF8E8] font-bold uppercase tracking-wider">
                     02 : Three Regional Languages
                   </span>
                   <LanguagesBentoIllustration className="w-16 h-auto" />
@@ -1391,7 +1391,7 @@ function PublicLandingPageContent() {
             <div className="border border-[#432623]/25 p-6 bg-[#FAF8E8] dark:bg-[#251614] flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all duration-200">
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-mono text-[#8ABB93] font-bold uppercase tracking-wider">
+                  <span className="text-sm font-mono text-[#432623] dark:text-[#FAF8E8] font-bold uppercase tracking-wider">
                     03 : Printable Worksheets
                   </span>
                   <WorksheetBentoIllustration className="w-16 h-auto" />
@@ -1465,7 +1465,7 @@ function PublicLandingPageContent() {
                 <div className="border-2 border-[#8ABB93] p-6 sm:p-8 bg-[#FAF8E8] dark:bg-[#251614] text-center space-y-4 shadow-sm animate-in fade-in zoom-in-95 duration-300">
                   <SuccessIllustration className="w-20 h-16 mx-auto mb-2" />
                   
-                  <div className="text-sm font-mono uppercase tracking-widest text-[#8ABB93] font-bold">
+                  <div className="text-sm font-mono uppercase tracking-widest text-[#432623] dark:text-[#FAF8E8] font-bold">
                     Registration Confirmed
                   </div>
 
@@ -1539,7 +1539,7 @@ function PublicLandingPageContent() {
                       }`}
                     />
                     {pilotFieldErrors.school && (
-                      <p className="text-sm font-mono text-[#DE2A35] mt-1">{pilotFieldErrors.school}</p>
+                      <p className="text-sm font-mono text-[#B51E28] mt-1">{pilotFieldErrors.school}</p>
                     )}
                   </div>
 
@@ -1566,7 +1566,7 @@ function PublicLandingPageContent() {
                       }`}
                     />
                     {pilotFieldErrors.teacher && (
-                      <p className="text-sm font-mono text-[#DE2A35] mt-1">{pilotFieldErrors.teacher}</p>
+                      <p className="text-sm font-mono text-[#B51E28] mt-1">{pilotFieldErrors.teacher}</p>
                     )}
                   </div>
 
@@ -1612,7 +1612,7 @@ function PublicLandingPageContent() {
                       }`}
                     />
                     {pilotFieldErrors.contact && (
-                      <p className="text-sm font-mono text-[#DE2A35] mt-1">{pilotFieldErrors.contact}</p>
+                      <p className="text-sm font-mono text-[#B51E28] mt-1">{pilotFieldErrors.contact}</p>
                     )}
                   </div>
 
@@ -1637,12 +1637,12 @@ function PublicLandingPageContent() {
                     </label>
                   </div>
                   {pilotFieldErrors.consent && (
-                    <p className="text-sm font-mono text-[#DE2A35]">{pilotFieldErrors.consent}</p>
+                    <p className="text-sm font-mono text-[#B51E28]">{pilotFieldErrors.consent}</p>
                   )}
 
                   {/* General / Network Error */}
                   {pilotError && (
-                    <div className="p-3 border border-[#DE2A35] bg-[#DE2A35]/15 text-[#DE2A35] text-sm font-mono" role="alert">
+                    <div className="p-3 border border-[#DE2A35] bg-[#DE2A35]/15 text-[#B51E28] text-sm font-mono" role="alert">
                       {pilotError}
                     </div>
                   )}
@@ -1707,7 +1707,7 @@ function PublicLandingPageContent() {
         {/* SECTION 09: FINAL EDITORIAL DISPATCH CTA (Repeats Primary Assess Test Button) */}
         <section className="border-b border-[#432623]/25 px-4 sm:px-8 py-16 max-w-7xl mx-auto text-center bg-[#F5F1BC]/40 dark:bg-[#311E1B]/50">
           <div className="max-w-2xl mx-auto space-y-4">
-            <div className="text-sm font-mono uppercase tracking-widest text-[#DE2A35] font-bold">
+            <div className="text-sm font-mono uppercase tracking-widest text-[#B51E28] font-bold">
               GET STARTED
             </div>
             <h2 className="font-serif text-3xl sm:text-5xl font-bold text-[#432623] dark:text-[#FAF8E8] tracking-tight">
@@ -1801,7 +1801,7 @@ function PublicLandingPageContent() {
       {/* STICKY MOBILE CTA BAR (Assess Test button visible without scrolling on small screens) */}
       <div className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-[#FAF8E8]/95 dark:bg-[#251614]/95 border-t border-[#432623]/25 px-4 py-2.5 flex items-center justify-between gap-3 shadow-lg backdrop-blur-xs">
         <div className="flex flex-col">
-          <span className="text-sm font-mono uppercase tracking-wider text-[#DE2A35] font-bold">
+          <span className="text-sm font-mono uppercase tracking-wider text-[#B51E28] font-bold">
             AI Diagnostic
           </span>
           <span className="text-sm font-mono text-[#432623] dark:text-[#FAF8E8] font-bold">

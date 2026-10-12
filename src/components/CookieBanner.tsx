@@ -74,7 +74,7 @@ export function CookieBanner() {
       className="fixed bottom-16 sm:bottom-4 inset-x-2 sm:inset-x-auto sm:left-4 sm:max-w-md z-50 bg-[#FAF8E8] dark:bg-[#251614] border-2 border-[#432623] dark:border-[#FAF8E8] p-4 shadow-xl text-[#432623] dark:text-[#FAF8E8] font-sans transition-all animate-in fade-in slide-in-from-bottom-2 duration-300"
     >
       <div className="flex items-start justify-between gap-3 mb-2">
-        <div className="flex items-center gap-1.5 text-sm font-mono uppercase font-bold text-[#DE2A35]">
+        <div className="flex items-center gap-1.5 text-sm font-mono uppercase font-bold text-[#B51E28]">
           <ShieldCheck size={16} className="text-[#8ABB93]" />
           <span>DPDP 2023 : Privacy Choices</span>
         </div>

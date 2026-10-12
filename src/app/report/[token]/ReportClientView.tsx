@@ -122,7 +122,7 @@ export default function ReportClientView({ expiresAt }: Props) {
 
         {/* Section 1: Strengths */}
         <div className="mb-6">
-          <div className="flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-[#8ABB93] print:text-black font-mono mb-1.5">
+          <div className="flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-[#432623] dark:text-[#FAF8E8] print:text-black font-mono mb-1.5">
             <CheckCircle size={16} />
             <span>{content.strengthTitle}</span>
           </div>
@@ -133,7 +133,7 @@ export default function ReportClientView({ expiresAt }: Props) {
 
         {/* Section 2: Core Learning Gap */}
         <div className="mb-6">
-          <div className="flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-[#DE2A35] print:text-black font-mono mb-1.5">
+          <div className="flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-[#B51E28] print:text-black font-mono mb-1.5">
             <Warning size={16} />
             <span>{content.gapTitle}</span>
           </div>
