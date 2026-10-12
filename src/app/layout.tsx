@@ -38,10 +38,11 @@ const notoTelugu = Noto_Sans_Telugu({
 
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { CookieBanner } from "@/components/CookieBanner";
+import { siteConfig } from "@/config/site";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://shikshagap.vercel.app"),
-  title: "ShikshaGap | Find out what each student needs to learn next",
+  metadataBase: new URL(siteConfig.siteUrl),
+  title: `${siteConfig.siteName} | Find out what each student needs to learn next`,
   description:
     "ShikshaGap checks a student's understanding, finds the topics that need more practice and helps teachers plan the next lesson in Indian primary schools.",
   manifest: "/manifest.json",
@@ -57,11 +58,11 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: "ShikshaGap | Find out what each student needs to learn next",
+    title: `${siteConfig.siteName} | Find out what each student needs to learn next`,
     description:
       "AI agent that assesses students across Classes 3 to 5 and finds their foundational learning gaps.",
-    url: "https://shikshagap.vercel.app",
-    siteName: "ShikshaGap",
+    url: siteConfig.siteUrl,
+    siteName: siteConfig.siteName,
     images: [
       {
         url: "/og-image.png",

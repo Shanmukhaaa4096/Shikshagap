@@ -1,10 +1,22 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowLeft, Cookie } from "@phosphor-icons/react/dist/ssr";
+import type { Metadata } from "next";
+import { siteConfig } from "@/config/site";
 
-export const metadata = {
-  title: "Cookie Notice | ShikshaGap",
+export const metadata: Metadata = {
+  title: `Cookie Notice | ${siteConfig.siteName}`,
   description: "Information about strictly necessary cookies and local storage used by ShikshaGap.",
+  openGraph: {
+    title: `Cookie Notice | ${siteConfig.siteName}`,
+    description: "Information about strictly necessary cookies and local storage used by ShikshaGap.",
+    url: `${siteConfig.siteUrl}/cookies`,
+    siteName: siteConfig.siteName,
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: `${siteConfig.siteName} Cookie Notice` }],
+  },
+  alternates: {
+    canonical: `${siteConfig.siteUrl}/cookies`,
+  },
 };
 
 export default function CookiesPage() {

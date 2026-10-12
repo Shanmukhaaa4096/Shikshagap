@@ -3,9 +3,21 @@ import Link from "next/link";
 import { ShieldCheck, ArrowLeft, Warning } from "@phosphor-icons/react/dist/ssr";
 import { siteConfig } from "@/config/site";
 
-export const metadata = {
-  title: "Privacy Policy | ShikshaGap",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: `Privacy Policy | ${siteConfig.siteName}`,
   description: "Privacy policy and child data protection practices under India's Digital Personal Data Protection Act 2023.",
+  openGraph: {
+    title: `Privacy Policy | ${siteConfig.siteName}`,
+    description: "Privacy policy and child data protection practices under India's Digital Personal Data Protection Act 2023.",
+    url: `${siteConfig.siteUrl}/privacy`,
+    siteName: siteConfig.siteName,
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: `${siteConfig.siteName} Privacy Policy` }],
+  },
+  alternates: {
+    canonical: `${siteConfig.siteUrl}/privacy`,
+  },
 };
 
 export default function PrivacyPage() {

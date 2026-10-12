@@ -1,14 +1,14 @@
 import { MetadataRoute } from 'next';
+import { siteConfig } from '@/config/site';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = 'https://shikshagap.vercel.app';
+  const baseUrl = siteConfig.siteUrl;
 
   return {
     rules: {
       userAgent: '*',
       allow: [
         '/',
-        '/login',
         '/privacy',
         '/terms',
         '/cookies',
@@ -17,7 +17,7 @@ export default function robots(): MetadataRoute.Robots {
         '/how-it-works',
         '/notices/guardian',
       ],
-      disallow: ['/app', '/app/', '/api', '/api/', '/report', '/report/'],
+      disallow: ['/app', '/app/', '/api', '/api/', '/login', '/login/', '/report', '/report/'],
     },
     sitemap: `${baseUrl}/sitemap.xml`,
   };

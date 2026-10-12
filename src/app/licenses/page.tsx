@@ -1,9 +1,21 @@
 import React from 'react';
 import Link from 'next/link';
+import type { Metadata } from 'next';
+import { siteConfig } from '@/config/site';
 
-export const metadata = {
-  title: 'Open Source Licenses | ShikshaGap',
+export const metadata: Metadata = {
+  title: `Open Source Licenses | ${siteConfig.siteName}`,
   description: 'Attribution and licensing information for open-source software libraries powering ShikshaGap.',
+  openGraph: {
+    title: `Open Source Licenses | ${siteConfig.siteName}`,
+    description: 'Attribution and licensing information for open-source software libraries powering ShikshaGap.',
+    url: `${siteConfig.siteUrl}/licenses`,
+    siteName: siteConfig.siteName,
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: `${siteConfig.siteName} Open Source Licenses` }],
+  },
+  alternates: {
+    canonical: `${siteConfig.siteUrl}/licenses`,
+  },
 };
 
 const LICENSES = [

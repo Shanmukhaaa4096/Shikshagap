@@ -3,9 +3,21 @@ import Link from "next/link";
 import { ArrowLeft, FileText, Warning } from "@phosphor-icons/react/dist/ssr";
 import { siteConfig } from "@/config/site";
 
-export const metadata = {
-  title: "Terms of Service | ShikshaGap",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: `Terms of Service | ${siteConfig.siteName}`,
   description: "Terms of service and pedagogical guidelines for using the ShikshaGap diagnostic system.",
+  openGraph: {
+    title: `Terms of Service | ${siteConfig.siteName}`,
+    description: "Terms of service and pedagogical guidelines for using the ShikshaGap diagnostic system.",
+    url: `${siteConfig.siteUrl}/terms`,
+    siteName: siteConfig.siteName,
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: `${siteConfig.siteName} Terms of Service` }],
+  },
+  alternates: {
+    canonical: `${siteConfig.siteUrl}/terms`,
+  },
 };
 
 export default function TermsPage() {
