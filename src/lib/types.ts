@@ -377,3 +377,36 @@ export interface StudentProfile {
   lastDiagnosticResult?: DiagnosticResult;
 }
 
+/* ------------------------------------------------------------------ */
+/* Multi-Agent Staircase & Session Memory Types                       */
+/* ------------------------------------------------------------------ */
+
+export type TopicStatus = "pending" | "mastered" | "developing" | "gap";
+
+export interface Attempt {
+  conceptId: ConceptId;
+  level: 1 | 2 | 3;
+  questionId: string;
+  studentAnswer: string;
+  correct: boolean;
+  errorType?: string;      // from the existing error classification
+}
+
+export interface TopicMemory {
+  topicId: TopicId;
+  status: TopicStatus;
+  attempts: Attempt[];
+  notes: string[];          // short notes written by the Examiner
+  misconceptions?: string[]; // written later by the Error analyst
+}
+
+export interface SessionMemory {
+  pseudonymousId: string;   // never the student's name
+  language: "en" | "hi" | "te";
+  grade: 3 | 4 | 5;
+  topics: TopicMemory[];
+  currentTopicIndex: number;
+  seenSignatures?: string[];
+}
+
+

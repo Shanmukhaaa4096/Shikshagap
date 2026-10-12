@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import type {
-  Classification,
   ConceptId,
-  DiagnosticResult,
   Question,
-  Response as StudentResponse,
   TopicId,
-  AssessmentAgentState,
-  AgentDecisionRecord,
+  Attempt,
+  SessionMemory,
+  TopicMemory,
+  TopicStatus,
+  DiagnosticResult,
   MasteryEstimate,
 } from "@/lib/types";
 import type { DemoStudentData } from "@/lib/data/demo";
@@ -26,15 +26,19 @@ import {
   ArrowCounterClockwise,
 } from "@phosphor-icons/react";
 import {
-  initAssessmentAgent,
-  evaluateAndDecideStep,
-  estimateMastery,
   CURRICULUM_TOPICS,
   TOPIC_DISPLAY_NAMES,
+  estimateMastery,
 } from "@/lib/engine/diagnostic";
 import { TOPICS } from "@/lib/concepts/graph";
-import { uid, makeRng } from "@/lib/rng";
-
+import {
+  createSessionMemory,
+  getNextStaircaseAction,
+  applyAttemptToMemory,
+  getConceptForTopic,
+} from "@/lib/agents/staircase";
+import { generateUnique } from "@/lib/questions/generator";
+import { makeRng } from "@/lib/rng";
 import { getClassConfig, DEFAULT_CLASS_ID } from "@/lib/curriculum/classes";
 
 interface Props {
@@ -62,63 +66,69 @@ export function AdaptiveAssessmentView({
     initialStudentId || students[0]?.student.id || "student_1"
   );
 
-  // Agent Runtime State
+  // Agent Runtime State: SessionMemory managed on client per SPEC.md
   const [isStarted, setIsStarted] = useState(false);
-  const [agentState, setAgentState] = useState<AssessmentAgentState | null>(null);
+  const [sessionMemory, setSessionMemory] = useState<SessionMemory | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
-  const [currentDecision, setCurrentDecision] = useState<AgentDecisionRecord | null>(null);
   const [userAnswer, setUserAnswer] = useState<string>("");
   const [feedback, setFeedback] = useState<{ isCorrect: boolean; message: string } | null>(null);
   const [isFinished, setIsFinished] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [showTeacherTrace, setShowTeacherTrace] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
-  const [completedProfile, setCompletedProfile] = useState<DiagnosticResult | null>(null);
-  const lastResponseRef = React.useRef<StudentResponse | null>(null);
+  const lastAttemptRef = useRef<Attempt | null>(null);
 
   const activeStudent = students.find((s) => s.student.id === selectedStudentId);
 
-  // Start Multi-Topic AI Diagnostic Assessment
+  // Start Multi-Topic Staircase Assessment
   const handleStart = async () => {
     if (!activeStudent) return;
 
-    const initial = initAssessmentAgent(
-      activeStudent.student.id,
-      activeStudent.student.name,
-      classConfig.grade,
-      "math",
-      classConfig.topics
+    // Use strictly pseudonymous ID (DPDP compliance)
+    const pseudonymousId = "anon_" + (activeStudent.student.id ? activeStudent.student.id.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8) : "learner");
+    const gradeVal = (classConfig.grade === 3 || classConfig.grade === 4 || classConfig.grade === 5)
+      ? (classConfig.grade as 3 | 4 | 5)
+      : 5;
+
+    const initialMemory = createSessionMemory(
+      pseudonymousId,
+      gradeVal,
+      "en",
+      (classConfig.topics && classConfig.topics.length > 0 ? classConfig.topics : CURRICULUM_TOPICS) as TopicId[]
     );
 
     setIsStarted(true);
     setIsFinished(false);
     setFeedback(null);
     setShowHint(false);
-    setCompletedProfile(null);
     setIsEvaluating(true);
+    lastAttemptRef.current = null;
 
     try {
       const res = await fetch("/api/assessment/agent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ state: initial }),
+        body: JSON.stringify({ memory: initialMemory }),
       });
 
       if (res.ok) {
         const data = await res.json();
-        setAgentState(data.nextState || initial);
+        setSessionMemory(data.memory || initialMemory);
         setCurrentQuestion(data.nextQuestion);
-        setCurrentDecision(data.decision);
       } else {
         throw new Error("Server route error");
       }
     } catch {
       // Deterministic client fallback with stable seed derived from student
       const fallbackRng = makeRng(12345 + (activeStudent?.student.rollNo || 1));
-      const baseline = evaluateAndDecideStep(initial, undefined, fallbackRng);
-      setAgentState(baseline.nextState);
-      setCurrentQuestion(baseline.nextQuestion);
-      setCurrentDecision(baseline.decision);
+      const action = getNextStaircaseAction(initialMemory);
+      if (action.type === "ask") {
+        const seen = new Set<string>();
+        const q = generateUnique(action.conceptId, action.level, fallbackRng, seen);
+        initialMemory.seenSignatures = Array.from(seen);
+        setSessionMemory(initialMemory);
+        setCurrentQuestion(q);
+      }
     } finally {
       setIsEvaluating(false);
     }
@@ -126,49 +136,44 @@ export function AdaptiveAssessmentView({
 
   // Submit Student Answer
   const handleSubmit = (answerValue: string) => {
-    if (!currentQuestion || !agentState || isEvaluating) return;
+    if (!currentQuestion || !sessionMemory || isEvaluating) return;
 
     const trimmed = answerValue.trim();
     if (!trimmed) return;
 
     const isCorrect = trimmed === String(currentQuestion.answer);
 
-    let classification: Classification = isCorrect ? "correct" : "unclassified";
+    let errorType: string | undefined = undefined;
     if (!isCorrect && currentQuestion.meta.bugs && currentQuestion.meta.bugs[trimmed]) {
-      classification = currentQuestion.meta.bugs[trimmed];
+      errorType = currentQuestion.meta.bugs[trimmed];
     } else if (!isCorrect) {
-      classification = "slip";
+      errorType = "slip";
     }
 
-    const newResponse: StudentResponse = {
-      id: uid("resp"),
-      studentId: selectedStudentId,
-      questionId: currentQuestion.id,
+    const newAttempt: Attempt = {
       conceptId: currentQuestion.conceptId,
-      difficulty: currentQuestion.difficulty,
-      answer: trimmed,
+      level: currentQuestion.difficulty,
+      questionId: currentQuestion.id,
+      studentAnswer: trimmed,
       correct: isCorrect,
-      classification,
-      timestamp: new Date().toISOString(),
-      timeMs: 3800,
-      context: "assessment",
+      errorType: !isCorrect ? errorType : undefined,
     };
 
     setFeedback({
       isCorrect,
       message: isCorrect
         ? "Good job! Let's continue."
-        : "Let's check a related question to understand this.",
+        : "Let's check another question to understand this.",
     });
 
-    lastResponseRef.current = newResponse;
+    lastAttemptRef.current = newAttempt;
   };
 
-  // Advance to next adaptive step
+  // Advance to next staircase question
   const handleNextStep = async () => {
-    if (!agentState) return;
+    if (!sessionMemory) return;
 
-    const lastResp: StudentResponse | undefined = lastResponseRef.current || undefined;
+    const lastAttempt: Attempt | null = lastAttemptRef.current;
     setFeedback(null);
     setUserAnswer("");
     setShowHint(false);
@@ -178,19 +183,20 @@ export function AdaptiveAssessmentView({
       const res = await fetch("/api/assessment/agent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ state: agentState, lastResponse: lastResp }),
+        body: JSON.stringify({
+          memory: sessionMemory,
+          lastAttempt: lastAttempt || undefined,
+        }),
       });
 
       if (res.ok) {
         const data = await res.json();
-        const nextState: AssessmentAgentState = data.nextState;
-        setAgentState(nextState);
-        setCurrentDecision(data.decision);
+        const updatedMemory: SessionMemory = data.memory;
+        setSessionMemory(updatedMemory);
 
-        if (nextState.assessmentComplete || !data.nextQuestion) {
+        if (data.isFinished || !data.nextQuestion) {
           setIsFinished(true);
           setCurrentQuestion(null);
-          setCompletedProfile(nextState.diagnosticResult || null);
         } else {
           setCurrentQuestion(data.nextQuestion);
         }
@@ -198,75 +204,97 @@ export function AdaptiveAssessmentView({
         throw new Error("Server error");
       }
     } catch {
-      // Deterministic fallback
-      const fallback = evaluateAndDecideStep(agentState, lastResp, makeRng(agentState.responses.length + 1));
-      const nextState = fallback.nextState;
-      setAgentState(nextState);
-      setCurrentDecision(fallback.decision);
+      // Deterministic fallback using staircase pure engine
+      if (lastAttempt) {
+        const advanced = applyAttemptToMemory(sessionMemory, lastAttempt);
+        setSessionMemory(advanced.memory);
 
-      if (nextState.assessmentComplete || !fallback.nextQuestion) {
-        setIsFinished(true);
-        setCurrentQuestion(null);
-        setCompletedProfile(nextState.diagnosticResult || null);
-      } else {
-        setCurrentQuestion(fallback.nextQuestion);
+        if (advanced.action.type === "finish") {
+          setIsFinished(true);
+          setCurrentQuestion(null);
+        } else if (advanced.action.type === "ask") {
+          const seen = new Set<string>(advanced.memory.seenSignatures || []);
+          const nextQ = generateUnique(
+            advanced.action.conceptId,
+            advanced.action.level,
+            makeRng(Date.now()),
+            seen
+          );
+          advanced.memory.seenSignatures = Array.from(seen);
+          setCurrentQuestion(nextQ);
+        }
       }
     } finally {
+      lastAttemptRef.current = null;
       setIsEvaluating(false);
     }
   };
 
   // Save diagnostic findings and return to teacher dashboard
   const handleSaveAndFinish = () => {
-    if (!activeStudent || !agentState) {
+    if (!activeStudent || !sessionMemory) {
       onCancel();
       return;
     }
 
-    const updatedProfile = completedProfile || agentState.diagnosticResult;
-
-    if (!updatedProfile) {
-      onCancel();
-      return;
-    }
+    const gapTopics = sessionMemory.topics.filter((t) => t.status === "gap");
+    const devTopics = sessionMemory.topics.filter((t) => t.status === "developing");
 
     const calculatedStatus: "on_track" | "need_practice" | "critical" =
-      updatedProfile.rootCauses.length > 0
+      gapTopics.length > 0
         ? "critical"
-        : updatedProfile.overallMastery < 0.75
+        : devTopics.length > 0
         ? "need_practice"
         : "on_track";
 
+    const allAttempts = sessionMemory.topics.flatMap((t) => t.attempts);
+    const correctCount = allAttempts.filter((a) => a.correct).length;
+    const overallMastery = allAttempts.length > 0 ? correctCount / allAttempts.length : 1;
+
     const conceptEstimations: Partial<Record<ConceptId, MasteryEstimate>> = {};
-    const touchedConcepts = new Set(agentState.responses.map((r) => r.conceptId));
+    const touchedConcepts = new Set(allAttempts.map((a) => a.conceptId));
     touchedConcepts.forEach((cId) => {
-      conceptEstimations[cId] = estimateMastery(cId, agentState.responses);
+      const related = allAttempts.filter((a) => a.conceptId === cId);
+      const corr = related.filter((a) => a.correct).length;
+      conceptEstimations[cId] = {
+        conceptId: cId,
+        alpha: 1 + corr,
+        beta: 1 + (related.length - corr),
+        attempts: related.length,
+        correct: corr,
+        mastery: related.length > 0 ? corr / related.length : 0.5,
+        confidence: Math.min(1, related.length * 0.4),
+        status: corr === related.length ? "mastered" : corr > 0 ? "developing" : "needs_support",
+        lastUpdated: new Date().toISOString(),
+      };
     });
 
     const updatedStudent: DemoStudentData = {
       ...activeStudent,
       profile: {
         ...activeStudent.profile,
-        overallMastery: updatedProfile.overallMastery,
-        confidence: updatedProfile.overallConfidence,
+        overallMastery,
+        confidence: 0.9,
         status: calculatedStatus,
-        rootCauses: updatedProfile.rootCauses,
         concepts: {
           ...activeStudent.profile.concepts,
           ...conceptEstimations,
         },
-        topicSummaries: updatedProfile.topics,
       },
     };
 
     onAssessmentCompleted(updatedStudent);
   };
 
-  const currentTopicId: TopicId = agentState?.currentTopic || "number_ops";
+  const currentTopicMemory = sessionMemory?.topics[sessionMemory?.currentTopicIndex ?? 0];
+  const currentTopicId: TopicId = currentTopicMemory?.topicId || "number_ops";
   const currentTopicName = TOPIC_DISPLAY_NAMES[currentTopicId]?.en || "Number Operations";
 
-  // Check if system is checking a prerequisite
-  const isPrereqProbe = currentDecision?.action === "PROBE_PREREQUISITE";
+  // Filter topics for final screen per SPEC.md: gap first, then developing, then mastered
+  const gapTopics = sessionMemory?.topics.filter((t) => t.status === "gap") || [];
+  const devTopics = sessionMemory?.topics.filter((t) => t.status === "developing") || [];
+  const masteredTopics = sessionMemory?.topics.filter((t) => t.status === "mastered") || [];
+  const totalQuestionsAnswered = sessionMemory?.topics.reduce((acc, t) => acc + t.attempts.length, 0) || 0;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -278,11 +306,11 @@ export function AdaptiveAssessmentView({
           <div className="border-b border-[#432623]/20 pb-5">
             <span className="editorial-meta text-[#432623]/80">START LEARNING CHECK</span>
             <h2 className="editorial-title text-2xl sm:text-3xl text-[#432623] mt-1">
-              Class 5 Maths Check
+              Class {classConfig.grade} Maths Check
             </h2>
             <p className="text-xs sm:text-sm text-[#432623]/80 mt-1 leading-relaxed max-w-2xl">
-              A calm check across 4 Class 5 maths topics.
-              When a question is hard for a student, the test asks an earlier question to find what skill they need to practice first.
+              A calm check across curriculum maths topics using the difficulty staircase.
+              Each topic starts at medium difficulty (level 2) and adjusts based on the student&apos;s answer.
             </p>
           </div>
 
@@ -316,7 +344,7 @@ export function AdaptiveAssessmentView({
           <div className="space-y-2.5">
             <span className="editorial-meta text-[#432623]">{classConfig.label.toUpperCase()} ASSESSMENT SCOPE</span>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              {classConfig.topics.map((tId: TopicId, idx: number) => (
+              {(classConfig.topics || CURRICULUM_TOPICS).map((tId: TopicId, idx: number) => (
                 <div
                   key={tId}
                   className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-left"
@@ -325,7 +353,7 @@ export function AdaptiveAssessmentView({
                     STAGE 0{idx + 1}
                   </div>
                   <div className="text-xs font-bold text-[#432623] mt-0.5">
-                    {TOPIC_DISPLAY_NAMES[tId]?.en}
+                    {TOPIC_DISPLAY_NAMES[tId]?.en || tId}
                   </div>
                   <div className="text-[10px] text-[#432623]/70 mt-1 truncate">
                     {TOPICS[tId]?.targets.map((c: ConceptId) => t(`c_${c}`) || c).join(", ")}
@@ -334,7 +362,7 @@ export function AdaptiveAssessmentView({
               ))}
             </div>
             <p className="text-xs text-[#432623]/80 pt-1">
-              The test starts with Number Operations and adjusts to each student. There is no timer and no score shown during the test, so the student feels calm and comfortable.
+              The check moves topic by topic. At most 2 questions per topic, starting at Level 2.
             </p>
           </div>
 
@@ -359,6 +387,7 @@ export function AdaptiveAssessmentView({
       ) : isFinished ? (
         /* ============================================================== */
         /* SCREEN 3: ASSESSMENT COMPLETE SCREEN (DIAGNOSTIC REPORT)       */
+        /* SPEC.md: lists gap topics first, then developing, then mastered*/
         /* ============================================================== */
         <div className="neo-panel overflow-hidden space-y-6 p-6 sm:p-8 rounded-[2px] border border-[#432623]/25 bg-[var(--surface)]">
           {/* Editorial Header */}
@@ -368,140 +397,135 @@ export function AdaptiveAssessmentView({
                 <span className="editorial-meta text-[#432623] font-bold">TEST COMPLETE</span>
                 <span className="text-[#432623]/40 text-xs">•</span>
                 <span className="text-xs font-mono font-bold text-[#432623]">
-                  {activeStudent?.student.name} • CLASS 5A
+                  {activeStudent?.student.name} • CLASS {classConfig.grade}
                 </span>
               </div>
               <h2 className="editorial-title text-2xl sm:text-3xl text-[#432623] mt-1">
-                Test Complete
+                Assessment Results
               </h2>
               <p className="text-xs sm:text-sm text-[#432623]/80 mt-0.5">
-                We checked the student&apos;s answers and found the topics that need more practice.
+                Staircase check completed. Topics are grouped below by mastery status.
               </p>
             </div>
 
             {/* Quick Metrics */}
             <div className="flex items-center gap-4 bg-[#FAF8E8] dark:bg-[#432623]/30 p-3 rounded-[2px] border border-[#432623]/25">
               <div className="text-right">
-                <div className="editorial-meta text-[#432623]/70">OVERALL MASTERY</div>
+                <div className="editorial-meta text-[#432623]/70">TOPICS ASSESSED</div>
                 <div className="font-serif text-3xl font-black text-[#432623]">
-                  {Math.round((completedProfile?.overallMastery ?? 0) * 100)}%
+                  {sessionMemory?.topics.length || 0}
                 </div>
               </div>
               <div className="w-[1px] h-8 bg-[#432623]/20" />
               <div className="text-right">
-                <div className="editorial-meta text-[#432623]/70">CONFIDENCE</div>
+                <div className="editorial-meta text-[#432623]/70">QUESTIONS ASKED</div>
                 <div className="font-mono text-xl font-bold text-[#432623]">
-                  {Math.round((completedProfile?.overallConfidence ?? 0) * 100)}%
+                  {totalQuestionsAnswered}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Clean 4-Metric Summary Line */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#432623]/25 text-center">
-              <div className="editorial-meta text-[#432623]/70">TOPICS ASSESSED</div>
-              <div className="font-serif text-2xl font-bold text-[#432623] mt-1">4 Topics</div>
-            </div>
-            <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#432623]/25 text-center">
-              <div className="editorial-meta text-[#432623]/70">QUESTIONS ASKED</div>
-              <div className="font-serif text-2xl font-bold text-[#432623] mt-1">
-                {agentState?.responses.length || 14}
-              </div>
-            </div>
-            <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#432623]/25 text-center">
-              <div className="editorial-meta text-[#432623]/70">PREREQUISITE CHECKS</div>
-              <div className="font-serif text-2xl font-bold text-[#432623] mt-1">
-                {agentState?.decisions.filter((d) => d.action === "PROBE_PREREQUISITE").length || 3}
-              </div>
-            </div>
-            <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#432623]/25 text-center">
+          {/* Clean 3-Metric Summary Line */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#DE2A35]/30 text-center">
               <div className="editorial-meta text-[#DE2A35]">GAPS ISOLATED</div>
               <div className="font-serif text-2xl font-bold text-[#DE2A35] mt-1">
-                {completedProfile?.rootCauses.length || 1}
+                {gapTopics.length}
+              </div>
+            </div>
+            <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#DFA06E]/30 text-center">
+              <div className="editorial-meta text-[#DFA06E]">NEEDS PRACTICE</div>
+              <div className="font-serif text-2xl font-bold text-[#DFA06E] mt-1">
+                {devTopics.length}
+              </div>
+            </div>
+            <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#8ABB93]/30 text-center">
+              <div className="editorial-meta text-[#8ABB93]">MASTERED</div>
+              <div className="font-serif text-2xl font-bold text-[#8ABB93] mt-1">
+                {masteredTopics.length}
               </div>
             </div>
           </div>
 
-          {/* Primary Gap Highlight Callout */}
-          {completedProfile && completedProfile.rootCauses.length > 0 ? (
-            <div className="p-5 bg-[var(--surface)] border border-[#DE2A35]/40 rounded-[2px] space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="editorial-meta text-[#DE2A35]">TOPIC NEEDING PRACTICE</span>
-                <span className="text-[10px] font-mono font-bold uppercase bg-[#DE2A35]/15 text-[#DE2A35] px-2 py-0.5 rounded-[2px] border border-[#DE2A35]/30">
-                  PRACTICE THIS SKILL FIRST
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#432623]/20">
-                  <div className="text-[10px] font-mono font-bold text-[#432623]/70 uppercase">SKILL NEEDED FIRST:</div>
-                  <div className="font-serif text-lg font-bold text-[#DE2A35] mt-0.5">
-                    {t(`c_${completedProfile.rootCauses[0].rootId}`) || completedProfile.rootCauses[0].rootId}
+          {/* 1. GAP TOPICS FIRST per SPEC.md */}
+          {gapTopics.length > 0 && (
+            <div className="space-y-3">
+              <span className="editorial-meta text-[#DE2A35]">LEARNING GAPS (NEEDS FOUNDATIONAL SUPPORT)</span>
+              <div className="grid grid-cols-1 gap-2.5">
+                {gapTopics.map((topicMem) => (
+                  <div
+                    key={topicMem.topicId}
+                    className="p-4 bg-[var(--surface)] border border-[#DE2A35]/40 rounded-[2px] flex items-center justify-between"
+                  >
+                    <div>
+                      <div className="font-bold text-base text-[#432623]">
+                        {TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}
+                      </div>
+                      <p className="text-xs text-[#432623]/80 mt-0.5">
+                        Failed level 2 and level 1. Foundational support needed before advancing.
+                      </p>
+                    </div>
+                    <span className="bg-[#DE2A35]/15 text-[#DE2A35] text-xs font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#DE2A35]/30 uppercase">
+                      GAP
+                    </span>
                   </div>
-                  <p className="text-xs text-[#432623]/80 mt-1">
-                    An earlier skill the student needs to understand first.
-                  </p>
-                </div>
-
-                <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#432623]/20">
-                  <div className="text-[10px] font-mono font-bold text-[#432623]/70 uppercase">STRUGGLING WITH:</div>
-                  <div className="font-serif text-lg font-bold text-[#432623] mt-0.5">
-                    {completedProfile.rootCauses[0].symptomIds
-                      .map((s) => t(`c_${s}`) || s)
-                      .join(", ")}
-                  </div>
-                  <p className="text-xs text-[#432623]/80 mt-1">
-                    Questions in Class 5 lessons where the student got stuck.
-                  </p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="p-5 bg-[#8ABB93]/15 border border-[#8ABB93] rounded-[2px] flex items-center gap-3">
-              <CheckCircle className="w-6 h-6 text-[#8ABB93] shrink-0" />
-              <div>
-                <h4 className="font-serif font-bold text-base text-[#432623]">
-                  All Evaluated Strands Fluent
-                </h4>
-                <p className="text-xs text-[#432623]/80 mt-0.5">
-                  Student demonstrates conceptual mastery across all tested Class 5 mathematics strands.
-                </p>
+                ))}
               </div>
             </div>
           )}
 
-          {/* 4 Topic Performance Horizontal Bars */}
-          <div className="space-y-3">
-            <span className="editorial-meta text-[#432623]">TOPIC MASTERY BREAKDOWN</span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {completedProfile?.topics.map((tSummary) => {
-                const pct = Math.round(tSummary.mastery * 100);
-                const isMastered = tSummary.status === "mastered";
-                const isDev = tSummary.status === "developing";
-                const color = isMastered ? "bg-[#8ABB93]" : isDev ? "bg-[#DFA06E]" : "bg-[#DE2A35]";
-
-                return (
+          {/* 2. DEVELOPING TOPICS SECOND per SPEC.md */}
+          {devTopics.length > 0 && (
+            <div className="space-y-3">
+              <span className="editorial-meta text-[#DFA06E]">NEEDS PRACTICE (DEVELOPING)</span>
+              <div className="grid grid-cols-1 gap-2.5">
+                {devTopics.map((topicMem) => (
                   <div
-                    key={tSummary.topicId}
-                    className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] space-y-1.5"
+                    key={topicMem.topicId}
+                    className="p-4 bg-[var(--surface)] border border-[#DFA06E]/40 rounded-[2px] flex items-center justify-between"
                   >
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-[#432623]">
-                        {TOPIC_DISPLAY_NAMES[tSummary.topicId]?.en}
-                      </span>
-                      <span className="font-mono font-bold text-[#432623]">
-                        {pct}% ({tSummary.status.toUpperCase().replace("_", " ")})
-                      </span>
+                    <div>
+                      <div className="font-bold text-base text-[#432623]">
+                        {TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}
+                      </div>
+                      <p className="text-xs text-[#432623]/80 mt-0.5">
+                        Concept partially established. Additional practice recommended.
+                      </p>
                     </div>
-                    <div className="w-full bg-[#F5F1BC] h-2 rounded-[2px] overflow-hidden">
-                      <div className={`h-full rounded-[2px] ${color}`} style={{ width: `${pct}%` }} />
-                    </div>
+                    <span className="bg-[#DFA06E]/15 text-[#DFA06E] text-xs font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#DFA06E]/30 uppercase">
+                      NEEDS PRACTICE
+                    </span>
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* 3. MASTERED TOPICS LAST per SPEC.md */}
+          {masteredTopics.length > 0 && (
+            <div className="space-y-3">
+              <span className="editorial-meta text-[#8ABB93]">COMPLETED (MASTERED)</span>
+              <div className="grid grid-cols-1 gap-2.5">
+                {masteredTopics.map((topicMem) => (
+                  <div
+                    key={topicMem.topicId}
+                    className="p-4 bg-[var(--surface)] border border-[#8ABB93]/40 rounded-[2px] flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <CheckCircle className="w-5 h-5 text-[#8ABB93]" />
+                      <div className="font-bold text-base text-[#432623]">
+                        {TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}
+                      </div>
+                    </div>
+                    <span className="bg-[#8ABB93]/15 text-[#8ABB93] text-xs font-mono font-bold px-2.5 py-1 rounded-[2px] border border-[#8ABB93]/30 uppercase">
+                      DONE
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Actions */}
           <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#432623]/20">
@@ -509,6 +533,7 @@ export function AdaptiveAssessmentView({
               onClick={() => {
                 setIsStarted(false);
                 setIsFinished(false);
+                setSessionMemory(null);
               }}
               className="neo-btn neo-btn-secondary px-4 py-2.5 text-xs font-bold flex items-center gap-1.5 rounded-[2px]"
             >
@@ -519,23 +544,23 @@ export function AdaptiveAssessmentView({
               onClick={handleSaveAndFinish}
               className="neo-btn neo-btn-primary px-6 py-2.5 text-xs sm:text-sm font-bold flex items-center gap-2 rounded-[2px]"
             >
-              <span>SEE LEARNING PLAN &amp; SAVE</span>
+              <span>SAVE &amp; RETURN TO DASHBOARD</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>
       ) : (
         /* ============================================================== */
-        /* SCREEN 2: ACTIVE ADAPTIVE ASSESSMENT (CALM DIAGNOSTIC)         */
+        /* SCREEN 2: ACTIVE ADAPTIVE ASSESSMENT                           */
         /* ============================================================== */
         <div className="space-y-4">
           {/* Top Editorial Diagnostic Bar */}
           <div className="bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] p-4 sm:p-5 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#432623]/20 pb-3">
               <div>
-                <span className="editorial-meta text-[#432623]/80">CLASS 5 MATHS CHECK</span>
+                <span className="editorial-meta text-[#432623]/80">CLASS {classConfig.grade} MATHS CHECK</span>
                 <div className="font-serif font-bold text-base sm:text-lg text-[#432623]">
-                  {activeStudent?.student.name} • Class 5
+                  {activeStudent?.student.name} • Class {classConfig.grade}
                 </div>
               </div>
 
@@ -543,83 +568,42 @@ export function AdaptiveAssessmentView({
               <div className="text-right">
                 <span className="editorial-meta text-[#432623]/70">TOPIC BEING CHECKED</span>
                 <div className="font-mono text-xs font-bold text-[#432623] mt-0.5">
-                  {currentTopicName} • {agentState?.responses.length || 0} questions answered
+                  {currentTopicName} • Question {((currentTopicMemory?.attempts.length || 0) + 1)} of 2
                 </div>
               </div>
             </div>
 
             {/* Assessment Progress Breadcrumbs */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-              {CURRICULUM_TOPICS.map((tId: TopicId, idx: number) => {
-                const currentIdx = agentState?.currentTopicIndex ?? 0;
+              {(sessionMemory?.topics || []).map((tMem: TopicMemory, idx: number) => {
+                const currentIdx = sessionMemory?.currentTopicIndex ?? 0;
                 const isPast = idx < currentIdx;
                 const isCurrent = idx === currentIdx;
 
                 return (
                   <div
-                    key={tId}
+                    key={tMem.topicId}
                     className={`px-3 py-1.5 rounded-[2px] border text-xs font-semibold flex items-center justify-between ${
                       isCurrent
                         ? "bg-[#432623] text-[#F5F1BC] border-[#432623]"
                         : isPast
-                        ? "bg-[#8ABB93]/20 text-[#432623] border-[#8ABB93]/40"
+                        ? tMem.status === "mastered"
+                          ? "bg-[#8ABB93]/20 text-[#432623] border-[#8ABB93]/40"
+                          : tMem.status === "gap"
+                          ? "bg-[#DE2A35]/20 text-[#432623] border-[#DE2A35]/40"
+                          : "bg-[#DFA06E]/20 text-[#432623] border-[#DFA06E]/40"
                         : "bg-[#FAF8E8] dark:bg-[#432623]/30 text-[#432623]/70 border-[#432623]/20 opacity-70"
                     }`}
                   >
-                    <span className="truncate">{TOPIC_DISPLAY_NAMES[tId]?.en}</span>
+                    <span className="truncate">{TOPIC_DISPLAY_NAMES[tMem.topicId]?.en || tMem.topicId}</span>
                     <span className="font-mono font-bold ml-1.5">
-                      {isPast ? "✓" : isCurrent ? "●" : "○"}
+                      {isPast ? (tMem.status === "mastered" ? "✓" : tMem.status === "gap" ? "✗" : "~") : isCurrent ? "●" : "○"}
                     </span>
                   </div>
                 );
               })}
             </div>
           </div>
-
-          {/* Compact System Status Prompt */}
-          <div className="flex items-center justify-between px-1 text-xs">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-[2px] bg-[#432623]" />
-              <span className="font-medium text-[#432623]">
-                {isPrereqProbe
-                  ? "Checking a related skill..."
-                  : currentDecision?.studentFeedbackPrompt || "Let's try this question."}
-              </span>
-            </div>
-
-            {/* Collapsible Teacher Intelligence Trigger */}
-            <button
-              onClick={() => setShowTeacherTrace(!showTeacherTrace)}
-              className="text-xs text-[#432623] font-semibold flex items-center gap-1 hover:underline"
-            >
-              <Brain className="w-3.5 h-3.5" />
-              <span>{showTeacherTrace ? "Hide Teacher Trace" : "Teacher Trace"}</span>
-              {showTeacherTrace ? <CaretUp className="w-3 h-3" /> : <CaretDown className="w-3 h-3" />}
-            </button>
-          </div>
-
-          {/* Teacher Trace */}
-          {showTeacherTrace && currentDecision && (
-            <div className="bg-[#F5F1BC]/70 border border-[#432623]/30 rounded-[2px] p-3.5 text-xs space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-[#432623] flex items-center gap-1.5">
-                  <Brain className="w-3.5 h-3.5 text-[#432623]" />
-                  Live Diagnostic Engine Trace
-                </span>
-                <span className="font-mono text-[10px] font-bold bg-[var(--surface)] text-[#432623] px-2 py-0.5 rounded-[2px] border border-[#432623]/30">
-                  {currentDecision.action.toUpperCase()}
-                </span>
-              </div>
-              <p className="text-[#432623] leading-relaxed">
-                {currentDecision.reason}
-              </p>
-              <div className="flex items-center gap-4 text-[10px] font-mono text-[#432623]/70">
-                <span>Target: {currentDecision.conceptId}</span>
-                <span>Difficulty: Level {currentDecision.difficulty}</span>
-                <span>Confidence: {Math.round(currentDecision.confidence * 100)}%</span>
-              </div>
-            </div>
-          )}
 
           {/* Large Prominent Question Card */}
           {currentQuestion && (
@@ -628,16 +612,14 @@ export function AdaptiveAssessmentView({
               <div className="flex items-center justify-between border-b border-[#432623]/20 pb-3">
                 <div className="flex items-center gap-2">
                   <span className="editorial-meta text-[#432623]/70">
-                    QUESTION {((agentState?.responses.length || 0) + 1)}
+                    QUESTION {totalQuestionsAnswered + 1}
                   </span>
                   <span className="text-xs text-[#432623]/40">•</span>
                   <span className="text-xs font-semibold text-[#432623]">{currentTopicName}</span>
                 </div>
-                {isPrereqProbe && (
-                  <span className="bg-[#DFA06E]/20 text-[#432623] text-[10px] font-mono font-bold px-2 py-0.5 rounded-[2px] border border-[#DFA06E]/40 uppercase">
-                    Related Concept Check
-                  </span>
-                )}
+                <span className="bg-[#FAF8E8] dark:bg-[#432623]/30 text-[#432623] text-[10px] font-mono font-bold px-2 py-0.5 rounded-[2px] border border-[#432623]/25 uppercase">
+                  DIFFICULTY LEVEL {currentQuestion.difficulty}
+                </span>
               </div>
 
               {/* Large Question Text */}
@@ -715,7 +697,7 @@ export function AdaptiveAssessmentView({
                   )}
                 </div>
               ) : (
-                /* Calm Post-Submission Feedback */
+                /* Post-Submission Feedback */
                 <div className="space-y-4 pt-2">
                   <div
                     className={`p-4 rounded-[2px] border flex items-center justify-between gap-4 ${
