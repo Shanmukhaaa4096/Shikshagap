@@ -8,6 +8,8 @@ import {
   resetBudgetAndLimitsForTesting,
   checkIpWordingLimit,
   DAILY_BUDGET_LIMIT,
+  getFallbackHistory,
+  clearFallbackHistory,
 } from '../src/lib/questions/hybridGenerator.ts';
 import { generateQuestion } from '../src/lib/questions/generator.ts';
 import { makeRng } from '../src/lib/rng.ts';
@@ -239,3 +241,124 @@ test('Hybrid: Daily budget and IP rate limits are respected', async () => {
   // Budget exhausted
   assert.equal(checkDailyBudget(), false);
 });
+
+test('Fallback reason logged: timeout', async () => {
+  resetBudgetAndLimitsForTesting();
+  const rng = makeRng(101);
+  const baseQuestion = generateQuestion('addition', 3, rng);
+
+  const mockHangingAi = {
+    models: {
+      generateContent: async () => {
+        await new Promise((res) => setTimeout(res, 50));
+        return { text: '{}' };
+      },
+    },
+  };
+
+  await enhanceQuestionWithHybridWording(baseQuestion, 'en', 5, new Set(), {
+    client: mockHangingAi,
+    timeoutMs: 10,
+  });
+
+  const logs = getFallbackHistory();
+  assert.ok(logs.length > 0, 'Fallback log entry must be present');
+  const timeoutLog = logs.find((l) => l.reason === 'timeout');
+  assert.ok(timeoutLog, 'Must record timeout fallback reason');
+  assert.equal(timeoutLog.reason, 'timeout');
+  // Invariant: no student identifiers anywhere
+  assert.equal('studentName' in timeoutLog, false);
+  assert.equal('studentId' in timeoutLog, false);
+});
+
+test('Fallback reason logged: validation', async () => {
+  resetBudgetAndLimitsForTesting();
+  const rng = makeRng(102);
+  const baseQuestion = generateQuestion('addition', 3, rng);
+
+  const mockInvalidAi = {
+    models: {
+      generateContent: async () => ({
+        text: JSON.stringify({
+          wordProblem: 'A teacher counted 9999 books.', // Missing required operands
+        }),
+      }),
+    },
+  };
+
+  await enhanceQuestionWithHybridWording(baseQuestion, 'en', 5, new Set(), {
+    client: mockInvalidAi,
+  });
+
+  const logs = getFallbackHistory();
+  const validationLog = logs.find((l) => l.reason === 'validation');
+  assert.ok(validationLog, 'Must record validation fallback reason');
+  assert.equal('studentName' in validationLog, false);
+  assert.equal('studentId' in validationLog, false);
+});
+
+test('Fallback reason logged: no key', async () => {
+  resetBudgetAndLimitsForTesting();
+  const originalKey = process.env.GEMINI_API_KEY;
+  try {
+    delete process.env.GEMINI_API_KEY;
+    const rng = makeRng(103);
+    const baseQuestion = generateQuestion('addition', 3, rng);
+
+    await enhanceQuestionWithHybridWording(baseQuestion, 'en', 5, new Set(), {
+      client: null,
+      apiKey: '',
+    });
+
+    const logs = getFallbackHistory();
+    const noKeyLog = logs.find((l) => l.reason === 'no_key');
+    assert.ok(noKeyLog, 'Must record no_key fallback reason');
+    assert.equal('studentName' in noKeyLog, false);
+    assert.equal('studentId' in noKeyLog, false);
+  } finally {
+    if (originalKey) process.env.GEMINI_API_KEY = originalKey;
+  }
+});
+
+test('Fallback reason logged: budget', async () => {
+  resetBudgetAndLimitsForTesting();
+  const rng = makeRng(104);
+  const baseQuestion = generateQuestion('addition', 3, rng);
+
+  for (let i = 0; i < DAILY_BUDGET_LIMIT; i++) {
+    recordDailyCall();
+  }
+
+  await enhanceQuestionWithHybridWording(baseQuestion, 'en', 5, new Set(), {
+    client: { models: { generateContent: async () => ({ text: '{}' }) } },
+  });
+
+  const logs = getFallbackHistory();
+  const budgetLog = logs.find((l) => l.reason === 'budget');
+  assert.ok(budgetLog, 'Must record budget fallback reason');
+  assert.equal('studentName' in budgetLog, false);
+  assert.equal('studentId' in budgetLog, false);
+});
+
+test('Fallback reason logged: rate limit', async () => {
+  resetBudgetAndLimitsForTesting();
+  const rng = makeRng(105);
+  const baseQuestion = generateQuestion('addition', 3, rng);
+  const testIp = '10.0.0.42';
+
+  for (let i = 0; i < 30; i++) {
+    checkIpWordingLimit(testIp);
+  }
+
+  await enhanceQuestionWithHybridWording(baseQuestion, 'en', 5, new Set(), {
+    ip: testIp,
+    client: { models: { generateContent: async () => ({ text: '{}' }) } },
+  });
+
+  const logs = getFallbackHistory();
+  const rateLimitLog = logs.find((l) => l.reason === 'rate_limit');
+  assert.ok(rateLimitLog, 'Must record rate_limit fallback reason');
+  assert.equal('studentName' in rateLimitLog, false);
+  assert.equal('studentId' in rateLimitLog, false);
+});
+

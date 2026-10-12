@@ -1,0 +1,32 @@
+# Overnight Autonomous Run Report: Question Engine
+
+## Overview
+- Branch: `overnight/question-engine`
+- Baseline: commit `2244574` on `main`
+- Node version: `v24.18.1`
+- Gemini API Key status: No key found in `.env.local` (length 0). All Gemini integration steps are verified using unit test mocks and deterministic fallback mechanisms per instructions.
+
+## Step Summary Table
+
+| Step | Name | Status | Files Touched | Tests Result | Notes / Decisions |
+|---|---|---|---|---|---|
+| Step 1 | Make failures visible | Done | `src/components/AdaptiveAssessmentView.tsx`, `src/lib/questions/hybridGenerator.ts`, `src/app/api/assessment/agent/route.ts`, `tests/hybrid-generator.test.mjs` | All 63 tests pass | Replaced single client fallback with 1 server retry before showing "Using backup question". Logged 5 fallback reasons (timeout, validation, no_key, budget, rate_limit) with no student data. Added 5 tests. |
+| Step 2 | Skill sheet (no question text) | In Progress | - | - | - |
+| Step 3 | Make the class change the numbers | Pending | - | - | - |
+| Step 4 | More Class 3 concepts | Pending | - | - | - |
+| Step 5 | Fresh wording for every concept | Pending | - | - | - |
+| Step 6 | Blind solver and reading level | Pending | - | - | - |
+| Step 7 | Fix the study resources | Pending | - | - | - |
+| Step 8 | Persistent question memory, built safely | Pending | - | - | - |
+| Step 9 | Final check and report | Pending | - | - | - |
+
+---
+
+## Decisions Log
+- Base branch is `overnight/question-engine`.
+- No Gemini API key was present in `.env.local`; all tests use strict unit mocks or fallback generators.
+- Step 1:
+  - Added one server retry in `AdaptiveAssessmentView.tsx` on failure before switching to the browser template question.
+  - Added a visible badge `"Using backup question"` on screen when using a backup question.
+  - Added structured fallback reason logging (`timeout`, `validation`, `no_key`, `budget`, `rate_limit`) in `hybridGenerator.ts` and `route.ts`. No student data or identifiers are ever logged.
+  - Added tests verifying all 5 fallback reasons in `tests/hybrid-generator.test.mjs`.

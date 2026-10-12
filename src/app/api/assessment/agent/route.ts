@@ -200,7 +200,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Agent assessment error:", error);
+    console.error("[AgentRoute] Assessment error (sanitized, zero student data):", error instanceof Error ? error.message : "Internal error");
     return NextResponse.json(
       { error: "Internal server error while evaluating assessment step." },
       { status: 500 }

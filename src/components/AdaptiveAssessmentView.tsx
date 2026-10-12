@@ -82,6 +82,7 @@ export function AdaptiveAssessmentView({
   const [showHint, setShowHint] = useState(false);
   const [showTeacherTrace, setShowTeacherTrace] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
+  const [isBackupQuestion, setIsBackupQuestion] = useState(false);
   const lastAttemptRef = useRef<Attempt | null>(null);
 
   const activeStudent = students.find((s) => s.student.id === selectedStudentId);
@@ -135,22 +136,31 @@ export function AdaptiveAssessmentView({
     setIsEvaluating(true);
     lastAttemptRef.current = null;
 
-    try {
-      const res = await fetch("/api/assessment/agent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ memory: initialMemory }),
-      });
+    let fetchSucceeded = false;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const res = await fetch("/api/assessment/agent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ memory: initialMemory }),
+        });
 
-      if (res.ok) {
-        const data = await res.json();
-        setSessionMemory(data.memory || initialMemory);
-        setCurrentQuestion(data.nextQuestion);
-      } else {
-        throw new Error("Server route error");
+        if (res.ok) {
+          const data = await res.json();
+          setSessionMemory(data.memory || initialMemory);
+          setCurrentQuestion(data.nextQuestion);
+          setIsBackupQuestion(false);
+          fetchSucceeded = true;
+          break;
+        }
+      } catch {
+        // Retry once on failure before using backup question
       }
-    } catch {
+    }
+
+    if (!fetchSucceeded) {
       // Deterministic client fallback with stable seed derived from student
+      setIsBackupQuestion(true);
       const fallbackRng = makeRng(12345 + (activeStudent?.student.rollNo || 1));
       const action = getNextStaircaseAction(initialMemory);
       if (action.type === "ask") {
@@ -162,9 +172,8 @@ export function AdaptiveAssessmentView({
         });
         setCurrentQuestion(q);
       }
-    } finally {
-      setIsEvaluating(false);
     }
+    setIsEvaluating(false);
   };
 
   // Submit Student Answer
@@ -212,31 +221,40 @@ export function AdaptiveAssessmentView({
     setShowHint(false);
     setIsEvaluating(true);
 
-    try {
-      const res = await fetch("/api/assessment/agent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          memory: sessionMemory,
-          lastAttempt: lastAttempt || undefined,
-        }),
-      });
+    let fetchSucceeded = false;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const res = await fetch("/api/assessment/agent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            memory: sessionMemory,
+            lastAttempt: lastAttempt || undefined,
+          }),
+        });
 
-      if (res.ok) {
-        const data = await res.json();
-        const updatedMemory: SessionMemory = data.memory;
-        setSessionMemory(updatedMemory);
+        if (res.ok) {
+          const data = await res.json();
+          const updatedMemory: SessionMemory = data.memory;
+          setSessionMemory(updatedMemory);
 
-        if (data.isFinished || !data.nextQuestion) {
-          completeAssessment(updatedMemory);
-        } else {
-          setCurrentQuestion(data.nextQuestion);
+          if (data.isFinished || !data.nextQuestion) {
+            completeAssessment(updatedMemory);
+          } else {
+            setCurrentQuestion(data.nextQuestion);
+            setIsBackupQuestion(false);
+          }
+          fetchSucceeded = true;
+          break;
         }
-      } else {
-        throw new Error("Server error");
+      } catch {
+        // Retry once on failure before using backup question
       }
-    } catch {
+    }
+
+    if (!fetchSucceeded) {
       // Deterministic fallback using staircase pure engine
+      setIsBackupQuestion(true);
       if (lastAttempt) {
         const advanced = applyAttemptToMemory(sessionMemory, lastAttempt);
         setSessionMemory(advanced.memory);
@@ -260,10 +278,9 @@ export function AdaptiveAssessmentView({
           setCurrentQuestion(nextQ);
         }
       }
-    } finally {
-      lastAttemptRef.current = null;
-      setIsEvaluating(false);
     }
+    lastAttemptRef.current = null;
+    setIsEvaluating(false);
   };
 
   // Save diagnostic findings and return to teacher dashboard
@@ -763,6 +780,14 @@ export function AdaptiveAssessmentView({
                   </span>
                   <span className="text-xs text-[#432623]/40">•</span>
                   <span className="text-xs font-semibold text-[#432623]">{currentTopicName}</span>
+                  {isBackupQuestion && (
+                    <span
+                      data-testid="backup-question-note"
+                      className="ml-2 inline-flex items-center text-[10px] sm:text-xs px-2 py-0.5 rounded font-medium bg-amber-50 text-amber-800 border border-amber-200"
+                    >
+                      Using backup question
+                    </span>
+                  )}
                 </div>
                 <span className="bg-[#FAF8E8] dark:bg-[#432623]/30 text-[#432623] text-[10px] font-mono font-bold px-2 py-0.5 rounded-[2px] border border-[#432623]/25 uppercase">
                   DIFFICULTY LEVEL {currentQuestion.difficulty}

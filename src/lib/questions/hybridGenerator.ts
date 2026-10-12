@@ -152,11 +152,62 @@ export function getDailyCallCount(): number {
   return dailyCallsCount;
 }
 
+// ---------------------------------------------------------------------------
+// 4b. Fallback Logging (Zero Student Data)
+// ---------------------------------------------------------------------------
+
+export type FallbackReason =
+  | "timeout"
+  | "validation"
+  | "no_key"
+  | "budget"
+  | "rate_limit";
+
+export interface FallbackLogEntry {
+  reason: FallbackReason;
+  timestamp: number;
+  conceptId?: string;
+  difficulty?: number;
+  language?: string;
+  detail?: string;
+}
+
+const fallbackHistory: FallbackLogEntry[] = [];
+
+/**
+ * Logs question generation fallback events.
+ * Strictly forbidden from recording student names, IDs, or answers.
+ */
+export function logFallback(
+  reason: FallbackReason,
+  meta?: { conceptId?: string; difficulty?: number; language?: string; detail?: string }
+): void {
+  const entry: FallbackLogEntry = {
+    reason,
+    timestamp: Date.now(),
+    conceptId: meta?.conceptId,
+    difficulty: meta?.difficulty,
+    language: meta?.language,
+    detail: meta?.detail,
+  };
+  fallbackHistory.push(entry);
+  console.warn(`[HybridFallback] reason: ${reason} (concept: ${meta?.conceptId || "none"}, lang: ${meta?.language || "none"})`);
+}
+
+export function getFallbackHistory(): FallbackLogEntry[] {
+  return [...fallbackHistory];
+}
+
+export function clearFallbackHistory(): void {
+  fallbackHistory.length = 0;
+}
+
 export function resetBudgetAndLimitsForTesting(): void {
   dailyCallsCount = 0;
   currentDayKey = new Date().toISOString().slice(0, 10);
   ipRateLimits.clear();
   wordingCache.clear();
+  clearFallbackHistory();
 }
 
 // ---------------------------------------------------------------------------
@@ -307,9 +358,19 @@ export async function enhanceQuestionWithHybridWording(
   // 2. Budget & Rate Limit Checks
   const clientIp = options.ip || "127.0.0.1";
   if (!checkIpWordingLimit(clientIp)) {
+    logFallback("rate_limit", {
+      conceptId: baseQuestion.conceptId,
+      difficulty: baseQuestion.difficulty,
+      language,
+    });
     return baseQuestion;
   }
   if (!checkDailyBudget()) {
+    logFallback("budget", {
+      conceptId: baseQuestion.conceptId,
+      difficulty: baseQuestion.difficulty,
+      language,
+    });
     return baseQuestion;
   }
 
@@ -318,6 +379,11 @@ export async function enhanceQuestionWithHybridWording(
 
   // If no Gemini client or API key, return deterministic fallback template immediately
   if (!client && !effectiveApiKey) {
+    logFallback("no_key", {
+      conceptId: baseQuestion.conceptId,
+      difficulty: baseQuestion.difficulty,
+      language,
+    });
     return baseQuestion;
   }
 
@@ -394,11 +460,23 @@ STRICT MANDATORY RULES:
     try {
       parsedJson = JSON.parse(rawText);
     } catch {
+      logFallback("validation", {
+        conceptId: baseQuestion.conceptId,
+        difficulty: baseQuestion.difficulty,
+        language,
+        detail: "json_parse_error",
+      });
       return baseQuestion;
     }
 
     const parseResult = WordingResponseSchema.safeParse(parsedJson);
     if (!parseResult.success) {
+      logFallback("validation", {
+        conceptId: baseQuestion.conceptId,
+        difficulty: baseQuestion.difficulty,
+        language,
+        detail: "schema_validation_error",
+      });
       return baseQuestion;
     }
 
@@ -407,11 +485,23 @@ STRICT MANDATORY RULES:
     // 3. Strict Deterministic Code Validation
     const validation = validateQuestionWording(generatedText, operands, language);
     if (!validation.valid) {
+      logFallback("validation", {
+        conceptId: baseQuestion.conceptId,
+        difficulty: baseQuestion.difficulty,
+        language,
+        detail: validation.reason,
+      });
       return baseQuestion;
     }
 
     // 4. Ensure not already seen by this student in current session
     if (seenSignatures.has(generatedText)) {
+      logFallback("validation", {
+        conceptId: baseQuestion.conceptId,
+        difficulty: baseQuestion.difficulty,
+        language,
+        detail: "duplicate_session_wording",
+      });
       return baseQuestion;
     }
 
@@ -423,8 +513,22 @@ STRICT MANDATORY RULES:
       ...baseQuestion,
       prompt: { raw: generatedText },
     };
-  } catch {
-    // Graceful fallback to deterministic base question
+  } catch (err) {
+    const isTimeout = err instanceof Error && /timed out/i.test(err.message);
+    if (isTimeout) {
+      logFallback("timeout", {
+        conceptId: baseQuestion.conceptId,
+        difficulty: baseQuestion.difficulty,
+        language,
+      });
+    } else {
+      logFallback("validation", {
+        conceptId: baseQuestion.conceptId,
+        difficulty: baseQuestion.difficulty,
+        language,
+        detail: "runtime_error",
+      });
+    }
     return baseQuestion;
   }
 }
