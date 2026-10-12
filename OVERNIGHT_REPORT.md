@@ -11,8 +11,8 @@
 | Step | Name | Status | Files Touched | Tests Result | Notes / Decisions |
 |---|---|---|---|---|---|
 | Step 1 | Make failures visible | Done | `src/components/AdaptiveAssessmentView.tsx`, `src/lib/questions/hybridGenerator.ts`, `src/app/api/assessment/agent/route.ts`, `tests/hybrid-generator.test.mjs` | All 63 tests pass | Replaced single client fallback with 1 server retry before showing "Using backup question". Logged 5 fallback reasons (timeout, validation, no_key, budget, rate_limit) with no student data. Added 5 tests. |
-| Step 2 | Skill sheet (no question text) | In Progress | - | - | - |
-| Step 3 | Make the class change the numbers | Pending | - | - | - |
+| Step 2 | Skill sheet (no question text) | Done | `src/data/skillSheet.ts`, `tests/skill-sheet.test.mjs`, `package.json` | All 68 tests pass | Created NCERT Math-Magic skill sheet covering Classes 3, 4, and 5 with one-sentence outcomes in own words, allowed number ranges for difficulty 1, 2, and 3, diagnostic prerequisites, and explicit needsTeacherCheck flags for newly added or boundary concepts. Added 5 tests. |
+| Step 3 | Make the class change the numbers | In Progress | - | - | - |
 | Step 4 | More Class 3 concepts | Pending | - | - | - |
 | Step 5 | Fresh wording for every concept | Pending | - | - | - |
 | Step 6 | Blind solver and reading level | Pending | - | - | - |
