@@ -758,6 +758,163 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
       hint: T("hint.fraction_addition"),
     };
   },
+
+  addition_3digit(d, rng, _ctx, grade) {
+    const range = getSkillRange("addition_3digit", grade, d);
+    const a = randInt(rng, range.min, range.max);
+    const bMin = range.operandBMin ?? 100;
+    const bMax = range.operandBMax ?? 300;
+    const b = randInt(rng, bMin, bMax);
+    const ans = a + b;
+    const bugs: Record<string, ErrorType> = {};
+    addBug(bugs, noCarryAdd(a, b), "regrouping", ans);
+    addBug(bugs, Math.abs(a - b), "wrong_operation", ans);
+    addBug(bugs, ans + 10, "slip", ans);
+    addBug(bugs, ans - 10, "slip", ans);
+    const meta: QuestionMeta = { a, b, op: "+", bugs };
+    if (d === 3) {
+      return {
+        format: "word_problem",
+        prompt: T("q.add.word", { a, b }),
+        answerKind: "int",
+        answer: String(ans),
+        meta,
+        hint: T("hint.addition_3digit"),
+      };
+    }
+    return {
+      format: "short_answer",
+      prompt: T("q.solve"),
+      expression: `${a} + ${b} = ?`,
+      answerKind: "int",
+      answer: String(ans),
+      meta,
+      hint: T("hint.addition_3digit"),
+    };
+  },
+
+  subtraction_3digit(d, rng, _ctx, grade) {
+    const range = getSkillRange("subtraction_3digit", grade, d);
+    const a = randInt(rng, range.min, range.max);
+    const bMin = range.operandBMin ?? 100;
+    const bMaxAllowed = range.operandBMax ?? 300;
+    const bMax = Math.min(a - 1, bMaxAllowed);
+    const b = randInt(rng, Math.min(bMin, bMax), bMax);
+    const ans = a - b;
+    const bugs: Record<string, ErrorType> = {};
+    addBug(bugs, smallerFromLarger(a, b), "regrouping", ans);
+    addBug(bugs, a + b, "wrong_operation", ans);
+    addBug(bugs, ans + 10, "slip", ans);
+    addBug(bugs, ans - 10, "slip", ans);
+    const meta: QuestionMeta = { a, b, op: "-", bugs };
+    if (d === 3) {
+      return {
+        format: "word_problem",
+        prompt: T("q.sub.word", { a, b }),
+        answerKind: "int",
+        answer: String(ans),
+        meta,
+        hint: T("hint.subtraction_3digit"),
+      };
+    }
+    return {
+      format: "short_answer",
+      prompt: T("q.solve"),
+      expression: `${a} − ${b} = ?`,
+      answerKind: "int",
+      answer: String(ans),
+      meta,
+      hint: T("hint.subtraction_3digit"),
+    };
+  },
+
+  division_sharing(d, rng, _ctx, grade) {
+    const range = getSkillRange("division_sharing", grade, d);
+    const n = randInt(rng, range.operandBMin ?? 2, range.operandBMax ?? 6);
+    const minEach = Math.max(2, Math.ceil(range.min / n));
+    const maxEach = Math.max(minEach, Math.floor(range.max / n));
+    const each = randInt(rng, minEach, maxEach);
+    const total = n * each;
+    const bugs: Record<string, ErrorType> = {};
+    addBug(bugs, total - n, "wrong_operation", each);
+    addBug(bugs, total + n, "wrong_operation", each);
+    addBug(bugs, each + 1, "slip", each);
+    addBug(bugs, each - 1, "slip", each);
+    const meta: QuestionMeta = { a: total, b: n, op: "/", bugs };
+    if (d === 1) {
+      return {
+        format: "short_answer",
+        prompt: T("q.div.sharing", { total, n }),
+        answerKind: "int",
+        answer: String(each),
+        visual: { kind: "groups", groups: n, each, total },
+        meta,
+        hint: T("hint.division_sharing"),
+      };
+    }
+    return {
+      format: "word_problem",
+      prompt: T("q.div.sharing", { total, n }),
+      answerKind: "int",
+      answer: String(each),
+      meta,
+      hint: T("hint.division_sharing"),
+    };
+  },
+
+  money_math(d, rng, _ctx, grade) {
+    const range = getSkillRange("money_math", grade, d);
+    if (d === 1) {
+      const a = randInt(rng, range.min, range.max);
+      const b = randInt(rng, range.operandBMin ?? 5, range.operandBMax ?? 30);
+      const ans = a + b;
+      const bugs: Record<string, ErrorType> = {};
+      addBug(bugs, Math.abs(a - b), "wrong_operation", ans);
+      addBug(bugs, ans + 5, "slip", ans);
+      addBug(bugs, ans - 5, "slip", ans);
+      return {
+        format: "word_problem",
+        prompt: T("q.money.total", { a, b }),
+        answerKind: "int",
+        answer: String(ans),
+        meta: { a, b, op: "+", bugs },
+        hint: T("hint.money_math"),
+      };
+    }
+    if (d === 2) {
+      const total = randInt(rng, range.min, range.max);
+      const bMin = range.operandBMin ?? 10;
+      const bMax = Math.min(total - 1, range.operandBMax ?? 120);
+      const spent = randInt(rng, Math.min(bMin, bMax), bMax);
+      const ans = total - spent;
+      const bugs: Record<string, ErrorType> = {};
+      addBug(bugs, total + spent, "wrong_operation", ans);
+      addBug(bugs, ans + 10, "slip", ans);
+      addBug(bugs, ans - 10, "slip", ans);
+      return {
+        format: "word_problem",
+        prompt: T("q.money.change", { total, spent }),
+        answerKind: "int",
+        answer: String(ans),
+        meta: { a: total, b: spent, op: "-", bugs },
+        hint: T("hint.money_math"),
+      };
+    }
+    const a = randInt(rng, range.min, range.max);
+    const b = randInt(rng, range.operandBMin ?? 50, range.operandBMax ?? 200);
+    const ans = a + b;
+    const bugs: Record<string, ErrorType> = {};
+    addBug(bugs, noCarryAdd(a, b), "regrouping", ans);
+    addBug(bugs, Math.abs(a - b), "wrong_operation", ans);
+    return {
+      format: "word_problem",
+      prompt: T("q.money.total", { a, b }),
+      answerKind: "int",
+      answer: String(ans),
+      meta: { a, b, op: "+", bugs },
+      hint: T("hint.money_math"),
+    };
+  },
 };
 
 export function generateQuestion(

@@ -121,6 +121,10 @@ export interface Dict {
   c_equivalent_fractions: string;
   c_comparing_fractions: string;
   c_fraction_addition: string;
+  c_addition_3digit: string;
+  c_subtraction_3digit: string;
+  c_division_sharing: string;
+  c_money_math: string;
 
   // Question prompts
   "q.solve": string;
@@ -147,6 +151,9 @@ export interface Dict {
   "q.ef.which": string;
   "q.cf.bigger": string;
   "q.fa.word": string;
+  "q.div.sharing": string;
+  "q.money.total": string;
+  "q.money.change": string;
 
   // Hints
   "hint.number_sense": string;
@@ -164,6 +171,10 @@ export interface Dict {
   "hint.equivalent_fractions": string;
   "hint.comparing_fractions": string;
   "hint.fraction_addition": string;
+  "hint.addition_3digit": string;
+  "hint.subtraction_3digit": string;
+  "hint.division_sharing": string;
+  "hint.money_math": string;
 
   // Options
   "opt.dc.share": string;
@@ -296,6 +307,10 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     c_equivalent_fractions: "Equivalent Fractions",
     c_comparing_fractions: "Comparing Fractions",
     c_fraction_addition: "Fraction Addition",
+    c_addition_3digit: "3-digit Addition with Regrouping",
+    c_subtraction_3digit: "3-digit Subtraction with Borrowing",
+    c_division_sharing: "Division as Equal Sharing",
+    c_money_math: "Money and Currency Problems",
 
     "q.solve": "Solve the problem:",
     "q.fill": "Fill in the blank:",
@@ -321,6 +336,9 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     "q.ef.which": "Which fraction is equivalent to {a}/{b}?",
     "q.cf.bigger": "Which fraction is larger: {a} or {b}?",
     "q.fa.word": "Ravi ate {a} of a roti, and Sita ate {b} of the same roti. How much did they eat together?",
+    "q.div.sharing": "Share {total} marbles equally among {n} children. How many marbles does each child get?",
+    "q.money.total": "A notebook costs Rs {a} and a pen costs Rs {b}. What is the total cost?",
+    "q.money.change": "You have a note of Rs {total}. You spend Rs {spent}. How much money is left?",
 
     "hint.number_sense": "Compare digits from left to right starting with the highest place.",
     "hint.place_value": "Remember: units are 1s, tens are 10s, hundreds are 100s, thousands are 1000s.",
@@ -337,6 +355,10 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     "hint.equivalent_fractions": "Multiply or divide both numerator and denominator by the same number.",
     "hint.comparing_fractions": "When denominators are the same, compare numerators. When numerators are the same, smaller denominator means bigger piece!",
     "hint.fraction_addition": "When denominators are the same, add only the numerators and keep the denominator.",
+    "hint.addition_3digit": "Line up hundreds, tens, and ones. Remember to carry over to the tens and hundreds.",
+    "hint.subtraction_3digit": "Borrow 1 from the next left place whenever the top digit is smaller.",
+    "hint.division_sharing": "Distribute the items equally one by one into the groups.",
+    "hint.money_math": "Add the amounts to find total cost, or subtract from amount paid to find change.",
 
     "opt.dc.share": "Sharing equally into groups",
     "opt.dc.groups": "Counting how many groups",
@@ -466,6 +488,10 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     c_equivalent_fractions: "समतुल्य भिन्न",
     c_comparing_fractions: "भिन्नों की तुलना",
     c_fraction_addition: "भिन्नों का जोड़",
+    c_addition_3digit: "3-अंकीय जोड़",
+    c_subtraction_3digit: "3-अंकीय घटाव",
+    c_division_sharing: "समान बंटवारे के रूप में भाग",
+    c_money_math: "रुपये और पैसे की गणना",
 
     "q.solve": "हल कीजिए:",
     "q.fill": "रिक्त स्थान भरें:",
@@ -491,6 +517,9 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     "q.ef.which": "कौन सी भिन्न {a}/{b} के समतुल्य है?",
     "q.cf.bigger": "कौन सी भिन्न बड़ी है: {a} या {b}?",
     "q.fa.word": "रवि ने एक रोटी का {a} भाग खाया और सीता ने उसी रोटी का {b} भाग खाया। दोनों ने मिलकर कितना खाया?",
+    "q.div.sharing": "{total} कंचे {n} बच्चों में बराबर बांटें। प्रत्येक बच्चे को कितने कंचे मिलेंगे?",
+    "q.money.total": "एक कॉपी Rs {a} और एक पेन Rs {b} का है। कुल कितना खर्च हुआ?",
+    "q.money.change": "आपके पास Rs {total} का नोट है। आपने Rs {spent} खर्च किए। आपके पास कितने रुपये बचे?",
 
     "hint.number_sense": "बाएं से दाएं उच्चतम स्थान से अंकों की तुलना करें।",
     "hint.place_value": "याद रखें: इकाई = 1, दहाई = 10, सैकड़ा = 100, हज़ार = 1000।",
@@ -507,6 +536,10 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     "hint.equivalent_fractions": "अंश और हर दोनों को एक ही संख्या से गुणा या भाग करें।",
     "hint.comparing_fractions": "जब हर समान हों, तो अंश की तुलना करें। जब अंश समान हों, तो छोटा हर बड़ा टुकड़ा होता है!",
     "hint.fraction_addition": "जब हर समान हों, तो केवल अंश जोड़ें और हर वही रखें।",
+    "hint.addition_3digit": "सैकड़ा, दहाई और इकाई को सीध में रखें। हासिल जोड़ना न भूलें।",
+    "hint.subtraction_3digit": "यदि ऊपर का अंक छोटा है, तो बाईं ओर के स्थान से 1 उधार लें।",
+    "hint.division_sharing": "वस्तुओं को सभी समूहों में एक-एक करके बराबर बांटें।",
+    "hint.money_math": "कुल खर्च जानने के लिए जोड़ें, और बचे पैसे जानने के लिए घटाएं।",
 
     "opt.dc.share": "समान समूहों में बराबर बाँटना",
     "opt.dc.groups": "कितने समूह हैं गिनना",
@@ -636,6 +669,10 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     c_equivalent_fractions: "సమాన భిన్నాలు",
     c_comparing_fractions: "భిన్నాల పోలిక",
     c_fraction_addition: "భిన్నాల కూడిక",
+    c_addition_3digit: "3-అంకెల సంకలనం",
+    c_subtraction_3digit: "3-అంకెల వ్యవకలనం",
+    c_division_sharing: "సమాన పంపకం ద్వారా భాగాహారం",
+    c_money_math: "డబ్బు మరియు లెక్కలు",
 
     "q.solve": "సాధించండి:",
     "q.fill": "ఖాళీని పూరించండి:",
@@ -661,6 +698,9 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     "q.ef.which": "{a}/{b} కి సమాన భిన్నం ఏది?",
     "q.cf.bigger": "ఏ భిన్నం పెద్దది: {a} లేదా {b}?",
     "q.fa.word": "రవి రోటీలో {a} భాగం తిన్నాడు, సీత అదే రోటీలో {b} భాగం తిన్నది. ఇద్దరూ కలిసి ఎంత తిన్నారు?",
+    "q.div.sharing": "{total} గోళీలను {n} పిల్లలకు సమానంగా పంచండి. ప్రతి బిడ్డకు ఎన్ని గోళీలు వస్తాయి?",
+    "q.money.total": "ఒక నోట్‌బుక్ ఖరీదు Rs {a} మరియు పెన్ను ఖరీదు Rs {b}. మొత్తం ఖరీదు ఎంత?",
+    "q.money.change": "మీ దగ్గర Rs {total} నోటు ఉంది. మీరు Rs {spent} ఖర్చు చేశారు. మీ దగ్గర ఇంకా ఎంత మిగిలింది?",
 
     "hint.number_sense": "ఎడమ నుండి కుడికి పెద్ద స్థానం నుండి అంకెలను పోల్చండి.",
     "hint.place_value": "గుర్తుంచుకోండి: ఒకట్లు = 1, పదులు = 10, వందలు = 100, వేలు = 1000.",
@@ -677,6 +717,10 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     "hint.equivalent_fractions": "లవం మరియు హారం రెండింటినీ ఒకే సంఖ్యతో గుణించండి లేదా భాగించండి.",
     "hint.comparing_fractions": "హారాలు సమానంగా ఉన్నప్పుడు లవాలను పోల్చండి. లవాలు సమానమైతే, చిన్న హారం ఉన్నదే పెద్ద భాగం!",
     "hint.fraction_addition": "హారాలు సమానంగా ఉన్నప్పుడు, లవాలను మాత్రమే కూడండి.",
+    "hint.addition_3digit": "వందలు, పదులు, ఒకట్లను వరుసగా ఉంచండి. చేతిలో వచ్చిన సంఖ్యను కలపడం మర్చిపోవద్దు.",
+    "hint.subtraction_3digit": "పై అంకె చిన్నదైతే, ఎడమ వైపు స్థానం నుండి 1 అప్పు తీసుకోండి.",
+    "hint.division_sharing": "వస్తువులను అన్ని సమూహాలలో ఒక్కొక్కటిగా సమానంగా పంచండి.",
+    "hint.money_math": "మొత్తం ఖర్చు కోసం కలపండి, మిగిలిన డబ్బు కోసం తీసివేయండి.",
 
     "opt.dc.share": "సమాన సమూహాలుగా పంచడం",
     "opt.dc.groups": "ఎన్ని సమూహాలు ఉన్నాయో లెక్కించడం",

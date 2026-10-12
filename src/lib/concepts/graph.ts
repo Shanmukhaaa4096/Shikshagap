@@ -21,6 +21,10 @@ export const CONCEPTS: Record<ConceptId, Concept> = {
   equivalent_fractions: { id: "equivalent_fractions", subjectId: "math", grade: 5, strand: "fractions", prerequisites: ["fraction_basics", "mult_facts"] },
   comparing_fractions: { id: "comparing_fractions", subjectId: "math", grade: 5, strand: "fractions", prerequisites: ["equivalent_fractions", "fraction_basics"] },
   fraction_addition: { id: "fraction_addition", subjectId: "math", grade: 5, strand: "fractions", prerequisites: ["equivalent_fractions", "addition"] },
+  addition_3digit: { id: "addition_3digit", subjectId: "math", grade: 3, strand: "number", prerequisites: ["addition", "place_value"], needsTeacherCheck: true },
+  subtraction_3digit: { id: "subtraction_3digit", subjectId: "math", grade: 3, strand: "number", prerequisites: ["subtraction", "place_value"], needsTeacherCheck: true },
+  division_sharing: { id: "division_sharing", subjectId: "math", grade: 3, strand: "muldiv", prerequisites: ["mult_concept", "subtraction"], needsTeacherCheck: true },
+  money_math: { id: "money_math", subjectId: "math", grade: 3, strand: "measurement", prerequisites: ["addition", "subtraction"], needsTeacherCheck: true },
 };
 
 export const CONCEPT_IDS = Object.keys(CONCEPTS) as ConceptId[];
@@ -33,7 +37,7 @@ export const TOPICS: Record<TopicId, Topic> = {
 };
 export const TOPIC_IDS = Object.keys(TOPICS) as TopicId[];
 
-export const STRANDS: Strand[] = ["number", "muldiv", "fractions"];
+export const STRANDS: Strand[] = ["number", "muldiv", "fractions", "measurement"];
 
 export function prerequisitesOf(id: ConceptId): ConceptId[] {
   return CONCEPTS[id].prerequisites;

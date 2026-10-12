@@ -11,8 +11,6 @@ for (const grade of GRADES) {
 
   for (const skill of gradeSkills) {
     const conceptId = skill.conceptId;
-    const STEP4_CONCEPTS = ['addition_3digit', 'subtraction_3digit', 'division_sharing', 'money_math'];
-    if (STEP4_CONCEPTS.includes(conceptId)) continue;
 
     test(`Grade ${grade} Concept ${conceptId}: 200 random questions verify ranges and correct answers`, () => {
       const rng = makeRng(1000 * grade + conceptId.length * 37);

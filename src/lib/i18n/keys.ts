@@ -27,7 +27,10 @@ export type QuestionKey =
   | "q.fb.of"
   | "q.ef.which"
   | "q.cf.bigger"
-  | "q.fa.word";
+  | "q.fa.word"
+  | "q.div.sharing"
+  | "q.money.total"
+  | "q.money.change";
 
 export type HintKey =
   | "hint.number_sense"
@@ -44,7 +47,11 @@ export type HintKey =
   | "hint.fraction_basics"
   | "hint.equivalent_fractions"
   | "hint.comparing_fractions"
-  | "hint.fraction_addition";
+  | "hint.fraction_addition"
+  | "hint.addition_3digit"
+  | "hint.subtraction_3digit"
+  | "hint.division_sharing"
+  | "hint.money_math";
 
 export type OptionKey =
   | "opt.dc.share"

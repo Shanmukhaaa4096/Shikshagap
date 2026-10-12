@@ -22,9 +22,13 @@ export type ConceptId =
   | "fraction_basics"
   | "equivalent_fractions"
   | "comparing_fractions"
-  | "fraction_addition";
+  | "fraction_addition"
+  | "addition_3digit"
+  | "subtraction_3digit"
+  | "division_sharing"
+  | "money_math";
 
-export type Strand = "number" | "muldiv" | "fractions";
+export type Strand = "number" | "muldiv" | "fractions" | "measurement";
 
 export interface Concept {
   id: ConceptId;
@@ -33,6 +37,8 @@ export interface Concept {
   strand: Strand;
   /** Ordered by diagnostic priority: the most likely root cause first. */
   prerequisites: ConceptId[];
+  /** Marked when curriculum scope or boundary needs teacher verification. */
+  needsTeacherCheck?: boolean;
 }
 
 export type TopicId = "division" | "multiplication" | "fractions" | "number_ops";

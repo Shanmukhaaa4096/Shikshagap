@@ -556,6 +556,150 @@ const REMEDIATION_TEMPLATES: Record<ConceptId, PlanTemplate> = {
       },
     ],
   },
+
+  addition_3digit: {
+    conceptId: "addition_3digit",
+    days: [
+      {
+        title: "Day 1: Place Value Block Addition",
+        activity: "Use flats (100s), rods (10s), and units (1s) to build two 3-digit numbers and combine columns.",
+        focus: "Column alignment",
+        minutes: 15,
+      },
+      {
+        title: "Day 2: Carrying to Tens Column",
+        activity: "Practice adding with units sum greater than 9. Exchange 10 unit cubes for 1 ten rod.",
+        focus: "Regrouping units to tens",
+        minutes: 15,
+      },
+      {
+        title: "Day 3: Carrying to Hundreds Column",
+        activity: "Add pairs where tens sum exceeds 9. Exchange 10 rods for 1 hundred flat.",
+        focus: "Regrouping tens to hundreds",
+        minutes: 15,
+      },
+      {
+        title: "Day 4: Double Regrouping Practice",
+        activity: "Solve 3-digit additions that require carrying in both tens and hundreds places.",
+        focus: "Double carry mastery",
+        minutes: 15,
+      },
+      {
+        title: "Day 5: Village Fair Problem Solving",
+        activity: "Solve 3 real-world word problems calculating total ticket sales or animal counts.",
+        focus: "Contextual fluency",
+        minutes: 15,
+      },
+    ],
+  },
+
+  subtraction_3digit: {
+    conceptId: "subtraction_3digit",
+    days: [
+      {
+        title: "Day 1: Base-Ten Subtraction Setup",
+        activity: "Model 3-digit numbers with currency notes (Rs 100, Rs 10, Rs 1) to visualize subtraction without borrowing.",
+        focus: "Place value alignment",
+        minutes: 15,
+      },
+      {
+        title: "Day 2: Unbundling Tens for Units",
+        activity: "Exchange 1 ten-rupee note for 10 one-rupee coins to subtract smaller units digits.",
+        focus: "Borrowing from tens",
+        minutes: 15,
+      },
+      {
+        title: "Day 3: Unbundling Hundreds for Tens",
+        activity: "Exchange 1 hundred-rupee note for 10 ten-rupee notes to borrow across hundreds.",
+        focus: "Borrowing from hundreds",
+        minutes: 15,
+      },
+      {
+        title: "Day 4: Subtracting Across Zeroes",
+        activity: "Practice subtracting from numbers like 502 where the tens place is zero.",
+        focus: "Zero borrowing chain",
+        minutes: 15,
+      },
+      {
+        title: "Day 5: Independent Check",
+        activity: "Complete 4 contextual subtraction problems about bus routes and book pages.",
+        focus: "Self-correction & accuracy",
+        minutes: 15,
+      },
+    ],
+  },
+
+  division_sharing: {
+    conceptId: "division_sharing",
+    days: [
+      {
+        title: "Day 1: Concrete Equal Sharing with Pebbles",
+        activity: "Take 12 pebbles and share them equally into 3 bowls one by one. Count items in each bowl.",
+        focus: "Equal group distribution",
+        minutes: 15,
+      },
+      {
+        title: "Day 2: Drawing Circles and Tally Marks",
+        activity: "Draw groups as circles on paper and deal tally marks evenly until the total is reached.",
+        focus: "Pictorial representation",
+        minutes: 15,
+      },
+      {
+        title: "Day 3: Connecting to Subtraction",
+        activity: "Repeatedly subtract the group size from the total to observe how many times it can be shared.",
+        focus: "Sharing as repeated subtraction",
+        minutes: 15,
+      },
+      {
+        title: "Day 4: Equal Sharing Word Stories",
+        activity: "Act out sharing laddus, pencils, and books among classmates.",
+        focus: "Contextual reasoning",
+        minutes: 15,
+      },
+      {
+        title: "Day 5: Sharing Fluency Check",
+        activity: "Rapid oral problems: 15 shared by 3, 20 shared by 4, 18 shared by 6.",
+        focus: "Mental partitioning",
+        minutes: 15,
+      },
+    ],
+  },
+
+  money_math: {
+    conceptId: "money_math",
+    days: [
+      {
+        title: "Day 1: Play Money Currency Recognition",
+        activity: "Identify and combine play currency notes of Rs 10, 20, 50, 100, and coins.",
+        focus: "Denomination value",
+        minutes: 15,
+      },
+      {
+        title: "Day 2: Classroom Mock Shop",
+        activity: "Set up small stationary items with price tags. Calculate total cost for 2 items.",
+        focus: "Addition of prices",
+        minutes: 15,
+      },
+      {
+        title: "Day 3: Making Change from Rs 50 and Rs 100",
+        activity: "Given an item cost, calculate how much change the shopkeeper must return from a Rs 50 or 100 note.",
+        focus: "Subtraction as change",
+        minutes: 15,
+      },
+      {
+        title: "Day 4: Comparing Price Options",
+        activity: "Compare two grocery lists to decide which basket costs more and by how much.",
+        focus: "Comparative budgeting",
+        minutes: 15,
+      },
+      {
+        title: "Day 5: Real-World Transaction Assessment",
+        activity: "Solve 4 multi-step market scenarios involving buying snacks and receiving change.",
+        focus: "Independent calculation",
+        minutes: 15,
+      },
+    ],
+  },
 };
 
 /**
