@@ -17,8 +17,8 @@ interface RequestBody {
   memory?: SessionMemory;
   lastAttempt?: Attempt;
   // Backward compatibility
-  state?: any;
-  lastResponse?: any;
+  state?: unknown;
+  lastResponse?: unknown;
 }
 
 // In-memory rate limiting for AI assessment agent endpoint (max 40 requests/min per IP)

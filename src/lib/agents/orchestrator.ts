@@ -36,8 +36,8 @@ export interface OrchestratorStepResult {
 }
 
 export interface OrchestratorOptions {
-  examinerClient?: any;
-  analystClient?: any;
+  examinerClient?: unknown;
+  analystClient?: unknown;
   advisorOptions?: ResourceAdvisorOptions;
   reportOptions?: ReportWriterOptions;
 }
@@ -87,7 +87,7 @@ export async function stepAssessment(
   const examinerRes: ExaminerStepResult = await runExaminerStep(
     currentMemory,
     undefined,
-    options?.examinerClient
+    { client: options?.examinerClient }
   );
 
   if (examinerRes.notes.length > 0) {

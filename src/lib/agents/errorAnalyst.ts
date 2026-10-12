@@ -53,7 +53,7 @@ export interface ErrorAnalystInput {
   pseudonymousId: string;
   grade?: number;
   apiKey?: string;
-  client?: any; // For test mocking
+  client?: unknown; // For test mocking
 }
 
 /**
@@ -113,7 +113,8 @@ export async function analyzeErrors(
   }
 
   try {
-    const ai = client || new GoogleGenAI({ apiKey: effectiveApiKey });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ai: any = client || new GoogleGenAI({ apiKey: effectiveApiKey });
     const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
     const allowedListStr = Array.from(allowedSet).join(", ");
@@ -161,7 +162,7 @@ Return ONLY valid JSON matching this schema:
     });
 
     const rawText = response.text || "{}";
-    let parsed: any;
+    let parsed: { misconceptions?: Array<{ label?: unknown; explanation?: unknown }> } | null = null;
     try {
       parsed = JSON.parse(rawText);
     } catch {

@@ -101,7 +101,7 @@ export interface ExaminerStepResult {
 export async function runExaminerStep(
   memory: SessionMemory,
   lastAttempt?: Attempt,
-  options?: { apiKey?: string; client?: any }
+  options?: { apiKey?: string; client?: unknown }
 ): Promise<ExaminerStepResult> {
   const legalAction = getNextStaircaseAction(memory, lastAttempt);
 
@@ -123,7 +123,8 @@ export async function runExaminerStep(
   }
 
   try {
-    const ai = client || new GoogleGenAI({ apiKey: effectiveApiKey });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ai: any = client || new GoogleGenAI({ apiKey: effectiveApiKey });
     const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
     // Strictly pseudonymous ID - never names

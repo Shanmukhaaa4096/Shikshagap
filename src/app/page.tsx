@@ -23,6 +23,7 @@ import {
   getClassConfig, 
   DEFAULT_CLASS_ID 
 } from '@/lib/curriculum/classes';
+import { siteConfig } from '@/config/site';
 import { ClassSelector } from '@/components/ClassSelector';
 import { generateQuestion } from '@/lib/questions/generator';
 import { makeRng } from '@/lib/rng';
@@ -1806,15 +1807,12 @@ function PublicLandingPageContent() {
               <span className="font-bold text-[#432623] dark:text-[#FAF8E8]">Official Contact</span>
               <div className="text-[11px] text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-snug">
                 <span>Email: </span>
-                <a href="mailto:contact@shikshagap.in" className="text-[#DE2A35] underline font-bold">
-                  contact@shikshagap.in
+                <a href={`mailto:${siteConfig.contactEmail}`} className="text-[#DE2A35] underline font-bold">
+                  {siteConfig.contactEmail}
                 </a>
-                <span className="block text-[9px] text-[#DE2A35] font-mono mt-0.5">
-                  [TODO: User email needed - please confirm official email]
-                </span>
               </div>
               <div className="text-[10px] text-[#432623]/60 dark:text-[#FAF8E8]/60">
-                Educational Cell : Hyderabad, Telangana, India
+                Educational Cell : {siteConfig.city}
               </div>
               <Link href="/data-request" className="text-[#432623] dark:text-[#FAF8E8] hover:text-[#DE2A35]">
                 DPDP Grievance Desk

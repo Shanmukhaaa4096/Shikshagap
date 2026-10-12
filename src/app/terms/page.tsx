@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowLeft, FileText, Warning } from "@phosphor-icons/react/dist/ssr";
+import { siteConfig } from "@/config/site";
 
 export const metadata = {
   title: "Terms of Service | ShikshaGap",
@@ -75,7 +76,7 @@ export default function TermsPage() {
             3. Account Security &amp; Confidentiality
           </h2>
           <p className="text-[#432623]/80 dark:text-[#F5F1BC]/80">
-            Authorized teachers are responsible for maintaining the confidentiality of their login credentials. Any unauthorized access to classroom student profiles must be reported immediately to contact@shikshagap.in <span className="text-[#DE2A35] font-bold">[TODO: User email needed - please confirm official email]</span>.
+            Authorized teachers are responsible for maintaining the confidentiality of their login credentials. Any unauthorized access to classroom student profiles must be reported immediately to <a href={`mailto:${siteConfig.contactEmail}`} className="underline font-bold">{siteConfig.contactEmail}</a>.
           </p>
         </section>
 

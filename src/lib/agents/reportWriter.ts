@@ -18,7 +18,7 @@ export interface ReportWriterInput {
 }
 
 export interface ReportWriterOptions {
-  client?: any; // GoogleGenAI client instance or mock
+  client?: unknown; // GoogleGenAI client instance or mock
   modelName?: string;
 }
 
@@ -190,7 +190,8 @@ ${JSON.stringify(facts, null, 2)}
 
 Output strictly the plain text summary in ${targetLangName}. No markdown headings or bullet points.`;
 
-    const response = await client.models.generateContent({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const response = await (client as any).models.generateContent({
       model: modelName,
       contents: prompt,
     });

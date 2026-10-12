@@ -27,7 +27,7 @@ export interface CandidateWithScore {
 }
 
 export interface ResourceAdvisorOptions {
-  client?: any; // GoogleGenAI client instance or mock
+  client?: unknown; // GoogleGenAI client instance or mock
   modelName?: string;
 }
 
@@ -252,7 +252,8 @@ Output strictly valid JSON with this exact schema:
   ]
 }`;
 
-      const response = await client.models.generateContent({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await (client as any).models.generateContent({
         model: modelName,
         contents: prompt,
         config: {
