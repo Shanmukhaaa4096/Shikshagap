@@ -322,6 +322,7 @@ export function AdaptiveAssessmentView({
         setSessionMemory({
           ...initialMemory,
           seenSignatures: Array.from(seen),
+          usedFormats: [q.format],
         });
         setCurrentQuestion(q);
       }
@@ -417,17 +418,22 @@ export function AdaptiveAssessmentView({
           completeAssessment(advanced.memory);
         } else if (advanced.action.type === "ask") {
           const seen = new Set<string>(advanced.memory.seenSignatures || []);
+          const usedFormats = advanced.memory.usedFormats || [];
+          const lastFormat = usedFormats.length > 0 ? usedFormats[usedFormats.length - 1] : undefined;
           const fallbackSeed = 9999 + (activeStudent?.student.rollNo || 1) * 31 + (sessionMemory.topics.reduce((acc, t) => acc + t.attempts.length, 0));
           const nextQ = generateUnique(
             advanced.action.conceptId,
             advanced.action.level,
             makeRng(fallbackSeed),
             seen,
-            sessionMemory.grade
+            sessionMemory.grade,
+            {},
+            { avoidFormat: lastFormat }
           );
           setSessionMemory({
             ...advanced.memory,
             seenSignatures: Array.from(seen),
+            usedFormats: [...usedFormats, nextQ.format],
           });
           setCurrentQuestion(nextQ);
         }

@@ -54,7 +54,16 @@ export interface Topic {
 export type Txt = { key: TKey; params?: Record<string, string | number> } | { raw: string };
 
 export type Difficulty = 1 | 2 | 3;
-export type QuestionFormat = "mcq" | "fill_blank" | "short_answer" | "word_problem";
+export type QuestionFormat =
+  | "mcq"
+  | "fill_blank"
+  | "short_answer"
+  | "word_problem"
+  | "missing_number"
+  | "find_mistake"
+  | "true_false"
+  | "choose_working"
+  | "compare_answers";
 export type AnswerKind = "int" | "fraction" | "choice";
 
 export type ErrorType =
@@ -413,6 +422,7 @@ export interface SessionMemory {
   topics: TopicMemory[];
   currentTopicIndex: number;
   seenSignatures?: string[];
+  usedFormats?: QuestionFormat[];
 }
 
 export interface EducationalResource {

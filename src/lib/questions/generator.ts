@@ -13,6 +13,7 @@ import type {
   Question,
   QuestionMeta,
   Txt,
+  QuestionFormat,
 } from "../types.ts";
 import type { TKey } from "../i18n/keys.ts";
 import { gcd, pick, randInt, shuffle, uid, type Rng } from "../rng.ts";
@@ -946,23 +947,227 @@ export function questionSignature(q: Question): string {
   return `${q.conceptId}|${q.expression ?? ""}|${JSON.stringify("key" in q.prompt ? q.prompt.params ?? {} : q.prompt.raw)}|${q.visual ? JSON.stringify(q.visual) : ""}`;
 }
 
+export interface FormatDiversifyOptions {
+  avoidFormat?: QuestionFormat;
+  allowedFormats?: QuestionFormat[];
+}
+
+/**
+ * Step 12: Question variety in shape.
+ * Transforms an existing base question into an alternative pedagogical shape where concept allows:
+ * - missing_number
+ * - find_mistake
+ * - true_false
+ * - choose_working
+ * - compare_answers
+ * All numbers, answers, and wrong options are strictly computed by code.
+ */
+export function applyQuestionFormat(
+  q: Question,
+  format: QuestionFormat,
+  rng: Rng
+): Question {
+  const meta = q.meta;
+  const a = meta.a;
+  const b = meta.b;
+  const op = meta.op;
+
+  // Formats apply where binary operation / numeric operands are well defined
+  if (a === undefined || b === undefined || !op) {
+    return q;
+  }
+
+  const opSymbol = op === "x" ? "×" : op === "/" ? "÷" : op === "-" ? "−" : "+";
+  const numAnswer = Number(q.answer);
+
+  if (format === "missing_number") {
+    // Determine which operand to hide: a op [ ] = ans or [ ] op b = ans
+    const hideSecond = rng() < 0.5;
+    const expression = hideSecond
+      ? `${a} ${opSymbol} [ ? ] = ${q.answer}`
+      : `[ ? ] ${opSymbol} ${b} = ${q.answer}`;
+    const missingVal = hideSecond ? b : a;
+
+    return {
+      ...q,
+      format: "missing_number",
+      prompt: T("q.format.missing_number", { expression }),
+      expression,
+      answer: String(missingVal),
+      answerKind: "choice",
+      options: numericOptions(rng, missingVal, { [String(missingVal + 1)]: "slip", [String(missingVal - 1)]: "slip" }, 2),
+    };
+  }
+
+  if (format === "true_false") {
+    const isActuallyTrue = rng() < 0.5;
+    let statementExpr = "";
+    if (isActuallyTrue) {
+      statementExpr = `${a} ${opSymbol} ${b} = ${q.answer}`;
+    } else {
+      const bugEntries = Object.keys(meta.bugs || {});
+      const wrongAns = bugEntries.length > 0
+        ? bugEntries[0]
+        : String(!isNaN(numAnswer) ? numAnswer + 2 : "10");
+      statementExpr = `${a} ${opSymbol} ${b} = ${wrongAns}`;
+    }
+
+    const correctAns = isActuallyTrue ? "True" : "False";
+    const options: Option[] = [
+      { id: "opt_true", label: R("True"), value: "True" },
+      { id: "opt_false", label: R("False"), value: "False" },
+    ];
+
+    return {
+      ...q,
+      format: "true_false",
+      prompt: T("q.format.true_false", { statement: statementExpr }),
+      expression: statementExpr,
+      answer: correctAns,
+      answerKind: "choice",
+      options,
+    };
+  }
+
+  if (format === "find_mistake") {
+    const hasMistake = rng() < 0.5;
+    const bugEntries = Object.keys(meta.bugs || {});
+    const displayedAns = hasMistake
+      ? (bugEntries.length > 0 ? bugEntries[0] : String(!isNaN(numAnswer) ? numAnswer + 3 : "12"))
+      : q.answer;
+    const workingStr = `${a} ${opSymbol} ${b} = ${displayedAns}`;
+
+    const correctAns = hasMistake ? "Mistake" : "Correct";
+    const options: Option[] = [
+      { id: "opt_correct", label: R("Correct (No mistake)"), value: "Correct" },
+      { id: "opt_mistake", label: R("Mistake (Incorrect)"), value: "Mistake" },
+    ];
+
+    return {
+      ...q,
+      format: "find_mistake",
+      prompt: T("q.format.find_mistake", { working: workingStr }),
+      expression: workingStr,
+      answer: correctAns,
+      answerKind: "choice",
+      options,
+    };
+  }
+
+  if (format === "choose_working") {
+    // Options showing different methods/breakdowns
+    let correctMethod = "";
+    let wrongMethod = "";
+    if (op === "+") {
+      correctMethod = `${a} + ${b} = (${Math.floor(a / 10) * 10} + ${Math.floor(b / 10) * 10}) + (${a % 10} + ${b % 10})`;
+      wrongMethod = `${a} + ${b} = (${a} + 10) - ${b}`;
+    } else if (op === "x") {
+      correctMethod = `${a} × ${b} = (${a} × ${Math.floor(b / 2)}) + (${a} × ${b - Math.floor(b / 2)})`;
+      wrongMethod = `${a} × ${b} = ${a} + ${b}`;
+    } else if (op === "-") {
+      correctMethod = `${a} − ${b} = (${a} − ${Math.floor(b / 10) * 10}) − ${b % 10}`;
+      wrongMethod = `${a} − ${b} = ${b} − ${a}`;
+    } else {
+      correctMethod = `${a} ÷ ${b} = ${q.answer}`;
+      wrongMethod = `${a} ÷ ${b} = ${a} − ${b}`;
+    }
+
+    const options: Option[] = shuffle(rng, [
+      { id: "opt_method_1", label: R(correctMethod), value: correctMethod },
+      { id: "opt_method_2", label: R(wrongMethod), value: wrongMethod, errorType: "wrong_operation" as ErrorType },
+    ]);
+
+    return {
+      ...q,
+      format: "choose_working",
+      prompt: T("q.format.choose_working", { problem: `${a} ${opSymbol} ${b}` }),
+      expression: `${a} ${opSymbol} ${b} = ?`,
+      answer: correctMethod,
+      answerKind: "choice",
+      options,
+    };
+  }
+
+  if (format === "compare_answers") {
+    const student1Name = "Student A";
+    const student2Name = "Student B";
+    const bugEntries = Object.keys(meta.bugs || {});
+    const wrongVal = bugEntries.length > 0 ? bugEntries[0] : String(!isNaN(numAnswer) ? numAnswer + 2 : "15");
+
+    const student1Ans = rng() < 0.5 ? q.answer : wrongVal;
+    const student2Ans = student1Ans === q.answer ? wrongVal : q.answer;
+    const correctStudent = student1Ans === q.answer ? `${student1Name}: ${student1Ans}` : `${student2Name}: ${student2Ans}`;
+
+    const options: Option[] = [
+      { id: "opt_s1", label: R(`${student1Name}: ${student1Ans}`), value: `${student1Name}: ${student1Ans}` },
+      { id: "opt_s2", label: R(`${student2Name}: ${student2Ans}`), value: `${student2Name}: ${student2Ans}` },
+    ];
+
+    return {
+      ...q,
+      format: "compare_answers",
+      prompt: T("q.format.compare_answers"),
+      expression: `${a} ${opSymbol} ${b} = ?`,
+      answer: correctStudent,
+      answerKind: "choice",
+      options,
+    };
+  }
+
+  return q;
+}
+
+export function generateQuestionWithVariety(
+  conceptId: ConceptId,
+  difficulty: Difficulty,
+  rng: Rng,
+  grade = 5,
+  options: FormatDiversifyOptions = {},
+  ctx: GenContext = {}
+): Question {
+  const base = generateQuestion(conceptId, difficulty, rng, grade, ctx);
+
+  // Available candidate shapes for varied assessment formats
+  const candidateFormats: QuestionFormat[] = [
+    "mcq",
+    "short_answer",
+    "missing_number",
+    "find_mistake",
+    "true_false",
+    "choose_working",
+    "compare_answers",
+  ];
+
+  const allowed = options.allowedFormats || candidateFormats;
+  const filtered = allowed.filter((f) => f !== options.avoidFormat);
+  const targetFormat = pick(rng, filtered.length > 0 ? filtered : allowed);
+
+  if (targetFormat === "mcq" || targetFormat === "short_answer" || targetFormat === "fill_blank" || targetFormat === "word_problem") {
+    return base;
+  }
+
+  return applyQuestionFormat(base, targetFormat, rng);
+}
+
 export function generateUnique(
   conceptId: ConceptId,
   difficulty: Difficulty,
   rng: Rng,
   seen: Set<string>,
   gradeOrCtx: number | GenContext = 5,
-  ctx: GenContext = {}
+  ctx: GenContext = {},
+  options: FormatDiversifyOptions = {}
 ): Question {
   const grade = typeof gradeOrCtx === "number" ? gradeOrCtx : 5;
   const effectiveCtx = typeof gradeOrCtx === "object" ? gradeOrCtx : ctx;
-  let q = generateQuestion(conceptId, difficulty, rng, grade, effectiveCtx);
+  let q = generateQuestionWithVariety(conceptId, difficulty, rng, grade, options, effectiveCtx);
   for (let i = 0; i < 12 && seen.has(questionSignature(q)); i++) {
-    q = generateQuestion(
+    q = generateQuestionWithVariety(
       conceptId,
       difficulty,
       rng,
       grade,
+      options,
       i < 3 ? effectiveCtx : { ...effectiveCtx, link: undefined }
     );
   }

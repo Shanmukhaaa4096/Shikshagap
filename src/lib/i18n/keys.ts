@@ -30,7 +30,12 @@ export type QuestionKey =
   | "q.fa.word"
   | "q.div.sharing"
   | "q.money.total"
-  | "q.money.change";
+  | "q.money.change"
+  | "q.format.missing_number"
+  | "q.format.find_mistake"
+  | "q.format.true_false"
+  | "q.format.choose_working"
+  | "q.format.compare_answers";
 
 export type HintKey =
   | "hint.number_sense"

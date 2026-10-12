@@ -168,14 +168,20 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 4. Generate unique question (math operands, answer key, and distractors computed deterministically)
+    // 4. Generate unique question with Step 12 format diversification:
+    // Never use same format twice in a row, and diversify across assessment
     const seen = new Set<string>(currentMemory.seenSignatures || []);
+    const usedFormats = currentMemory.usedFormats || [];
+    const lastFormat = usedFormats.length > 0 ? usedFormats[usedFormats.length - 1] : undefined;
+
     const baseQuestion = generateUnique(
       nextAction.conceptId,
       nextAction.level,
       rng,
       seen,
-      currentMemory.grade
+      currentMemory.grade,
+      {},
+      { avoidFormat: lastFormat }
     );
 
     // 5. Enhance wording with Gemini hybrid generator (validated against operands, script, and safety)
@@ -187,6 +193,7 @@ export async function POST(req: NextRequest) {
       { ip }
     );
     currentMemory.seenSignatures = Array.from(seen);
+    currentMemory.usedFormats = [...usedFormats, nextQuestion.format];
 
     return NextResponse.json({
       memory: currentMemory,

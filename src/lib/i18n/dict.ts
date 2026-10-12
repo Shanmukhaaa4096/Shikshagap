@@ -154,6 +154,11 @@ export interface Dict {
   "q.div.sharing": string;
   "q.money.total": string;
   "q.money.change": string;
+  "q.format.missing_number": string;
+  "q.format.find_mistake": string;
+  "q.format.true_false": string;
+  "q.format.choose_working": string;
+  "q.format.compare_answers": string;
 
   // Hints
   "hint.number_sense": string;
@@ -339,6 +344,11 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     "q.div.sharing": "Share {total} marbles equally among {n} children. How many marbles does each child get?",
     "q.money.total": "A notebook costs Rs {a} and a pen costs Rs {b}. What is the total cost?",
     "q.money.change": "You have a note of Rs {total}. You spend Rs {spent}. How much money is left?",
+    "q.format.missing_number": "Find the missing number in the box: {expression}",
+    "q.format.find_mistake": "Look at the working below: {working}. Is there a mistake?",
+    "q.format.true_false": "Is this statement True or False? {statement}",
+    "q.format.choose_working": "Which is the correct method to solve: {problem}?",
+    "q.format.compare_answers": "Compare the two answers: Which one is correct?",
 
     "hint.number_sense": "Compare digits from left to right starting with the highest place.",
     "hint.place_value": "Remember: units are 1s, tens are 10s, hundreds are 100s, thousands are 1000s.",
@@ -520,6 +530,11 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     "q.div.sharing": "{total} कंचे {n} बच्चों में बराबर बांटें। प्रत्येक बच्चे को कितने कंचे मिलेंगे?",
     "q.money.total": "एक कॉपी Rs {a} और एक पेन Rs {b} का है। कुल कितना खर्च हुआ?",
     "q.money.change": "आपके पास Rs {total} का नोट है। आपने Rs {spent} खर्च किए। आपके पास कितने रुपये बचे?",
+    "q.format.missing_number": "रिक्त स्थान में लुप्त संख्या ज्ञात कीजिए: {expression}",
+    "q.format.find_mistake": "नीचे दिए गए हल को देखें: {working}। क्या इसमें कोई गलती है?",
+    "q.format.true_false": "क्या यह कथन सही है या गलत? {statement}",
+    "q.format.choose_working": "हल करने का कौन सा तरीका सही है: {problem}?",
+    "q.format.compare_answers": "दोनों उत्तरों की तुलना करें: कौन सा उत्तर सही है?",
 
     "hint.number_sense": "बाएं से दाएं उच्चतम स्थान से अंकों की तुलना करें।",
     "hint.place_value": "याद रखें: इकाई = 1, दहाई = 10, सैकड़ा = 100, हज़ार = 1000।",
@@ -701,6 +716,11 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     "q.div.sharing": "{total} గోళీలను {n} పిల్లలకు సమానంగా పంచండి. ప్రతి బిడ్డకు ఎన్ని గోళీలు వస్తాయి?",
     "q.money.total": "ఒక నోట్‌బుక్ ఖరీదు Rs {a} మరియు పెన్ను ఖరీదు Rs {b}. మొత్తం ఖరీదు ఎంత?",
     "q.money.change": "మీ దగ్గర Rs {total} నోటు ఉంది. మీరు Rs {spent} ఖర్చు చేశారు. మీ దగ్గర ఇంకా ఎంత మిగిలింది?",
+    "q.format.missing_number": "గడిలో లోపించిన సంఖ్యను కనుగొనండి: {expression}",
+    "q.format.find_mistake": "కింది విధానాన్ని పరిశీలించండి: {working}. ఇందులో ఏదైనా తప్పు ఉందా?",
+    "q.format.true_false": "ఈ ప్రకటన నిజమా లేక అబద్ధమా? {statement}",
+    "q.format.choose_working": "సాధించడానికి ఏ పద్ధతి సరైనది: {problem}?",
+    "q.format.compare_answers": "రెండు సమాధానాలను పోల్చండి: ఏది సరైనది?",
 
     "hint.number_sense": "ఎడమ నుండి కుడికి పెద్ద స్థానం నుండి అంకెలను పోల్చండి.",
     "hint.place_value": "గుర్తుంచుకోండి: ఒకట్లు = 1, పదులు = 10, వందలు = 100, వేలు = 1000.",
