@@ -12,6 +12,12 @@ jobs:
     env:
       NEXT_PUBLIC_CONTACT_EMAIL: contact@shikshagap.in
       NEXT_PUBLIC_SITE_URL: https://shikshagap.vercel.app
+      SESSION_SECRET: dummy_session_secret_for_ci_testing_32chars
+      IP_SALT: dummy_salt_for_ci_testing_purposes
+      CRON_SECRET: dummy_cron_secret_for_ci_testing
+      DATABASE_URL: ""
+      GEMINI_API_KEY: ""
+      GEMINI_MODEL: gemini-2.5-flash
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
