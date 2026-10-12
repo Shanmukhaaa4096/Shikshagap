@@ -9,7 +9,8 @@
     "lint": "eslint",
     "build:embeddings": "node scripts/buildEmbeddings.mjs",
     "check:links": "node scripts/checkLinks.mjs",
-    "test": "node --test tests/security.test.mjs tests/product-audit.test.mjs tests/multi-class.test.mjs tests/staircase.test.mjs tests/examiner-analyst.test.mjs tests/resource-advisor.test.mjs tests/orchestrator.test.mjs tests/hybrid-generator.test.mjs tests/skill-sheet.test.mjs tests/class-numbers-range.test.mjs tests/class3-concepts.test.mjs tests/hybrid-all-concepts.test.mjs tests/blind-solver.test.mjs tests/question-memory.test.mjs"
+    "eval:questions": "node scripts/evalQuestions.mjs",
+    "test": "node --test tests/security.test.mjs tests/product-audit.test.mjs tests/multi-class.test.mjs tests/staircase.test.mjs tests/examiner-analyst.test.mjs tests/resource-advisor.test.mjs tests/orchestrator.test.mjs tests/hybrid-generator.test.mjs tests/skill-sheet.test.mjs tests/class-numbers-range.test.mjs tests/class3-concepts.test.mjs tests/hybrid-all-concepts.test.mjs tests/blind-solver.test.mjs tests/question-memory.test.mjs tests/question-formats.test.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.27.0",
