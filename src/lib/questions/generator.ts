@@ -567,7 +567,7 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
     addBug(bugs, each + 1, "slip", each);
     return {
       format: "word_problem",
-      prompt: T(d === 1 ? "q.dw.pack" : "q.dw.teams", { total, n }),
+      prompt: T("q.dw.autos", { total, capacity: n }),
       answerKind: "int",
       answer: String(each),
       meta: { a: total, b: n, op: "/", bugs },
