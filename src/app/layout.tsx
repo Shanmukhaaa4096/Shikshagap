@@ -37,15 +37,48 @@ const notoTelugu = Noto_Sans_Telugu({
 });
 
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
+import { CookieBanner } from "@/components/CookieBanner";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://shikshagap.vercel.app"),
   title: "ShikshaGap | Find out what each student needs to learn next",
   description:
     "ShikshaGap checks a student's understanding, finds the topics that need more practice and helps teachers plan the next lesson in Indian primary schools.",
   manifest: "/manifest.json",
   icons: {
-    icon: "/icon.svg",
-    apple: "/icon.svg",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  openGraph: {
+    title: "ShikshaGap | Find out what each student needs to learn next",
+    description:
+      "AI agent that assesses students across Classes 3 to 5 and finds their foundational learning gaps.",
+    url: "https://shikshagap.vercel.app",
+    siteName: "ShikshaGap",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ShikshaGap - AI Educational Diagnostic Agent",
+      },
+    ],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ShikshaGap | Find out what each student needs to learn next",
+    description:
+      "AI agent that assesses students across Classes 3 to 5 and finds their foundational learning gaps.",
+    images: ["/og-image.png"],
   },
 };
 
@@ -63,6 +96,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)] font-sans antialiased">
         <ServiceWorkerRegister />
         {children}
+        <CookieBanner />
       </body>
     </html>
   );

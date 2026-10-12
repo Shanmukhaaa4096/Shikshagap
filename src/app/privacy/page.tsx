@@ -134,7 +134,7 @@ export default function PrivacyPage() {
           </p>
           <div className="p-3 bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] text-xs font-mono space-y-1">
             <div>Data Protection &amp; Grievance Officer: ShikshaGap Privacy Cell</div>
-            <div>Email: <a href="mailto:privacy@shikshagap.in" className="underline">privacy@shikshagap.in</a></div>
+            <div>Email: <a href="mailto:contact@shikshagap.in" className="underline">contact@shikshagap.in</a> <span className="text-[#DE2A35] font-bold">[TODO: User email needed - please confirm official email]</span></div>
             <div>Jurisdiction: Hyderabad, Telangana, India</div>
           </div>
           <p className="text-[11px] text-[#432623]/60 dark:text-[#F5F1BC]/60">

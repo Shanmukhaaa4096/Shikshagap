@@ -18,14 +18,20 @@ export default function NotFound() {
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <Link
-            href="/"
-            className="border border-[#432623] dark:border-[#F5F1BC] bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#DE2A35]"
+            href="/app"
+            className="border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#B51E28] transition-colors"
           >
-            Return to Public Home
+            Assess Test (Start Diagnostic)
+          </Link>
+          <Link
+            href="/"
+            className="border border-[#432623] dark:border-[#F5F1BC] bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] px-4 py-2 text-xs font-mono uppercase font-bold hover:bg-[#DE2A35] hover:text-[#FAF8E8] transition-colors"
+          >
+            Return to Home
           </Link>
           <Link
             href="/login"
-            className="border border-[#432623]/30 dark:border-[#F5F1BC]/30 px-4 py-2 text-xs font-mono uppercase hover:bg-[#F5F1BC]"
+            className="border border-[#432623]/30 dark:border-[#F5F1BC]/30 px-4 py-2 text-xs font-mono uppercase hover:bg-[#F5F1BC] dark:hover:bg-[#432623] transition-colors"
           >
             Teacher Login
           </Link>
