@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import {
   validateQuestionWording,
   enhanceQuestionWithHybridWording,
-  extractQuestionOperands,
   checkDailyBudget,
   recordDailyCall,
   resetBudgetAndLimitsForTesting,

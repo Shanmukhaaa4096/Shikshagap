@@ -14,8 +14,7 @@
 
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
-import type { ConceptId, Difficulty, Lang, Question, QuestionMeta } from "../types.ts";
-import { questionSignature } from "./generator.ts";
+import type { ConceptId, Difficulty, Lang, Question } from "../types.ts";
 
 // ---------------------------------------------------------------------------
 // 1. Zod Schema for Structured Output
