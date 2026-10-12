@@ -7,6 +7,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Printer, X } from "@phosphor-icons/react";
 import { generateQuestion } from "@/lib/questions/generator";
 import { makeRng } from "@/lib/rng";
+import { getClassConfig } from "@/lib/curriculum/classes";
 
 interface Props {
   data: DemoStudentData | null;
@@ -21,16 +22,17 @@ export function WorksheetModal({ data, isOpen, onClose }: Props) {
 
   const { student, profile } = data;
   const rootId = profile.rootCauses[0]?.rootId || "mult_facts";
+  const studentGrade = student.classroomId ? getClassConfig(student.classroomId).grade : 5;
 
   // Generate 6 deterministic practice items for this student's root cause
   const rng = makeRng(12345 + student.rollNo);
   const questions = [
-    generateQuestion(rootId, 1, rng),
-    generateQuestion(rootId, 1, rng),
-    generateQuestion(rootId, 2, rng),
-    generateQuestion(rootId, 2, rng),
-    generateQuestion(rootId, 2, rng),
-    generateQuestion(rootId, 3, rng),
+    generateQuestion(rootId, 1, rng, studentGrade),
+    generateQuestion(rootId, 1, rng, studentGrade),
+    generateQuestion(rootId, 2, rng, studentGrade),
+    generateQuestion(rootId, 2, rng, studentGrade),
+    generateQuestion(rootId, 2, rng, studentGrade),
+    generateQuestion(rootId, 3, rng, studentGrade),
   ];
 
   const handlePrint = () => {

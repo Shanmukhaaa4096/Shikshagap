@@ -16,6 +16,7 @@ import type {
 } from "../types.ts";
 import type { TKey } from "../i18n/keys.ts";
 import { gcd, pick, randInt, shuffle, uid, type Rng } from "../rng.ts";
+import { getSkillRange } from "../../data/skillSheet.ts";
 
 const T = (key: TKey, params?: Record<string, string | number>): Txt => ({ key, params });
 const R = (raw: string | number): Txt => ({ raw: String(raw) });
@@ -55,6 +56,7 @@ function addBug(bugs: Record<string, ErrorType>, value: number | string, e: Erro
 }
 
 const digits = (n: number) => String(n).split("").map(Number);
+
 /** column addition that forgets to carry */
 function noCarryAdd(a: number, b: number): number {
   const da = digits(a).reverse();
@@ -63,6 +65,7 @@ function noCarryAdd(a: number, b: number): number {
   for (let i = 0; i < Math.max(da.length, db.length); i++) out += (((da[i] ?? 0) + (db[i] ?? 0)) % 10) * 10 ** i;
   return out;
 }
+
 /** classic "subtract smaller digit from larger" bug */
 function smallerFromLarger(a: number, b: number): number {
   const da = digits(a).reverse();
@@ -71,6 +74,7 @@ function smallerFromLarger(a: number, b: number): number {
   for (let i = 0; i < da.length; i++) out += Math.abs((da[i] ?? 0) - (db[i] ?? 0)) * 10 ** i;
   return out;
 }
+
 /** multiplication that forgets to carry: each digit product mod 10 */
 function noCarryMult(a: number, m: number): number {
   const da = digits(a).reverse();
@@ -78,10 +82,12 @@ function noCarryMult(a: number, m: number): number {
   for (let i = 0; i < da.length; i++) out += ((da[i] * m) % 10) * 10 ** i;
   return out;
 }
+
 /** digit-by-digit division that drops remainders */
 function digitwiseDivide(a: number, m: number): number {
   return Number(digits(a).map((d) => Math.floor(d / m)).join("")) || 0;
 }
+
 const frac = (n: number, d: number) => `${n}/${d}`;
 const simplify = (n: number, d: number) => {
   const g = gcd(n, d);
@@ -92,135 +98,223 @@ const simplify = (n: number, d: number) => {
 /* Concept generators                                                 */
 /* ------------------------------------------------------------------ */
 
-const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext) => Base> = {
-  number_sense(d, rng) {
+const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: number) => Base> = {
+  number_sense(d, rng, _ctx, grade) {
+    const range = getSkillRange("number_sense", grade, d);
     if (d === 1) {
-      const x = randInt(rng, 2, 9);
-      let y = randInt(rng, 1, 9);
-      if (y === x) y = x === 9 ? 8 : x + 1;
-      const a = x * 10 + y;
-      const b = y * 10 + x;
+      const a = randInt(rng, range.min, range.max);
+      let b = randInt(rng, range.min, range.max);
+      if (b === a) b = b < range.max ? b + 1 : b - 1;
       const ans = Math.max(a, b);
       return {
-        format: "mcq", prompt: T("q.ns.bigger"), answerKind: "choice", answer: String(ans),
-        options: shuffle(rng, [a, b].map((v, i) => ({ id: `o${i}`, label: R(v), value: String(v), errorType: v === ans ? undefined : ("place_value" as ErrorType) }))),
-        meta: { a, b }, hint: T("hint.number_sense"),
+        format: "mcq",
+        prompt: T("q.ns.bigger"),
+        answerKind: "choice",
+        answer: String(ans),
+        options: shuffle(
+          rng,
+          [a, b].map((v, i) => ({
+            id: `o${i}`,
+            label: R(v),
+            value: String(v),
+            errorType: v === ans ? undefined : ("place_value" as ErrorType),
+          }))
+        ),
+        meta: { a, b },
+        hint: T("hint.number_sense"),
       };
     }
     if (d === 2) {
-      const [p, q] = shuffle(rng, [1, 2, 3, 4, 5, 6, 7, 8, 9]).slice(0, 2);
-      const nums = [p * 100 + q * 10, p * 100 + q, q * 100 + p * 10, q * 100 + p];
+      const span = range.max - range.min;
+      const q1 = range.min + Math.max(1, Math.floor(span * 0.15));
+      const q2 = range.min + Math.max(2, Math.floor(span * 0.45));
+      const q3 = range.min + Math.max(3, Math.floor(span * 0.75));
+      const q4 = range.max;
+      const nums = shuffle(rng, [q1, q2, q3, q4]);
       const ans = Math.max(...nums);
       return {
-        format: "mcq", prompt: T("q.ns.largest"), answerKind: "choice", answer: String(ans),
-        options: shuffle(rng, nums.map((v, i) => ({ id: `o${i}`, label: R(v), value: String(v), errorType: v === ans ? undefined : ("place_value" as ErrorType) }))),
-        meta: {}, hint: T("hint.number_sense"),
+        format: "mcq",
+        prompt: T("q.ns.largest"),
+        answerKind: "choice",
+        answer: String(ans),
+        options: shuffle(
+          rng,
+          nums.map((v, i) => ({
+            id: `o${i}`,
+            label: R(v),
+            value: String(v),
+            errorType: v === ans ? undefined : ("place_value" as ErrorType),
+          }))
+        ),
+        meta: { a: nums[0], b: nums[1] },
+        hint: T("hint.number_sense"),
       };
     }
-    const n = pick(rng, [399, 509, 699, 1099, 799, 2999, 4099]);
+    const n = randInt(rng, range.min, Math.max(range.min + 1, range.max - 1));
     const ans = n + 1;
     const bugs: Record<string, ErrorType> = {};
     addBug(bugs, Number(String(n).slice(0, -1) + String((n % 10) + 1)), "place_value", ans);
     addBug(bugs, n + 10, "place_value", ans);
     addBug(bugs, n - 1, "slip", ans);
-    return { format: "short_answer", prompt: T("q.ns.after", { n }), answerKind: "int", answer: String(ans), meta: { a: n, bugs }, hint: T("hint.number_sense") };
+    return {
+      format: "short_answer",
+      prompt: T("q.ns.after", { n }),
+      answerKind: "int",
+      answer: String(ans),
+      meta: { a: n, bugs },
+      hint: T("hint.number_sense"),
+    };
   },
 
-  place_value(d, rng) {
+  place_value(d, rng, _ctx, grade) {
+    const range = getSkillRange("place_value", grade, d);
     if (d === 1) {
-      const t = randInt(rng, 2, 9);
-      let o = randInt(rng, 1, 9);
-      if (o === t) o = t === 9 ? 1 : t + 1;
-      const n = t * 10 + o;
+      const n = randInt(rng, range.min, range.max);
+      const digitArr = digits(n);
+      const tensIdx = digitArr.length >= 2 ? digitArr.length - 2 : 0;
+      const t = digitArr[tensIdx] || 1;
       const ans = t * 10;
       const bugs: Record<string, ErrorType> = {};
       addBug(bugs, t, "place_value", ans);
       addBug(bugs, t * 100, "place_value", ans);
-      addBug(bugs, o, "place_value", ans);
+      addBug(bugs, digitArr[digitArr.length - 1] ?? 0, "place_value", ans);
       return {
-        format: "mcq", prompt: T("q.pv.value", { digit: t, n }), answerKind: "choice", answer: String(ans),
-        options: numericOptions(rng, ans, bugs), visual: { kind: "place_value", value: n }, meta: { a: n, bugs }, hint: T("hint.place_value"),
+        format: "mcq",
+        prompt: T("q.pv.value", { digit: t, n }),
+        answerKind: "choice",
+        answer: String(ans),
+        options: numericOptions(rng, ans, bugs),
+        visual: { kind: "place_value", value: n },
+        meta: { a: n, bugs },
+        hint: T("hint.place_value"),
       };
     }
     if (d === 2) {
-      const [h, t, o] = shuffle(rng, [1, 2, 3, 4, 5, 6, 7, 8, 9]).slice(0, 3);
-      const n = h * 100 + t * 10 + o;
-      const askH = rng() < 0.5;
-      const digit = askH ? h : t;
-      const ans = askH ? h * 100 : t * 10;
+      const n = randInt(rng, range.min, range.max);
+      const digitArr = digits(n);
+      const askH = digitArr.length >= 3 && rng() < 0.5;
+      const idx = askH ? digitArr.length - 3 : Math.max(0, digitArr.length - 2);
+      const digit = digitArr[idx] || 1;
+      const placeMultiplier = 10 ** (digitArr.length - 1 - idx);
+      const ans = digit * placeMultiplier;
       const bugs: Record<string, ErrorType> = {};
       addBug(bugs, digit, "place_value", ans);
-      addBug(bugs, askH ? h * 10 : t * 100, "place_value", ans);
-      return { format: "short_answer", prompt: T("q.pv.value", { digit, n }), answerKind: "int", answer: String(ans), meta: { a: n, bugs }, hint: T("hint.place_value") };
+      addBug(bugs, askH ? digit * 10 : digit * 100, "place_value", ans);
+      return {
+        format: "short_answer",
+        prompt: T("q.pv.value", { digit, n }),
+        answerKind: "int",
+        answer: String(ans),
+        meta: { a: n, bugs },
+        hint: T("hint.place_value"),
+      };
     }
-    const th = randInt(rng, 1, 9);
-    const zeroH = rng() < 0.5;
-    const h = zeroH ? 0 : randInt(rng, 1, 9);
-    const t = zeroH ? randInt(rng, 1, 9) : 0;
-    const o = randInt(rng, 1, 9);
-    const ans = th * 1000 + h * 100 + t * 10 + o;
+    const n = randInt(rng, range.min, range.max);
+    const th = Math.floor(n / 1000);
+    const remTh = n % 1000;
+    const h = Math.floor(remTh / 100);
+    const remH = remTh % 100;
+    const t = Math.floor(remH / 10);
+    const o = remH % 10;
+    const ans = n;
     const bugs: Record<string, ErrorType> = {};
     addBug(bugs, Number([th, h, t, o].filter((x) => x !== 0).join("")), "place_value", ans);
     return {
-      format: "fill_blank", prompt: T("q.pv.expanded", { th, h, t, o }), answerKind: "int", answer: String(ans), meta: { bugs }, hint: T("hint.place_value"),
+      format: "fill_blank",
+      prompt: T("q.pv.expanded", { th, h, t, o }),
+      answerKind: "int",
+      answer: String(ans),
+      meta: { a: ans, bugs },
+      hint: T("hint.place_value"),
     };
   },
 
-  addition(d, rng) {
-    let a: number, b: number;
-    if (d === 1) {
-      a = randInt(rng, 1, 5) * 10 + randInt(rng, 0, 4);
-      b = randInt(rng, 1, 4) * 10 + randInt(rng, 0, 5);
-    } else if (d === 2) {
-      a = randInt(rng, 1, 5) * 10 + randInt(rng, 5, 9);
-      b = randInt(rng, 1, 3) * 10 + randInt(rng, 5, 9);
-    } else {
-      a = randInt(rng, 120, 480);
-      b = randInt(rng, 115, 470);
-      if ((a % 10) + (b % 10) < 10) b += 10 - (b % 10) + 6 - (a % 10 > 4 ? 0 : 0);
-    }
+  addition(d, rng, _ctx, grade) {
+    const range = getSkillRange("addition", grade, d);
+    const a = randInt(rng, range.min, range.max);
+    const bMin = range.operandBMin ?? Math.max(10, Math.floor(range.min * 0.8));
+    const bMax = range.operandBMax ?? range.max;
+    const b = randInt(rng, bMin, bMax);
     const ans = a + b;
     const bugs: Record<string, ErrorType> = {};
     addBug(bugs, noCarryAdd(a, b), "regrouping", ans);
     addBug(bugs, Math.abs(a - b), "wrong_operation", ans);
     const meta: QuestionMeta = { a, b, op: "+", bugs };
-    if (d === 3) return { format: "word_problem", prompt: T("q.add.word", { a, b }), answerKind: "int", answer: String(ans), meta, hint: T("hint.addition") };
-    return { format: "short_answer", prompt: T("q.solve"), expression: `${a} + ${b} = ?`, answerKind: "int", answer: String(ans), meta, hint: T("hint.addition") };
+    if (d === 3) {
+      return {
+        format: "word_problem",
+        prompt: T("q.add.word", { a, b }),
+        answerKind: "int",
+        answer: String(ans),
+        meta,
+        hint: T("hint.addition"),
+      };
+    }
+    return {
+      format: "short_answer",
+      prompt: T("q.solve"),
+      expression: `${a} + ${b} = ?`,
+      answerKind: "int",
+      answer: String(ans),
+      meta,
+      hint: T("hint.addition"),
+    };
   },
 
-  subtraction(d, rng) {
-    let a: number, b: number;
-    if (d === 1) {
-      a = randInt(rng, 5, 9) * 10 + randInt(rng, 5, 9);
-      b = randInt(rng, 1, 4) * 10 + randInt(rng, 0, 4);
-    } else if (d === 2) {
-      a = randInt(rng, 5, 9) * 10 + randInt(rng, 0, 4);
-      b = randInt(rng, 1, 4) * 10 + randInt(rng, 5, 9);
-    } else {
-      a = randInt(rng, 3, 9) * 100 + randInt(rng, 0, 3);
-      b = randInt(rng, 1, 2) * 100 + randInt(rng, 4, 8) * 10 + randInt(rng, 5, 9);
-    }
+  subtraction(d, rng, _ctx, grade) {
+    const range = getSkillRange("subtraction", grade, d);
+    const a = randInt(rng, range.min, range.max);
+    const bMin = range.operandBMin ?? Math.max(5, Math.floor(range.min * 0.4));
+    const bMaxAllowed = range.operandBMax ?? Math.floor(range.max * 0.8);
+    const bMax = Math.min(a - 1, bMaxAllowed);
+    const b = randInt(rng, Math.min(bMin, bMax), bMax);
     const ans = a - b;
     const bugs: Record<string, ErrorType> = {};
     addBug(bugs, smallerFromLarger(a, b), "regrouping", ans);
     addBug(bugs, a + b, "wrong_operation", ans);
     const meta: QuestionMeta = { a, b, op: "-", bugs };
-    if (d === 3) return { format: "word_problem", prompt: T("q.sub.word", { a, b }), answerKind: "int", answer: String(ans), meta, hint: T("hint.subtraction") };
-    return { format: "short_answer", prompt: T("q.solve"), expression: `${a} − ${b} = ?`, answerKind: "int", answer: String(ans), meta, hint: T("hint.subtraction") };
+    if (d === 3) {
+      return {
+        format: "word_problem",
+        prompt: T("q.sub.word", { a, b }),
+        answerKind: "int",
+        answer: String(ans),
+        meta,
+        hint: T("hint.subtraction"),
+      };
+    }
+    return {
+      format: "short_answer",
+      prompt: T("q.solve"),
+      expression: `${a} − ${b} = ?`,
+      answerKind: "int",
+      answer: String(ans),
+      meta,
+      hint: T("hint.subtraction"),
+    };
   },
 
-  mult_concept(d, rng) {
+  mult_concept(d, rng, _ctx, grade) {
+    const range = getSkillRange("mult_concept", grade, d);
     if (d === 1) {
-      const rows = randInt(rng, 2, 4);
-      const cols = randInt(rng, 3, 6);
+      const rows = randInt(rng, range.min, range.max);
+      const cols = randInt(rng, range.operandBMin ?? 2, range.operandBMax ?? 6);
       const ans = rows * cols;
       const bugs: Record<string, ErrorType> = {};
       addBug(bugs, rows + cols, "wrong_operation", ans);
-      return { format: "short_answer", prompt: T("q.mc.array", { rows, cols }), answerKind: "int", answer: String(ans), visual: { kind: "array", rows, cols }, meta: { a: rows, b: cols, op: "x", bugs }, hint: T("hint.mult_concept", { a: rows, b: cols }) };
+      return {
+        format: "short_answer",
+        prompt: T("q.mc.array", { rows, cols }),
+        answerKind: "int",
+        answer: String(ans),
+        visual: { kind: "array", rows, cols },
+        meta: { a: rows, b: cols, op: "x", bugs },
+        hint: T("hint.mult_concept", { a: rows, b: cols }),
+      };
     }
     if (d === 2) {
-      const n = randInt(rng, 3, 5);
-      const v = randInt(rng, 3, 8);
+      const n = randInt(rng, range.min, range.max);
+      const v = randInt(rng, range.operandBMin ?? 2, range.operandBMax ?? 7);
       const expr = Array(n).fill(v).join(" + ");
       const options: Option[] = shuffle(rng, [
         { id: "o0", label: R(`${n} × ${v}`), value: `${n}x${v}` },
@@ -228,186 +322,263 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext) => Base>
         { id: "o2", label: R(`${v} × ${v}`), value: `${v}x${v}`, errorType: "unclassified" as ErrorType },
         { id: "o3", label: R(`${n} − ${v}`), value: `${n}-${v}`, errorType: "wrong_operation" as ErrorType },
       ]);
-      return { format: "mcq", prompt: T("q.mc.repeated"), expression: expr, answerKind: "choice", answer: `${n}x${v}`, options, meta: { a: n, b: v }, hint: T("hint.mult_concept", { a: n, b: v }) };
+      return {
+        format: "mcq",
+        prompt: T("q.mc.repeated"),
+        expression: expr,
+        answerKind: "choice",
+        answer: `${n}x${v}`,
+        options,
+        meta: { a: n, b: v },
+        hint: T("hint.mult_concept", { a: n, b: v }),
+      };
     }
-    const g = randInt(rng, 4, 7);
-    const e = randInt(rng, 3, 8);
+    const g = randInt(rng, range.min, range.max);
+    const e = randInt(rng, range.operandBMin ?? 3, range.operandBMax ?? 8);
     const ans = g * e;
     const bugs: Record<string, ErrorType> = {};
     addBug(bugs, g + e, "wrong_operation", ans);
-    return { format: "word_problem", prompt: T("q.mc.groups", { g, e }), answerKind: "int", answer: String(ans), meta: { a: g, b: e, op: "x", bugs }, hint: T("hint.mult_concept", { a: g, b: e }) };
+    return {
+      format: "word_problem",
+      prompt: T("q.mc.groups", { g, e }),
+      answerKind: "int",
+      answer: String(ans),
+      meta: { a: g, b: e, op: "x", bugs },
+      hint: T("hint.mult_concept", { a: g, b: e }),
+    };
   },
 
-  mult_facts(d, rng, ctx) {
+  mult_facts(d, rng, ctx, grade) {
+    const range = getSkillRange("mult_facts", grade, d);
     const link = ctx.link?.meta;
-    // Linked probe: the student failed "36 ÷ 6" → ask "6 × ? = 36" with the same numbers.
     if (d === 2 && link?.op === "/" && link.a && link.b && link.a % link.b === 0) {
       const ans = link.a / link.b;
       const bugs: Record<string, ErrorType> = {};
       addBug(bugs, link.a - link.b, "wrong_operation", ans);
       addBug(bugs, ans + 1, "slip", ans);
       addBug(bugs, ans - 1, "slip", ans);
-      return { format: "fill_blank", prompt: T("q.fill"), expression: `${link.b} × ? = ${link.a}`, answerKind: "int", answer: String(ans), meta: { a: link.b, b: ans, op: "x", bugs, focus: link.b }, hint: T("hint.mult_facts", { a: link.b, b: ans }) };
+      return {
+        format: "fill_blank",
+        prompt: T("q.fill"),
+        expression: `${link.b} × ? = ${link.a}`,
+        answerKind: "int",
+        answer: String(ans),
+        meta: { a: link.b, b: ans, op: "x", bugs, focus: link.b },
+        hint: T("hint.mult_facts", { a: link.b, b: ans }),
+      };
     }
-    let a: number, b: number;
-    const focus = ctx.focus ?? link?.focus;
-    if (d === 1) {
-      a = focus && focus <= 10 ? focus : randInt(rng, 3, 9);
-      b = pick(rng, [2, 5, 10]);
-      if (a === b) b = b === 5 ? 2 : 5;
-    } else if (d === 2) {
-      a = focus && focus >= 3 ? focus : randInt(rng, 6, 9);
-      b = randInt(rng, 6, 9);
-    } else {
-      const x = randInt(rng, 6, 9);
-      const y = randInt(rng, 4, 9);
-      const ans = y;
+    const a = randInt(rng, range.min, range.max);
+    const b = randInt(rng, range.operandBMin ?? 2, range.operandBMax ?? 10);
+    if (d === 3) {
+      const ans = b;
       const bugs: Record<string, ErrorType> = {};
-      addBug(bugs, x * y - x, "wrong_operation", ans);
-      addBug(bugs, y + 1, "slip", ans);
-      addBug(bugs, y - 1, "slip", ans);
-      return { format: "fill_blank", prompt: T("q.fill"), expression: `${x} × ? = ${x * y}`, answerKind: "int", answer: String(ans), meta: { a: x, b: y, op: "x", bugs, focus: x }, hint: T("hint.mult_facts", { a: x, b: y }) };
+      addBug(bugs, a * b - a, "wrong_operation", ans);
+      addBug(bugs, b + 1, "slip", ans);
+      addBug(bugs, b - 1, "slip", ans);
+      return {
+        format: "fill_blank",
+        prompt: T("q.fill"),
+        expression: `${a} × ? = ${a * b}`,
+        answerKind: "int",
+        answer: String(ans),
+        meta: { a, b, op: "x", bugs, focus: a },
+        hint: T("hint.mult_facts", { a, b }),
+      };
     }
     const ans = a * b;
     const bugs: Record<string, ErrorType> = {};
     addBug(bugs, a + b, "wrong_operation", ans);
     addBug(bugs, a * (b + 1), "slip", ans);
     addBug(bugs, a * (b - 1), "slip", ans);
-    return { format: "short_answer", prompt: T("q.solve"), expression: `${a} × ${b} = ?`, answerKind: "int", answer: String(ans), meta: { a, b, op: "x", bugs, focus: a }, hint: T("hint.mult_facts", { a, b }) };
+    return {
+      format: "short_answer",
+      prompt: T("q.solve"),
+      expression: `${a} × ${b} = ?`,
+      answerKind: "int",
+      answer: String(ans),
+      meta: { a, b, op: "x", bugs, focus: a },
+      hint: T("hint.mult_facts", { a, b }),
+    };
   },
 
-  multi_digit_mult(d, rng) {
-    let a: number, m: number;
-    if (d === 1) {
-      m = randInt(rng, 2, 3);
-      a = randInt(rng, 1, Math.floor(9 / m)) * 10 + randInt(rng, 1, Math.floor(9 / m));
-    } else if (d === 2) {
-      m = randInt(rng, 3, 7);
-      a = randInt(rng, 1, 4) * 10 + randInt(rng, Math.ceil(10 / m), 9);
-    } else {
-      a = randInt(rng, 12, 25);
-      m = randInt(rng, 11, 15);
-      const ans = a * m;
-      const bugs: Record<string, ErrorType> = {};
-      addBug(bugs, a * (m % 10), "place_value", ans);
-      addBug(bugs, a * (m % 10) + a, "place_value", ans);
-      addBug(bugs, a + m, "wrong_operation", ans);
-      return { format: "word_problem", prompt: T("q.mdm.word", { a, b: m }), answerKind: "int", answer: String(ans), meta: { a, b: m, op: "x", bugs }, hint: T("hint.multi_digit_mult", { a, b: m }) };
-    }
+  multi_digit_mult(d, rng, _ctx, grade) {
+    const range = getSkillRange("multi_digit_mult", grade, d);
+    const a = randInt(rng, range.min, range.max);
+    const m = randInt(rng, range.operandBMin ?? 2, range.operandBMax ?? 15);
     const ans = a * m;
     const bugs: Record<string, ErrorType> = {};
     addBug(bugs, noCarryMult(a, m), "regrouping", ans);
     addBug(bugs, a + m, "wrong_operation", ans);
-    return { format: "short_answer", prompt: T("q.solve"), expression: `${a} × ${m} = ?`, answerKind: "int", answer: String(ans), meta: { a, b: m, op: "x", bugs }, hint: T("hint.multi_digit_mult", { a, b: m }) };
+    const meta: QuestionMeta = { a, b: m, op: "x", bugs };
+    if (d === 3) {
+      return {
+        format: "word_problem",
+        prompt: T("q.mdm.word", { a, b: m }),
+        answerKind: "int",
+        answer: String(ans),
+        meta,
+        hint: T("hint.multi_digit_mult", { a, b: m }),
+      };
+    }
+    return {
+      format: "short_answer",
+      prompt: T("q.solve"),
+      expression: `${a} × ${m} = ?`,
+      answerKind: "int",
+      answer: String(ans),
+      meta,
+      hint: T("hint.multi_digit_mult", { a, b: m }),
+    };
   },
 
-  division_concept(d, rng) {
+  division_concept(d, rng, _ctx, grade) {
+    const range = getSkillRange("division_concept", grade, d);
+    const n = randInt(rng, range.operandBMin ?? 2, range.operandBMax ?? 6);
+    const minEach = Math.max(2, Math.ceil(range.min / n));
+    const maxEach = Math.max(minEach, Math.floor(range.max / n));
+    const each = randInt(rng, minEach, maxEach);
+    const total = n * each;
+    const bugs: Record<string, ErrorType> = {};
+    addBug(bugs, total - n, "wrong_operation", each);
+    addBug(bugs, total + n, "wrong_operation", each);
     if (d === 1) {
-      const n = randInt(rng, 2, 4);
-      const each = randInt(rng, 2, 5);
-      const total = n * each;
-      const bugs: Record<string, ErrorType> = {};
-      addBug(bugs, total - n, "wrong_operation", each);
-      addBug(bugs, total + n, "wrong_operation", each);
-      return { format: "short_answer", prompt: T("q.dc.share", { total, n }), answerKind: "int", answer: String(each), visual: { kind: "groups", groups: n, each, total }, meta: { a: total, b: n, op: "/", bugs }, hint: T("hint.division_concept", { a: total, b: n }) };
+      return {
+        format: "short_answer",
+        prompt: T("q.dc.share", { total, n }),
+        answerKind: "int",
+        answer: String(each),
+        visual: { kind: "groups", groups: n, each, total },
+        meta: { a: total, b: n, op: "/", bugs },
+        hint: T("hint.division_concept", { a: total, b: n }),
+      };
     }
     if (d === 2) {
-      const n = randInt(rng, 2, 5);
-      const g = randInt(rng, 3, 6);
-      const total = n * g;
-      const bugs: Record<string, ErrorType> = {};
-      addBug(bugs, total - n, "wrong_operation", g);
-      addBug(bugs, total * n, "wrong_operation", g);
-      return { format: "word_problem", prompt: T("q.dc.groups", { total, n }), answerKind: "int", answer: String(g), meta: { a: total, b: n, op: "/", bugs }, hint: T("hint.division_concept", { a: total, b: n }) };
+      return {
+        format: "word_problem",
+        prompt: T("q.dc.groups", { total, n }),
+        answerKind: "int",
+        answer: String(each),
+        meta: { a: total, b: n, op: "/", bugs },
+        hint: T("hint.division_concept", { a: total, b: n }),
+      };
     }
-    const n = randInt(rng, 3, 6);
-    const total = n * randInt(rng, 3, 6);
     const options: Option[] = shuffle(rng, [
       { id: "o0", label: T("opt.dc.share", { total, n }), value: "share" },
       { id: "o1", label: T("opt.dc.add", { total, n }), value: "add", errorType: "wrong_operation" as ErrorType },
       { id: "o2", label: T("opt.dc.subtract", { total, n }), value: "subtract", errorType: "wrong_operation" as ErrorType },
       { id: "o3", label: T("opt.dc.multiply", { total, n }), value: "multiply", errorType: "wrong_operation" as ErrorType },
     ]);
-    return { format: "mcq", prompt: T("q.dc.meaning"), expression: `${total} ÷ ${n}`, answerKind: "choice", answer: "share", options, meta: { a: total, b: n }, hint: T("hint.division_concept", { a: total, b: n }) };
+    return {
+      format: "mcq",
+      prompt: T("q.dc.meaning"),
+      expression: `${total} ÷ ${n}`,
+      answerKind: "choice",
+      answer: "share",
+      options,
+      meta: { a: total, b: n },
+      hint: T("hint.division_concept", { a: total, b: n }),
+    };
   },
 
-  division_facts(d, rng) {
-    if (d === 3) {
-      const b = randInt(rng, 3, 9);
-      const q = randInt(rng, 4, 9);
-      const ans = b * q;
-      const bugs: Record<string, ErrorType> = {};
-      addBug(bugs, b + q, "wrong_operation", ans);
-      addBug(bugs, ans + b, "slip", ans);
-      addBug(bugs, ans - b, "slip", ans);
-      return { format: "fill_blank", prompt: T("q.fill"), expression: `? ÷ ${b} = ${q}`, answerKind: "int", answer: String(ans), meta: { a: ans, b, op: "/", bugs }, hint: T("hint.division_facts", { a: ans, b }) };
-    }
-    const b = d === 1 ? pick(rng, [2, 5, 10]) : randInt(rng, 6, 9);
-    const q = d === 1 ? randInt(rng, 2, 9) : randInt(rng, 4, 9);
+  division_facts(d, rng, _ctx, grade) {
+    const range = getSkillRange("division_facts", grade, d);
+    const b = randInt(rng, range.operandBMin ?? 2, range.operandBMax ?? 9);
+    const minQ = Math.max(2, Math.ceil(range.min / b));
+    const maxQ = Math.max(minQ, Math.floor(range.max / b));
+    const q = randInt(rng, minQ, maxQ);
     const a = b * q;
     const bugs: Record<string, ErrorType> = {};
     addBug(bugs, a - b, "wrong_operation", q);
     addBug(bugs, a + b, "wrong_operation", q);
     addBug(bugs, q + 1, "slip", q);
     addBug(bugs, q - 1, "slip", q);
-    return { format: "short_answer", prompt: T("q.solve"), expression: `${a} ÷ ${b} = ?`, answerKind: "int", answer: String(q), meta: { a, b, op: "/", bugs }, hint: T("hint.division_facts", { a, b }) };
+    if (d === 3) {
+      return {
+        format: "fill_blank",
+        prompt: T("q.fill"),
+        expression: `? ÷ ${b} = ${q}`,
+        answerKind: "int",
+        answer: String(a),
+        meta: { a, b, op: "/", bugs },
+        hint: T("hint.division_facts", { a, b }),
+      };
+    }
+    return {
+      format: "short_answer",
+      prompt: T("q.solve"),
+      expression: `${a} ÷ ${b} = ?`,
+      answerKind: "int",
+      answer: String(q),
+      meta: { a, b, op: "/", bugs },
+      hint: T("hint.division_facts", { a, b }),
+    };
   },
 
-  long_division(d, rng) {
+  long_division(d, rng, _ctx, grade) {
+    const range = getSkillRange("long_division", grade, d);
+    const m = randInt(rng, range.operandBMin ?? 2, range.operandBMax ?? 12);
     if (d === 3) {
-      const b = randInt(rng, 3, 7);
-      const q = randInt(rng, 5, 12);
-      const r = randInt(rng, 1, b - 1);
-      const a = b * q + r;
+      const minQ = Math.max(4, Math.ceil(range.min / m));
+      const maxQ = Math.max(minQ, Math.floor((range.max - (m - 1)) / m));
+      const q = randInt(rng, minQ, maxQ);
+      const r = randInt(rng, 1, m - 1);
+      const a = m * q + r;
       const bugs: Record<string, ErrorType> = {};
       addBug(bugs, q, "remainder", r);
       addBug(bugs, r + 1, "slip", r);
-      return { format: "short_answer", prompt: T("q.ld.remainder", { a, b }), answerKind: "int", answer: String(r), meta: { a, b, op: "/", bugs }, hint: T("hint.long_division", { a, b }) };
+      return {
+        format: "short_answer",
+        prompt: T("q.ld.remainder", { a, b: m }),
+        answerKind: "int",
+        answer: String(r),
+        meta: { a, b: m, op: "/", bugs },
+        hint: T("hint.long_division", { a, b: m }),
+      };
     }
-    let a: number, m: number, q: number;
-    if (d === 1) {
-      m = randInt(rng, 2, 4);
-      q = randInt(rng, 1, Math.floor(9 / m)) * 10 + randInt(rng, 1, Math.floor(9 / m));
-      a = q * m;
-    } else {
-      m = randInt(rng, 3, 6);
-      let guard = 0;
-      do {
-        q = randInt(rng, 12, 39);
-        a = q * m;
-      } while (Math.floor(a / 10) % m === 0 && guard++ < 20);
-    }
+    const minQ = Math.max(5, Math.ceil(range.min / m));
+    const maxQ = Math.max(minQ, Math.floor(range.max / m));
+    const q = randInt(rng, minQ, maxQ);
+    const a = q * m;
     const bugs: Record<string, ErrorType> = {};
     addBug(bugs, digitwiseDivide(a, m), "regrouping", q);
     addBug(bugs, a - m, "wrong_operation", q);
     addBug(bugs, q + 1, "slip", q);
-    return { format: "short_answer", prompt: T("q.solve"), expression: `${a} ÷ ${m} = ?`, answerKind: "int", answer: String(q), meta: { a, b: m, op: "/", bugs }, hint: T("hint.long_division", { a, b: m }) };
+    return {
+      format: "short_answer",
+      prompt: T("q.solve"),
+      expression: `${a} ÷ ${m} = ?`,
+      answerKind: "int",
+      answer: String(q),
+      meta: { a, b: m, op: "/", bugs },
+      hint: T("hint.long_division", { a, b: m }),
+    };
   },
 
-  division_word(d, rng) {
-    if (d === 3) {
-      const n = randInt(rng, 3, 6);
-      const total = n * randInt(rng, 4, 8) + randInt(rng, 1, n - 1);
-      const ans = Math.ceil(total / n);
-      const bugs: Record<string, ErrorType> = {};
-      addBug(bugs, Math.floor(total / n), "remainder", ans);
-      addBug(bugs, total - n, "wrong_operation", ans);
-      return { format: "word_problem", prompt: T("q.dw.autos", { total, n }), answerKind: "int", answer: String(ans), meta: { a: total, b: n, op: "/", bugs }, hint: T("hint.division_word") };
-    }
-    const n = d === 1 ? pick(rng, [2, 5, 10]) : randInt(rng, 6, 9);
-    const each = d === 1 ? randInt(rng, 3, 9) : randInt(rng, 4, 9);
+  division_word(d, rng, _ctx, grade) {
+    const range = getSkillRange("division_word", grade, d);
+    const n = randInt(rng, range.operandBMin ?? 2, range.operandBMax ?? 10);
+    const minEach = Math.max(2, Math.ceil(range.min / n));
+    const maxEach = Math.max(minEach, Math.floor(range.max / n));
+    const each = randInt(rng, minEach, maxEach);
     const total = n * each;
     const bugs: Record<string, ErrorType> = {};
     addBug(bugs, total - n, "wrong_operation", each);
     addBug(bugs, total + n, "wrong_operation", each);
-    addBug(bugs, total * n, "wrong_operation", each);
     addBug(bugs, each + 1, "slip", each);
-    return { format: "word_problem", prompt: T(d === 1 ? "q.dw.pack" : "q.dw.teams", { total, n }), answerKind: "int", answer: String(each), meta: { a: total, b: n, op: "/", bugs }, hint: T("hint.division_word") };
+    return {
+      format: "word_problem",
+      prompt: T(d === 1 ? "q.dw.pack" : "q.dw.teams", { total, n }),
+      answerKind: "int",
+      answer: String(each),
+      meta: { a: total, b: n, op: "/", bugs },
+      hint: T("hint.division_word"),
+    };
   },
 
-  fraction_basics(d, rng) {
+  fraction_basics(d, rng, _ctx, grade) {
+    const range = getSkillRange("fraction_basics", grade, d);
     if (d === 1) {
-      const den = randInt(rng, 3, 8);
+      const den = randInt(rng, Math.max(2, range.min), Math.max(3, range.max));
       let num = randInt(rng, 1, den - 1);
       if (num * 2 === den) num = Math.max(1, num - 1);
       const options: Option[] = shuffle(rng, [
@@ -416,27 +587,54 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext) => Base>
         { id: "o2", label: R(frac(den, num)), value: frac(den, num), errorType: "fraction_inverted" as ErrorType },
         { id: "o3", label: R(frac(num, den - num)), value: frac(num, den - num), errorType: "unclassified" as ErrorType },
       ]);
-      return { format: "mcq", prompt: T("q.fb.shaded"), answerKind: "choice", answer: frac(num, den), options, visual: { kind: "fraction_bar", num, den }, meta: { a: num, b: den }, hint: T("hint.fraction_basics") };
+      return {
+        format: "mcq",
+        prompt: T("q.fb.shaded"),
+        answerKind: "choice",
+        answer: frac(num, den),
+        options,
+        visual: { kind: "fraction_bar", num, den },
+        meta: { a: num, b: den },
+        hint: T("hint.fraction_basics"),
+      };
     }
     if (d === 2) {
-      const den = randInt(rng, 5, 9);
-      const num = randInt(rng, 2, den - 2);
+      const den = randInt(rng, Math.max(3, range.min), Math.max(4, range.max));
+      const num = randInt(rng, 1, den - 1);
       const bugs: Record<string, ErrorType> = {};
       addBug(bugs, num, "fraction_inverted", den);
       addBug(bugs, num + den, "unclassified", den);
-      return { format: "mcq", prompt: T("q.fb.denominator", { f: frac(num, den) }), answerKind: "choice", answer: String(den), options: numericOptions(rng, den, bugs), meta: { a: num, b: den, bugs }, hint: T("hint.fraction_basics") };
+      return {
+        format: "mcq",
+        prompt: T("q.fb.denominator", { f: frac(num, den) }),
+        answerKind: "choice",
+        answer: String(den),
+        options: numericOptions(rng, den, bugs),
+        meta: { a: num, b: den, bugs },
+        hint: T("hint.fraction_basics"),
+      };
     }
-    const den = pick(rng, [2, 3, 4, 5]);
-    const total = den * randInt(rng, 3, 6);
+    const den = randInt(rng, range.operandBMin ?? 2, range.operandBMax ?? 6);
+    const minK = Math.max(2, Math.ceil(range.min / den));
+    const maxK = Math.max(minK, Math.floor(range.max / den));
+    const total = den * randInt(rng, minK, maxK);
     const ans = total / den;
     const bugs: Record<string, ErrorType> = {};
     addBug(bugs, total - den, "wrong_operation", ans);
     addBug(bugs, total * den, "wrong_operation", ans);
-    return { format: "word_problem", prompt: T("q.fb.of", { d: den, total }), answerKind: "int", answer: String(ans), meta: { a: total, b: den, op: "/", bugs }, hint: T("hint.fraction_basics") };
+    return {
+      format: "word_problem",
+      prompt: T("q.fb.of", { d: den, total }),
+      answerKind: "int",
+      answer: String(ans),
+      meta: { a: total, b: den, op: "/", bugs },
+      hint: T("hint.fraction_basics"),
+    };
   },
 
-  equivalent_fractions(d, rng) {
-    const den = randInt(rng, 2, 5);
+  equivalent_fractions(d, rng, _ctx, grade) {
+    const range = getSkillRange("equivalent_fractions", grade, d);
+    const den = randInt(rng, Math.max(2, range.min), Math.max(3, range.max));
     const num = randInt(rng, 1, den - 1);
     if (d === 3) {
       const k = randInt(rng, 2, 4);
@@ -446,7 +644,15 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext) => Base>
         { id: "o2", label: R(frac(num, den * k)), value: frac(num, den * k), errorType: "unclassified" as ErrorType },
         { id: "o3", label: R(frac(num * k, den)), value: frac(num * k, den), errorType: "unclassified" as ErrorType },
       ]);
-      return { format: "mcq", prompt: T("q.ef.which", { f: frac(num, den) }), answerKind: "choice", answer: frac(num * k, den * k), options, meta: { a: num, b: den }, hint: T("hint.equivalent_fractions", { k }) };
+      return {
+        format: "mcq",
+        prompt: T("q.ef.which", { f: frac(num, den) }),
+        answerKind: "choice",
+        answer: frac(num * k, den * k),
+        options,
+        meta: { a: num, b: den },
+        hint: T("hint.equivalent_fractions", { k }),
+      };
     }
     const k = d === 1 ? 2 : randInt(rng, 3, 5);
     const ans = num * k;
@@ -454,26 +660,39 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext) => Base>
     addBug(bugs, num + den * k - den, "fraction_additive", ans);
     addBug(bugs, num * k + 1, "slip", ans);
     return {
-      format: "fill_blank", prompt: T("q.fill"), expression: `${frac(num, den)} = ?/${den * k}`, answerKind: "int", answer: String(ans),
+      format: "fill_blank",
+      prompt: T("q.fill"),
+      expression: `${frac(num, den)} = ?/${den * k}`,
+      answerKind: "int",
+      answer: String(ans),
       visual: d === 1 ? { kind: "fraction_compare", a: [num, den], b: [ans, den * k] } : undefined,
-      meta: { a: num, b: den, bugs }, hint: T("hint.equivalent_fractions", { k }),
+      meta: { a: num, b: den, bugs },
+      hint: T("hint.equivalent_fractions", { k }),
     };
   },
 
-  comparing_fractions(d, rng) {
+  comparing_fractions(d, rng, _ctx, grade) {
+    const range = getSkillRange("comparing_fractions", grade, d);
     let a: [number, number], b: [number, number];
     if (d === 1) {
-      const den = randInt(rng, 5, 9);
-      const x = randInt(rng, 1, den - 2);
+      const den = randInt(rng, Math.max(3, range.min), Math.max(4, range.max));
+      const x = randInt(rng, 1, Math.max(2, den - 2));
       const y = randInt(rng, x + 1, den - 1);
       [a, b] = rng() < 0.5 ? [[x, den], [y, den]] : [[y, den], [x, den]];
     } else if (d === 2) {
       const n = pick(rng, [1, 1, 2]);
-      const p = randInt(rng, 3, 5);
-      const q = randInt(rng, p + 1, 9);
+      const p = randInt(rng, Math.max(2, range.min), Math.max(3, range.max - 1));
+      const q = randInt(rng, p + 1, Math.max(p + 2, range.max));
       [a, b] = rng() < 0.5 ? [[n, p], [n, q]] : [[n, q], [n, p]];
     } else {
-      const pairs: [[number, number], [number, number]][] = [[[2, 3], [3, 5]], [[3, 4], [2, 3]], [[2, 5], [1, 3]], [[5, 6], [3, 4]], [[3, 8], [1, 2]], [[4, 5], [2, 3]]];
+      const pairs: [[number, number], [number, number]][] = [
+        [[2, 3], [3, 5]],
+        [[3, 4], [2, 3]],
+        [[2, 5], [1, 3]],
+        [[5, 6], [3, 4]],
+        [[3, 8], [1, 2]],
+        [[4, 5], [2, 3]],
+      ];
       [a, b] = shuffle(rng, [...pick(rng, pairs)]) as [[number, number], [number, number]];
     }
     const big = a[0] / a[1] > b[0] / b[1] ? a : b;
@@ -484,19 +703,33 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext) => Base>
       { id: "o1", label: R(frac(...b)), value: frac(...b), errorType: big === b ? undefined : wrongErr },
     ];
     return {
-      format: "mcq", prompt: T("q.cf.bigger"), answerKind: "choice", answer: frac(...big), options,
-      visual: d === 1 ? { kind: "fraction_compare", a, b } : undefined, meta: {}, hint: T("hint.comparing_fractions"),
+      format: "mcq",
+      prompt: T("q.cf.bigger"),
+      answerKind: "choice",
+      answer: frac(...big),
+      options,
+      visual: d === 1 ? { kind: "fraction_compare", a, b } : undefined,
+      meta: { a: a[0], b: a[1] },
+      hint: T("hint.comparing_fractions"),
     };
   },
 
-  fraction_addition(d, rng) {
+  fraction_addition(d, rng, _ctx, grade) {
+    const range = getSkillRange("fraction_addition", grade, d);
     let n1: number, d1: number, n2: number, d2: number;
     if (d === 2) {
-      [n1, d1, n2, d2] = pick(rng, [[1, 2, 1, 4], [1, 3, 1, 6], [1, 2, 1, 6], [1, 4, 3, 8], [1, 5, 3, 10], [1, 2, 3, 8]]);
+      [n1, d1, n2, d2] = pick(rng, [
+        [1, 2, 1, 4],
+        [1, 3, 1, 6],
+        [1, 2, 1, 6],
+        [1, 4, 3, 8],
+        [1, 5, 3, 10],
+        [1, 2, 3, 8],
+      ]);
     } else {
-      d1 = d2 = randInt(rng, 5, 9);
-      n1 = randInt(rng, 1, d1 - 2);
-      n2 = randInt(rng, 1, d1 - 1 - n1);
+      d1 = d2 = randInt(rng, Math.max(3, range.min), Math.max(4, range.max));
+      n1 = randInt(rng, 1, Math.max(2, d1 - 2));
+      n2 = randInt(rng, 1, Math.max(2, d1 - 1 - n1));
     }
     const L = (d1 * d2) / gcd(d1, d2);
     const ansN = n1 * (L / d1) + n2 * (L / d2);
@@ -504,21 +737,50 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext) => Base>
     const bugs: Record<string, ErrorType> = {};
     bugs[frac(n1 + n2, d1 + d2)] = "fraction_add_denominators";
     if (d1 === d2) bugs[frac(n1 + n2, d1 * d2)] = "fraction_add_denominators";
-    const meta: QuestionMeta = { bugs };
-    if (d === 3) return { format: "word_problem", prompt: T("q.fa.word", { a: frac(n1, d1), b: frac(n2, d2) }), answerKind: "fraction", answer: ans, meta, hint: T("hint.fraction_addition") };
-    return { format: "short_answer", prompt: T("q.solve"), expression: `${frac(n1, d1)} + ${frac(n2, d2)} = ?`, answerKind: "fraction", answer: ans, meta, hint: T("hint.fraction_addition") };
+    const meta: QuestionMeta = { a: n1, b: n2, bugs };
+    if (d === 3) {
+      return {
+        format: "word_problem",
+        prompt: T("q.fa.word", { a: frac(n1, d1), b: frac(n2, d2) }),
+        answerKind: "fraction",
+        answer: ans,
+        meta,
+        hint: T("hint.fraction_addition"),
+      };
+    }
+    return {
+      format: "short_answer",
+      prompt: T("q.solve"),
+      expression: `${frac(n1, d1)} + ${frac(n2, d2)} = ?`,
+      answerKind: "fraction",
+      answer: ans,
+      meta,
+      hint: T("hint.fraction_addition"),
+    };
   },
 };
 
-export function generateQuestion(conceptId: ConceptId, difficulty: Difficulty, rng: Rng, ctx: GenContext = {}): Question {
-  const base = gen[conceptId](difficulty, rng, ctx);
+export function generateQuestion(
+  conceptId: ConceptId,
+  difficulty: Difficulty,
+  rng: Rng,
+  gradeOrCtx: number | GenContext = 5,
+  ctx: GenContext = {}
+): Question {
+  const grade = typeof gradeOrCtx === "number" ? gradeOrCtx : 5;
+  const effectiveCtx = typeof gradeOrCtx === "object" ? gradeOrCtx : ctx;
+  const generatorFn = gen[conceptId];
+  if (!generatorFn) {
+    throw new Error(`Unknown conceptId: ${conceptId}`);
+  }
+  const base = generatorFn(difficulty, rng, effectiveCtx, grade);
   return {
     ...base,
     id: uid("q"),
     conceptId,
     difficulty,
     source: "bank",
-    linkedFrom: ctx.link?.conceptId,
+    linkedFrom: effectiveCtx.link?.conceptId,
   };
 }
 
@@ -527,10 +789,25 @@ export function questionSignature(q: Question): string {
   return `${q.conceptId}|${q.expression ?? ""}|${JSON.stringify("key" in q.prompt ? q.prompt.params ?? {} : q.prompt.raw)}|${q.visual ? JSON.stringify(q.visual) : ""}`;
 }
 
-export function generateUnique(conceptId: ConceptId, difficulty: Difficulty, rng: Rng, seen: Set<string>, ctx: GenContext = {}): Question {
-  let q = generateQuestion(conceptId, difficulty, rng, ctx);
+export function generateUnique(
+  conceptId: ConceptId,
+  difficulty: Difficulty,
+  rng: Rng,
+  seen: Set<string>,
+  gradeOrCtx: number | GenContext = 5,
+  ctx: GenContext = {}
+): Question {
+  const grade = typeof gradeOrCtx === "number" ? gradeOrCtx : 5;
+  const effectiveCtx = typeof gradeOrCtx === "object" ? gradeOrCtx : ctx;
+  let q = generateQuestion(conceptId, difficulty, rng, grade, effectiveCtx);
   for (let i = 0; i < 12 && seen.has(questionSignature(q)); i++) {
-    q = generateQuestion(conceptId, difficulty, rng, i < 3 ? ctx : { ...ctx, link: undefined });
+    q = generateQuestion(
+      conceptId,
+      difficulty,
+      rng,
+      grade,
+      i < 3 ? effectiveCtx : { ...effectiveCtx, link: undefined }
+    );
   }
   seen.add(questionSignature(q));
   return q;

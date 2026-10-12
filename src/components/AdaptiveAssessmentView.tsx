@@ -165,7 +165,7 @@ export function AdaptiveAssessmentView({
       const action = getNextStaircaseAction(initialMemory);
       if (action.type === "ask") {
         const seen = new Set<string>();
-        const q = generateUnique(action.conceptId, action.level, fallbackRng, seen);
+        const q = generateUnique(action.conceptId, action.level, fallbackRng, seen, classConfig.grade);
         setSessionMemory({
           ...initialMemory,
           seenSignatures: Array.from(seen),
@@ -269,7 +269,8 @@ export function AdaptiveAssessmentView({
             advanced.action.conceptId,
             advanced.action.level,
             makeRng(fallbackSeed),
-            seen
+            seen,
+            sessionMemory.grade
           );
           setSessionMemory({
             ...advanced.memory,

@@ -59,7 +59,7 @@ export const SKILL_SHEET: SkillEntry[] = [
     ranges: {
       1: { min: 10, max: 99 },
       2: { min: 100, max: 500 },
-      3: { min: 500, max: 999 },
+      3: { min: 1000, max: 9999 },
     },
     needsTeacherCheck: false,
   },
@@ -284,7 +284,7 @@ export const SKILL_SHEET: SkillEntry[] = [
     ranges: {
       1: { min: 1, max: 4 },
       2: { min: 1, max: 8 },
-      3: { min: 1, max: 12 },
+      3: { min: 6, max: 36, operandBMin: 2, operandBMax: 6 },
     },
     needsTeacherCheck: false,
   },
@@ -313,8 +313,8 @@ export const SKILL_SHEET: SkillEntry[] = [
     prerequisites: ["number_sense"],
     ranges: {
       1: { min: 1000, max: 9999 },
-      2: { min: 10000, max: 99999 },
-      3: { min: 100000, max: 999999 },
+      2: { min: 10000, max: 50000 },
+      3: { min: 10000, max: 99999 },
     },
     needsTeacherCheck: false,
   },
@@ -404,8 +404,8 @@ export const SKILL_SHEET: SkillEntry[] = [
     prerequisites: ["division_concept"],
     ranges: {
       1: { min: 1, max: 6 },
-      2: { min: 2, max: 10 },
-      3: { min: 3, max: 12 },
+      2: { min: 1, max: 10 },
+      3: { min: 8, max: 60, operandBMin: 2, operandBMax: 6 },
     },
     needsTeacherCheck: false,
   },
@@ -417,8 +417,8 @@ export const SKILL_SHEET: SkillEntry[] = [
     prerequisites: ["fraction_basics", "mult_facts"],
     ranges: {
       1: { min: 1, max: 4 },
-      2: { min: 2, max: 7 },
-      3: { min: 3, max: 11 },
+      2: { min: 1, max: 7 },
+      3: { min: 1, max: 11 },
     },
     needsTeacherCheck: false,
   },
@@ -431,7 +431,7 @@ export const SKILL_SHEET: SkillEntry[] = [
     ranges: {
       1: { min: 1, max: 5 },
       2: { min: 1, max: 6 },
-      3: { min: 2, max: 8 },
+      3: { min: 1, max: 8 },
     },
     needsTeacherCheck: false,
   },
@@ -443,7 +443,7 @@ export const SKILL_SHEET: SkillEntry[] = [
     prerequisites: ["equivalent_fractions", "addition"],
     ranges: {
       1: { min: 1, max: 4 },
-      2: { min: 2, max: 6 },
+      2: { min: 1, max: 6 },
       3: { min: 1, max: 5 },
     },
     needsTeacherCheck: false,

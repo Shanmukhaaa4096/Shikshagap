@@ -174,7 +174,8 @@ export async function POST(req: NextRequest) {
       nextAction.conceptId,
       nextAction.level,
       rng,
-      seen
+      seen,
+      currentMemory.grade
     );
 
     // 5. Enhance wording with Gemini hybrid generator (validated against operands, script, and safety)

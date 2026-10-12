@@ -12,7 +12,7 @@
 |---|---|---|---|---|---|
 | Step 1 | Make failures visible | Done | `src/components/AdaptiveAssessmentView.tsx`, `src/lib/questions/hybridGenerator.ts`, `src/app/api/assessment/agent/route.ts`, `tests/hybrid-generator.test.mjs` | All 63 tests pass | Replaced single client fallback with 1 server retry before showing "Using backup question". Logged 5 fallback reasons (timeout, validation, no_key, budget, rate_limit) with no student data. Added 5 tests. |
 | Step 2 | Skill sheet (no question text) | Done | `src/data/skillSheet.ts`, `tests/skill-sheet.test.mjs`, `package.json` | All 68 tests pass | Created NCERT Math-Magic skill sheet covering Classes 3, 4, and 5 with one-sentence outcomes in own words, allowed number ranges for difficulty 1, 2, and 3, diagnostic prerequisites, and explicit needsTeacherCheck flags for newly added or boundary concepts. Added 5 tests. |
-| Step 3 | Make the class change the numbers | In Progress | - | - | - |
+| Step 3 | Make the class change the numbers | Done | `src/lib/questions/generator.ts`, `src/app/api/assessment/agent/route.ts`, `src/components/AdaptiveAssessmentView.tsx`, `src/components/WorksheetModal.tsx`, `src/data/skillSheet.ts`, `tests/class-numbers-range.test.mjs`, `package.json` | All 95 tests pass | Added grade parameter across question generators and callers. Number ranges are dynamically read from the skill sheet per grade and difficulty. Added comprehensive range test (200 random questions per class and concept) verifying every number is within range bounds and answers are correct. |
 | Step 4 | More Class 3 concepts | Pending | - | - | - |
 | Step 5 | Fresh wording for every concept | Pending | - | - | - |
 | Step 6 | Blind solver and reading level | Pending | - | - | - |
@@ -30,3 +30,11 @@
   - Added a visible badge `"Using backup question"` on screen when using a backup question.
   - Added structured fallback reason logging (`timeout`, `validation`, `no_key`, `budget`, `rate_limit`) in `hybridGenerator.ts` and `route.ts`. No student data or identifiers are ever logged.
   - Added tests verifying all 5 fallback reasons in `tests/hybrid-generator.test.mjs`.
+- Step 2:
+  - Created `src/data/skillSheet.ts` with explicit outcomes in simple words, difficulty 1-3 number ranges, and diagnostic prerequisites for Classes 3, 4, and 5 based on NCERT Math-Magic.
+  - Marked newly added and boundary concepts with `needsTeacherCheck: true`.
+- Step 3:
+  - Added `grade` parameter to `generateQuestion`, `generateUnique`, and all concept generators in `src/lib/questions/generator.ts`.
+  - Updated all callers (`/api/assessment/agent/route.ts`, `AdaptiveAssessmentView.tsx`, `WorksheetModal.tsx`).
+  - Added `tests/class-numbers-range.test.mjs` running 200 random iterations per class and concept (over 5,400 questions tested) verifying operands remain inside skill sheet ranges and correct answers are mathematically sound.
+
