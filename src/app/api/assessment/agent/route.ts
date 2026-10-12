@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. Consult Examiner agent via function calling through code gate
-    const examinerRes = await runExaminerStep(currentMemory, lastAttempt);
+    const examinerRes = await runExaminerStep(currentMemory, undefined);
     if (examinerRes.notes.length > 0) {
       const activeTopic =
         currentMemory.topics[currentMemory.currentTopicIndex] ||

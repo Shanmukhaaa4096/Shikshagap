@@ -11,6 +11,7 @@ import type {
   TopicStatus,
   DiagnosticResult,
   MasteryEstimate,
+  ResourceRecommendation,
 } from "@/lib/types";
 import type { DemoStudentData } from "@/lib/data/demo";
 import { useI18n } from "@/lib/i18n/context";
@@ -24,6 +25,8 @@ import {
   CaretDown,
   CaretUp,
   ArrowCounterClockwise,
+  BookOpen,
+  ArrowSquareOut,
 } from "@phosphor-icons/react";
 import {
   CURRICULUM_TOPICS,
@@ -59,7 +62,7 @@ export function AdaptiveAssessmentView({
   onAssessmentCompleted,
   onCancel,
 }: Props) {
-  const { dict, t, formatTxt } = useI18n();
+  const { lang, dict, t, formatTxt } = useI18n();
   const classConfig = getClassConfig(selectedClassId);
 
   const [selectedStudentId, setSelectedStudentId] = useState<string>(
@@ -73,12 +76,38 @@ export function AdaptiveAssessmentView({
   const [userAnswer, setUserAnswer] = useState<string>("");
   const [feedback, setFeedback] = useState<{ isCorrect: boolean; message: string } | null>(null);
   const [isFinished, setIsFinished] = useState(false);
+  const [recommendations, setRecommendations] = useState<ResourceRecommendation[]>([]);
+  const [reportSummary, setReportSummary] = useState<string>("");
+  const [isLoadingFinish, setIsLoadingFinish] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [showTeacherTrace, setShowTeacherTrace] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const lastAttemptRef = useRef<Attempt | null>(null);
 
   const activeStudent = students.find((s) => s.student.id === selectedStudentId);
+
+  // Helper to trigger finish endpoint (Resource Advisor + Report Writer)
+  const completeAssessment = async (finalMem: SessionMemory) => {
+    setIsFinished(true);
+    setCurrentQuestion(null);
+    setIsLoadingFinish(true);
+    try {
+      const res = await fetch("/api/assessment/finish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ memory: finalMem }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setRecommendations(data.recommendations || []);
+        setReportSummary(data.summary || "");
+      }
+    } catch {
+      // Ignore network errors in finish fetch; fallback remains gracefully empty or populated
+    } finally {
+      setIsLoadingFinish(false);
+    }
+  };
 
   // Start Multi-Topic Staircase Assessment
   const handleStart = async () => {
@@ -93,12 +122,14 @@ export function AdaptiveAssessmentView({
     const initialMemory = createSessionMemory(
       pseudonymousId,
       gradeVal,
-      "en",
+      lang as "en" | "hi" | "te",
       (classConfig.topics && classConfig.topics.length > 0 ? classConfig.topics : CURRICULUM_TOPICS) as TopicId[]
     );
 
     setIsStarted(true);
     setIsFinished(false);
+    setRecommendations([]);
+    setReportSummary("");
     setFeedback(null);
     setShowHint(false);
     setIsEvaluating(true);
@@ -195,8 +226,7 @@ export function AdaptiveAssessmentView({
         setSessionMemory(updatedMemory);
 
         if (data.isFinished || !data.nextQuestion) {
-          setIsFinished(true);
-          setCurrentQuestion(null);
+          completeAssessment(updatedMemory);
         } else {
           setCurrentQuestion(data.nextQuestion);
         }
@@ -210,8 +240,7 @@ export function AdaptiveAssessmentView({
         setSessionMemory(advanced.memory);
 
         if (advanced.action.type === "finish") {
-          setIsFinished(true);
-          setCurrentQuestion(null);
+          completeAssessment(advanced.memory);
         } else if (advanced.action.type === "ask") {
           const seen = new Set<string>(advanced.memory.seenSignatures || []);
           const nextQ = generateUnique(
@@ -552,6 +581,89 @@ export function AdaptiveAssessmentView({
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* 4. RECOMMENDED RESOURCES WITH REASONS per SPEC.md */}
+          {isLoadingFinish ? (
+            <div className="p-6 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/20 rounded-[2px] text-center space-y-2">
+              <div className="inline-block animate-spin w-5 h-5 border-2 border-[#432623] border-t-transparent rounded-full" />
+              <p className="text-xs font-mono font-bold text-[#432623]/80">
+                Finding targeted study materials and generating assessment summary...
+              </p>
+            </div>
+          ) : recommendations.length > 0 ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-[#432623]" />
+                <span className="editorial-meta text-[#432623]">
+                  RECOMMENDED STUDY MATERIALS (VERIFIED RAG ADVISOR)
+                </span>
+              </div>
+              <div className="grid grid-cols-1 gap-3">
+                {recommendations.map((recGroup) => (
+                  <div
+                    key={recGroup.topicId}
+                    className="p-4 bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] space-y-3"
+                  >
+                    <div className="border-b border-[#432623]/15 pb-2">
+                      <span className="text-xs font-mono font-bold text-[#432623]/70 uppercase">
+                        RESOURCES FOR
+                      </span>
+                      <h4 className="font-serif font-bold text-base text-[#432623]">
+                        {TOPIC_DISPLAY_NAMES[recGroup.topicId]?.en || recGroup.topicId}
+                      </h4>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {recGroup.resources.map((item) => (
+                        <div
+                          key={item.id}
+                          className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/20 rounded-[2px] flex flex-col justify-between"
+                        >
+                          <div>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[10px] font-mono font-bold uppercase px-1.5 py-0.5 bg-[#432623]/10 text-[#432623] rounded-[2px]">
+                                {item.source} • {item.type}
+                              </span>
+                            </div>
+                            <h5 className="font-bold text-xs text-[#432623] mt-1.5 leading-snug">
+                              {item.title}
+                            </h5>
+                            <p className="text-[11px] text-[#432623]/80 mt-1 italic">
+                              &ldquo;{item.reason}&rdquo;
+                            </p>
+                          </div>
+
+                          <div className="pt-2 mt-2 border-t border-[#432623]/15 flex justify-end">
+                            <a
+                              href={item.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-[11px] font-bold text-[#432623] hover:underline"
+                            >
+                              <span>Open Resource</span>
+                              <ArrowSquareOut className="w-3.5 h-3.5" />
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {/* 5. ASSESSMENT SUMMARY per SPEC.md */}
+          {reportSummary && (
+            <div className="p-4 sm:p-5 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] space-y-2">
+              <span className="editorial-meta text-[#432623]">
+                ASSESSMENT SUMMARY ({sessionMemory?.language.toUpperCase()})
+              </span>
+              <p className="font-serif text-sm sm:text-base text-[#432623] leading-relaxed">
+                {reportSummary}
+              </p>
             </div>
           )}
 
