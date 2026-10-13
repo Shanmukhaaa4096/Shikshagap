@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimit, recordFailedLogin, resetLoginAttempts, verifyCredentials } from "@/lib/auth/users";
+import { checkRateLimit, isDemoLoginDisabled, recordFailedLogin, resetLoginAttempts, verifyCredentials } from "@/lib/auth/users";
 import { setSessionCookie } from "@/lib/auth/session";
 import { logAuditEvent, recordRecentAuth, hashIp } from "@/lib/server/store";
 
@@ -17,6 +17,13 @@ export async function POST(req: NextRequest) {
     }
 
     const { email, password } = body;
+
+    if (isDemoLoginDisabled(email)) {
+      return NextResponse.json(
+        { error: "Demo logins are disabled in production until credentials are configured in environment variables." },
+        { status: 403 }
+      );
+    }
     const rateLimitKey = `${ip}:${email.toLowerCase().trim()}`;
     const rateCheck = checkRateLimit(rateLimitKey);
 

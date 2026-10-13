@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '@/lib/auth/session';
 import { logAuditEvent, saveTeacherOverride, hashIp } from '@/lib/server/store';
 
+// Set of processed sync item IDs for memory idempotency
+const processedSyncItemIds = new Set<string>();
+
+const MAX_SYNC_ITEMS = 200;
+const MAX_PAYLOAD_BYTES = 512 * 1024; // 512 KB
+
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession();
@@ -10,15 +16,66 @@ export async function POST(req: NextRequest) {
     }
 
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || '127.0.0.1';
-    const body = await req.json().catch(() => null);
+
+    // Check payload size using content-length header and raw buffer read
+    const contentLength = req.headers.get('content-length');
+    if (contentLength && parseInt(contentLength, 10) > MAX_PAYLOAD_BYTES) {
+      return NextResponse.json(
+        { error: 'Sync payload too large. Maximum size is 512 KB.' },
+        { status: 413 }
+      );
+    }
+
+    const rawText = await req.text().catch(() => null);
+    if (!rawText) {
+      return NextResponse.json({ error: 'Empty or invalid sync payload.' }, { status: 400 });
+    }
+
+    if (Buffer.byteLength(rawText, 'utf8') > MAX_PAYLOAD_BYTES) {
+      return NextResponse.json(
+        { error: 'Sync payload too large. Maximum size is 512 KB.' },
+        { status: 413 }
+      );
+    }
+
+    let body: { items?: unknown };
+    try {
+      body = JSON.parse(rawText);
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON payload.' }, { status: 400 });
+    }
 
     if (!body || !Array.isArray(body.items)) {
       return NextResponse.json({ error: 'Invalid sync payload. Expected items array.' }, { status: 400 });
     }
 
+    if (body.items.length > MAX_SYNC_ITEMS) {
+      return NextResponse.json(
+        { error: `Sync batch exceeds maximum allowed items (${MAX_SYNC_ITEMS}). Received ${body.items.length}.` },
+        { status: 400 }
+      );
+    }
+
     let processedCount = 0;
 
     for (const item of body.items) {
+      if (!item || typeof item !== 'object') continue;
+
+      // Item idempotency check by unique item.id
+      const itemId = typeof item.id === 'string' && item.id.trim() ? item.id.trim() : null;
+      if (itemId) {
+        if (processedSyncItemIds.has(itemId)) {
+          // Already processed; skip cleanly for idempotency
+          continue;
+        }
+        processedSyncItemIds.add(itemId);
+        // Prevent unbounded memory growth by pruning oldest entries if set exceeds 10,000
+        if (processedSyncItemIds.size > 10000) {
+          const firstKey = processedSyncItemIds.values().next().value;
+          if (firstKey) processedSyncItemIds.delete(firstKey);
+        }
+      }
+
       if (item.type === 'teacher_override' && item.payload) {
         const p = item.payload;
         // Verify class / school ownership

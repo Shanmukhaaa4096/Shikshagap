@@ -315,6 +315,26 @@
 4. **Test Gemini Live Generation**:
    - When a valid `GEMINI_API_KEY` is added to `.env.local`, the hybrid generator will automatically use Gemini 2.5 Flash for varied problem generation and the blind solver.
 
+## Part 4: Rate Limiting and Temporary Blocks, Designed for Schools
+
+| RL Step | Name | Status | Files Touched | Tests Result | Notes / Measurements |
+|---|---|---|---|---|---|
+| RL Step 0 | Security fixes | Done | `src/lib/auth/users.ts`, `src/app/api/sync/route.ts`, `OVERNIGHT_REPORT.md`, `.env.example`, `README.md`, `tests/auth-sync-security.test.mjs` | All 140 tests pass, 0 lint warnings, clean build | Removed hardcoded fallback demo passwords and hashes. In production mode with no env vars, demo login fails cleanly. Added 200 items cap, 512KB payload ceiling, and item idempotency to `/api/sync`. Recorded landing page trial vs middleware redirect decision for owner. |
+
+---
+
+## Decisions for the Owner
+
+1. **Classroom Trial Access vs. Authentication Redirect**:
+   - **Context**: The public landing page hero states: *"No login required for initial classroom trial"*. However, `src/middleware.ts` currently protects `/app` and redirects unauthenticated visitors to `/login`.
+   - **Option A (Keep demo login accessible)**: Keep demo login button and demo accounts available on the login page.
+     - *Trade-offs*: Anyone on the public internet can log in as the demo teacher or demo admin. Excellent for frictionless evaluator try-outs and instant inspection, but demo state can be polluted or abused if left open in production without passwords.
+   - **Option B (Require secret code / school passkey)**: Require an onboarding passkey or invitation token for the trial.
+     - *Trade-offs*: Protects the trial from unauthorized internet traffic and bot attacks while allowing participating pilot schools immediate access. Requires administrative effort to distribute, rotate, and manage passkeys.
+   - **Option C (Redirect to waitlist / trial request form)**: Route unauthenticated trial visitors to the `/api/pilot-register` / waitlist form.
+     - *Trade-offs*: Completely prevents unvetted public access and captures verified teacher contact information for follow-up and institutional support, but introduces onboarding friction and loses spontaneous trial conversions from visitors.
+   - *(Per instructions, all three options are documented here for the product owner's review; landing page copy has not been modified without approval.)*
+
 ---
 
 ## How to Delete This Branch (Throw Away Everything)
@@ -323,5 +343,6 @@ If you decide not to keep these changes, run the following exact git commands to
 
 ```bash
 git checkout main
-git branch -D overnight/question-engine
+git branch -D overnight/rate-limit-ban
 ```
+

@@ -47,6 +47,8 @@ Create `.env.local` based on `.env.example`:
 | `CRON_SECRET` | Recommended in prod | Secret token securing the automated memory upkeep route (`/api/cron/memory-upkeep`). |
 | `SESSION_SECRET` | Recommended in prod | 32-byte secret for HMAC signing of auth session cookies. |
 | `IP_SALT` | Recommended in prod | Salt for one-way pseudonymized IP hashing in audit logs. |
+| `DEMO_TEACHER_PASSWORD` / `DEMO_TEACHER_HASH` | Optional | Explicit password or bcrypt hash to enable demo teacher login. Disabled by default in production and development unless explicitly set. |
+| `DEMO_ADMIN_PASSWORD` / `DEMO_ADMIN_HASH` | Optional | Explicit password or bcrypt hash to enable demo admin login. Disabled by default in production and development unless explicitly set. |
 | `GEMINI_MODEL` | Optional | Override model identifier for Gemini calls (default: `gemini-2.5-flash`). |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | Yes (in prod) | Public contact email for footer, terms, and privacy notice. If missing at build time in production, the build fails. |
 | `NEXT_PUBLIC_SITE_URL` | Recommended | Canonical base URL (default: `https://shikshagap.vercel.app`). |
