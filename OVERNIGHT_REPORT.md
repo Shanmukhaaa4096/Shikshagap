@@ -320,6 +320,7 @@
 | RL Step | Name | Status | Files Touched | Tests Result | Notes / Measurements |
 |---|---|---|---|---|---|
 | RL Step 0 | Security fixes | Done | `src/lib/auth/users.ts`, `src/app/api/sync/route.ts`, `OVERNIGHT_REPORT.md`, `.env.example`, `README.md`, `tests/auth-sync-security.test.mjs` | All 140 tests pass, 0 lint warnings, clean build | Removed hardcoded fallback demo passwords and hashes. In production mode with no env vars, demo login fails cleanly. Added 200 items cap, 512KB payload ceiling, and item idempotency to `/api/sync`. Recorded landing page trial vs middleware redirect decision for owner. |
+| RL Step 1 | Audit | Done | `docs/RATE_LIMIT_PLAN.md`, `src/lib/server/security.ts`, `tests/ip-spoofing.test.mjs`, `package.json` | All 142 tests pass, 0 lint warnings, clean build | Audited all 15 API routes recording caller persona, data impact, current limits, recommended steady/burst limits, and keys in `docs/RATE_LIMIT_PLAN.md`. Implemented `getClientIp` trusting `x-forwarded-for` ONLY when `process.env.VERCEL` is set. Added test proving spoofed headers off Vercel cannot bypass rate limits. |
 
 ---
 
