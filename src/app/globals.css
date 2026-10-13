@@ -209,6 +209,18 @@
   }
 }
 
+/* Low-end mobile device performance & rendering optimizations */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+/* Touch device responsiveness without double-tap delay */
+button, a, input, select, textarea {
+  touch-action: manipulation;
+}
+
 /* Prefers Reduced Motion Reset */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
