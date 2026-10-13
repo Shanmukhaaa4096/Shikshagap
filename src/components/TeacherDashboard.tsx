@@ -42,7 +42,7 @@ export function TeacherDashboard({
   onSelectClass,
 }: Props) {
   const classConfig = getClassConfig(selectedClassId);
-  const { dict, t } = useI18n();
+  const { lang, setLang, dict, t } = useI18n();
   const [activeTab, setActiveTab] = useState<TabType>("home");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -247,18 +247,38 @@ export function TeacherDashboard({
                 {dict.whoNeedsHelpToday || "Who needs help today"}
               </h1>
             </div>
-            {onSelectClass && (
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 sm:justify-end">
               <div className="flex flex-col sm:items-end gap-1">
-                <span className="text-sm font-mono font-bold uppercase text-[#432623]/60 dark:text-[#F5F1BC]/60">
-                  Select Grade
-                </span>
-                <ClassSelector
-                  selectedClassId={selectedClassId}
-                  onSelectClass={onSelectClass}
-                  compact={true}
-                />
+                <div className="flex gap-1" role="group" aria-label="Language Switcher">
+                  {(["en", "hi", "te"] as const).map((l) => (
+                    <button
+                      key={l}
+                      type="button"
+                      onClick={() => setLang(l)}
+                      className={`min-h-[44px] px-2.5 py-1 text-sm font-mono uppercase border ${
+                        lang === l
+                          ? "bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] font-bold border-[#432623] dark:border-[#F5F1BC]"
+                          : "border-[#432623]/25 dark:border-[#F5F1BC]/25 hover:bg-[#F5F1BC]/50 text-[#432623] dark:text-[#F5F1BC]"
+                      }`}
+                    >
+                      {l === "en" ? "EN" : l === "hi" ? "HI" : "TE"}
+                    </button>
+                  ))}
+                </div>
               </div>
-            )}
+              {onSelectClass && (
+                <div className="flex flex-col sm:items-end gap-1">
+                  <span className="text-sm font-mono font-bold uppercase text-[#432623]/60 dark:text-[#F5F1BC]/60">
+                    Select Grade
+                  </span>
+                  <ClassSelector
+                    selectedClassId={selectedClassId}
+                    onSelectClass={onSelectClass}
+                    compact={true}
+                  />
+                </div>
+              )}
+            </div>
           </div>
 
           {/* 1. THREE NUMBERS ONLY: On Track, Need Practice, Critical */}
@@ -335,15 +355,78 @@ export function TeacherDashboard({
             </div>
           </div>
 
-          {/* 2. "WHO NEEDS HELP TODAY": Top 5 Students Only */}
+          {/* Top 3 Struggling Topics for the Class */}
+          <div className="border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] p-5 space-y-3">
+            <div className="flex items-center justify-between border-b border-[#432623]/15 dark:border-[#F5F1BC]/15 pb-2.5">
+              <div>
+                <h2 className="font-serif text-lg sm:text-xl font-bold text-[#432623] dark:text-[#F5F1BC]">
+                  Top 3 Topics Needing Class Practice
+                </h2>
+                <p className="text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 mt-0.5">
+                  Core concept bottlenecks affecting the most students in this class.
+                </p>
+              </div>
+              <span className="text-sm font-mono font-bold text-[#432623] dark:text-[#F5F1BC] bg-[#F5F1BC] dark:bg-[#432623] px-2.5 py-1 rounded-[2px] border border-[#432623]/25">
+                Classwide Focus
+              </span>
+            </div>
+
+            {sortedGaps.length === 0 ? (
+              <div className="p-4 text-center text-sm font-mono text-[#432623]/70 dark:text-[#F5F1BC]/70">
+                No learning gaps identified yet. Run assessments to detect focus areas.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                {sortedGaps.slice(0, 3).map((gap, idx) => (
+                  <div
+                    key={gap.conceptId}
+                    className="p-4 border border-[#432623]/20 dark:border-[#F5F1BC]/20 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] flex flex-col justify-between space-y-2.5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-sm font-bold text-[#432623]/70 dark:text-[#F5F1BC]/70">
+                        PRIORITY 0{idx + 1}
+                      </span>
+                      <span
+                        className={`text-sm font-mono font-bold px-2 py-0.5 rounded-[2px] border ${
+                          gap.severity === "high"
+                            ? "bg-[#DE2A35]/15 text-[#B51E28] border-[#DE2A35]/30"
+                            : "bg-[#DFA06E]/20 text-[#432623] border-[#DFA06E]/40"
+                        }`}
+                      >
+                        {gap.count} Learners ({gap.pct}%)
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className="font-serif font-bold text-base text-[#432623] dark:text-[#F5F1BC]">
+                        {t(`c_${gap.conceptId}`)}
+                      </h3>
+                      <div className="text-sm text-[#432623]/70 dark:text-[#F5F1BC]/70 mt-0.5">
+                        {CONCEPTS[gap.conceptId]?.strand?.toUpperCase()}
+                      </div>
+                    </div>
+
+                    <div className="w-full bg-[#F5F1BC] h-2 rounded-[2px] overflow-hidden">
+                      <div
+                        className={`h-full rounded-[2px] ${gap.severity === "high" ? "bg-[#DE2A35]" : "bg-[#DFA06E]"}`}
+                        style={{ width: `${gap.pct}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 3. "STUDENTS WHO NEED HELP FIRST": Priority Table / Cards */}
           <div className="border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-[#432623]/15 dark:border-[#F5F1BC]/15 pb-3">
               <div>
                 <h2 className="font-serif text-lg sm:text-xl font-bold text-[#432623] dark:text-[#F5F1BC]">
-                  {dict.whoNeedsHelpToday || "Who needs help today"}
+                  Students Who Need Help First
                 </h2>
                 <p className="text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 mt-0.5">
-                  Top 5 learners needing teacher support in class today.
+                  Top learners needing teacher support in class today.
                 </p>
               </div>
               <span className="text-sm font-mono font-bold text-[#B51E28] bg-[#DE2A35]/10 px-2.5 py-1 rounded-[2px] border border-[#DE2A35]/30">
@@ -351,69 +434,75 @@ export function TeacherDashboard({
               </span>
             </div>
 
-            <div className="space-y-3">
-              {urgentStudents.map((s) => {
-                const root = s.profile.rootCauses[0];
-                const isCritical = s.profile.status === "critical";
-                const problemDesc = root ? t(`c_${root.rootId}`) : "Prerequisite foundation review";
+            {urgentStudents.length === 0 ? (
+              <div className="p-4 text-center text-sm font-mono text-[#432623]/70 dark:text-[#F5F1BC]/70">
+                No students assessed yet. Start an assessment.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {urgentStudents.map((s) => {
+                  const root = s.profile.rootCauses[0];
+                  const isCritical = s.profile.status === "critical";
+                  const problemDesc = root ? t(`c_${root.rootId}`) : "Prerequisite foundation review";
 
-                return (
-                  <div
-                    key={s.student.id}
-                    className="p-3.5 border border-[#432623]/20 dark:border-[#F5F1BC]/20 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                  >
-                    {/* Left: Name and One-line problem */}
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
+                  return (
+                    <div
+                      key={s.student.id}
+                      className="p-3.5 border border-[#432623]/20 dark:border-[#F5F1BC]/20 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    >
+                      {/* Left: Name and One-line problem */}
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => onSelectStudent(s)}
+                            className="font-serif font-bold text-base text-[#432623] dark:text-[#F5F1BC] hover:underline text-left"
+                          >
+                            {s.student.name}
+                          </button>
+                          <span className="text-sm font-mono text-[#432623]/60 dark:text-[#F5F1BC]/60">
+                            (Roll #{s.student.rollNo})
+                          </span>
+                          <span
+                            className={`text-sm font-mono font-bold uppercase px-1.5 py-0.2 rounded-[2px] border ${
+                              isCritical
+                                ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]"
+                                : "bg-[#DFA06E]/20 text-[#432623] border-[#DFA06E]"
+                            }`}
+                          >
+                            {isCritical ? "Critical" : "Need Practice"}
+                          </span>
+                        </div>
+                        <p className="text-sm text-[#432623]/85 dark:text-[#F5F1BC]/85">
+                          <strong className="text-[#DE2A35]">{problemDesc}</strong>
+                        </p>
+                      </div>
+
+                      {/* Right: Actions */}
+                      <div className="shrink-0 flex items-center gap-2">
                         <button
                           type="button"
                           onClick={() => onSelectStudent(s)}
-                          className="font-serif font-bold text-base text-[#432623] dark:text-[#F5F1BC] hover:underline text-left"
+                          className="min-h-[44px] px-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-sm font-mono uppercase text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC]/50"
                         >
-                          {s.student.name}
+                          Details
                         </button>
-                        <span className="text-sm font-mono text-[#432623]/60 dark:text-[#F5F1BC]/60">
-                          (Roll #{s.student.rollNo})
-                        </span>
-                        <span
-                          className={`text-sm font-mono font-bold uppercase px-1.5 py-0.2 rounded-[2px] border ${
-                            isCritical
-                              ? "bg-[#DE2A35]/15 text-[#DE2A35] border-[#DE2A35]"
-                              : "bg-[#DFA06E]/20 text-[#432623] border-[#DFA06E]"
-                          }`}
+                        <button
+                          type="button"
+                          onClick={() => onOpenAssessment(s.student.id, root?.rootId || "number_ops")}
+                          className="min-h-[44px] px-4 bg-[#DE2A35] text-[#F5F1BC] text-sm font-mono uppercase font-bold border border-[#DE2A35] hover:bg-[#DE2A35]/90 flex items-center gap-1.5"
                         >
-                          {isCritical ? "Critical" : "Need Practice"}
-                        </span>
+                          <span>Practice</span>
+                          <ArrowRight size={14} />
+                        </button>
                       </div>
-                      <p className="text-sm text-[#432623]/85 dark:text-[#F5F1BC]/85">
-                        <strong className="text-[#DE2A35]">{problemDesc}</strong>
-                      </p>
                     </div>
+                  );
+                })}
+              </div>
+            )}
 
-                    {/* Right: Exactly ONE Action Button */}
-                    <div className="shrink-0 flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => onSelectStudent(s)}
-                        className="min-h-[44px] px-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-sm font-mono uppercase text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC]/50"
-                      >
-                        Details
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onOpenAssessment(s.student.id, root?.rootId || "number_ops")}
-                        className="min-h-[44px] px-4 bg-[#DE2A35] text-[#F5F1BC] text-sm font-mono uppercase font-bold border border-[#DE2A35] hover:bg-[#DE2A35]/90 flex items-center gap-1.5"
-                      >
-                        <span>Practice</span>
-                        <ArrowRight size={14} />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* 3. "SEE ALL STUDENTS" LINK */}
+            {/* Quick Link to full student roster */}
             <div className="pt-2 text-right">
               <button
                 type="button"
@@ -428,6 +517,34 @@ export function TeacherDashboard({
               </button>
             </div>
           </div>
+
+          {/* More details toggle for teacher */}
+          <details className="border border-[#432623]/20 dark:border-[#F5F1BC]/20 bg-[#FAF8E8] dark:bg-[#381f1c] rounded-[2px] p-4 text-sm">
+            <summary className="font-mono text-sm uppercase font-bold text-[#432623] dark:text-[#F5F1BC] cursor-pointer hover:underline py-1">
+              More details (Class breakdown & quick actions)
+            </summary>
+            <div className="pt-4 space-y-3 border-t border-[#432623]/15 mt-3">
+              <p className="text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
+                Need the complete prerequisite dependency map, individual student diagnosis, or institutional CSV/JSON records? Tap any section above or use the navigation tabs.
+              </p>
+              <div className="flex flex-wrap gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("gaps")}
+                  className="min-h-[44px] px-4 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-sm font-mono uppercase font-bold hover:bg-[#F5F1BC]"
+                >
+                  View Full Mastery Matrix & Dependency Map
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("reports")}
+                  className="min-h-[44px] px-4 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-sm font-mono uppercase font-bold hover:bg-[#F5F1BC]"
+                >
+                  Export Student Data (CSV / JSON)
+                </button>
+              </div>
+            </div>
+          </details>
         </section>
       )}
 
@@ -597,24 +714,24 @@ export function TeacherDashboard({
                                 <button
                                   type="button"
                                   onClick={() => onSelectStudent(s)}
-                                  className="min-h-[36px] px-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-sm font-mono uppercase font-bold hover:bg-[#F5F1BC]"
+                                  className="min-h-[44px] px-3.5 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-sm font-mono uppercase font-bold hover:bg-[#F5F1BC]"
                                 >
                                   Report
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => onPrintWorksheet(s)}
-                                  className="min-h-[36px] px-2.5 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-sm font-mono uppercase font-bold hover:bg-[#F5F1BC] inline-flex items-center gap-1"
+                                  className="min-h-[44px] px-3 border border-[#432623]/30 dark:border-[#F5F1BC]/30 text-sm font-mono uppercase font-bold hover:bg-[#F5F1BC] inline-flex items-center gap-1"
                                   title="Print 1-page paper worksheet"
                                 >
-                                  <Printer size={13} />
+                                  <Printer size={16} />
                                   <span>Sheet</span>
                                 </button>
                                 {root && (
                                   <button
                                     type="button"
                                     onClick={() => onOpenAssessment(s.student.id, root.rootId)}
-                                    className="min-h-[36px] px-3 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold border border-[#DE2A35] hover:bg-[#B51E28] cursor-pointer"
+                                    className="min-h-[44px] px-3.5 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold border border-[#DE2A35] hover:bg-[#B51E28] cursor-pointer"
                                   >
                                     Practice
                                   </button>

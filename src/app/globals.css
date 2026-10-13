@@ -168,17 +168,44 @@
   }
 }
 
-/* Print Stylesheet (Phase E rule: white paper allowed only in print) */
+/* Print Stylesheet (Phase E & UI Step 7 rule: clean A4 print, black text, large font, no navigation) */
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 15mm 15mm 15mm 15mm;
+  }
+
   body {
     background-color: #FFFFFF !important;
+    background: #FFFFFF !important;
     color: #000000 !important;
+    font-size: 16pt !important;
+    line-height: 1.5 !important;
   }
-  .no-print, header, nav, footer, button {
+
+  .no-print, header, nav, footer, button, [role="navigation"] {
     display: none !important;
   }
+
   .print-only {
     display: block !important;
+  }
+
+  * {
+    color: #000000 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  h1, h2, h3, h4 {
+    color: #000000 !important;
+    page-break-after: avoid;
+  }
+
+  p, article, section {
+    orphans: 3;
+    widows: 3;
   }
 }
 
