@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { getShareToken, recordTokenView, logAuditEvent } from '@/lib/server/store';
 import { ErrorState, LoadingSkeletonState } from '@/components/StateScreens';

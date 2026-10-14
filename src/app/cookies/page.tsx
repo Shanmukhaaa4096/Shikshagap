@@ -1,4 +1,3 @@
-import React from "react";
 import Link from "next/link";
 import { ArrowLeft, Cookie } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";

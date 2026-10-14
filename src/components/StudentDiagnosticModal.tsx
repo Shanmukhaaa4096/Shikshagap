@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState, Fragment } from "react";
 import type { DemoStudentData } from "@/lib/data/demo";
 import { useI18n } from "@/lib/i18n/context";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -492,7 +492,7 @@ export function StudentDiagnosticModal({
                         </div>
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
                           {rootCause.chain.map((cId, idx) => (
-                            <React.Fragment key={cId}>
+                            <Fragment key={cId}>
                               <div
                                 className={`px-2.5 py-1 rounded-[2px] border ${
                                   idx === rootCause.chain.length - 1
@@ -509,7 +509,7 @@ export function StudentDiagnosticModal({
                               {idx < rootCause.chain.length - 1 && (
                                 <ArrowDown size={12} className="text-[var(--muted-foreground)] sm:hidden mx-auto" />
                               )}
-                            </React.Fragment>
+                            </Fragment>
                           ))}
                         </div>
                       </div>

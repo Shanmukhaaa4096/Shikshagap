@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Printer, ShareNetwork, Check, ArrowLeft } from '@phosphor-icons/react';
 import { siteConfig } from '@/config/site';

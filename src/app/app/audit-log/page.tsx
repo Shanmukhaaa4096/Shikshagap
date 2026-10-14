@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Funnel } from '@phosphor-icons/react';
 import { LoadingSkeletonState, EmptyState, ErrorState, PermissionDeniedState } from '@/components/StateScreens';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { FAQS } from '@/data/faqs';
 import { CaretDown } from '@phosphor-icons/react';
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 
 interface MascotHeroProps {

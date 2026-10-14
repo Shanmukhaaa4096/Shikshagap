@@ -19,14 +19,6 @@
   --color-sg-mauve: #A2999E;
   --color-sg-coral: #F56276;
 
-  /* Backward compatible semantic aliases */
-  --color-sg-red: #F56276;
-  --color-sg-red-dark: #36151E;
-  --color-sg-sage: #A2999E;
-  --color-sg-cream: #EEF0F2;
-  --color-sg-cream-light: #EEF0F2;
-  --color-sg-clay: #C6C7C4;
-  --color-sg-brown: #36151E;
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);

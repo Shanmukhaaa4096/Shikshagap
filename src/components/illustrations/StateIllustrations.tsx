@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 
 export function NotFoundIllustration({ className = '' }: { className?: string }) {
   return (

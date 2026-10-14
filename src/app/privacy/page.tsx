@@ -1,6 +1,5 @@
 // Legal wording needs review by a qualified lawyer before launch.
 
-import React from "react";
 import Link from "next/link";
 import { ShieldCheck, ArrowLeft, Warning } from "@phosphor-icons/react/dist/ssr";
 import { siteConfig } from "@/config/site";

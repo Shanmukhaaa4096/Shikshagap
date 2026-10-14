@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { queueOfflineAction, syncOfflineQueue } from "@/lib/offline/sync";
 import type {
@@ -43,6 +43,7 @@ import {
   applyAttemptToMemory,
 } from "@/lib/agents/staircase";
 import { generateUnique } from "@/lib/questions/generator";
+import { normalizeAnswer } from "@/lib/questions/hybridGenerator";
 import { makeRng } from "@/lib/rng";
 import { getClassConfig, DEFAULT_CLASS_ID, ENABLED_CLASSES } from "@/lib/curriculum/classes";
 import { generateRemediationPlan } from "@/lib/engine/remediation";
@@ -462,7 +463,7 @@ export function AdaptiveAssessmentView({
     const trimmed = answerValue.trim();
     if (!trimmed) return;
 
-    const isCorrect = trimmed === String(currentQuestion.answer);
+    const isCorrect = trimmed === String(currentQuestion.answer) || normalizeAnswer(trimmed) === normalizeAnswer(currentQuestion.answer);
 
     let errorType: string | undefined = undefined;
     if (!isCorrect && currentQuestion.meta.bugs && currentQuestion.meta.bugs[trimmed]) {

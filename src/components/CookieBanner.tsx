@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useSyncExternalStore } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { ShieldCheck, X } from '@phosphor-icons/react';
 
@@ -48,7 +48,7 @@ export function CookieBanner() {
     () => 'pending'
   );
 
-  const [localDismissed, setLocalDismissed] = React.useState(false);
+  const [localDismissed, setLocalDismissed] = useState(false);
 
   const handleChoice = (accepted: boolean) => {
     try {

@@ -1,4 +1,3 @@
-import React from 'react';
 import { ArrowRight, ShieldCheck, Lock } from '@phosphor-icons/react';
 import { 
   DagBentoIllustration, 

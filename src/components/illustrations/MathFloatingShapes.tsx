@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 
 export function MathFloatingShapes() {

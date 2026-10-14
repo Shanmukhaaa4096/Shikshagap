@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Printer, CheckCircle, Warning, Heart } from '@phosphor-icons/react';
 
 interface Props {

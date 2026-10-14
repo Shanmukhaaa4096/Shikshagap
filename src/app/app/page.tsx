@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { LanguageProvider } from '@/lib/i18n/context';
 import { Header } from '@/components/Header';
 import { TeacherDashboard } from '@/components/TeacherDashboard';

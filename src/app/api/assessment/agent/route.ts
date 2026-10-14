@@ -15,6 +15,8 @@ import type {
 } from "@/lib/types";
 
 import { z } from "zod";
+import { guardRequest, createGuardResponse } from "@/lib/server/guard";
+import { getClientIp } from "@/lib/server/security";
 
 const AssessmentAgentSchema = z.object({
   memory: z.object({
@@ -47,9 +49,6 @@ const AssessmentAgentSchema = z.object({
     })
     .optional(),
 });
-
-import { guardRequest, createGuardResponse } from "@/lib/server/guard";
-import { getClientIp } from "@/lib/server/security";
 
 export async function POST(req: NextRequest) {
   try {

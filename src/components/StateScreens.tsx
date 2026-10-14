@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import Link from 'next/link';
 
 // Consistent SVG stroke icons (no emojis, no lucide, no sparkles)

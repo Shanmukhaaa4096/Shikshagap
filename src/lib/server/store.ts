@@ -100,6 +100,7 @@ export interface SharedReportRecord {
   createdAt: number;
   expiresAt: number; // 7 days standard
   revoked: boolean;
+  revokedBy?: string;
   viewsCount: number;
   maxViews: number;
   confirmedNotice: boolean; // Teacher confirmation recording
@@ -156,6 +157,7 @@ export function revokeShareToken(token: string, userId: string, schoolId: string
   if (!record) return false;
   if (record.schoolId !== schoolId) return false;
   record.revoked = true;
+  record.revokedBy = userId;
   return true;
 }
 

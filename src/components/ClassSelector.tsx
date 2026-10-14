@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import { useState } from 'react';
 import { SUPPORTED_CLASSES, type ClassConfig } from '@/lib/curriculum/classes';
 
 interface ClassSelectorProps {
@@ -16,7 +16,7 @@ export function ClassSelector({
   className = '',
   compact = false,
 }: ClassSelectorProps) {
-  const [showUpcoming, setShowUpcoming] = React.useState(false);
+  const [showUpcoming, setShowUpcoming] = useState(false);
   const enabledClasses = SUPPORTED_CLASSES.filter((c) => c.enabled);
   const upcomingClasses = SUPPORTED_CLASSES.filter((c) => !c.enabled);
 

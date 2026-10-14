@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { WifiSlash, ArrowsClockwise, Warning, X } from '@phosphor-icons/react';
 import { getOfflineQueue, syncOfflineQueue, getLastSyncTime } from '@/lib/offline/sync';
 
@@ -15,7 +15,7 @@ export function OfflineSyncBanner() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [showSharedNotice, setShowSharedNotice] = useState(true);
 
-  const triggerSync = React.useCallback(async () => {
+  const triggerSync = useCallback(async () => {
     if (typeof navigator !== 'undefined' && !navigator.onLine) return;
     setIsSyncing(true);
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import Link from 'next/link';
 import { ArrowRight } from '@phosphor-icons/react';
 import { WorksheetPreviewIllustration } from '@/components/illustrations/WorksheetPreviewIllustration';

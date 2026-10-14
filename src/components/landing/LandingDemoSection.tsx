@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { CheckCircle } from '@phosphor-icons/react';
 import { ClassSelector } from '@/components/ClassSelector';
