@@ -15,6 +15,7 @@ export default function robots(): MetadataRoute.Robots {
         '/licenses',
         '/data-request',
         '/how-it-works',
+        '/assessment',
         '/notices/guardian',
       ],
       disallow: ['/app', '/app/', '/api', '/api/', '/login', '/login/', '/report', '/report/'],

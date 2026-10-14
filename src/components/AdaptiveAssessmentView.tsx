@@ -43,7 +43,9 @@ import {
 } from "@/lib/agents/staircase";
 import { generateUnique } from "@/lib/questions/generator";
 import { makeRng } from "@/lib/rng";
-import { getClassConfig, DEFAULT_CLASS_ID } from "@/lib/curriculum/classes";
+import { getClassConfig, DEFAULT_CLASS_ID, ENABLED_CLASSES } from "@/lib/curriculum/classes";
+import { generateRemediationPlan } from "@/lib/engine/remediation";
+import type { RootCause } from "@/lib/types";
 
 function generateClientSessionId(): string {
   const ts = typeof Date !== "undefined" ? Date.now() : 0;
@@ -52,28 +54,59 @@ function generateClientSessionId(): string {
 }
 
 interface Props {
-  students: DemoStudentData[];
+  students?: DemoStudentData[];
   initialStudentId?: string;
   initialConceptId?: string;
   isStudentView?: boolean;
+  isGuest?: boolean;
   selectedClassId?: string;
-  onAssessmentCompleted: (updatedStudent: DemoStudentData) => void;
-  onCancel: () => void;
+  onClassChange?: (newClassId: string) => void;
+  onAssessmentCompleted?: (updatedStudent: DemoStudentData) => void;
+  onCancel?: () => void;
 }
 
 export function AdaptiveAssessmentView({
   students,
   initialStudentId,
   isStudentView = false,
+  isGuest = false,
   selectedClassId = DEFAULT_CLASS_ID,
+  onClassChange,
   onAssessmentCompleted,
   onCancel,
 }: Props) {
   const { lang, setLang, dict, t, formatTxt } = useI18n();
   const classConfig = getClassConfig(selectedClassId);
 
+  const fallbackGuestStudent: DemoStudentData = {
+    student: {
+      id: "guest_learner",
+      name: "Guest Learner",
+      rollNo: 1,
+      classroomId: selectedClassId,
+      isDemo: true,
+    },
+    profile: {
+      studentId: "guest_learner",
+      overallMastery: 0.5,
+      confidence: 0.5,
+      status: "need_practice",
+      concepts: {},
+      strong: [],
+      developing: [],
+      needsSupport: [],
+      inferredOk: [],
+      rootCauses: [],
+      nextConcept: null,
+      nextReason: "none",
+      evidenceCount: 0,
+      lastAssessedAt: "2026-10-14T00:00:00.000Z",
+    },
+  };
+
+  const effectiveStudents = students && students.length > 0 ? students : [fallbackGuestStudent];
   const [selectedStudentId, setSelectedStudentId] = useState<string>(
-    initialStudentId || students[0]?.student.id || "student_1"
+    initialStudentId || effectiveStudents[0]?.student.id || "guest_learner"
   );
 
   // Agent Runtime State: SessionMemory managed on client per SPEC.md
@@ -96,6 +129,67 @@ export function AdaptiveAssessmentView({
   const lastAttemptRef = useRef<Attempt | null>(null);
   const clientSessionIdRef = useRef<string>("");
   const sessionClosedRef = useRef<boolean>(false);
+
+  const sessionStorageKey = `sg_assessment_session_${selectedClassId}_${selectedStudentId}`;
+
+  // Restore session from sessionStorage on mount / class change
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const saved = sessionStorage.getItem(sessionStorageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.sessionMemory && parsed.isStarted) {
+          setSessionMemory(parsed.sessionMemory);
+          setCurrentQuestion(parsed.currentQuestion || null);
+          setUserAnswer(parsed.userAnswer || "");
+          setFeedback(parsed.feedback || null);
+          setIsStarted(Boolean(parsed.isStarted));
+          setIsFinished(Boolean(parsed.isFinished));
+          setRecommendations(parsed.recommendations || []);
+          setReportSummary(parsed.reportSummary || "");
+          if (parsed.clientSessionId) {
+            clientSessionIdRef.current = parsed.clientSessionId;
+          }
+        }
+      }
+    } catch {
+      // Graceful fallback
+    }
+  }, [sessionStorageKey]);
+
+  // Persist session to sessionStorage on state updates
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      if (isStarted && sessionMemory) {
+        sessionStorage.setItem(
+          sessionStorageKey,
+          JSON.stringify({
+            isStarted,
+            isFinished,
+            sessionMemory,
+            currentQuestion,
+            userAnswer,
+            feedback,
+            recommendations,
+            reportSummary,
+            clientSessionId: clientSessionIdRef.current,
+          })
+        );
+      }
+    } catch {
+      // Graceful fallback
+    }
+  }, [sessionStorageKey, isStarted, isFinished, sessionMemory, currentQuestion, userAnswer, feedback, recommendations, reportSummary]);
+
+  const clearSavedSession = () => {
+    try {
+      sessionStorage.removeItem(sessionStorageKey);
+    } catch {
+      // ignore
+    }
+  };
 
   // Track evaluating duration for calm loading message after 3s without calling setState synchronously in effect body
   useEffect(() => {
@@ -192,7 +286,7 @@ export function AdaptiveAssessmentView({
     }
   };
 
-  const activeStudent = students.find((s) => s.student.id === selectedStudentId);
+  const activeStudent = effectiveStudents.find((s) => s.student.id === selectedStudentId) || effectiveStudents[0];
 
   // Helper to trigger finish endpoint (Resource Advisor + Report Writer)
   const completeAssessment = async (finalMem: SessionMemory) => {
@@ -281,6 +375,7 @@ export function AdaptiveAssessmentView({
   const handleStart = async () => {
     if (!activeStudent) return;
 
+    clearSavedSession();
     // Generate random anonymous sessionId on client (never built from student data)
     clientSessionIdRef.current = generateClientSessionId();
     sessionClosedRef.current = false;
@@ -305,6 +400,7 @@ export function AdaptiveAssessmentView({
     setFeedback(null);
     setShowHint(false);
     setIsEvaluating(true);
+    setHasError(false);
     lastAttemptRef.current = null;
 
     let fetchSucceeded = false;
@@ -330,19 +426,24 @@ export function AdaptiveAssessmentView({
     }
 
     if (!fetchSucceeded) {
-      // Deterministic client fallback with stable seed derived from student
-      setIsBackupQuestion(true);
-      const fallbackRng = makeRng(12345 + (activeStudent?.student.rollNo || 1));
-      const action = getNextStaircaseAction(initialMemory);
-      if (action.type === "ask") {
-        const seen = new Set<string>();
-        const q = generateUnique(action.conceptId, action.level, fallbackRng, seen, classConfig.grade);
-        setSessionMemory({
-          ...initialMemory,
-          seenSignatures: Array.from(seen),
-          usedFormats: [q.format],
-        });
-        setCurrentQuestion(q);
+      try {
+        // Deterministic client fallback with stable seed derived from student
+        setIsBackupQuestion(true);
+        const fallbackRng = makeRng(12345 + (activeStudent?.student.rollNo || 1));
+        const action = getNextStaircaseAction(initialMemory);
+        if (action.type === "ask") {
+          const seen = new Set<string>();
+          const q = generateUnique(action.conceptId, action.level, fallbackRng, seen, classConfig.grade);
+          setSessionMemory({
+            ...initialMemory,
+            seenSignatures: Array.from(seen),
+            usedFormats: [q.format],
+          });
+          setCurrentQuestion(q);
+        }
+      } catch (err) {
+        console.error("Failed to generate fallback initial question", err);
+        setHasError(true);
       }
     }
     setIsEvaluating(false);
@@ -350,7 +451,7 @@ export function AdaptiveAssessmentView({
 
   // Submit Student Answer
   const handleSubmit = (answerValue: string) => {
-    if (!currentQuestion || !sessionMemory || isEvaluating) return;
+    if (!currentQuestion || !sessionMemory || isEvaluating || Boolean(feedback)) return;
 
     const trimmed = answerValue.trim();
     if (!trimmed) return;
@@ -392,6 +493,7 @@ export function AdaptiveAssessmentView({
     setUserAnswer("");
     setShowHint(false);
     setIsEvaluating(true);
+    setHasError(false);
 
     let fetchSucceeded = false;
     for (let attempt = 0; attempt < 2; attempt++) {
@@ -425,36 +527,41 @@ export function AdaptiveAssessmentView({
     }
 
     if (!fetchSucceeded) {
-      // Deterministic fallback using staircase pure engine
-      setIsBackupQuestion(true);
-      if (lastAttempt) {
-        const advanced = applyAttemptToMemory(sessionMemory, lastAttempt);
-        setSessionMemory(advanced.memory);
-
-        if (advanced.action.type === "finish") {
+      try {
+        // Deterministic fallback using staircase pure engine
+        setIsBackupQuestion(true);
+        if (lastAttempt) {
+          const advanced = applyAttemptToMemory(sessionMemory, lastAttempt);
           setSessionMemory(advanced.memory);
-          completeAssessment(advanced.memory);
-        } else if (advanced.action.type === "ask") {
-          const seen = new Set<string>(advanced.memory.seenSignatures || []);
-          const usedFormats = advanced.memory.usedFormats || [];
-          const lastFormat = usedFormats.length > 0 ? usedFormats[usedFormats.length - 1] : undefined;
-          const fallbackSeed = 9999 + (activeStudent?.student.rollNo || 1) * 31 + (sessionMemory.topics.reduce((acc, t) => acc + t.attempts.length, 0));
-          const nextQ = generateUnique(
-            advanced.action.conceptId,
-            advanced.action.level,
-            makeRng(fallbackSeed),
-            seen,
-            sessionMemory.grade,
-            {},
-            { avoidFormat: lastFormat }
-          );
-          setSessionMemory({
-            ...advanced.memory,
-            seenSignatures: Array.from(seen),
-            usedFormats: [...usedFormats, nextQ.format],
-          });
-          setCurrentQuestion(nextQ);
+
+          if (advanced.action.type === "finish") {
+            setSessionMemory(advanced.memory);
+            completeAssessment(advanced.memory);
+          } else if (advanced.action.type === "ask") {
+            const seen = new Set<string>(advanced.memory.seenSignatures || []);
+            const usedFormats = advanced.memory.usedFormats || [];
+            const lastFormat = usedFormats.length > 0 ? usedFormats[usedFormats.length - 1] : undefined;
+            const fallbackSeed = 9999 + (activeStudent?.student.rollNo || 1) * 31 + (sessionMemory.topics.reduce((acc, t) => acc + t.attempts.length, 0));
+            const nextQ = generateUnique(
+              advanced.action.conceptId,
+              advanced.action.level,
+              makeRng(fallbackSeed),
+              seen,
+              sessionMemory.grade,
+              {},
+              { avoidFormat: lastFormat }
+            );
+            setSessionMemory({
+              ...advanced.memory,
+              seenSignatures: Array.from(seen),
+              usedFormats: [...usedFormats, nextQ.format],
+            });
+            setCurrentQuestion(nextQ);
+          }
         }
+      } catch (err) {
+        console.error("Failed to advance fallback question", err);
+        setHasError(true);
       }
     }
     lastAttemptRef.current = null;
@@ -463,8 +570,9 @@ export function AdaptiveAssessmentView({
 
   // Save diagnostic findings and return to teacher dashboard
   const handleSaveAndFinish = () => {
+    clearSavedSession();
     if (!activeStudent || !sessionMemory) {
-      onCancel();
+      if (onCancel) onCancel();
       return;
     }
 
@@ -514,7 +622,11 @@ export function AdaptiveAssessmentView({
       },
     };
 
-    onAssessmentCompleted(updatedStudent);
+    if (onAssessmentCompleted) {
+      onAssessmentCompleted(updatedStudent);
+    } else if (onCancel) {
+      onCancel();
+    }
   };
 
   const currentTopicMemory = sessionMemory?.topics[sessionMemory?.currentTopicIndex ?? 0];
@@ -546,7 +658,70 @@ export function AdaptiveAssessmentView({
           </div>
 
           {/* Student Selector or Personal Learner Banner */}
-          {isStudentView ? (
+          {isGuest ? (
+            <div className="space-y-4">
+              <div className="p-4 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#8ABB93]/60 rounded-[2px] flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#8ABB93] animate-pulse" />
+                  <div>
+                    <span className="editorial-meta text-[#8ABB93] font-bold">TRIAL ASSESSMENT</span>
+                    <div className="font-serif font-bold text-lg text-[#432623] dark:text-[#F5F1BC]">
+                      Guest Learner • {classConfig.label}
+                    </div>
+                  </div>
+                </div>
+                <span className="text-xs font-mono font-bold bg-[#8ABB93]/20 text-[#432623] dark:text-[#F5F1BC] px-2.5 py-1 rounded-[2px] border border-[#8ABB93]/40">
+                  No Sign-in Required
+                </span>
+              </div>
+
+              {/* Class & Language Pickers for Guest */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="editorial-meta text-[#432623]">SELECT CLASS GRADE</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {ENABLED_CLASSES.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => {
+                          clearSavedSession();
+                          onClassChange?.(c.id);
+                        }}
+                        className={`min-h-[44px] px-3 py-2 text-sm font-bold font-mono rounded-[2px] border transition-colors ${
+                          selectedClassId === c.id
+                            ? "bg-[#432623] text-[#F5F1BC] border-[#432623]"
+                            : "bg-[#FAF8E8] dark:bg-[#432623]/30 text-[#432623] border-[#432623]/25 hover:bg-[#F5F1BC]/50"
+                        }`}
+                      >
+                        {c.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="editorial-meta text-[#432623]">ASSESSMENT LANGUAGE</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(["en", "hi", "te"] as Lang[]).map((l) => (
+                      <button
+                        key={l}
+                        type="button"
+                        onClick={() => setLang(l)}
+                        className={`min-h-[44px] px-3 py-2 text-sm font-bold font-mono rounded-[2px] border transition-colors ${
+                          lang === l
+                            ? "bg-[#432623] text-[#F5F1BC] border-[#432623]"
+                            : "bg-[#FAF8E8] dark:bg-[#432623]/30 text-[#432623] border-[#432623]/25 hover:bg-[#F5F1BC]/50"
+                        }`}
+                      >
+                        {l === "en" ? "English" : l === "hi" ? "हिन्दी" : "తెలుగు"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : isStudentView ? (
             <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] flex items-center justify-between">
               <div>
                 <span className="editorial-meta text-[#432623]/70">LEARNER</span>
@@ -562,7 +737,7 @@ export function AdaptiveAssessmentView({
                 onChange={(e) => setSelectedStudentId(e.target.value)}
                 className="w-full h-11 px-3 text-sm font-semibold bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623] focus:outline-none focus:ring-1 focus:ring-[#432623]"
               >
-                {students.map((s) => (
+                {effectiveStudents.map((s) => (
                   <option key={s.student.id} value={s.student.id}>
                     {s.student.name} (Roll #{s.student.rollNo}) | {s.profile.status.toUpperCase().replace("_", " ")}
                   </option>
@@ -600,10 +775,10 @@ export function AdaptiveAssessmentView({
           {/* Start CTA */}
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#432623]/20">
             <button
-              onClick={onCancel}
-              className="neo-btn neo-btn-secondary px-5 py-2.5 text-sm font-bold w-full sm:w-auto rounded-[2px]"
+              onClick={onCancel ? onCancel : () => { window.location.href = "/"; }}
+              className="neo-btn neo-btn-secondary px-5 py-2.5 min-h-[44px] text-sm font-bold w-full sm:w-auto rounded-[2px]"
             >
-              Back to Dashboard
+              {isGuest ? "Back to Home" : "Back to Dashboard"}
             </button>
             <button
               onClick={handleStart}
@@ -801,6 +976,79 @@ export function AdaptiveAssessmentView({
             </div>
           )}
 
+          {/* 5-DAY TARGETED CLASSROOM IMPROVEMENT PLAN */}
+          {gapTopics.length > 0 && (
+            <div className="space-y-4 pt-2">
+              <div className="flex items-center gap-2 border-b border-[#432623]/20 pb-2">
+                <Sparkle className="w-4 h-4 text-[#DE2A35]" weight="fill" />
+                <span className="editorial-meta text-[#DE2A35] font-bold">
+                  RECOMMENDED 5-DAY TARGETED CLASSROOM PLAN
+                </span>
+              </div>
+              <div className="space-y-4">
+                {gapTopics.map((topicMem) => {
+                  const targetConcept = TOPICS[topicMem.topicId]?.targets[0] || (topicMem.topicId as ConceptId);
+                  const rootCause: RootCause = {
+                    rootId: targetConcept,
+                    symptomIds: TOPICS[topicMem.topicId]?.targets.filter((c) => c !== targetConcept) || [],
+                    chain: [targetConcept],
+                    severity: "high",
+                    confidence: 0.8,
+                    rootMastery: 0.3,
+                    uncheckedPrereqs: [],
+                    isSelfRoot: true,
+                    evidence: [],
+                    misconceptions: [],
+                    priority: 1,
+                  };
+                  const plan = generateRemediationPlan(activeStudent?.student.id || "guest", rootCause);
+                  return (
+                    <div
+                      key={topicMem.topicId}
+                      className="p-4 sm:p-5 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#DE2A35]/30 rounded-[2px] space-y-3"
+                    >
+                      <div>
+                        <span className="text-xs font-mono uppercase tracking-wider text-[#B51E28] font-bold">
+                          TARGET ROOT GAP: {t(`c_${targetConcept}`) || targetConcept}
+                        </span>
+                        <h4 className="font-serif text-lg font-bold text-[#432623] mt-0.5">
+                          5-Day Concrete Remediation Activity Plan
+                        </h4>
+                        <p className="text-sm text-[#432623]/80 mt-1 leading-relaxed">
+                          {plan.aiNote}
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-5 gap-2.5 pt-2">
+                        {plan.days.map((d) => (
+                          <div
+                            key={d.day}
+                            className="p-2.5 bg-[var(--surface)] border border-[#432623]/20 rounded-[2px] flex flex-col justify-between"
+                          >
+                            <div>
+                              <div className="flex items-center justify-between text-xs font-mono font-bold text-[#DE2A35]">
+                                <span>DAY {d.day}</span>
+                                <span>{d.minutes}m</span>
+                              </div>
+                              <div className="font-bold text-xs text-[#432623] mt-1 leading-snug">
+                                {formatTxt(d.title)}
+                              </div>
+                              <p className="text-xs text-[#432623]/70 mt-1 line-clamp-3">
+                                {formatTxt(d.activity)}
+                              </p>
+                            </div>
+                            <div className="mt-2 pt-1 border-t border-[#432623]/10 text-xs font-mono text-[#432623]/60 uppercase">
+                              Focus: {d.focus}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Prominent Large Print Worksheet Button */}
           <div className="p-4 sm:p-6 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="space-y-1 text-center sm:text-left">
@@ -909,23 +1157,36 @@ export function AdaptiveAssessmentView({
             <button
               type="button"
               onClick={() => {
+                clearSavedSession();
                 setIsStarted(false);
                 setIsFinished(false);
                 setSessionMemory(null);
+                setCurrentQuestion(null);
+                setFeedback(null);
               }}
               className="neo-btn neo-btn-secondary min-h-[48px] px-6 text-base font-bold flex items-center justify-center gap-2 rounded-[2px] w-full sm:w-auto"
             >
               <ArrowCounterClockwise className="w-4 h-4" />
-              <span>Check Another Student</span>
+              <span>{isGuest ? "Take Another Trial Check" : "Check Another Student"}</span>
             </button>
-            <button
-              type="button"
-              onClick={handleSaveAndFinish}
-              className="neo-btn neo-btn-primary min-h-[48px] px-8 text-base font-bold flex items-center justify-center gap-2 rounded-[2px] w-full sm:w-auto"
-            >
-              <span>SAVE &amp; RETURN TO DASHBOARD</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            {isGuest ? (
+              <a
+                href="/login?redirect=/app"
+                className="neo-btn neo-btn-primary min-h-[48px] px-8 text-base font-bold flex items-center justify-center gap-2 rounded-[2px] w-full sm:w-auto text-center"
+              >
+                <span>TEACHER SIGN IN TO SAVE RESULTS</span>
+                <ArrowRight className="w-4 h-4" />
+              </a>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSaveAndFinish}
+                className="neo-btn neo-btn-primary min-h-[48px] px-8 text-base font-bold flex items-center justify-center gap-2 rounded-[2px] w-full sm:w-auto"
+              >
+                <span>SAVE &amp; RETURN TO DASHBOARD</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
           {/* Modal for Printable Practice Worksheet */}
@@ -1151,7 +1412,7 @@ export function AdaptiveAssessmentView({
                           key={opt.id}
                           type="button"
                           onClick={() => handleSubmit(opt.value)}
-                          disabled={isEvaluating}
+                          disabled={isEvaluating || Boolean(feedback)}
                           className="w-full neo-btn neo-btn-secondary min-h-[56px] p-4 text-left text-[18px] sm:text-xl font-bold flex items-center justify-between rounded-[2px] group leading-relaxed"
                         >
                           <span className="font-mono">{formatTxt(opt.label)}</span>
@@ -1168,13 +1429,13 @@ export function AdaptiveAssessmentView({
                         value={userAnswer}
                         onChange={(e) => setUserAnswer(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSubmit(userAnswer)}
-                        disabled={isEvaluating}
+                        disabled={isEvaluating || Boolean(feedback)}
                         className="h-14 font-mono text-xl bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623] w-full"
                       />
                       <button
                         type="button"
                         onClick={() => handleSubmit(userAnswer)}
-                        disabled={isEvaluating}
+                        disabled={isEvaluating || Boolean(feedback)}
                         className="neo-btn neo-btn-primary px-8 min-h-[56px] text-lg font-bold shrink-0 rounded-[2px]"
                       >
                         {dict.submitAnswer}

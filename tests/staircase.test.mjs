@@ -5,7 +5,9 @@ import {
   applyAttemptToMemory,
   createSessionMemory,
   isActionLegal,
+  getPrerequisiteForConcept,
 } from '../src/lib/agents/staircase.ts';
+import { generateRemediationPlan } from '../src/lib/engine/remediation.ts';
 
 test('Staircase Path 1: Correct at 2 -> Correct at 3 -> mastered', () => {
   const memory = createSessionMemory('anon_test_1', 5, 'en', ['number_ops', 'multiplication']);
@@ -270,3 +272,78 @@ test('Code Gate: Reject illegal tool calls', () => {
   // Closing topic before 2 questions is illegal
   assert.equal(isActionLegal(memory, { type: 'close_topic', topicId: 'number_ops', status: 'mastered' }), false);
 });
+
+test('Adaptive Prerequisite: Division Level 2 error steps down to multiplication facts or division concept at Level 1', () => {
+  // Prerequisite mapping function check
+  const prereqMult = getPrerequisiteForConcept('division_facts', 'times_table');
+  assert.equal(prereqMult, 'mult_facts', 'Times table error in division maps to mult_facts prerequisite');
+
+  const prereqConcept = getPrerequisiteForConcept('division_facts', 'sharing');
+  assert.equal(prereqConcept, 'division_concept', 'Sharing error in division maps to division_concept prerequisite');
+
+  // Interactive staircase check
+  const memory = createSessionMemory('anon_prereq_test', 5, 'en', ['division']);
+  const action1 = getNextStaircaseAction(memory);
+  assert.equal(action1.type, 'ask');
+  assert.equal(action1.level, 2);
+
+  const attempt1 = {
+    conceptId: action1.conceptId,
+    level: 2,
+    questionId: 'q_div_2',
+    studentAnswer: '4',
+    correct: false,
+    errorType: 'times_table',
+  };
+
+  const step1 = applyAttemptToMemory(memory, attempt1);
+  assert.equal(step1.action.type, 'ask');
+  assert.equal(step1.action.level, 1, 'Step down to level 1 for prerequisite check');
+  assert.equal(step1.action.conceptId, 'mult_facts', 'Investigate foundational multiplication facts');
+});
+
+test('Diagnostic Rationale: Recorded note documents evidence for learning gap', () => {
+  const memory = createSessionMemory('anon_rationale_test', 5, 'en', ['division']);
+  const action1 = getNextStaircaseAction(memory);
+
+  const attempt1 = {
+    conceptId: action1.conceptId,
+    level: 2,
+    questionId: 'q_div_l2',
+    studentAnswer: '3',
+    correct: false,
+    errorType: 'times_table',
+  };
+  const step1 = applyAttemptToMemory(memory, attempt1);
+
+  const attempt2 = {
+    conceptId: step1.action.conceptId,
+    level: 1,
+    questionId: 'q_prereq_l1',
+    studentAnswer: '15',
+    correct: false,
+    errorType: 'wrong_fact',
+  };
+  const step2 = applyAttemptToMemory(step1.memory, attempt2);
+
+  assert.equal(step2.closedTopic?.status, 'gap');
+  assert.ok(step2.memory.topics[0].notes.length > 0);
+  assert.match(step2.memory.topics[0].notes[0], /Foundational difficulty confirmed/);
+});
+
+test('Remediation Planner: Generates a concrete 5-day action plan for diagnosed gap', () => {
+  const rootCause = {
+    rootId: 'mult_facts',
+    symptomIds: ['division_facts'],
+    severity: 'high',
+    rootMastery: 0.3,
+  };
+
+  const plan = generateRemediationPlan('anon_student_test', rootCause);
+  assert.equal(plan.studentId, 'anon_student_test');
+  assert.equal(plan.conceptId, 'mult_facts');
+  assert.equal(plan.days.length, 5, 'Plan must contain exactly 5 actionable days');
+  assert.ok(plan.days.every(d => d.minutes >= 10 && d.minutes <= 20), 'Daily activities must be manageable (10-20 mins)');
+  assert.ok(plan.aiNote.length > 0, 'Plan must explain diagnostic rationale');
+});
+

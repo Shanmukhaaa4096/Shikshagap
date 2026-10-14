@@ -1,15 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '@/lib/auth/session';
 import { createShareToken, revokeShareToken, logAuditEvent, hashIp } from '@/lib/server/store';
+import { getClientIp } from '@/lib/server/security';
+import { guardRequest, createGuardResponse } from '@/lib/server/guard';
 
 export async function POST(req: NextRequest) {
   try {
+    const guard = await guardRequest(req, { route: '/api/reports/share' });
+    if (!guard.ok) {
+      return createGuardResponse(guard);
+    }
+
     const session = await getServerSession();
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized. Teacher session required.' }, { status: 401 });
     }
 
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || '127.0.0.1';
+    const ip = getClientIp(req);
     const body = await req.json().catch(() => null);
 
     if (!body || !body.studentId || !body.confirmedNotice) {
@@ -70,6 +77,11 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    const guard = await guardRequest(req, { route: '/api/reports/share' });
+    if (!guard.ok) {
+      return createGuardResponse(guard);
+    }
+
     const session = await getServerSession();
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
@@ -77,7 +89,7 @@ export async function DELETE(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const token = searchParams.get('token');
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || '127.0.0.1';
+    const ip = getClientIp(req);
 
     if (!token) {
       return NextResponse.json({ error: 'Token parameter required.' }, { status: 400 });

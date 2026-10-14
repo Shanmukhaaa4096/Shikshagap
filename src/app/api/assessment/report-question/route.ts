@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
 import { reportQuestion } from "@/lib/db/questionMemory";
+import { guardRequest, createGuardResponse } from "@/lib/server/guard";
 
 export async function POST(req: Request) {
   try {
+    const guard = await guardRequest(req, { route: "/api/assessment/report-question" });
+    if (!guard.ok) {
+      return createGuardResponse(guard);
+    }
+
     const body = await req.json();
     const { questionId, reason } = body;
     if (!questionId) {

@@ -45,11 +45,11 @@ export function LandingBentoSection() {
               <DagBentoIllustration className="w-36 h-auto" />
             </div>
           </div>
-          <div className="border border-[#432623]/20 p-3 bg-[#F5F1BC]/40 dark:bg-[#311E1B]/50 flex items-center justify-between text-sm font-mono">
+          <div className="border border-[#432623]/20 p-3 bg-[#F5F1BC]/40 dark:bg-[#311E1B]/50 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm font-mono">
             <span className="text-[#432623]/70 dark:text-[#FAF8E8]/70">Class 3 Repeated Addition</span>
-            <ArrowRight size={14} className="text-[#DE2A35]" />
+            <ArrowRight size={14} className="text-[#DE2A35] shrink-0" />
             <span className="text-[#432623]/70 dark:text-[#FAF8E8]/70">Class 4 Mult Facts</span>
-            <ArrowRight size={14} className="text-[#DE2A35]" />
+            <ArrowRight size={14} className="text-[#DE2A35] shrink-0" />
             <span className="font-bold text-[#432623] dark:text-[#FAF8E8]">Class 5 Long Division</span>
           </div>
         </div>
@@ -116,7 +116,7 @@ export function LandingBentoSection() {
               <PrivacyBentoIllustration className="w-20 h-auto" />
             </div>
           </div>
-          <div className="border border-[#432623]/20 p-3 bg-[#F5F1BC]/40 dark:bg-[#311E1B]/50 flex items-center gap-4 text-sm font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70">
+          <div className="border border-[#432623]/20 p-3 bg-[#F5F1BC]/40 dark:bg-[#311E1B]/50 flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70">
             <span className="flex items-center gap-1"><ShieldCheck size={14} className="text-[#8ABB93]" /> Cookies: 0</span>
             <span className="flex items-center gap-1"><Lock size={14} className="text-[#8ABB93]" /> Third-Party Scripts: 0</span>
             <span>Storage: Local Device Only</span>

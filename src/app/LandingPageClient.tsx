@@ -214,7 +214,7 @@ function PublicLandingPageContent() {
 
             {/* PRIMARY ACTION: ASSESS TEST BUTTON (Sticky Navbar) */}
             <Link
-              href="/app"
+              href="/assessment"
               className="inline-flex border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-4 sm:px-5 py-2 min-h-[40px] items-center text-sm font-mono uppercase font-bold hover:bg-[#B51E28] focus-visible:outline-2 focus-visible:outline-[#DE2A35] cursor-pointer shadow-xs active:translate-y-[1px] tracking-wider"
             >
               <span>Assess Test</span>
@@ -238,7 +238,7 @@ function PublicLandingPageContent() {
         {isMobileMenuOpen && (
           <div className="lg:hidden mt-3 pt-3 border-t border-[#432623]/20 dark:border-[#FAF8E8]/20 flex flex-col gap-2 font-mono text-sm uppercase tracking-wider">
             <Link
-              href="/app"
+              href="/assessment"
               onClick={() => setIsMobileMenuOpen(false)}
               className="min-h-[48px] flex items-center justify-center px-4 border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] font-bold text-sm tracking-wider"
             >
@@ -309,11 +309,11 @@ function PublicLandingPageContent() {
             {/* LAYER 1 (z-10): GIGANTIC EDITORIAL HEADLINE BEHIND THE CUTOUT */}
             <div className="absolute inset-0 z-10 flex flex-col justify-center items-center pointer-events-none select-none px-2 sm:px-6">
               <div className="w-full text-center">
-                <h1 className="font-serif uppercase tracking-tight text-[#432623] dark:text-[#FAF8E8] leading-[0.84] text-[clamp(3.2rem,11.5vw,10.5rem)] m-0">
-                  <span className="block whitespace-nowrap">
+                <h1 className="font-serif uppercase tracking-tight text-[#432623] dark:text-[#FAF8E8] leading-[0.88] text-[clamp(2.1rem,9.5vw,10.5rem)] m-0">
+                  <span className="block break-words sm:whitespace-nowrap">
                     <LuminousType text="WHAT EACH student" italicIndices={[2]} />
                   </span>
-                  <span className="block whitespace-nowrap">
+                  <span className="block break-words sm:whitespace-nowrap">
                     <LuminousType text="NEEDS TO learn NEXT" italicIndices={[2]} />
                   </span>
                 </h1>
@@ -378,7 +378,7 @@ function PublicLandingPageContent() {
                       className="inline-block"
                     >
                       <Link
-                        href="/app"
+                        href="/assessment"
                         className="border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-6 py-3.5 min-h-[50px] inline-flex items-center justify-center gap-2 text-sm font-mono uppercase tracking-wider font-bold hover:bg-[#B51E28] focus-visible:outline-2 focus-visible:outline-[#DE2A35] cursor-pointer shadow-md active:translate-y-[1px] transition-transform duration-150"
                       >
                         <span>Assess Test</span>
@@ -534,7 +534,7 @@ function PublicLandingPageContent() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 pt-6 border-t border-[#432623]/20">
             <div className="border-l border-[#432623]/30 pl-4 py-1">
               <div className="font-serif text-5xl sm:text-6xl font-normal text-[#DE2A35] leading-none">
-                <CountUp end={15} />
+                15
               </div>
               <div className="text-sm font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80 mt-2 font-bold">
                 Concepts in DAG
@@ -546,7 +546,7 @@ function PublicLandingPageContent() {
 
             <div className="border-l border-[#432623]/30 pl-4 py-1">
               <div className="font-serif text-5xl sm:text-6xl font-normal text-[#432623] dark:text-[#FAF8E8] leading-none">
-                0<CountUp end={3} />
+                03
               </div>
               <div className="text-sm font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80 mt-2 font-bold">
                 Languages Supported
@@ -558,7 +558,7 @@ function PublicLandingPageContent() {
 
             <div className="border-l border-[#432623]/30 pl-4 py-1">
               <div className="font-serif text-5xl sm:text-6xl font-normal text-[#432623] leading-none">
-                0<CountUp end={ENABLED_CLASSES.length} />
+                03
               </div>
               <div className="text-sm font-mono uppercase tracking-wider text-[#432623]/80 dark:text-[#FAF8E8]/80 mt-2 font-bold">
                 Classes Enabled (3, 4, 5)
@@ -606,7 +606,7 @@ function PublicLandingPageContent() {
             <div className="pt-2 flex flex-wrap items-center justify-center gap-4">
               {/* PRIMARY ACTION: ASSESS TEST BUTTON (Final CTA) */}
               <Link
-                href="/app"
+                href="/assessment"
                 className="min-h-[52px] px-8 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold hover:bg-[#B51E28] focus-visible:outline-2 focus-visible:outline-[#DE2A35] inline-flex items-center gap-2 cursor-pointer shadow-md active:translate-y-[1px] tracking-wider"
               >
                 <span>Assess Test</span>
@@ -646,7 +646,7 @@ function PublicLandingPageContent() {
           <div className="flex flex-col sm:flex-row gap-8 justify-between md:justify-end text-sm uppercase tracking-wider text-[#432623]/70 dark:text-[#FAF8E8]/70">
             <div className="space-y-2 flex flex-col">
               <span className="font-bold text-[#432623] dark:text-[#FAF8E8]">Diagnostic Actions</span>
-              <Link href="/app" className="text-[#DE2A35] font-bold hover:underline">Assess Test Now</Link>
+              <Link href="/assessment" className="text-[#DE2A35] font-bold hover:underline">Assess Test Now</Link>
               <a href="#how-agent-works" className="hover:text-[#DE2A35]">How Agent Works</a>
               <a href="#demo" className="hover:text-[#DE2A35]">Interactive Demo</a>
               <a href="#pilot" className="hover:text-[#DE2A35]">Request Pilot</a>
@@ -696,7 +696,7 @@ function PublicLandingPageContent() {
           </span>
         </div>
         <Link
-          href="/app"
+          href="/assessment"
           className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold inline-flex items-center justify-center gap-1.5 border border-[#DE2A35] shadow-xs active:scale-95"
         >
           <span>Assess Test</span>

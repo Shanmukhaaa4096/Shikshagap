@@ -149,7 +149,7 @@ export function LandingPilotSection() {
 
               <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Link
-                  href="/app"
+                  href="/assessment"
                   className="w-full sm:w-auto min-h-[44px] px-6 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold inline-flex items-center justify-center gap-2 hover:bg-[#B51E28] transition-colors"
                 >
                   <span>Assess Test (Start Assessment)</span>

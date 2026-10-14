@@ -81,6 +81,49 @@ export function createSessionMemory(
 }
 
 /**
+ * Maps a concept to its foundational prerequisite for diagnostic probing.
+ * Grounded directly in the curriculum dependency DAG (CONCEPTS).
+ */
+export function getPrerequisiteForConcept(
+  conceptId: ConceptId,
+  errorType?: string
+): ConceptId {
+  if (conceptId === "division_facts" || conceptId === "long_division") {
+    // If error indicates sharing concept confusion, probe division_concept;
+    // if table slip / factor error / default, probe mult_facts
+    if (errorType === "wrong_operation" || errorType === "sharing_error" || errorType === "sharing" || errorType?.includes("sharing")) {
+      return "division_concept";
+    }
+    return "mult_facts";
+  }
+  if (conceptId === "division_concept") {
+    return "mult_concept";
+  }
+  if (conceptId === "equivalent_fractions" || conceptId === "comparing_fractions" || conceptId === "fraction_addition") {
+    return "fraction_basics";
+  }
+  if (conceptId === "multi_digit_mult") {
+    return "mult_facts";
+  }
+  if (conceptId === "mult_facts") {
+    return "mult_concept";
+  }
+  if (conceptId === "mult_concept") {
+    return "addition";
+  }
+  if (conceptId === "place_value") {
+    return "number_sense";
+  }
+  if (conceptId === "addition_3digit") {
+    return "place_value";
+  }
+  if (conceptId === "subtraction_3digit" || conceptId === "subtraction") {
+    return "place_value";
+  }
+  return conceptId;
+}
+
+/**
  * Pure function that, given SessionMemory and optional last Attempt,
  * returns the single legal next action (ask at level N, or close the topic with a status, or finish).
  */
@@ -131,17 +174,27 @@ export function getNextStaircaseAction(
       level: 2,
     };
   }
-
   // Case 2: 1 attempt made
   if (attempts.length === 1) {
     const first = attempts[0];
-    const nextLevel: 1 | 3 = first.correct ? 3 : 1;
-    return {
-      type: "ask",
-      topicId: currentTopic.topicId,
-      conceptId: first.conceptId,
-      level: nextLevel,
-    };
+    if (first.correct) {
+      // Demonstrated proficiency at level 2 -> test mastery at level 3
+      return {
+        type: "ask",
+        topicId: currentTopic.topicId,
+        conceptId: first.conceptId,
+        level: 3,
+      };
+    } else {
+      // Struggled at level 2 -> investigate foundational prerequisite at level 1
+      const prereqConcept = getPrerequisiteForConcept(first.conceptId, first.errorType);
+      return {
+        type: "ask",
+        topicId: currentTopic.topicId,
+        conceptId: prereqConcept,
+        level: 1,
+      };
+    }
   }
 
   // Case 3: 2 attempts made -> Topic closes with definitive status
@@ -208,7 +261,28 @@ export function applyAttemptToMemory(
     // Close the current topic
     currentTopic.status = action.status;
     if (action.status === "gap") {
-      currentTopic.notes.push("Learning gap identified");
+      const first = currentTopic.attempts[0];
+      const second = currentTopic.attempts[1];
+      if (second && first && second.conceptId !== first.conceptId) {
+        currentTopic.notes.push(
+          `Foundational difficulty confirmed: struggle with ${first.conceptId} traced to missing prerequisite fluency in ${second.conceptId}`
+        );
+      } else {
+        currentTopic.notes.push("Learning gap identified");
+      }
+    } else if (action.status === "developing") {
+      const first = currentTopic.attempts[0];
+      const second = currentTopic.attempts[1];
+      if (first && !first.correct && second && second.correct && second.conceptId !== first.conceptId) {
+        currentTopic.notes.push(
+          `Developing understanding: foundational prerequisite ${second.conceptId} verified fluent; needs practice on bridging to ${first.conceptId}`
+        );
+      }
+    } else if (action.status === "mastered") {
+      const first = currentTopic.attempts[0];
+      if (first) {
+        currentTopic.notes.push(`Demonstrated mastery on ${first.conceptId}`);
+      }
     }
     currentIdx += 1;
 

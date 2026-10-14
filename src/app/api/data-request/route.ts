@@ -72,12 +72,20 @@ export interface DataRequestRecord {
   verificationToken: string;
 }
 
+import { guardRequest, createGuardResponse } from "@/lib/server/guard";
+import { getClientIp } from "@/lib/server/security";
+
 // In-memory request log
 export const DATA_REQUESTS: DataRequestRecord[] = [];
 
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1";
+    const guard = await guardRequest(req, { route: "/api/data-request" });
+    if (!guard.ok) {
+      return createGuardResponse(guard);
+    }
+
+    const ip = getClientIp(req);
 
     // Rate limiting: 5 requests per 10 minutes per IP
     const rateCheck = checkRateLimit(`datareq_${ip}`, 5, 10 * 60 * 1000);

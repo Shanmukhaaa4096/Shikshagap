@@ -2,10 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit, isDemoLoginDisabled, recordFailedLogin, resetLoginAttempts, verifyCredentials } from "@/lib/auth/users";
 import { setSessionCookie } from "@/lib/auth/session";
 import { logAuditEvent, recordRecentAuth, hashIp } from "@/lib/server/store";
+import { getClientIp } from "@/lib/server/security";
+import { guardRequest, createGuardResponse } from "@/lib/server/guard";
 
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
+    const guard = await guardRequest(req, { route: "/api/auth/login" });
+    if (!guard.ok) {
+      return createGuardResponse(guard);
+    }
+
+    const ip = getClientIp(req);
     const ipHashed = hashIp(ip);
     const body = await req.json().catch(() => null);
 

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '@/lib/auth/session';
 import { logAuditEvent, saveTeacherOverride, hashIp } from '@/lib/server/store';
+import { getClientIp } from '@/lib/server/security';
+import { guardRequest, createGuardResponse, recordIdempotentResponse } from '@/lib/server/guard';
 
 // Set of processed sync item IDs for memory idempotency
 const processedSyncItemIds = new Set<string>();
@@ -10,12 +12,18 @@ const MAX_PAYLOAD_BYTES = 512 * 1024; // 512 KB
 
 export async function POST(req: NextRequest) {
   try {
+    const idempotencyKey = req.headers.get('idempotency-key') || undefined;
+    const guard = await guardRequest(req, { route: '/api/sync', idempotencyKey });
+    if (!guard.ok) {
+      return createGuardResponse(guard);
+    }
+
     const session = await getServerSession();
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized. Institutional session required.' }, { status: 401 });
     }
 
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || '127.0.0.1';
+    const ip = getClientIp(req);
 
     // Check payload size using content-length header and raw buffer read
     const contentLength = req.headers.get('content-length');
@@ -119,11 +127,17 @@ export async function POST(req: NextRequest) {
       details: `Offline sync processed ${processedCount} pending changes`,
     });
 
-    return NextResponse.json({
+    const responsePayload = {
       success: true,
       processedCount,
       timestamp: Date.now(),
-    });
+    };
+
+    if (idempotencyKey) {
+      recordIdempotentResponse(idempotencyKey, { status: 200, body: responsePayload });
+    }
+
+    return NextResponse.json(responsePayload);
   } catch {
     return NextResponse.json({ error: 'Sync server processing failure.' }, { status: 500 });
   }

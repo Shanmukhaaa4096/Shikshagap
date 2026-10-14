@@ -24,31 +24,13 @@ const SessionCloseSchema = z.object({
   ).max(10),
 });
 
-// Rate limiting map: max 60 close calls per minute per IP
-const closeRateLimits = new Map<string, { count: number; resetAt: number }>();
-
-function checkCloseRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const record = closeRateLimits.get(ip);
-  if (!record || now > record.resetAt) {
-    closeRateLimits.set(ip, { count: 1, resetAt: now + 60 * 1000 });
-    return true;
-  }
-  if (record.count >= 60) {
-    return false;
-  }
-  record.count += 1;
-  return true;
-}
+import { guardRequest, createGuardResponse } from "@/lib/server/guard";
 
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
-    if (!checkCloseRateLimit(ip)) {
-      return NextResponse.json(
-        { error: "Too many session updates. Rate limit exceeded." },
-        { status: 429 }
-      );
+    const guard = await guardRequest(req, { route: "/api/assessment/session-close" });
+    if (!guard.ok) {
+      return createGuardResponse(guard);
     }
 
     // Size limit check (max 32KB payload)

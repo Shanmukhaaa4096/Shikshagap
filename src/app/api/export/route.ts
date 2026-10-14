@@ -3,6 +3,8 @@ import { getServerSession } from '@/lib/auth/session';
 import { verifyCredentials } from '@/lib/auth/users';
 import { hasRecentAuth, recordRecentAuth, logAuditEvent, hashIp } from '@/lib/server/store';
 import { loadStudents, DemoStudentData } from '@/lib/data/demo';
+import { getClientIp } from '@/lib/server/security';
+import { guardRequest, createGuardResponse } from '@/lib/server/guard';
 
 function sanitizeCsvCell(value: unknown): string {
   if (value === null || value === undefined) return '""';
@@ -21,12 +23,17 @@ function sanitizeCsvCell(value: unknown): string {
 
 export async function POST(req: NextRequest) {
   try {
+    const guard = await guardRequest(req, { route: '/api/export' });
+    if (!guard.ok) {
+      return createGuardResponse(guard);
+    }
+
     const session = await getServerSession();
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || '127.0.0.1';
+    const ip = getClientIp(req);
     const body = await req.json().catch(() => ({}));
     const { format = 'csv', passwordConfirm, classId } = body;
 

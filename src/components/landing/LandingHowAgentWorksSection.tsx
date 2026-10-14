@@ -24,8 +24,8 @@ export function LandingHowAgentWorksSection({ sampleQ1Expression, sampleQ2Expres
         </div>
         <div className="flex items-center gap-3">
           <Link
-            href="/app"
-            className="border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-4 py-2 text-sm font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
+            href="/assessment"
+            className="border-2 border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8] px-4 py-2 min-h-[44px] inline-flex items-center text-sm font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
           >
             Start an Assessment Now
           </Link>

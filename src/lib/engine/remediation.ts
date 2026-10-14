@@ -3,8 +3,8 @@
  * Generates actionable 5-day targeted remediation plans tailored to government school
  * classrooms (15 mins/day, low-resource materials, visual anchors).
  */
-import type { ConceptId, PlanDay, RemediationPlan, RootCause } from "@/lib/types";
-import { CONCEPTS } from "@/lib/concepts/graph";
+import type { ConceptId, PlanDay, RemediationPlan, RootCause } from "../types";
+import { CONCEPTS } from "../concepts/graph.ts";
 
 interface PlanTemplate {
   conceptId: ConceptId;

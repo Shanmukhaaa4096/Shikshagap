@@ -1,32 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { finalizeAssessment } from "@/lib/agents/orchestrator";
 import type { SessionMemory } from "@/lib/types";
-
-// Rate limiting (shared or identical to agent route: max 40 requests/min per IP)
-const finishRateLimits = new Map<string, { count: number; resetAt: number }>();
-
-function checkFinishRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const record = finishRateLimits.get(ip);
-  if (!record || now > record.resetAt) {
-    finishRateLimits.set(ip, { count: 1, resetAt: now + 60 * 1000 });
-    return true;
-  }
-  if (record.count >= 40) {
-    return false;
-  }
-  record.count += 1;
-  return true;
-}
+import { guardRequest, createGuardResponse } from "@/lib/server/guard";
 
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
-    if (!checkFinishRateLimit(ip)) {
-      return NextResponse.json(
-        { error: "Too many requests. Please wait a moment before trying again." },
-        { status: 429 }
-      );
+    const guard = await guardRequest(req, { route: "/api/assessment/finish" });
+    if (!guard.ok) {
+      return createGuardResponse(guard);
     }
 
     const contentLength = req.headers.get("content-length");

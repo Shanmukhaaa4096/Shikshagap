@@ -1,6 +1,6 @@
 # ShikshaGap Question Quality & Reliability Report
 
-Generated on: 2026-10-12
+Generated on: 2026-10-14
 Test Suite: `scripts/evalQuestions.mjs` (`npm run eval:questions`)
 Evaluation Sample: **900 total questions** (300 questions per class across Classes 3, 4, 5 in English, Hindi, and Telugu)
 

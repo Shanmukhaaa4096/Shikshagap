@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '@/lib/auth/session';
 import { saveTeacherOverride, getLatestTeacherOverride, getAllTeacherOverridesForClass, logAuditEvent, hashIp } from '@/lib/server/store';
+import { guardRequest, createGuardResponse } from '@/lib/server/guard';
 
 export async function POST(req: NextRequest) {
   try {
+    const guard = await guardRequest(req, { route: '/api/assessment/override' });
+    if (!guard.ok) {
+      return createGuardResponse(guard);
+    }
+
     const session = await getServerSession();
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized. Teacher session required.' }, { status: 401 });

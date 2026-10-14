@@ -516,7 +516,7 @@ export function LandingDemoSection() {
                 Back to Step 4
               </button>
               <Link
-                href="/app"
+                href="/assessment"
                 className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold hover:bg-[#B51E28] inline-flex items-center cursor-pointer shadow-xs"
               >
                 Assess Test Now

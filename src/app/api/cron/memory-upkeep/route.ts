@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runMemoryUpkeep } from "@/lib/db/questionMemory";
+import { guardRequest, createGuardResponse } from "@/lib/server/guard";
 
 /**
  * Step 11: Protected cron route for automated question memory upkeep.
@@ -7,6 +8,11 @@ import { runMemoryUpkeep } from "@/lib/db/questionMemory";
  * Secured with CRON_SECRET via Authorization: Bearer <CRON_SECRET>.
  */
 export async function GET(req: NextRequest) {
+  const guard = await guardRequest(req, { route: "/api/cron/memory-upkeep" });
+  if (!guard.ok) {
+    return createGuardResponse(guard);
+  }
+
   const cronSecret = process.env.CRON_SECRET;
 
   // In production, CRON_SECRET must be set and match the request header

@@ -65,9 +65,9 @@ export function WorksheetModal({ data, isOpen, onClose }: Props) {
             <button
               type="button"
               onClick={handlePrint}
-              className="px-3 py-1.5 text-sm font-semibold bg-[var(--primary)] text-[var(--primary-foreground)] rounded-[2px] border border-[var(--primary)] flex items-center gap-1.5"
+              className="min-h-[44px] px-3.5 py-2 text-sm font-semibold bg-[var(--primary)] text-[var(--primary-foreground)] rounded-[2px] border border-[var(--primary)] flex items-center gap-1.5"
             >
-              <Printer size={14} />
+              <Printer size={16} />
               <span>Print Worksheet</span>
             </button>
             <button
@@ -97,7 +97,7 @@ export function WorksheetModal({ data, isOpen, onClose }: Props) {
           </div>
 
           {/* Student metadata box */}
-          <div className="grid grid-cols-3 gap-3 border border-[var(--border)] p-3 rounded-[2px] text-sm bg-[var(--card)] print:bg-transparent">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 border border-[var(--border)] p-3 rounded-[2px] text-sm bg-[var(--card)] print:bg-transparent">
             <div>
               <span className="text-[var(--muted-foreground)] font-mono">STUDENT:</span>{" "}
               <strong className="text-[var(--foreground)] font-bold text-sm block sm:inline">
@@ -110,7 +110,7 @@ export function WorksheetModal({ data, isOpen, onClose }: Props) {
                 #{student.rollNo}
               </strong>
             </div>
-            <div className="text-right">
+            <div className="sm:text-right">
               <span className="text-[var(--muted-foreground)] font-mono">DATE:</span>{" "}
               <span className="text-[var(--foreground)] font-mono font-semibold">{currentDateStr}</span>
             </div>

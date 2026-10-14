@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { clearSessionCookie, getServerSession } from "@/lib/auth/session";
 import { logAuditEvent, hashIp } from "@/lib/server/store";
+import { getClientIp } from "@/lib/server/security";
+import { guardRequest, createGuardResponse } from "@/lib/server/guard";
 
 export async function POST(req: NextRequest) {
+  const guard = await guardRequest(req, { route: "/api/auth/logout" });
+  if (!guard.ok) {
+    return createGuardResponse(guard);
+  }
+
   const session = await getServerSession();
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
+  const ip = getClientIp(req);
   
   if (session) {
     logAuditEvent({

@@ -1,15 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '@/lib/auth/session';
 import { getAuditLogs, logAuditEvent, hashIp, AuditAction } from '@/lib/server/store';
+import { getClientIp } from '@/lib/server/security';
+import { guardRequest, createGuardResponse } from '@/lib/server/guard';
 
 export async function GET(req: NextRequest) {
   try {
+    const guard = await guardRequest(req, { route: '/api/admin/audit-log' });
+    if (!guard.ok) {
+      return createGuardResponse(guard);
+    }
+
     const session = await getServerSession();
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || '127.0.0.1';
+    const ip = getClientIp(req);
 
     // Strict role check: Only school_admin can access institutional audit trail
     if (session.user.role !== 'school_admin') {
