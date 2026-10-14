@@ -223,10 +223,10 @@ export function StudentDiagnosticModal({
                 <span
                   className={`px-1.5 py-0.2 rounded-[2px] text-sm font-bold uppercase ${
                     profile.status === "on_track"
-                      ? "bg-[#8ABB93]/20 text-[#432623] border border-[#8ABB93]"
+                      ? "bg-[var(--status-good-bg)] text-foreground border border-[var(--status-good-border)]"
                       : profile.status === "need_practice"
-                      ? "bg-[#DFA06E]/20 text-[#432623] border border-[#DFA06E]"
-                      : "bg-[#DE2A35]/20 text-[#B51E28] border border-[#DE2A35]"
+                      ? "bg-[var(--status-warn-bg)] text-foreground border border-[var(--status-warn-border)]"
+                      : "bg-primary text-primary-foreground/20 text-primary border border-primary"
                   }`}
                 >
                   {profile.status === "on_track"
@@ -253,7 +253,7 @@ export function StudentDiagnosticModal({
                 <span className="text-sm font-mono uppercase tracking-wider text-[var(--muted-foreground)]">
                   CONFIDENCE
                 </span>
-                <div className="font-mono text-xl font-bold text-[#432623]">
+                <div className="font-mono text-xl font-bold text-foreground">
                   {Math.round(profile.confidence * 100)}%
                 </div>
               </div>
@@ -320,10 +320,10 @@ export function StudentDiagnosticModal({
                   <span
                     className={`w-2.5 h-2.5 rounded-[2px] ${
                       profile.status === "on_track"
-                        ? "bg-[#8ABB93]"
+                        ? "bg-[var(--status-good)]"
                         : profile.status === "need_practice"
-                        ? "bg-[#DFA06E]"
-                        : "bg-[#DE2A35]"
+                        ? "bg-[var(--status-warn)]"
+                        : "bg-primary text-primary-foreground"
                     }`}
                   />
                   <span className="text-sm font-mono font-bold uppercase tracking-wider text-[var(--muted-foreground)]">
@@ -390,7 +390,7 @@ export function StudentDiagnosticModal({
                     <button
                       type="button"
                       onClick={() => onStartReassessment(student.id, rootCause.rootId)}
-                      className="min-h-[44px] px-5 py-2 text-sm font-bold bg-[#DE2A35] text-[#FAF8E8] rounded-[2px] border border-[#DE2A35] hover:bg-[#B51E28] flex items-center gap-2 cursor-pointer"
+                      className="min-h-[44px] px-5 py-2 text-sm font-bold bg-primary text-primary-foreground rounded-[2px] border border-primary hover:bg-primary flex items-center gap-2 cursor-pointer"
                     >
                       <span>{dict.startPractice || "Start Reassessment"}</span>
                       <ArrowRight size={15} />
@@ -417,7 +417,7 @@ export function StudentDiagnosticModal({
                 <div className="space-y-4 pt-2">
                   {/* Mandatory AI Decision Support Disclaimer */}
                   <div className="p-3 bg-[var(--card)] border border-[var(--border)] rounded-[2px] text-sm flex items-start gap-2.5 text-[var(--muted-foreground)]">
-                    <Warning size={16} className="text-[#DE2A35] shrink-0 mt-0.5" />
+                    <Warning size={16} className="text-primary shrink-0 mt-0.5" />
                     <div>
                       <strong className="text-[var(--foreground)]">Teacher Notice:</strong> This learning report is an automated helper to support teachers. It helps suggest where students need practice, but the teacher always knows the student best and makes the final decision.
                     </div>
@@ -438,13 +438,13 @@ export function StudentDiagnosticModal({
                       {CURRICULUM_TOPICS.map((tId: TopicId) => {
                         const masteryVal = topicMasteryMap[tId];
                         const pct = Math.round(masteryVal * 100);
-                        let barColor = "bg-[#8ABB93]";
+                        let barColor = "bg-[var(--status-good)]";
                         let statusLabel = "Mastered";
                         if (masteryVal < 0.5) {
-                          barColor = "bg-[#DE2A35]";
+                          barColor = "bg-primary text-primary-foreground";
                           statusLabel = "Needs Support";
                         } else if (masteryVal < 0.75) {
-                          barColor = "bg-[#DFA06E]";
+                          barColor = "bg-[var(--status-warn)]";
                           statusLabel = "Developing";
                         }
 
@@ -475,12 +475,12 @@ export function StudentDiagnosticModal({
                     <div className="bg-[var(--card)] border border-[var(--border)] rounded-[2px] p-5 space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-[2px] bg-[#DE2A35]" />
-                          <span className="text-sm font-mono uppercase tracking-wider font-bold text-[#B51E28]">
+                          <span className="w-2.5 h-2.5 rounded-[2px] bg-primary text-primary-foreground" />
+                          <span className="text-sm font-mono uppercase tracking-wider font-bold text-primary">
                             ROOT CAUSE IDENTIFIED
                           </span>
                         </div>
-                        <span className="text-sm font-mono font-bold uppercase bg-[#DE2A35]/15 text-[#B51E28] px-2 py-0.5 rounded-[2px] border border-[#DE2A35]">
+                        <span className="text-sm font-mono font-bold uppercase bg-primary text-primary-foreground/15 text-primary px-2 py-0.5 rounded-[2px] border border-primary">
                           {rootCause.severity === "high" ? "HIGH PRIORITY GAP" : "FOUNDATIONAL GAP"}
                         </span>
                       </div>
@@ -496,7 +496,7 @@ export function StudentDiagnosticModal({
                               <div
                                 className={`px-2.5 py-1 rounded-[2px] border ${
                                   idx === rootCause.chain.length - 1
-                                    ? "bg-[#DE2A35] text-[#F5F1BC] border-[#DE2A35]"
+                                    ? "bg-primary text-primary-foreground border-primary"
                                     : "bg-[var(--card)] text-[var(--foreground)] border-[var(--border)]"
                                 }`}
                               >
@@ -516,7 +516,7 @@ export function StudentDiagnosticModal({
 
                       <p className="text-sm text-[var(--foreground)] leading-relaxed">
                         <strong>Diagnosis:</strong> {student.name} shows difficulty on{" "}
-                        <span className="font-semibold text-[#DE2A35]">
+                        <span className="font-semibold text-primary">
                           {rootCause.symptomIds.map((s) => t(`c_${s}`)).join(", ")}
                         </span>
                         . Backtracking traces the bottleneck to missing fluency in{" "}
@@ -538,9 +538,9 @@ export function StudentDiagnosticModal({
                               className="flex items-start gap-2 bg-[var(--background)] p-2 rounded-[2px] border border-[var(--border)]"
                             >
                               {item.isPositive ? (
-                                <Check size={14} className="text-[#8ABB93] shrink-0 mt-0.5" />
+                                <Check size={14} className="text-[var(--status-good)] shrink-0 mt-0.5" />
                               ) : (
-                                <X size={14} className="text-[#DE2A35] shrink-0 mt-0.5" />
+                                <X size={14} className="text-primary shrink-0 mt-0.5" />
                               )}
                               <div>
                                 <div className="font-semibold text-[var(--foreground)]">{item.label}</div>
@@ -552,8 +552,8 @@ export function StudentDiagnosticModal({
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-[var(--card)] border border-[#8ABB93] rounded-[2px] p-4 flex items-center gap-3">
-                      <CheckCircle size={24} className="text-[#8ABB93] shrink-0" />
+                    <div className="bg-[var(--card)] border border-[var(--status-good-border)] rounded-[2px] p-4 flex items-center gap-3">
+                      <CheckCircle size={24} className="text-[var(--status-good)] shrink-0" />
                       <div>
                         <h3 className="font-serif font-bold text-sm text-[var(--foreground)]">
                           No Conceptual Gaps Detected
@@ -610,7 +610,7 @@ export function StudentDiagnosticModal({
                       key={d.day}
                       className={`p-3.5 rounded-[2px] border ${
                         isDone
-                          ? "bg-[#8ABB93]/10 border-[#8ABB93]"
+                          ? "bg-[var(--status-good)]/10 border-[var(--status-good-border)]"
                           : "bg-[var(--card)] border-[var(--border)]"
                       }`}
                     >
@@ -618,7 +618,7 @@ export function StudentDiagnosticModal({
                         <div
                           className={`w-10 h-10 rounded-[2px] border flex flex-col items-center justify-center shrink-0 ${
                             isDone
-                              ? "bg-[#8ABB93] text-[var(--foreground)] border-[#8ABB93]"
+                              ? "bg-[var(--status-good)] text-[var(--foreground)] border-[var(--status-good-border)]"
                               : "bg-[var(--foreground)] text-[var(--background)] border-[var(--foreground)]"
                           }`}
                         >
@@ -641,7 +641,7 @@ export function StudentDiagnosticModal({
                                 onClick={() => toggleDayCompletion(d.day)}
                                 className={`text-sm font-semibold px-2 py-0.5 rounded-[2px] border ${
                                   isDone
-                                    ? "bg-[#8ABB93] text-[var(--foreground)] border-[#8ABB93]"
+                                    ? "bg-[var(--status-good)] text-[var(--foreground)] border-[var(--status-good-border)]"
                                     : "bg-[var(--background)] text-[var(--foreground)] border-[var(--border)] hover:bg-[var(--muted)]"
                                 }`}
                               >
@@ -698,7 +698,7 @@ export function StudentDiagnosticModal({
                       {rootCause ? t(`c_${rootCause.rootId}`) : "No Critical Gap Detected"}
                     </h3>
                   </div>
-                  <span className="text-sm font-mono px-2 py-0.5 border border-[#DE2A35] text-[#B51E28] font-bold uppercase">
+                  <span className="text-sm font-mono px-2 py-0.5 border border-primary text-primary font-bold uppercase">
                     AI Decision Support
                   </span>
                 </div>
@@ -788,7 +788,7 @@ export function StudentDiagnosticModal({
                 </div>
 
                 {overrideSavedMessage && (
-                  <div className="p-3 border border-[#8ABB93] bg-[#8ABB93]/15 text-sm font-mono">
+                  <div className="p-3 border border-[var(--status-good-border)] bg-[var(--status-good-bg)] text-sm font-mono">
                     {overrideSavedMessage}
                   </div>
                 )}
@@ -798,7 +798,7 @@ export function StudentDiagnosticModal({
                     type="button"
                     onClick={handleSaveOverride}
                     disabled={isSavingOverride}
-                    className="w-full sm:w-auto min-h-[44px] px-6 bg-[var(--foreground)] text-[var(--background)] text-sm font-mono uppercase font-bold border border-[var(--foreground)] hover:bg-[#DE2A35]"
+                    className="w-full sm:w-auto min-h-[44px] px-6 bg-[var(--foreground)] text-[var(--background)] text-sm font-mono uppercase font-bold border border-[var(--foreground)] hover:bg-primary text-primary-foreground"
                   >
                     {isSavingOverride ? "Saving Override..." : "Save Teacher Determination"}
                   </button>
@@ -812,7 +812,7 @@ export function StudentDiagnosticModal({
             <div className="space-y-4">
               <div className="border border-[var(--border)] p-5 bg-[var(--card)] space-y-4">
                 <div>
-                  <span className="text-sm font-mono uppercase text-[#B51E28] font-bold">
+                  <span className="text-sm font-mono uppercase text-primary font-bold">
                     Child Privacy Protected (DPDP Act 2023)
                   </span>
                   <h3 className="font-serif text-lg font-bold text-[var(--foreground)] mt-0.5">
@@ -838,7 +838,7 @@ export function StudentDiagnosticModal({
                 </div>
 
                 {shareError && (
-                  <div className="p-3 border border-[#DE2A35] bg-[#DE2A35]/10 text-sm text-[#B51E28]">
+                  <div className="p-3 border border-primary bg-primary text-primary-foreground/10 text-sm text-primary">
                     {shareError}
                   </div>
                 )}
@@ -886,7 +886,7 @@ export function StudentDiagnosticModal({
                         )}`}
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="min-h-[44px] px-4 bg-[#8ABB93] text-[var(--foreground)] font-bold text-sm font-mono uppercase inline-flex items-center gap-2 border border-[#8ABB93] hover:bg-[#8ABB93]/80"
+                        className="min-h-[44px] px-4 bg-[var(--status-good)] text-[var(--foreground)] font-bold text-sm font-mono uppercase inline-flex items-center gap-2 border border-[var(--status-good-border)] hover:bg-[var(--status-good)]/80"
                       >
                         <span>Share on WhatsApp</span>
                       </a>

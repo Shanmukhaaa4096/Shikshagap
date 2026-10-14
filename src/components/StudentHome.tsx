@@ -28,12 +28,12 @@ export function StudentHome({
   if (isLoading) {
     return (
       <div className="w-full max-w-xl mx-auto py-8 sm:py-12 px-4 space-y-6 text-center">
-        <div className="bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-8 space-y-4">
-          <div className="h-8 bg-[#432623]/10 rounded-[2px] animate-pulse w-2/3 mx-auto" />
-          <div className="h-4 bg-[#432623]/10 rounded-[2px] animate-pulse w-1/2 mx-auto" />
-          <div className="h-24 bg-[#432623]/10 rounded-[2px] animate-pulse w-full mt-6" />
+        <div className="bg-card dark:bg-card border border-border rounded-[2px] p-8 space-y-4">
+          <div className="h-8 bg-muted rounded-[2px] animate-pulse w-2/3 mx-auto" />
+          <div className="h-4 bg-muted rounded-[2px] animate-pulse w-1/2 mx-auto" />
+          <div className="h-24 bg-muted rounded-[2px] animate-pulse w-full mt-6" />
         </div>
-        <p className="font-serif text-base font-bold text-[#432623] dark:text-[#F5F1BC]">
+        <p className="font-serif text-base font-bold text-foreground">
           {lang === "hi"
             ? "सीखने का विवरण लोड हो रहा है..."
             : lang === "te"
@@ -48,18 +48,18 @@ export function StudentHome({
   if (isError || !studentData) {
     return (
       <div className="w-full max-w-xl mx-auto py-8 sm:py-12 px-4 space-y-6 text-center">
-        <div className="bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#DE2A35]/30 rounded-[2px] p-8 space-y-4">
-          <div className="w-12 h-12 mx-auto rounded-full bg-[#FAF8E8] border border-[#DE2A35] flex items-center justify-center text-[#B51E28]">
+        <div className="bg-card dark:bg-card border border-primary/40 rounded-[2px] p-8 space-y-4">
+          <div className="w-12 h-12 mx-auto rounded-full bg-card border border-primary flex items-center justify-center text-primary">
             <WarningCircle size={28} weight="bold" />
           </div>
-          <h2 className="font-serif text-2xl font-bold text-[#432623] dark:text-[#F5F1BC]">
+          <h2 className="font-serif text-2xl font-bold text-foreground">
             {lang === "hi"
               ? "विद्यार्थी की जानकारी नहीं मिल सकी"
               : lang === "te"
               ? "విద్యార్థి సమాచారం లోడ్ కాలేదు"
               : "Could not load student information"}
           </h2>
-          <p className="text-base text-[#432623]/80 dark:text-[#F5F1BC]/80">
+          <p className="text-base text-foreground/80 dark:text-muted-foreground">
             {lang === "hi"
               ? "कृपया दोबारा प्रयास करें।"
               : lang === "te"
@@ -107,29 +107,29 @@ export function StudentHome({
   return (
     <div className="w-full max-w-xl mx-auto py-6 sm:py-10 px-4 space-y-6">
       {/* 1. Welcoming Greeting Card */}
-      <div className="bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-6 sm:p-8 space-y-2 text-center">
-        <span className="font-mono text-sm uppercase tracking-wider font-bold text-[#432623]/70 dark:text-[#F5F1BC]/70 block">
+      <div className="bg-card dark:bg-card border border-border rounded-[2px] p-6 sm:p-8 space-y-2 text-center">
+        <span className="font-mono text-sm uppercase tracking-wider font-bold text-muted-foreground dark:text-muted-foreground block">
           Class 5 Mathematics
         </span>
-        <h1 className="font-serif text-3xl sm:text-4xl font-black text-[#432623] dark:text-[#F5F1BC]">
+        <h1 className="font-serif text-3xl sm:text-4xl font-black text-foreground">
           {greetingWord}, {student.name}!
         </h1>
-        <p className="text-base sm:text-lg text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed max-w-md mx-auto">
+        <p className="text-base sm:text-lg text-foreground/80 dark:text-muted-foreground leading-relaxed max-w-md mx-auto">
           {encouragingTitle}
         </p>
       </div>
 
       {/* 2. Today's Practice (Primary Action) */}
-      <div className="bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-6 sm:p-8 space-y-6">
+      <div className="bg-card dark:bg-card border border-border rounded-[2px] p-6 sm:p-8 space-y-6">
         <div className="space-y-1">
-          <div className="flex items-center justify-between text-sm font-mono font-bold uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70">
+          <div className="flex items-center justify-between text-sm font-mono font-bold uppercase text-muted-foreground dark:text-muted-foreground">
             <span>{dict.todaysPractice || "Today's Practice"}</span>
             <span>15 min</span>
           </div>
-          <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#432623] dark:text-[#F5F1BC]">
+          <h2 className="font-serif text-xl sm:text-2xl font-bold text-foreground">
             {targetConceptName}
           </h2>
-          <p className="text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
+          <p className="text-sm text-foreground/80 dark:text-muted-foreground leading-relaxed">
             Fun and simple math exercises designed just for you today.
           </p>
         </div>
@@ -138,21 +138,21 @@ export function StudentHome({
         <button
           type="button"
           onClick={() => onStartPractice(targetConcept)}
-          className="w-full min-h-[56px] py-4 px-6 bg-[#DE2A35] text-[#F5F1BC] font-serif text-lg font-bold rounded-[2px] border border-[#DE2A35] flex items-center justify-center gap-3 transition-none hover:bg-[#c2202a]"
+          className="w-full min-h-[56px] py-4 px-6 bg-primary text-primary-foreground font-serif text-lg font-bold rounded-[2px] border border-primary flex items-center justify-center gap-3 transition-none hover:bg-[#c2202a]"
         >
           <span>{dict.startPractice || "Start Today's Practice"}</span>
           <ArrowRight size={22} weight="bold" />
         </button>
 
         {/* Simple Progress Bar */}
-        <div className="space-y-2 pt-2 border-t border-[#432623]/15 dark:border-[#F5F1BC]/15">
-          <div className="flex items-center justify-between text-sm font-mono text-[#432623]/75 dark:text-[#F5F1BC]/75">
+        <div className="space-y-2 pt-2 border-t border-border">
+          <div className="flex items-center justify-between text-sm font-mono text-muted-foreground dark:text-muted-foreground">
             <span>Skill Progress</span>
             <span className="font-bold">Step {completedSteps} of {totalSteps}</span>
           </div>
-          <div className="w-full bg-[#432623]/15 dark:bg-[#F5F1BC]/15 h-3 rounded-[2px] overflow-hidden">
+          <div className="w-full bg-muted dark:bg-muted h-3 rounded-[2px] overflow-hidden">
             <div
-              className="bg-[#8ABB93] h-full rounded-[2px]"
+              className="bg-[var(--status-good)] h-full rounded-[2px]"
               style={{ width: `${progressPct}%` }}
             />
           </div>
@@ -160,12 +160,12 @@ export function StudentHome({
       </div>
 
       {/* 3. Take Assessment (Secondary Outline Button) */}
-      <div className="bg-[#FAF8E8] dark:bg-[#381f1c] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-card dark:bg-card border border-border rounded-[2px] p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="space-y-0.5 text-center sm:text-left">
-          <h3 className="font-serif text-base sm:text-lg font-bold text-[#432623] dark:text-[#F5F1BC]">
+          <h3 className="font-serif text-base sm:text-lg font-bold text-foreground">
             {dict.takeAssessment || "Take assessment"}
           </h3>
-          <p className="text-sm sm:text-sm text-[#432623]/75 dark:text-[#F5F1BC]/75">
+          <p className="text-sm sm:text-sm text-muted-foreground dark:text-muted-foreground">
             Check your progress anytime with a quick check.
           </p>
         </div>
@@ -173,7 +173,7 @@ export function StudentHome({
         <button
           type="button"
           onClick={() => onTakeAssessment(student.id, targetConcept)}
-          className="w-full sm:w-auto min-h-[48px] px-6 py-2.5 bg-transparent text-[#432623] dark:text-[#F5F1BC] font-mono text-sm font-bold uppercase rounded-[2px] border border-[#432623]/40 dark:border-[#F5F1BC]/40 hover:bg-[#432623]/5 dark:hover:bg-[#F5F1BC]/5 shrink-0"
+          className="w-full sm:w-auto min-h-[48px] px-6 py-2.5 bg-transparent text-foreground font-mono text-sm font-bold uppercase rounded-[2px] border border-border hover:bg-muted dark:hover:bg-muted shrink-0"
         >
           {dict.takeAssessment || "Take assessment"}
         </button>

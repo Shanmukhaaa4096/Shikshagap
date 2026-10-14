@@ -942,9 +942,84 @@ export function generateQuestion(
   };
 }
 
+/**
+ * Normalizes mathematical and textual strings by:
+ * - Collapsing whitespace sequences
+ * - Normalizing math operators (×, * -> *; ÷, / -> /; −, -, – -> -)
+ * - Lowercasing and trimming
+ */
+export function normalizeMathString(str: string): string {
+  if (!str) return "";
+  return str
+    .replace(/[\u2013\u2212\u2014]/g, "-")
+    .replace(/×/g, "*")
+    .replace(/÷/g, "/")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+/**
+ * Stable canonical fingerprint that distinguishes genuinely different questions
+ * while recognising equivalent duplicates (even across whitespace, operator glyphs,
+ * or non-semantic formatting differences).
+ *
+ * Ground truth includes:
+ * - Concept and difficulty
+ * - Format (e.g. mcq, true_false, missing_number)
+ * - Normalised prompt translation key and parameters, or raw content
+ * - Mathematical operands (a, b, op, focus)
+ * - Normalised mathematical expression
+ * - Answer (normalized)
+ * - Visual representation metadata
+ */
+export function canonicalQuestionFingerprint(q: Question): string {
+  const concept = q.conceptId || "";
+  const difficulty = q.difficulty || "m";
+  const format = q.format || "mcq";
+
+  // Prompt representation
+  let promptRepr = "";
+  if (q.prompt && typeof q.prompt === "object") {
+    if ("key" in q.prompt) {
+      const pObj = q.prompt as { key: string; params?: Record<string, unknown> };
+      const sortedParams = pObj.params
+        ? Object.keys(pObj.params)
+            .sort()
+            .map((k) => `${k}=${normalizeMathString(String(pObj.params![k]))}`)
+            .join("&")
+        : "";
+      promptRepr = `k:${pObj.key}|p:${sortedParams}`;
+    } else if ("raw" in q.prompt) {
+      promptRepr = `r:${normalizeMathString((q.prompt as { raw: string }).raw)}`;
+    }
+  } else if (typeof q.prompt === "string") {
+    promptRepr = `s:${normalizeMathString(q.prompt)}`;
+  }
+
+  // Normalized expression
+  const normExpr = normalizeMathString(q.expression ?? "");
+
+  // Operands from meta
+  const meta = q.meta || {};
+  const metaA = meta.a !== undefined ? String(meta.a) : "";
+  const metaB = meta.b !== undefined ? String(meta.b) : "";
+  const metaOp = meta.op ? normalizeMathString(meta.op) : "";
+  const metaFocus = meta.focus !== undefined ? String(meta.focus) : "";
+  const operandsRepr = `a:${metaA}|b:${metaB}|op:${metaOp}|f:${metaFocus}`;
+
+  // Normalized answer
+  const normAnswer = normalizeMathString(String(q.answer ?? ""));
+
+  // Visual configuration
+  const visualRepr = q.visual ? JSON.stringify(q.visual) : "";
+
+  return `${concept}|d:${difficulty}|fmt:${format}|${promptRepr}|expr:${normExpr}|${operandsRepr}|ans:${normAnswer}|v:${visualRepr}`;
+}
+
 /** A unique signature so the same item is not asked twice in a session. */
 export function questionSignature(q: Question): string {
-  return `${q.conceptId}|${q.expression ?? ""}|${JSON.stringify("key" in q.prompt ? q.prompt.params ?? {} : q.prompt.raw)}|${q.visual ? JSON.stringify(q.visual) : ""}`;
+  return canonicalQuestionFingerprint(q);
 }
 
 export interface FormatDiversifyOptions {
@@ -974,6 +1049,73 @@ export function applyQuestionFormat(
 
   // Formats apply where binary operation / numeric operands are well defined
   if (a === undefined || b === undefined || !op) {
+    if (a !== undefined) {
+      const numAnswer = Number(q.answer);
+      const bugEntries = Object.keys(meta.bugs || {});
+      const wrongVal = bugEntries.length > 0
+        ? bugEntries[0]
+        : (!isNaN(numAnswer) ? String(numAnswer + (rng() < 0.5 ? 10 : -10)) : "0");
+
+      if (format === "true_false") {
+        const isActuallyTrue = rng() < 0.5;
+        const claimedVal = isActuallyTrue ? q.answer : wrongVal;
+        const stmt = q.expression
+          ? `${q.expression.replace(/\s*=\s*\?/, "")} = ${claimedVal}`
+          : `${claimedVal}`;
+        const correctAns = isActuallyTrue ? "True" : "False";
+        return {
+          ...q,
+          format: "true_false",
+          prompt: T("q.format.true_false", { statement: stmt }),
+          expression: stmt,
+          answer: correctAns,
+          answerKind: "choice",
+          options: [
+            { id: "opt_true", label: R("True"), value: "True" },
+            { id: "opt_false", label: R("False"), value: "False" },
+          ],
+        };
+      }
+
+      if (format === "find_mistake") {
+        const hasMistake = rng() < 0.5;
+        const displayedAns = hasMistake ? wrongVal : q.answer;
+        const workingStr = q.expression
+          ? `${q.expression.replace(/\s*=\s*\?/, "")} = ${displayedAns}`
+          : `${displayedAns}`;
+        const correctAns = hasMistake ? "Mistake" : "Correct";
+        return {
+          ...q,
+          format: "find_mistake",
+          prompt: T("q.format.find_mistake", { working: workingStr }),
+          expression: workingStr,
+          answer: correctAns,
+          answerKind: "choice",
+          options: [
+            { id: "opt_correct", label: R("Correct (No mistake)"), value: "Correct" },
+            { id: "opt_mistake", label: R("Mistake (Incorrect)"), value: "Mistake" },
+          ],
+        };
+      }
+
+      if (format === "compare_answers") {
+        const student1Ans = rng() < 0.5 ? q.answer : wrongVal;
+        const student2Ans = student1Ans === q.answer ? wrongVal : q.answer;
+        const correctStudent = student1Ans === q.answer ? `Student A: ${student1Ans}` : `Student B: ${student2Ans}`;
+        return {
+          ...q,
+          format: "compare_answers",
+          prompt: T("q.format.compare_answers"),
+          expression: q.expression ?? `Answer = ?`,
+          answer: correctStudent,
+          answerKind: "choice",
+          options: [
+            { id: "opt_s1", label: R(`Student A: ${student1Ans}`), value: `Student A: ${student1Ans}` },
+            { id: "opt_s2", label: R(`Student B: ${student2Ans}`), value: `Student B: ${student2Ans}` },
+          ],
+        };
+      }
+    }
     return q;
   }
 
@@ -1122,9 +1264,13 @@ export function generateQuestionWithVariety(
   difficulty: Difficulty,
   rng: Rng,
   grade = 5,
-  options: FormatDiversifyOptions = {},
+  optionsOrAvoidFormat: FormatDiversifyOptions | QuestionFormat = {},
   ctx: GenContext = {}
 ): Question {
+  const options: FormatDiversifyOptions =
+    typeof optionsOrAvoidFormat === "string"
+      ? { avoidFormat: optionsOrAvoidFormat }
+      : (optionsOrAvoidFormat ?? {});
   const base = generateQuestion(conceptId, difficulty, rng, grade, ctx);
 
   // Available candidate shapes for varied assessment formats
@@ -1142,7 +1288,32 @@ export function generateQuestionWithVariety(
   const filtered = allowed.filter((f) => f !== options.avoidFormat);
   const targetFormat = pick(rng, filtered.length > 0 ? filtered : allowed);
 
-  if (targetFormat === "mcq" || targetFormat === "short_answer" || targetFormat === "fill_blank" || targetFormat === "word_problem") {
+  // If converting to MCQ from short_answer, add computed distractors
+  if (targetFormat === "mcq" && base.format !== "mcq") {
+    const numAns = Number(base.answer);
+    if (!isNaN(numAns)) {
+      const bugs = base.meta.bugs || {};
+      const optionsList = numericOptions(rng, numAns, bugs);
+      return {
+        ...base,
+        format: "mcq",
+        answerKind: "choice",
+        options: optionsList,
+      };
+    }
+  }
+
+  // If converting to short_answer from MCQ, remove choice options
+  if (targetFormat === "short_answer" && base.format === "mcq") {
+    return {
+      ...base,
+      format: "short_answer",
+      answerKind: typeof base.answer === "number" || !isNaN(Number(base.answer)) ? "int" : base.answerKind,
+      options: undefined,
+    };
+  }
+
+  if (targetFormat === base.format || targetFormat === "word_problem" || targetFormat === "fill_blank") {
     return base;
   }
 

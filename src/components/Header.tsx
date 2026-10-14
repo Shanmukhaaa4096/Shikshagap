@@ -71,11 +71,11 @@ export function Header({
   };
 
   return (
-    <header className="border-b border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c] sticky top-0 z-30">
+    <header className="border-b border-border bg-card dark:bg-card sticky top-0 z-30">
       {/* Accessible skip link */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-[#DE2A35] focus:text-[#F5F1BC] focus:px-3 focus:py-1 focus:text-sm font-mono"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-primary text-primary-foreground focus:text-primary-foreground focus:px-3 focus:py-1 focus:text-sm font-mono"
       >
         Skip to main content
       </a>
@@ -89,21 +89,21 @@ export function Header({
               className="flex items-center gap-2 text-inherit no-underline"
               aria-label="ShikshaGap Home"
             >
-              <div className="h-8 w-8 rounded-[2px] bg-[#DE2A35] flex items-center justify-center text-[#F5F1BC] font-mono font-bold text-sm border border-[#432623]/30">
+              <div className="h-8 w-8 rounded-[2px] bg-primary text-primary-foreground flex items-center justify-center font-mono font-bold text-sm border border-border">
                 SG
               </div>
               <div>
-                <span className="font-serif font-bold text-lg tracking-tight text-[#432623] dark:text-[#F5F1BC]">
+                <span className="font-serif font-bold text-lg tracking-tight text-foreground">
                   ShikshaGap
                 </span>
-                <span className="ml-2 text-sm font-mono font-bold uppercase text-[#432623]/80 dark:text-[#F5F1BC]/80 border border-[#432623]/20 dark:border-[#F5F1BC]/20 px-1.5 py-0.5 rounded-[2px] bg-[#F5F1BC]/40 dark:bg-[#432623]">
+                <span className="ml-2 text-sm font-mono font-bold uppercase text-foreground/80 dark:text-muted-foreground border border-border px-1.5 py-0.5 rounded-[2px] bg-muted dark:bg-muted">
                   {getClassConfig(selectedClassId).shortLabel}
                 </span>
               </div>
             </Link>
 
             {onSelectClass && (
-              <div className="hidden md:flex items-center ml-2 pl-2 border-l border-[#432623]/20 dark:border-[#F5F1BC]/20">
+              <div className="hidden md:flex items-center ml-2 pl-2 border-l border-border">
                 <ClassSelector
                   selectedClassId={selectedClassId}
                   onSelectClass={onSelectClass}
@@ -117,14 +117,14 @@ export function Header({
           <div className="flex items-center gap-2">
             {/* View Switcher: Teacher vs Student */}
             {onViewChange && (
-              <div className="hidden sm:flex items-center gap-1 bg-[#FAF8E8] dark:bg-[#432623] border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-1 text-sm font-mono">
+              <div className="hidden sm:flex items-center gap-1 bg-card dark:bg-muted border border-border rounded-[2px] p-1 text-sm font-mono">
                 <button
                   type="button"
                   onClick={() => onViewChange("teacher")}
                   className={`min-h-[44px] px-3 rounded-[2px] flex items-center gap-1.5 font-bold ${
                     currentView === "teacher"
-                      ? "bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623]"
-                      : "text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC]/40"
+                      ? "bg-primary text-primary-foreground dark:bg-muted dark:text-foreground"
+                      : "text-foreground hover:bg-muted"
                   }`}
                   aria-label="Switch to teacher view"
                 >
@@ -136,8 +136,8 @@ export function Header({
                   onClick={() => onViewChange("student")}
                   className={`min-h-[44px] px-3 rounded-[2px] flex items-center gap-1.5 font-bold ${
                     currentView === "student"
-                      ? "bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623]"
-                      : "text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC]/40"
+                      ? "bg-primary text-primary-foreground dark:bg-muted dark:text-foreground"
+                      : "text-foreground hover:bg-muted"
                   }`}
                   aria-label="Switch to student view"
                 >
@@ -148,7 +148,7 @@ export function Header({
             )}
 
             {/* Language Switcher */}
-            <div className="flex items-center gap-1 border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] p-1 text-sm font-mono" role="group" aria-label="Select language">
+            <div className="flex items-center gap-1 border border-border rounded-[2px] p-1 text-sm font-mono" role="group" aria-label="Select language">
               {(["en", "hi", "te"] as Lang[]).map((l) => (
                 <button
                   key={l}
@@ -156,8 +156,8 @@ export function Header({
                   onClick={() => setLang(l)}
                   className={`min-h-[44px] min-w-[44px] px-2.5 rounded-[2px] font-bold ${
                     lang === l
-                      ? "bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623]"
-                      : "text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC]/40"
+                      ? "bg-primary text-primary-foreground dark:bg-muted dark:text-foreground"
+                      : "text-foreground hover:bg-muted"
                   }`}
                   aria-label={l === "en" ? "Switch language to English" : l === "hi" ? "Switch language to Hindi" : "Switch language to Telugu"}
                   aria-pressed={lang === l}
@@ -171,7 +171,7 @@ export function Header({
             <button
               type="button"
               onClick={toggleDarkMode}
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC]/40"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center border border-border rounded-[2px] text-foreground hover:bg-muted"
               aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
             >
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
@@ -181,7 +181,7 @@ export function Header({
             <button
               type="button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center border border-[#432623]/25 dark:border-[#F5F1BC]/25 rounded-[2px] text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC]/40"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center border border-border rounded-[2px] text-foreground hover:bg-muted"
               aria-label={isMenuOpen ? "Close menu" : "Open menu"}
               aria-expanded={isMenuOpen}
             >
@@ -192,20 +192,20 @@ export function Header({
 
         {/* Dropdown Menu when toggled */}
         {isMenuOpen && (
-          <div className="border-t border-[#432623]/20 dark:border-[#F5F1BC]/20 py-3 space-y-2 font-mono text-sm">
+          <div className="border-t border-border py-3 space-y-2 font-mono text-sm">
             {/* View switcher on mobile */}
             {onViewChange && (
-              <div className="sm:hidden flex items-center gap-2 pb-2 border-b border-[#432623]/10 dark:border-[#F5F1BC]/10">
+              <div className="sm:hidden flex items-center gap-2 pb-2 border-b border-border">
                 <button
                   type="button"
                   onClick={() => {
                     onViewChange("teacher");
                     setIsMenuOpen(false);
                   }}
-                  className={`flex-1 min-h-[44px] px-3 border border-[#432623]/25 rounded-[2px] font-bold flex items-center justify-center gap-2 ${
+                  className={`flex-1 min-h-[44px] px-3 border border-border rounded-[2px] font-bold flex items-center justify-center gap-2 ${
                     currentView === "teacher"
-                      ? "bg-[#432623] text-[#F5F1BC]"
-                      : "bg-[#FAF8E8] text-[#432623]"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-card text-foreground"
                   }`}
                 >
                   <GraduationCap size={16} />
@@ -217,10 +217,10 @@ export function Header({
                     onViewChange("student");
                     setIsMenuOpen(false);
                   }}
-                  className={`flex-1 min-h-[44px] px-3 border border-[#432623]/25 rounded-[2px] font-bold flex items-center justify-center gap-2 ${
+                  className={`flex-1 min-h-[44px] px-3 border border-border rounded-[2px] font-bold flex items-center justify-center gap-2 ${
                     currentView === "student"
-                      ? "bg-[#432623] text-[#F5F1BC]"
-                      : "bg-[#FAF8E8] text-[#432623]"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-card text-foreground"
                   }`}
                 >
                   <BookOpen size={16} />
@@ -231,8 +231,8 @@ export function Header({
 
             {/* Class switcher on mobile */}
             {onSelectClass && (
-              <div className="md:hidden pb-2 border-b border-[#432623]/10 dark:border-[#F5F1BC]/10">
-                <div className="text-sm text-[#432623]/70 dark:text-[#F5F1BC]/70 uppercase tracking-wider mb-1">
+              <div className="md:hidden pb-2 border-b border-border">
+                <div className="text-sm text-muted-foreground dark:text-muted-foreground uppercase tracking-wider mb-1">
                   Active Class
                 </div>
                 <ClassSelector
@@ -254,7 +254,7 @@ export function Header({
                     onResetDemo();
                     setIsMenuOpen(false);
                   }}
-                  className="min-h-[44px] px-3 border border-dashed border-[#432623]/30 text-[#432623] dark:text-[#F5F1BC] hover:bg-[#F5F1BC]/50 flex items-center gap-1.5"
+                  className="min-h-[44px] px-3 border border-dashed border-border text-foreground hover:bg-muted flex items-center gap-1.5"
                 >
                   <ArrowCounterClockwise size={14} />
                   <span>Reset Demo Data</span>
@@ -264,7 +264,7 @@ export function Header({
               <Link
                 href="/app/audit-log"
                 onClick={() => setIsMenuOpen(false)}
-                className="min-h-[44px] px-3 border border-[#432623]/20 text-[#432623] dark:text-[#F5F1BC] inline-flex items-center hover:bg-[#F5F1BC]/50"
+                className="min-h-[44px] px-3 border border-border text-foreground inline-flex items-center hover:bg-muted"
               >
                 <span>Audit Trail</span>
               </Link>
@@ -272,7 +272,7 @@ export function Header({
               <Link
                 href="/notices/guardian"
                 onClick={() => setIsMenuOpen(false)}
-                className="min-h-[44px] px-3 border border-[#432623]/20 text-[#432623] dark:text-[#F5F1BC] inline-flex items-center hover:bg-[#F5F1BC]/50"
+                className="min-h-[44px] px-3 border border-border text-foreground inline-flex items-center hover:bg-muted"
               >
                 <span>Guardian Notice</span>
               </Link>
@@ -281,7 +281,7 @@ export function Header({
                 <button
                   type="button"
                   onClick={onSignOut}
-                  className="min-h-[44px] px-3 border border-[#DE2A35] text-[#DE2A35] hover:bg-[#DE2A35]/10 flex items-center gap-1.5 font-bold"
+                  className="min-h-[44px] px-3 border border-primary text-primary hover:bg-primary text-primary-foreground/10 flex items-center gap-1.5 font-bold"
                 >
                   <SignOut size={14} />
                   <span>Sign out</span>

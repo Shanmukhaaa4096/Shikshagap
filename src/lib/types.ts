@@ -405,6 +405,8 @@ export interface Attempt {
   studentAnswer: string;
   correct: boolean;
   errorType?: string;      // from the existing error classification
+  questionSignature?: string;
+  format?: QuestionFormat;
 }
 
 export interface TopicMemory {
@@ -423,6 +425,10 @@ export interface SessionMemory {
   currentTopicIndex: number;
   seenSignatures?: string[];
   usedFormats?: QuestionFormat[];
+  /** Session-specific PRNG seed for deterministic yet fresh question generation across assessments */
+  sessionSeed?: number;
+  /** Counter of questions/attempts within this assessment session to advance RNG state */
+  stepCount?: number;
 }
 
 export interface EducationalResource {

@@ -21,50 +21,50 @@ export const metadata: Metadata = {
 
 export default function CookiesPage() {
   return (
-    <div className="min-h-screen bg-[#FAF8E8] dark:bg-[#432623] text-[#432623] dark:text-[#F5F1BC] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-card dark:bg-muted text-foreground py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto space-y-8">
-        <div className="flex items-center justify-between border-b border-[#432623]/20 pb-4">
+        <div className="flex items-center justify-between border-b border-border pb-4">
           <Link
             href="/"
-            className="text-xs font-bold text-[#432623] dark:text-[#F5F1BC] hover:underline flex items-center gap-1.5"
+            className="text-xs font-bold text-foreground hover:underline flex items-center gap-1.5"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Home</span>
           </Link>
-          <span className="font-mono text-xs text-[#432623]/70 dark:text-[#F5F1BC]/70">
+          <span className="font-mono text-xs text-muted-foreground dark:text-muted-foreground">
             Last updated: October 2026
           </span>
         </div>
 
         <div className="space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F5F1BC] text-[#432623] text-xs font-mono font-bold rounded-[2px] border border-[#432623]/25">
-            <Cookie className="w-4 h-4 text-[#432623]" />
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-muted text-foreground text-xs font-mono font-bold rounded-[2px] border border-border">
+            <Cookie className="w-4 h-4 text-foreground" />
             <span>STRICTLY NECESSARY STORAGE NOTICE</span>
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-[#432623] dark:text-[#F5F1BC]">
+          <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-foreground">
             Cookie &amp; Local Storage Policy
           </h1>
-          <p className="text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
+          <p className="text-sm text-foreground/80 dark:text-muted-foreground leading-relaxed">
             ShikshaGap respects teacher and student privacy. We only use strictly necessary cookies and local browser storage to operate essential platform features.
           </p>
         </div>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#432623] dark:text-[#F5F1BC]">
+          <h2 className="font-serif text-xl font-bold text-foreground">
             Zero Advertising &amp; Zero Tracking Cookies
           </h2>
-          <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
+          <p className="text-xs text-foreground/80 dark:text-muted-foreground leading-relaxed">
             We do NOT use Google Analytics, advertising trackers, tracking pixels, behavioral monitors, or UTM campaign tracking. No cookie consent banner is needed because we store no non-essential data.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#432623] dark:text-[#F5F1BC]">
+          <h2 className="font-serif text-xl font-bold text-foreground">
             List of Active Storage Items
           </h2>
-          <div className="border border-[#432623]/25 rounded-[2px] overflow-hidden text-xs">
+          <div className="border border-border rounded-[2px] overflow-hidden text-xs">
             <table className="w-full text-left">
-              <thead className="bg-[#F5F1BC]/50 border-b border-[#432623]/20 font-bold">
+              <thead className="bg-muted border-b border-border font-bold">
                 <tr>
                   <th className="p-2.5">Name</th>
                   <th className="p-2.5">Type</th>
@@ -72,7 +72,7 @@ export default function CookiesPage() {
                   <th className="p-2.5">Duration</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#432623]/15">
+              <tbody className="divide-y divide-border">
                 <tr>
                   <td className="p-2.5 font-mono font-bold">shikshagap_session</td>
                   <td className="p-2.5">Cookie (HttpOnly, Secure)</td>
@@ -96,8 +96,8 @@ export default function CookiesPage() {
           </div>
         </section>
 
-        <section className="space-y-3 border-t border-[#432623]/20 pt-6 text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
-          <h2 className="font-serif text-xl font-bold text-[#432623] dark:text-[#F5F1BC]">
+        <section className="space-y-3 border-t border-border pt-6 text-xs text-foreground/80 dark:text-muted-foreground leading-relaxed">
+          <h2 className="font-serif text-xl font-bold text-foreground">
             Managing Storage in Your Browser
           </h2>
           <p>

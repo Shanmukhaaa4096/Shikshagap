@@ -68,16 +68,16 @@ export function OfflineSyncBanner() {
         <div 
           role="status" 
           aria-live="polite" 
-          className="p-3 border border-[#DFA06E] bg-[#DFA06E]/15 text-[#432623] dark:text-[#F5F1BC] flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+          className="p-3 border border-[var(--status-warn-border)] bg-[var(--status-warn-bg)] text-foreground flex flex-col sm:flex-row sm:items-center justify-between gap-2"
         >
           <div className="flex items-center gap-2">
-            <WifiSlash size={16} className="text-[#DFA06E] shrink-0" />
+            <WifiSlash size={16} className="text-[var(--status-warn)] shrink-0" />
             <span>
               <strong>Offline Mode Active:</strong> Using local cached records. Edits will sync when connection returns.
             </span>
           </div>
           {queuedCount > 0 && (
-            <span className="text-sm bg-[#DFA06E]/30 px-2 py-0.5 border border-[#DFA06E]/50 shrink-0">
+            <span className="text-sm bg-[var(--status-warn)]/30 px-2 py-0.5 border border-[var(--status-warn-border)]/50 shrink-0">
               {queuedCount} changes queued
             </span>
           )}
@@ -88,10 +88,10 @@ export function OfflineSyncBanner() {
       {isOnline && queuedCount > 0 && (
         <div 
           role="status" 
-          className="p-3 border border-[#8ABB93] bg-[#8ABB93]/15 text-[#432623] dark:text-[#F5F1BC] flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+          className="p-3 border border-[var(--status-good-border)] bg-[var(--status-good-bg)] text-foreground flex flex-col sm:flex-row sm:items-center justify-between gap-2"
         >
           <div className="flex items-center gap-2">
-            <ArrowsClockwise size={16} className={`text-[#8ABB93] ${isSyncing ? 'animate-spin' : ''}`} />
+            <ArrowsClockwise size={16} className={`text-[var(--status-good)] ${isSyncing ? 'animate-spin' : ''}`} />
             <span>
               {queuedCount} offline change{queuedCount > 1 ? 's' : ''} waiting to synchronize with school server.
             </span>
@@ -99,7 +99,7 @@ export function OfflineSyncBanner() {
           <button
             onClick={triggerSync}
             disabled={isSyncing}
-            className="min-h-[44px] sm:min-h-[32px] px-3 bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] text-sm font-mono uppercase font-bold shrink-0 hover:bg-[#DE2A35]"
+            className="min-h-[44px] sm:min-h-[32px] px-3 bg-primary text-primary-foreground dark:bg-muted dark:text-foreground text-sm font-mono uppercase font-bold shrink-0 hover:bg-primary"
           >
             {isSyncing ? 'Syncing...' : 'Sync Now'}
           </button>
@@ -110,10 +110,10 @@ export function OfflineSyncBanner() {
       {showSharedNotice && (
         <div 
           role="note" 
-          className="p-2.5 border border-[#432623]/20 dark:border-[#F5F1BC]/20 bg-[#F5F1BC]/30 dark:bg-[#381f1c] flex items-center justify-between text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 gap-2"
+          className="p-2.5 border border-border bg-muted dark:bg-card flex items-center justify-between text-sm text-foreground/80 dark:text-muted-foreground gap-2"
         >
           <div className="flex items-center gap-2">
-            <Warning size={14} className="text-[#DE2A35] shrink-0" />
+            <Warning size={14} className="text-primary shrink-0" />
             <span>
               <strong>Shared Device Notice:</strong> Always log out after your teaching session to protect child assessment privacy.
             </span>
@@ -121,7 +121,7 @@ export function OfflineSyncBanner() {
           <button
             onClick={() => setShowSharedNotice(false)}
             aria-label="Dismiss shared device notice"
-            className="p-1 hover:bg-[#432623]/10 dark:hover:bg-[#F5F1BC]/10 shrink-0"
+            className="p-1 hover:bg-muted shrink-0"
           >
             <X size={14} />
           </button>

@@ -52,14 +52,24 @@ export function getConceptForTopic(topicId: TopicId, grade: 3 | 4 | 5): ConceptI
   }
 }
 
+export function generateFreshSessionSeed(): number {
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    const buf = new Uint32Array(1);
+    crypto.getRandomValues(buf);
+    return (buf[0] % 2147483647) + 1;
+  }
+  return Math.floor(Math.random() * 2147483646) + 1;
+}
+
 /**
- * Creates a clean initial SessionMemory object.
+ * Creates a clean initial SessionMemory object with a fresh, session-specific seed.
  */
 export function createSessionMemory(
   pseudonymousId: string,
   grade: 3 | 4 | 5 = 5,
   language: "en" | "hi" | "te" = "en",
-  topics: TopicId[] = DEFAULT_TOPICS
+  topics: TopicId[] = DEFAULT_TOPICS,
+  sessionSeed?: number
 ): SessionMemory {
   const topicList = topics.length > 0 ? topics : DEFAULT_TOPICS;
   return {
@@ -77,6 +87,9 @@ export function createSessionMemory(
       })
     ),
     seenSignatures: [],
+    usedFormats: [],
+    sessionSeed: sessionSeed ?? generateFreshSessionSeed(),
+    stepCount: 0,
   };
 }
 
@@ -248,11 +261,23 @@ export function applyAttemptToMemory(
   let currentIdx = memory.currentTopicIndex;
   const currentTopic = updatedTopics[currentIdx];
 
+  const seenSignatures = memory.seenSignatures ? [...memory.seenSignatures] : [];
+  if (attempt.questionSignature && !seenSignatures.includes(attempt.questionSignature)) {
+    seenSignatures.push(attempt.questionSignature);
+  }
+
+  const usedFormats = memory.usedFormats ? [...memory.usedFormats] : [];
+  if (attempt.format) {
+    usedFormats.push(attempt.format);
+  }
+
   const memWithAttempt: SessionMemory = {
     ...memory,
     topics: updatedTopics,
     currentTopicIndex: currentIdx,
-    seenSignatures: memory.seenSignatures ? [...memory.seenSignatures] : [],
+    seenSignatures,
+    usedFormats,
+    stepCount: (memory.stepCount ?? 0) + 1,
   };
 
   const action = getNextStaircaseAction(memWithAttempt);

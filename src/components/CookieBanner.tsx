@@ -71,34 +71,34 @@ export function CookieBanner() {
     <aside
       role="region"
       aria-label="Cookie and data privacy choices"
-      className="fixed bottom-16 sm:bottom-4 inset-x-2 sm:inset-x-auto sm:left-4 sm:max-w-md z-50 bg-[#FAF8E8] dark:bg-[#251614] border-2 border-[#432623] dark:border-[#FAF8E8] p-4 shadow-xl text-[#432623] dark:text-[#FAF8E8] font-sans transition-all animate-in fade-in slide-in-from-bottom-2 duration-300"
+      className="fixed bottom-16 sm:bottom-4 inset-x-2 sm:inset-x-auto sm:left-4 sm:max-w-md z-50 bg-card border-2 border-border p-4 shadow-xl text-foreground font-sans transition-all animate-in fade-in slide-in-from-bottom-2 duration-300"
     >
       <div className="flex items-start justify-between gap-3 mb-2">
-        <div className="flex items-center gap-1.5 text-sm font-mono uppercase font-bold text-[#B51E28]">
-          <ShieldCheck size={16} className="text-[#8ABB93]" />
+        <div className="flex items-center gap-1.5 text-sm font-mono uppercase font-bold text-primary">
+          <ShieldCheck size={16} className="text-[var(--status-good)]" />
           <span>DPDP 2023 : Privacy Choices</span>
         </div>
         <button
           onClick={() => handleChoice(false)}
-          className="text-[#432623]/60 dark:text-[#FAF8E8]/60 hover:text-[#DE2A35] cursor-pointer p-0.5"
+          className="text-muted-foreground dark:text-muted-foreground hover:text-primary cursor-pointer p-0.5"
           aria-label="Reject cookies and dismiss"
         >
           <X size={16} />
         </button>
       </div>
 
-      <p className="text-sm text-[#432623]/85 dark:text-[#FAF8E8]/85 leading-relaxed mb-3">
+      <p className="text-sm text-foreground/80 dark:text-muted-foreground leading-relaxed mb-3">
         ShikshaGap uses strictly necessary local storage for diagnostic progress. We never sell student data or track across sites. May we enable anonymous usage analytics to improve classroom tools? Read our{' '}
         <Link
           href="/privacy"
-          className="underline font-bold hover:text-[#DE2A35]"
+          className="underline font-bold hover:text-primary"
         >
           Privacy Policy
         </Link>{' '}
         and{' '}
         <Link
           href="/cookies"
-          className="underline font-bold hover:text-[#DE2A35]"
+          className="underline font-bold hover:text-primary"
         >
           Cookie Notice
         </Link>.
@@ -108,14 +108,14 @@ export function CookieBanner() {
         <button
           type="button"
           onClick={() => handleChoice(true)}
-          className="flex-1 min-h-[38px] px-3 border border-[#8ABB93] bg-[#8ABB93] text-[#432623] font-mono text-sm uppercase font-bold hover:bg-[#62996C] hover:text-[#FAF8E8] transition-colors cursor-pointer"
+          className="flex-1 min-h-[38px] px-3 border border-[var(--status-good-border)] bg-[var(--status-good)] text-foreground font-mono text-sm uppercase font-bold hover:bg-[#62996C] hover:text-primary-foreground transition-colors cursor-pointer"
         >
           Accept Analytics
         </button>
         <button
           type="button"
           onClick={() => handleChoice(false)}
-          className="flex-1 min-h-[38px] px-3 border border-[#432623]/40 dark:border-[#FAF8E8]/40 bg-transparent text-[#432623] dark:text-[#FAF8E8] font-mono text-sm uppercase font-bold hover:bg-[#DE2A35] hover:text-[#FAF8E8] hover:border-[#DE2A35] transition-colors cursor-pointer"
+          className="flex-1 min-h-[38px] px-3 border border-border bg-transparent text-foreground font-mono text-sm uppercase font-bold hover:bg-primary text-primary-foreground hover:text-primary-foreground hover:border-primary transition-colors cursor-pointer"
         >
           Reject Non-Essential
         </button>

@@ -53,46 +53,46 @@ export default function DataRequestForm() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8E8] dark:bg-[#432623] text-[#432623] dark:text-[#F5F1BC] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-card dark:bg-muted text-foreground py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto space-y-8">
-        <div className="flex items-center justify-between border-b border-[#432623]/20 pb-4">
+        <div className="flex items-center justify-between border-b border-border pb-4">
           <Link
             href="/"
-            className="text-sm font-bold text-[#432623] dark:text-[#F5F1BC] hover:underline flex items-center gap-1.5"
+            className="text-sm font-bold text-foreground hover:underline flex items-center gap-1.5"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Home</span>
           </Link>
-          <span className="font-mono text-sm text-[#432623]/70 dark:text-[#F5F1BC]/70">
+          <span className="font-mono text-sm text-muted-foreground dark:text-muted-foreground">
             DPDP Act 2023 Form
           </span>
         </div>
 
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F5F1BC] text-[#432623] text-sm font-mono font-bold rounded-[2px] border border-[#432623]/25">
-            <IdentificationCard className="w-4 h-4 text-[#432623]" />
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-muted text-foreground text-sm font-mono font-bold rounded-[2px] border border-border">
+            <IdentificationCard className="w-4 h-4 text-foreground" />
             <span>DATA PRINCIPAL EXERCISE OF RIGHTS</span>
           </div>
-          <h1 className="font-serif text-3xl font-extrabold text-[#432623] dark:text-[#F5F1BC]">
+          <h1 className="font-serif text-3xl font-extrabold text-foreground">
             Data Access, Correction &amp; Deletion Request
           </h1>
-          <p className="text-sm sm:text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed">
+          <p className="text-sm sm:text-sm text-foreground/80 dark:text-muted-foreground leading-relaxed">
             Parents, legal guardians, and school teachers can request access to, correction of, or permanent deletion of student records processed by ShikshaGap.
           </p>
         </div>
 
         {result ? (
-          <div className="p-6 bg-[#8ABB93]/15 border border-[#8ABB93] rounded-[2px] space-y-3">
-            <div className="flex items-center gap-2 text-[#432623] font-bold">
-              <CheckCircle className="w-5 h-5 text-[#8ABB93]" />
+          <div className="p-6 bg-[var(--status-good-bg)] border border-[var(--status-good-border)] rounded-[2px] space-y-3">
+            <div className="flex items-center gap-2 text-foreground font-bold">
+              <CheckCircle className="w-5 h-5 text-[var(--status-good)]" />
               <span className="text-base">Request Successfully Logged</span>
             </div>
-            <p className="text-sm text-[#432623]/90 leading-relaxed">
+            <p className="text-sm text-foreground/80 leading-relaxed">
               {result.message}
             </p>
-            <div className="p-3 bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] font-mono text-sm text-[#432623]">
+            <div className="p-3 bg-[var(--surface)] border border-border rounded-[2px] font-mono text-sm text-foreground">
               <div>Reference Tracking ID: <strong>{result.referenceId}</strong></div>
-              <div className="text-sm text-[#432623]/70 mt-1">Please preserve this reference ID for any communication with our Privacy Officer.</div>
+              <div className="text-sm text-muted-foreground mt-1">Please preserve this reference ID for any communication with our Privacy Officer.</div>
             </div>
             <button
               onClick={() => {
@@ -116,7 +116,7 @@ export default function DataRequestForm() {
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="p-6 bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] space-y-4 text-sm">
+          <form onSubmit={handleSubmit} className="p-6 bg-[var(--surface)] border border-border rounded-[2px] space-y-4 text-sm">
             {/* Honeypot field */}
             <input
               type="text"
@@ -129,7 +129,7 @@ export default function DataRequestForm() {
             />
 
             {error && (
-              <div className="p-3 bg-[#DE2A35]/15 border border-[#DE2A35] rounded-[2px] text-[#DE2A35] flex items-center gap-2">
+              <div className="p-3 bg-primary text-primary-foreground/15 border border-primary rounded-[2px] text-primary flex items-center gap-2">
                 <Warning className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
               </div>
@@ -137,22 +137,22 @@ export default function DataRequestForm() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="font-bold text-[#432623]">Your Full Name *</label>
+                <label className="font-bold text-foreground">Your Full Name *</label>
                 <input
                   required
                   type="text"
                   value={formData.requesterName}
                   onChange={(e) => setFormData({ ...formData, requesterName: e.target.value })}
-                  className="w-full h-9 px-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623]"
+                  className="w-full h-9 px-3 bg-card border border-border rounded-[2px] text-foreground"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-[#432623]">Your Relationship to Student *</label>
+                <label className="font-bold text-foreground">Your Relationship to Student *</label>
                 <select
                   value={formData.requesterRole}
                   onChange={(e) => setFormData({ ...formData, requesterRole: e.target.value as "parent" | "teacher" | "student" | "guardian" })}
-                  className="w-full h-9 px-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623]"
+                  className="w-full h-9 px-3 bg-card border border-border rounded-[2px] text-foreground"
                 >
                   <option value="parent">Parent</option>
                   <option value="guardian">Legal Guardian</option>
@@ -164,66 +164,66 @@ export default function DataRequestForm() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="font-bold text-[#432623]">Email Address *</label>
+                <label className="font-bold text-foreground">Email Address *</label>
                 <input
                   required
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full h-9 px-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623]"
+                  className="w-full h-9 px-3 bg-card border border-border rounded-[2px] text-foreground"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-[#432623]">Phone Number (Optional)</label>
+                <label className="font-bold text-foreground">Phone Number (Optional)</label>
                 <input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full h-9 px-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623]"
+                  className="w-full h-9 px-3 bg-card border border-border rounded-[2px] text-foreground"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
               <div className="space-y-1">
-                <label className="font-bold text-[#432623]">Student Full Name *</label>
+                <label className="font-bold text-foreground">Student Full Name *</label>
                 <input
                   required
                   type="text"
                   value={formData.studentName}
                   onChange={(e) => setFormData({ ...formData, studentName: e.target.value })}
-                  className="w-full h-9 px-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623]"
+                  className="w-full h-9 px-3 bg-card border border-border rounded-[2px] text-foreground"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-[#432623]">Roll Number</label>
+                <label className="font-bold text-foreground">Roll Number</label>
                 <input
                   type="text"
                   value={formData.studentRollNo}
                   onChange={(e) => setFormData({ ...formData, studentRollNo: e.target.value })}
-                  className="w-full h-9 px-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623]"
+                  className="w-full h-9 px-3 bg-card border border-border rounded-[2px] text-foreground"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-[#432623]">School Name</label>
+                <label className="font-bold text-foreground">School Name</label>
                 <input
                   type="text"
                   value={formData.schoolName}
                   onChange={(e) => setFormData({ ...formData, schoolName: e.target.value })}
-                  className="w-full h-9 px-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623]"
+                  className="w-full h-9 px-3 bg-card border border-border rounded-[2px] text-foreground"
                 />
               </div>
             </div>
 
             <div className="space-y-1 pt-1">
-              <label className="font-bold text-[#432623]">Type of Request *</label>
+              <label className="font-bold text-foreground">Type of Request *</label>
               <select
                 value={formData.requestType}
                 onChange={(e) => setFormData({ ...formData, requestType: e.target.value as "access" | "correction" | "deletion" | "grievance" })}
-                className="w-full h-9 px-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623]"
+                className="w-full h-9 px-3 bg-card border border-border rounded-[2px] text-foreground"
               >
                 <option value="access">Access: Request copy of all academic diagnostic records</option>
                 <option value="correction">Correction: Rectify inaccurate student profile or roll number</option>
@@ -233,26 +233,26 @@ export default function DataRequestForm() {
             </div>
 
             <div className="space-y-1">
-              <label className="font-bold text-[#432623]">Additional Context / Details</label>
+              <label className="font-bold text-foreground">Additional Context / Details</label>
               <textarea
                 rows={3}
                 value={formData.details}
                 onChange={(e) => setFormData({ ...formData, details: e.target.value })}
                 placeholder="Please describe any specific details to help us locate and verify the student record..."
-                className="w-full p-2.5 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623]"
+                className="w-full p-2.5 bg-card border border-border rounded-[2px] text-foreground"
               />
             </div>
 
             {/* Unbundled, Unticked Consent Declaration */}
-            <div className="pt-2 border-t border-[#432623]/20 space-y-2">
+            <div className="pt-2 border-t border-border space-y-2">
               <label className="flex items-start gap-2.5 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={formData.consentConfirmed}
                   onChange={(e) => setFormData({ ...formData, consentConfirmed: e.target.checked })}
-                  className="mt-0.5 rounded-[2px] border border-[#432623]/40"
+                  className="mt-0.5 rounded-[2px] border border-border"
                 />
-                <span className="text-sm text-[#432623]/90 leading-tight">
+                <span className="text-sm text-foreground/80 leading-tight">
                   I confirm that I am the authorized parent, legal guardian, or school authority for this student, and I consent to the processing of this request in accordance with the ShikshaGap <Link href="/privacy" className="underline font-bold">Privacy Policy</Link>.
                 </span>
               </label>

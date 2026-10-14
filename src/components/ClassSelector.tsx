@@ -94,17 +94,17 @@ export function ClassSelector({
         <button
           type="button"
           onClick={() => setShowUpcoming(!showUpcoming)}
-          className="text-sm font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 hover:underline flex items-center gap-1.5 cursor-pointer"
+          className="text-sm font-mono text-muted-foreground dark:text-muted-foreground hover:underline flex items-center gap-1.5 cursor-pointer"
         >
           <span>{showUpcoming ? 'Hide upcoming classes' : 'More classes coming soon (Classes 1, 2, 6, 7, 8)'}</span>
         </button>
 
         {showUpcoming && (
-          <div className="mt-2 flex flex-wrap gap-1.5 p-2 bg-[#FAF8E8] dark:bg-[#251614] border border-[#432623]/20 rounded-[2px]">
+          <div className="mt-2 flex flex-wrap gap-1.5 p-2 bg-card border border-border rounded-[2px]">
             {upcomingClasses.map((conf: ClassConfig) => (
               <span
                 key={conf.id}
-                className="text-sm font-mono px-2 py-1 bg-[#F5F1BC]/40 dark:bg-[#311E1B] border border-[#432623]/20 text-[#432623]/60 dark:text-[#FAF8E8]/60"
+                className="text-sm font-mono px-2 py-1 bg-muted dark:bg-card border border-border text-muted-foreground dark:text-muted-foreground"
               >
                 {conf.label} (Coming soon)
               </span>

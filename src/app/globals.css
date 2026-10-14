@@ -12,13 +12,21 @@
   --font-mono: ui-monospace, Menlo, Monaco, Consolas, monospace;
   --font-heading: var(--font-serif);
 
-  --color-sg-red: #DE2A35;
-  --color-sg-red-dark: #B51E28;
-  --color-sg-sage: #8ABB93;
-  --color-sg-cream: #F5F1BC;
-  --color-sg-cream-light: #FAF8E8;
-  --color-sg-clay: #DFA06E;
-  --color-sg-brown: #432623;
+  /* Exact Coolors 5-color Palette */
+  --color-sg-burgundy: #36151E;
+  --color-sg-offwhite: #EEF0F2;
+  --color-sg-stone: #C6C7C4;
+  --color-sg-mauve: #A2999E;
+  --color-sg-coral: #F56276;
+
+  /* Backward compatible semantic aliases */
+  --color-sg-red: #F56276;
+  --color-sg-red-dark: #36151E;
+  --color-sg-sage: #A2999E;
+  --color-sg-cream: #EEF0F2;
+  --color-sg-cream-light: #EEF0F2;
+  --color-sg-clay: #C6C7C4;
+  --color-sg-brown: #36151E;
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -53,28 +61,40 @@
 }
 
 :root {
-  /* Editorial Palette: Cream background, dark brown text, red for accents */
-  --background: #FAF8E8;
-  --foreground: #432623;
-  --card: #F5F1BC;
-  --card-foreground: #432623;
-  --popover: #FAF8E8;
-  --popover-foreground: #432623;
-  --primary: #DE2A35;
-  --primary-foreground: #FAF8E8;
-  --secondary: #F5F1BC;
-  --secondary-foreground: #432623;
-  --muted: rgba(67, 38, 35, 0.08);
-  --muted-foreground: #6A4944;
-  --accent: #DE2A35;
-  --accent-foreground: #FAF8E8;
-  --destructive: #B51E28;
-  --border: rgba(67, 38, 35, 0.35);
-  --input: rgba(67, 38, 35, 0.40);
-  --ring: #B51E28;
+  /* ShikshaGap Exact Coolors Palette - Light Mode */
+  /* Main background: Cool off-white #EEF0F2 */
+  --background: #EEF0F2;
+  /* Primary text: Deep burgundy #36151E (14.35:1 contrast against #EEF0F2) */
+  --foreground: #36151E;
+  /* Cards & elevated containers: Pure white with stone border for crisp separation */
+  --card: #FFFFFF;
+  --card-foreground: #36151E;
+  --popover: #FFFFFF;
+  --popover-foreground: #36151E;
+  /* Primary visual accent: Coral pink #F56276 */
+  --primary: #F56276;
+  /* Text on coral buttons/badges: Deep burgundy #36151E (5.39:1 contrast, passes WCAG AA) */
+  --primary-foreground: #36151E;
+  /* Secondary surfaces: soft stone tint */
+  --secondary: #E3E5E8;
+  --secondary-foreground: #36151E;
+  --muted: #E2E4E7;
+  /* Secondary text / muted elements: Mauve grey #5E5257 (> 4.8:1 contrast on #EEF0F2 and white) */
+  --muted-foreground: #5E5257;
+  --accent: #F56276;
+  --accent-foreground: #36151E;
+  --destructive: #B91C1C;
+  /* Borders: Stone grey #C6C7C4 */
+  --border: #C6C7C4;
+  --input: #C6C7C4;
+  --ring: #F56276;
   --radius: 2px;
 
-  /* Learning Status Tokens (reserved strictly for learning mastery and alerts) */
+  /* Surfaces */
+  --surface: #FFFFFF;
+  --surface-muted: #E2E4E7;
+
+  /* Learning Status Tokens (accessible & distinct from brand) */
   --status-good: #15803D;
   --status-good-bg: #DCFCE7;
   --status-good-border: #86EFAC;
@@ -87,36 +107,95 @@
 }
 
 .dark {
-  /* Editorial Dark / Night Edition */
-  --background: #251614;
-  --foreground: #FAF8E8;
-  --card: #311E1B;
-  --card-foreground: #FAF8E8;
-  --popover: #251614;
-  --popover-foreground: #FAF8E8;
-  --primary: #DE2A35;
-  --primary-foreground: #FAF8E8;
-  --secondary: #3A2320;
-  --secondary-foreground: #FAF8E8;
-  --muted: rgba(250, 248, 232, 0.10);
-  --muted-foreground: #DFA06E;
-  --accent: #DE2A35;
-  --accent-foreground: #FAF8E8;
-  --destructive: #DE2A35;
-  --border: rgba(250, 248, 232, 0.35);
-  --input: rgba(250, 248, 232, 0.45);
-  --ring: #FAF8E8;
+  /* ShikshaGap Exact Coolors Palette - Dark Mode */
+  /* Main background: Deep burgundy #36151E */
+  --background: #36151E;
+  /* Primary text & headings: Cool off-white #EEF0F2 (14.35:1 contrast against #36151E) */
+  --foreground: #EEF0F2;
+  /* Cards, dialogs, popovers: Dark burgundy surface #250D15 */
+  --card: #250D15;
+  --card-foreground: #EEF0F2;
+  --popover: #250D15;
+  --popover-foreground: #EEF0F2;
+  --surface: #250D15;
+  --surface-muted: #431B27;
+  /* Primary visual accent: Coral pink #F56276 */
+  --primary: #F56276;
+  /* Text on coral buttons/badges: Deep burgundy #36151E (5.39:1 contrast, passes WCAG AA) */
+  --primary-foreground: #36151E;
+  /* Secondary surfaces: elevated dark burgundy #431B27 */
+  --secondary: #431B27;
+  --secondary-foreground: #EEF0F2;
+  --muted: rgba(238, 240, 242, 0.12);
+  /* Secondary text / details: Stone grey #C6C7C4 (9.58:1 contrast on #36151E) */
+  --muted-foreground: #C6C7C4;
+  --accent: #F56276;
+  --accent-foreground: #36151E;
+  --destructive: #F87171;
+  /* Borders: Stone grey with opacity */
+  --border: rgba(198, 199, 196, 0.30);
+  --input: rgba(198, 199, 196, 0.40);
+  --ring: #F56276;
 
   /* Learning Status Tokens (Dark) */
   --status-good: #4ADE80;
-  --status-good-bg: rgba(34, 197, 94, 0.15);
-  --status-good-border: rgba(34, 197, 94, 0.4);
+  --status-good-bg: rgba(34, 197, 94, 0.18);
+  --status-good-border: rgba(34, 197, 94, 0.45);
   --status-warn: #FBBF24;
-  --status-warn-bg: rgba(245, 158, 11, 0.15);
-  --status-warn-border: rgba(245, 158, 11, 0.4);
+  --status-warn-bg: rgba(245, 158, 11, 0.18);
+  --status-warn-border: rgba(245, 158, 11, 0.45);
   --status-urgent: #F87171;
-  --status-urgent-bg: rgba(239, 68, 68, 0.15);
-  --status-urgent-border: rgba(239, 68, 68, 0.4);
+  --status-urgent-bg: rgba(239, 68, 68, 0.18);
+  --status-urgent-border: rgba(239, 68, 68, 0.45);
+}
+
+.neo-panel {
+  background-color: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+}
+
+.neo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  border-radius: 2px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+}
+
+.neo-btn-primary {
+  background-color: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  border-color: var(--primary) !important;
+}
+
+.neo-btn-primary:hover {
+  filter: brightness(0.95);
+}
+
+.neo-btn-secondary {
+  background-color: var(--card);
+  color: var(--foreground);
+  border-color: var(--border);
+}
+
+.neo-btn-secondary:hover {
+  background-color: var(--muted);
+}
+
+.editorial-meta {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.editorial-title {
+  font-family: var(--font-serif);
+  color: var(--foreground);
 }
 
 @layer base {

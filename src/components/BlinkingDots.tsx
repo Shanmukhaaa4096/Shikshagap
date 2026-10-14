@@ -13,7 +13,7 @@ interface BlinkingDotsProps {
 
 export function BlinkingDots({
   color,
-  activeColor = '#DE2A35',
+  activeColor = '#F56276',
   size = 6,
   count = 3,
   className = '',

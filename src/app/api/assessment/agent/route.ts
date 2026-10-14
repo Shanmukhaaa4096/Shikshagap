@@ -32,6 +32,9 @@ const AssessmentAgentSchema = z.object({
     currentTopicIndex: z.number().int().min(0),
     topics: z.array(z.any()).min(1),
     seenSignatures: z.array(z.string()).optional(),
+    usedFormats: z.array(z.string()).optional(),
+    sessionSeed: z.number().int().optional(),
+    stepCount: z.number().int().optional(),
   }),
   lastAttempt: z
     .object({
@@ -87,7 +90,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const rng = makeRng(Date.now());
+    const sessionSeed = memory.sessionSeed ?? Date.now();
+    const currentStep = memory.stepCount ?? 0;
+    const rng = makeRng(((sessionSeed + currentStep * 7919) >>> 0));
 
     let currentMemory: SessionMemory = memory;
     let nextAction: StaircaseAction;
@@ -179,6 +184,7 @@ export async function POST(req: NextRequest) {
     );
     currentMemory.seenSignatures = Array.from(seen);
     currentMemory.usedFormats = [...usedFormats, nextQuestion.format];
+    currentMemory.stepCount = currentStep + 1;
 
     return NextResponse.json({
       memory: currentMemory,

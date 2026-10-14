@@ -23,7 +23,7 @@ async function ReportLoader({ params }: PageProps) {
 
   if (!record) {
     return (
-      <div className="min-h-[100dvh] bg-[#FAF8E8] dark:bg-[#432623] flex items-center justify-center p-4">
+      <div className="min-h-[100dvh] bg-card dark:bg-muted flex items-center justify-center p-4">
         <ErrorState
           errorMessage="This parent report link is invalid, has expired (after 7 days), or was revoked by the classroom teacher."
           referenceId="LINK-EXPIRED-404"
@@ -57,7 +57,7 @@ async function ReportLoader({ params }: PageProps) {
 export default function SharedReportPage({ params }: PageProps) {
   return (
     <Suspense fallback={
-      <div className="min-h-[100dvh] bg-[#FAF8E8] dark:bg-[#432623] p-4 flex items-center justify-center">
+      <div className="min-h-[100dvh] bg-card dark:bg-muted p-4 flex items-center justify-center">
         <LoadingSkeletonState className="w-full max-w-md" />
       </div>
     }>

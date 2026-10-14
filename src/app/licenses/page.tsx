@@ -84,29 +84,29 @@ http://www.apache.org/licenses/LICENSE-2.0`
 
 export default function LicensesPage() {
   return (
-    <div className="min-h-screen bg-[#FAF8E8] dark:bg-[#432623] text-[#432623] dark:text-[#F5F1BC] font-sans selection:bg-[#DE2A35] selection:text-[#F5F1BC] p-6 sm:p-12">
+    <div className="min-h-screen bg-card dark:bg-muted text-foreground font-sans selection:bg-primary text-primary-foreground selection:text-primary-foreground p-6 sm:p-12">
       <div className="max-w-4xl mx-auto">
-        <div className="border-b border-[#432623]/20 dark:border-[#F5F1BC]/20 pb-6 mb-8">
-          <Link href="/" className="text-xs font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 hover:underline">
+        <div className="border-b border-border pb-6 mb-8">
+          <Link href="/" className="text-xs font-mono uppercase text-muted-foreground dark:text-muted-foreground hover:underline">
             &larr; Back to ShikshaGap Home
           </Link>
           <h1 className="font-serif text-3xl sm:text-4xl font-normal mt-3">Open Source Software Attribution</h1>
-          <p className="text-xs font-mono uppercase tracking-wider text-[#432623]/60 dark:text-[#F5F1BC]/60 mt-1">
+          <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground dark:text-muted-foreground mt-1">
             Compliant with Third-Party Notice Requirements
           </p>
         </div>
 
-        <p className="text-xs text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed mb-8">
+        <p className="text-xs text-foreground/80 dark:text-muted-foreground leading-relaxed mb-8">
           ShikshaGap is built with appreciation for the open-source software community. In accordance with the license conditions of our dependencies, the copyright notices and permissions for core libraries are reproduced below.
         </p>
 
         <div className="space-y-6">
           {LICENSES.map((lib, i) => (
-            <div key={i} className="border border-[#432623]/25 dark:border-[#F5F1BC]/25 p-5 bg-[#FAF8E8] dark:bg-[#381f1c]">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#432623]/15 dark:border-[#F5F1BC]/15 pb-2 mb-3">
+            <div key={i} className="border border-border p-5 bg-card dark:bg-card">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-2 mb-3">
                 <div>
                   <h2 className="font-serif text-lg font-bold">{lib.name}</h2>
-                  <div className="text-xs font-mono text-[#432623]/70 dark:text-[#F5F1BC]/70">
+                  <div className="text-xs font-mono text-muted-foreground dark:text-muted-foreground">
                     {lib.author} | {lib.license}
                   </div>
                 </div>
@@ -114,12 +114,12 @@ export default function LicensesPage() {
                   href={lib.url} 
                   target="_blank" 
                   rel="noreferrer noopener" 
-                  className="text-xs font-mono underline hover:text-[#B51E28]"
+                  className="text-xs font-mono underline hover:text-primary"
                 >
                   Source Repository
                 </a>
               </div>
-              <pre className="text-xs font-mono bg-[#F5F1BC]/40 dark:bg-[#432623] p-3 overflow-x-auto whitespace-pre-wrap border border-[#432623]/10 dark:border-[#F5F1BC]/10">
+              <pre className="text-xs font-mono bg-muted dark:bg-muted p-3 overflow-x-auto whitespace-pre-wrap border border-border">
                 {lib.text}
               </pre>
             </div>

@@ -101,22 +101,22 @@ export function LandingPilotSection() {
   };
 
   return (
-    <section id="pilot" className="border-b border-[#432623]/25 px-4 sm:px-8 py-12 max-w-7xl mx-auto">
+    <section id="pilot" className="border-b border-border px-4 sm:px-8 py-12 max-w-7xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Letter to School Leaders */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="flex items-center gap-2 text-sm font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
-            <span className="text-[#DE2A35] font-bold">07</span>
+          <div className="flex items-center gap-2 text-sm font-mono uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
+            <span className="text-primary font-bold">07</span>
             <span>/</span>
             <span>FIELD PARTNERSHIPS</span>
           </div>
-          <h2 className="font-serif text-2xl sm:text-4xl font-normal text-[#432623] dark:text-[#FAF8E8]">
+          <h2 className="font-serif text-2xl sm:text-4xl font-normal text-foreground">
             Request a Classroom Pilot
           </h2>
-          <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed">
+          <p className="text-sm text-foreground/80 dark:text-muted-foreground leading-relaxed">
             Government primary schools, headmasters, and cluster resource persons can request dedicated classroom onboarding support.
           </p>
-          <div className="border-l-2 border-[#8ABB93] pl-4 py-2 space-y-2 text-sm font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70">
+          <div className="border-l-2 border-[var(--status-good-border)] pl-4 py-2 space-y-2 text-sm font-mono text-muted-foreground dark:text-muted-foreground">
             <div>Zero license fee for public schools.</div>
             <div>Includes physical printable templates.</div>
             <div>Built following DPDP Act 2023 principles.</div>
@@ -126,31 +126,31 @@ export function LandingPilotSection() {
         {/* Right Column: Form or Confirmation Card */}
         <div className="lg:col-span-7">
           {pilotSuccess ? (
-            <div className="border-2 border-[#8ABB93] p-6 sm:p-8 bg-[#FAF8E8] dark:bg-[#251614] text-center space-y-4 shadow-sm animate-in fade-in zoom-in-95 duration-300">
+            <div className="border-2 border-[var(--status-good-border)] p-6 sm:p-8 bg-card text-center space-y-4 shadow-sm animate-in fade-in zoom-in-95 duration-300">
               <SuccessIllustration className="w-20 h-16 mx-auto mb-2" />
               
-              <div className="text-sm font-mono uppercase tracking-widest text-[#432623] dark:text-[#FAF8E8] font-bold">
+              <div className="text-sm font-mono uppercase tracking-widest text-foreground font-bold">
                 Registration Confirmed
               </div>
 
-              <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#432623] dark:text-[#FAF8E8]">
+              <h3 className="font-serif text-2xl sm:text-3xl font-bold text-foreground">
                 School Pilot Request Received
               </h3>
 
               {pilotReferenceId && (
-                <div className="inline-block px-3 py-1 bg-[#8ABB93]/15 border border-[#8ABB93] font-mono text-sm text-[#432623] dark:text-[#FAF8E8] font-bold">
+                <div className="inline-block px-3 py-1 bg-[var(--status-good-bg)] border border-[var(--status-good-border)] font-mono text-sm text-foreground font-bold">
                   Reference ID: {pilotReferenceId}
                 </div>
               )}
 
-              <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 max-w-md mx-auto leading-relaxed">
+              <p className="text-sm text-foreground/80 dark:text-muted-foreground max-w-md mx-auto leading-relaxed">
                 {pilotSuccess} Our academic team will verify school details and contact you to provision classroom diagnostic materials and printable worksheets.
               </p>
 
               <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Link
                   href="/assessment"
-                  className="w-full sm:w-auto min-h-[44px] px-6 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold inline-flex items-center justify-center gap-2 hover:bg-[#B51E28] transition-colors"
+                  className="w-full sm:w-auto min-h-[44px] px-6 bg-primary text-primary-foreground text-sm font-mono uppercase font-bold inline-flex items-center justify-center gap-2 hover:bg-primary transition-colors"
                 >
                   <span>Assess Test (Start Assessment)</span>
                   <ArrowRight size={14} />
@@ -161,14 +161,14 @@ export function LandingPilotSection() {
                     setPilotSuccess(null);
                     setPilotReferenceId(null);
                   }}
-                  className="w-full sm:w-auto min-h-[44px] px-4 border border-[#432623]/30 dark:border-[#FAF8E8]/30 bg-transparent text-[#432623] dark:text-[#FAF8E8] text-sm font-mono uppercase hover:bg-[#F5F1BC] dark:hover:bg-[#311E1B] transition-colors cursor-pointer"
+                  className="w-full sm:w-auto min-h-[44px] px-4 border border-border bg-transparent text-foreground text-sm font-mono uppercase hover:bg-muted transition-colors cursor-pointer"
                 >
                   Submit Another Request
                 </button>
               </div>
             </div>
           ) : (
-            <form onSubmit={handlePilotSubmit} noValidate className="border-2 border-[#432623]/25 p-6 bg-[#FAF8E8] dark:bg-[#251614] space-y-4 shadow-xs">
+            <form onSubmit={handlePilotSubmit} noValidate className="border-2 border-border p-6 bg-card space-y-4 shadow-xs">
               {/* Bot Honeypot */}
               <input
                 type="text"
@@ -182,7 +182,7 @@ export function LandingPilotSection() {
 
               {/* School Name */}
               <div>
-                <label htmlFor={schoolInputId} className="block text-sm font-mono uppercase text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-1 font-bold">
+                <label htmlFor={schoolInputId} className="block text-sm font-mono uppercase text-muted-foreground dark:text-muted-foreground mb-1 font-bold">
                   School Name *
                 </label>
                 <input
@@ -196,20 +196,20 @@ export function LandingPilotSection() {
                   }}
                   placeholder="e.g. MPPS Gandhi Nagar"
                   aria-invalid={!!pilotFieldErrors.school}
-                  className={`w-full min-h-[44px] px-3 border bg-[#FAF8E8] dark:bg-[#251614] text-sm font-mono ${
+                  className={`w-full min-h-[44px] px-3 border bg-card text-sm font-mono ${
                     pilotFieldErrors.school
-                      ? 'border-[#DE2A35] ring-1 ring-[#DE2A35]'
-                      : 'border-[#432623]/25 focus:border-[#DE2A35]'
+                      ? 'border-primary ring-1 ring-primary'
+                      : 'border-border focus:border-primary'
                   }`}
                 />
                 {pilotFieldErrors.school && (
-                  <p className="text-sm font-mono text-[#B51E28] mt-1">{pilotFieldErrors.school}</p>
+                  <p className="text-sm font-mono text-primary mt-1">{pilotFieldErrors.school}</p>
                 )}
               </div>
 
               {/* Teacher Name */}
               <div>
-                <label htmlFor={teacherInputId} className="block text-sm font-mono uppercase text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-1 font-bold">
+                <label htmlFor={teacherInputId} className="block text-sm font-mono uppercase text-muted-foreground dark:text-muted-foreground mb-1 font-bold">
                   Teacher or Headmaster Name *
                 </label>
                 <input
@@ -223,27 +223,27 @@ export function LandingPilotSection() {
                   }}
                   placeholder="e.g. Smt. Lakshmi Rao"
                   aria-invalid={!!pilotFieldErrors.teacher}
-                  className={`w-full min-h-[44px] px-3 border bg-[#FAF8E8] dark:bg-[#251614] text-sm font-mono ${
+                  className={`w-full min-h-[44px] px-3 border bg-card text-sm font-mono ${
                     pilotFieldErrors.teacher
-                      ? 'border-[#DE2A35] ring-1 ring-[#DE2A35]'
-                      : 'border-[#432623]/25 focus:border-[#DE2A35]'
+                      ? 'border-primary ring-1 ring-primary'
+                      : 'border-border focus:border-primary'
                   }`}
                 />
                 {pilotFieldErrors.teacher && (
-                  <p className="text-sm font-mono text-[#B51E28] mt-1">{pilotFieldErrors.teacher}</p>
+                  <p className="text-sm font-mono text-primary mt-1">{pilotFieldErrors.teacher}</p>
                 )}
               </div>
 
               {/* Class Range */}
               <div>
-                <label htmlFor={classRangeInputId} className="block text-sm font-mono uppercase text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-1 font-bold">
+                <label htmlFor={classRangeInputId} className="block text-sm font-mono uppercase text-muted-foreground dark:text-muted-foreground mb-1 font-bold">
                   Class Range *
                 </label>
                 <select
                   id={classRangeInputId}
                   value={pilotClassRange}
                   onChange={(e) => setPilotClassRange(e.target.value)}
-                  className="w-full min-h-[44px] px-3 border border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#251614] text-sm font-mono"
+                  className="w-full min-h-[44px] px-3 border border-border bg-card text-sm font-mono"
                 >
                   <option value="Classes 3 to 5">Classes 3 to 5 (Full support)</option>
                   <option value="Class 3">Class 3 only</option>
@@ -255,7 +255,7 @@ export function LandingPilotSection() {
 
               {/* Contact */}
               <div>
-                <label htmlFor={contactInputId} className="block text-sm font-mono uppercase text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-1 font-bold">
+                <label htmlFor={contactInputId} className="block text-sm font-mono uppercase text-muted-foreground dark:text-muted-foreground mb-1 font-bold">
                   Teacher Contact (Phone or Email) *
                 </label>
                 <input
@@ -269,14 +269,14 @@ export function LandingPilotSection() {
                   }}
                   placeholder="e.g. 9876543210 or teacher@school.edu"
                   aria-invalid={!!pilotFieldErrors.contact}
-                  className={`w-full min-h-[44px] px-3 border bg-[#FAF8E8] dark:bg-[#251614] text-sm font-mono ${
+                  className={`w-full min-h-[44px] px-3 border bg-card text-sm font-mono ${
                     pilotFieldErrors.contact
-                      ? 'border-[#DE2A35] ring-1 ring-[#DE2A35]'
-                      : 'border-[#432623]/25 focus:border-[#DE2A35]'
+                      ? 'border-primary ring-1 ring-primary'
+                      : 'border-border focus:border-primary'
                   }`}
                 />
                 {pilotFieldErrors.contact && (
-                  <p className="text-sm font-mono text-[#B51E28] mt-1">{pilotFieldErrors.contact}</p>
+                  <p className="text-sm font-mono text-primary mt-1">{pilotFieldErrors.contact}</p>
                 )}
               </div>
 
@@ -293,20 +293,20 @@ export function LandingPilotSection() {
                   }}
                   className="mt-1"
                 />
-                <label htmlFor={consentInputId} className="text-sm text-[#432623]/70 dark:text-[#FAF8E8]/70 leading-tight">
+                <label htmlFor={consentInputId} className="text-sm text-muted-foreground dark:text-muted-foreground leading-tight">
                   I agree that this contact will be used strictly for school pilot onboarding in accordance with our{' '}
-                  <Link href="/privacy" className="underline hover:text-[#432623] dark:hover:text-[#FAF8E8]">
+                  <Link href="/privacy" className="underline hover:text-foreground dark:hover:text-primary-foreground">
                     Privacy Policy
                   </Link>.
                 </label>
               </div>
               {pilotFieldErrors.consent && (
-                <p className="text-sm font-mono text-[#B51E28]">{pilotFieldErrors.consent}</p>
+                <p className="text-sm font-mono text-primary">{pilotFieldErrors.consent}</p>
               )}
 
               {/* General / Network Error */}
               {pilotError && (
-                <div className="p-3 border border-[#DE2A35] bg-[#DE2A35]/15 text-[#B51E28] text-sm font-mono" role="alert">
+                <div className="p-3 border border-primary bg-primary/10 text-primary text-sm font-mono" role="alert">
                   {pilotError}
                 </div>
               )}
@@ -316,14 +316,14 @@ export function LandingPilotSection() {
                 <button
                   type="submit"
                   disabled={pilotLoading}
-                  className="w-full sm:w-auto min-h-[44px] px-6 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold hover:bg-[#B51E28] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-xs focus-visible:outline-2 focus-visible:outline-[#DE2A35] flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto min-h-[44px] px-6 bg-primary text-primary-foreground text-sm font-mono uppercase font-bold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-xs focus-visible:outline-2 focus-visible:outline-ring flex items-center justify-center gap-2"
                 >
                   {pilotLoading && (
-                    <span className="w-3.5 h-3.5 border-2 border-[#FAF8E8] border-t-transparent rounded-full animate-spin"></span>
+                    <span className="w-3.5 h-3.5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></span>
                   )}
                   <span>{pilotLoading ? 'Submitting...' : 'Submit Pilot Request'}</span>
                 </button>
-                <span className="text-sm text-[#432623]/60 dark:text-[#FAF8E8]/60 font-mono">
+                <span className="text-sm text-muted-foreground dark:text-muted-foreground font-mono">
                   DPDP 2023 protected : Masked storage
                 </span>
               </div>

@@ -47,31 +47,31 @@ export default function HowItWorksClient() {
   ];
 
   return (
-    <div className="min-h-[100dvh] bg-[#FAF8E8] dark:bg-[#432623] text-[#432623] dark:text-[#F5F1BC] font-sans selection:bg-[#DE2A35] selection:text-[#F5F1BC] p-4 sm:p-8">
+    <div className="min-h-[100dvh] bg-card dark:bg-muted text-foreground font-sans selection:bg-primary text-primary-foreground selection:text-primary-foreground p-4 sm:p-8">
       <div className="max-w-3xl mx-auto">
         {/* Navigation Bar */}
-        <div className="pb-4 mb-6 border-b border-[#432623]/20 dark:border-[#F5F1BC]/20 flex items-center justify-between">
+        <div className="pb-4 mb-6 border-b border-border flex items-center justify-between">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-sm font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 hover:underline min-h-[44px]"
+            className="inline-flex items-center gap-1.5 text-sm font-mono uppercase text-muted-foreground dark:text-muted-foreground hover:underline min-h-[44px]"
           >
             <ArrowLeft size={16} />
             <span>Return to Home</span>
           </Link>
-          <div className="border border-[#432623]/25 px-2 py-0.5 text-sm font-mono uppercase bg-[#F5F1BC] text-[#432623]">
+          <div className="border border-border px-2 py-0.5 text-sm font-mono uppercase bg-muted text-foreground">
             Methodology & Validation
           </div>
         </div>
 
         {/* Page Title */}
         <div className="mb-8">
-          <span className="text-sm font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#F5F1BC]/70">
+          <span className="text-sm font-mono uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
             Pedagogical Integrity
           </span>
-          <h1 className="font-serif text-3xl sm:text-4xl font-normal mt-1 tracking-tight text-[#432623] dark:text-[#F5F1BC]">
+          <h1 className="font-serif text-3xl sm:text-4xl font-normal mt-1 tracking-tight text-foreground">
             Diagnostic Methodology & Accuracy Disclosures
           </h1>
-          <p className="text-sm sm:text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed mt-3">
+          <p className="text-sm sm:text-sm text-foreground/80 dark:text-muted-foreground leading-relaxed mt-3">
             An open, honest explanation of how ShikshaGap traces prerequisite learning gaps in primary mathematics, what the assistive engine can and cannot do, and our ongoing empirical validation process.
           </p>
         </div>
@@ -83,7 +83,7 @@ export default function HowItWorksClient() {
             return (
               <div 
                 key={index} 
-                className="border border-[#432623]/25 dark:border-[#F5F1BC]/25 bg-[#FAF8E8] dark:bg-[#381f1c]"
+                className="border border-border bg-card dark:bg-card"
               >
                 <button
                   onClick={() => setExpandedSection(isOpen ? null : index)}
@@ -91,19 +91,19 @@ export default function HowItWorksClient() {
                   aria-expanded={isOpen}
                 >
                   <div>
-                    <h2 className="font-serif text-base sm:text-lg font-bold text-[#432623] dark:text-[#F5F1BC]">
+                    <h2 className="font-serif text-base sm:text-lg font-bold text-foreground">
                       {sec.title}
                     </h2>
-                    <p className="text-sm text-[#432623]/70 dark:text-[#F5F1BC]/70 mt-0.5 font-sans">
+                    <p className="text-sm text-muted-foreground dark:text-muted-foreground mt-0.5 font-sans">
                       {sec.summary}
                     </p>
                   </div>
-                  <div className="pt-1 text-[#432623]/60 dark:text-[#F5F1BC]/60 shrink-0">
+                  <div className="pt-1 text-muted-foreground dark:text-muted-foreground shrink-0">
                     {isOpen ? <CaretUp size={16} /> : <CaretDown size={16} />}
                   </div>
                 </button>
                 {isOpen && (
-                  <div className="px-4 pb-4 pt-1 border-t border-[#432623]/15 dark:border-[#F5F1BC]/15 text-sm sm:text-sm text-[#432623]/85 dark:text-[#F5F1BC]/85 leading-relaxed">
+                  <div className="px-4 pb-4 pt-1 border-t border-border text-sm sm:text-sm text-foreground/80 dark:text-muted-foreground leading-relaxed">
                     {sec.detail}
                   </div>
                 )}
@@ -113,34 +113,34 @@ export default function HowItWorksClient() {
         </div>
 
         {/* Teacher Feedback / Report Problem Form */}
-        <div className="border border-[#432623]/25 dark:border-[#F5F1BC]/25 p-6 bg-[#F5F1BC]/30 dark:bg-[#381f1c] mb-12">
-          <div className="flex items-center gap-2 text-sm font-mono uppercase font-bold text-[#B51E28] mb-1">
+        <div className="border border-border p-6 bg-muted dark:bg-card mb-12">
+          <div className="flex items-center gap-2 text-sm font-mono uppercase font-bold text-primary mb-1">
             <Warning size={16} />
             <span>Educator Feedback</span>
           </div>
-          <h2 className="font-serif text-xl font-bold mb-2 text-[#432623] dark:text-[#F5F1BC]">
+          <h2 className="font-serif text-xl font-bold mb-2 text-foreground">
             Report a Problem with a Diagnosis
           </h2>
-          <p className="text-sm text-[#432623]/80 dark:text-[#F5F1BC]/80 leading-relaxed mb-4">
+          <p className="text-sm text-foreground/80 dark:text-muted-foreground leading-relaxed mb-4">
             If you encounter an assessment item with ambiguous phrasing, an incorrect prerequisite tag, or an unrealistic remediation recommendation, please let our curriculum review team know. No student names or identifiers are required.
           </p>
 
           {submitSuccess ? (
-            <div className="p-3 border border-[#8ABB93] bg-[#8ABB93]/15 text-[#432623] dark:text-[#F5F1BC] text-sm flex items-center gap-2">
-              <CheckCircle size={16} className="text-[#8ABB93]" />
+            <div className="p-3 border border-[var(--status-good-border)] bg-[var(--status-good-bg)] text-foreground text-sm flex items-center gap-2">
+              <CheckCircle size={16} className="text-[var(--status-good)]" />
               <span>Thank you. Your feedback has been logged for our mathematical curriculum review cycle.</span>
             </div>
           ) : (
             <form onSubmit={handleSubmitFeedback} className="space-y-3">
               <div>
-                <label htmlFor="topic-select" className="block text-sm font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 mb-1">
+                <label htmlFor="topic-select" className="block text-sm font-mono uppercase text-muted-foreground dark:text-muted-foreground mb-1">
                   Topic Area
                 </label>
                 <select
                   id="topic-select"
                   value={reportTopic}
                   onChange={(e) => setReportTopic(e.target.value)}
-                  className="w-full min-h-[44px] bg-[#FAF8E8] dark:bg-[#432623] border border-[#432623]/30 px-3 text-base sm:text-sm font-mono text-[#432623] dark:text-[#F5F1BC]"
+                  className="w-full min-h-[44px] bg-card dark:bg-muted border border-border px-3 text-base sm:text-sm font-mono text-foreground"
                 >
                   <option value="place_value">Place Value & Number Sense</option>
                   <option value="subtraction">Multi-Digit Subtraction with Regrouping</option>
@@ -151,7 +151,7 @@ export default function HowItWorksClient() {
               </div>
 
               <div>
-                <label htmlFor="observation-input" className="block text-sm font-mono uppercase text-[#432623]/70 dark:text-[#F5F1BC]/70 mb-1">
+                <label htmlFor="observation-input" className="block text-sm font-mono uppercase text-muted-foreground dark:text-muted-foreground mb-1">
                   Observed Problem Description
                 </label>
                 <textarea
@@ -161,14 +161,14 @@ export default function HowItWorksClient() {
                   value={feedbackText}
                   onChange={(e) => setFeedbackText(e.target.value)}
                   placeholder="Describe the discrepancy (e.g., student understood concept but misread vernacular phrasing)..."
-                  className="w-full bg-[#FAF8E8] dark:bg-[#432623] border border-[#432623]/30 p-3 text-base sm:text-sm font-mono text-[#432623] dark:text-[#F5F1BC] focus:outline-none focus:border-[#432623]"
+                  className="w-full bg-card dark:bg-muted border border-border p-3 text-base sm:text-sm font-mono text-foreground focus:outline-none focus:border-border"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="min-h-[44px] px-4 bg-[#432623] text-[#F5F1BC] dark:bg-[#F5F1BC] dark:text-[#432623] text-sm font-mono uppercase font-bold inline-flex items-center gap-2 border border-[#432623] dark:border-[#F5F1BC]"
+                className="min-h-[44px] px-4 bg-primary text-primary-foreground dark:bg-muted dark:text-foreground text-sm font-mono uppercase font-bold inline-flex items-center gap-2 border border-border"
               >
                 <PaperPlaneRight size={16} />
                 <span>{isSubmitting ? 'Submitting...' : 'Submit Diagnostic Feedback'}</span>
@@ -178,7 +178,7 @@ export default function HowItWorksClient() {
         </div>
 
         {/* Footer info */}
-        <div className="pt-4 border-t border-[#432623]/20 dark:border-[#F5F1BC]/20 text-center text-sm font-mono text-[#432623]/60 dark:text-[#F5F1BC]/60">
+        <div className="pt-4 border-t border-border text-center text-sm font-mono text-muted-foreground dark:text-muted-foreground">
           ShikshaGap Methodology Version 2026.04 | Peer Reviewed Primary Mathematics Graph
         </div>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { queueOfflineAction, syncOfflineQueue } from "@/lib/offline/sync";
 import type {
   ConceptId,
@@ -76,6 +77,7 @@ export function AdaptiveAssessmentView({
   onCancel,
 }: Props) {
   const { lang, setLang, dict, t, formatTxt } = useI18n();
+  const router = useRouter();
   const classConfig = getClassConfig(selectedClassId);
 
   const fallbackGuestStudent: DemoStudentData = {
@@ -140,17 +142,19 @@ export function AdaptiveAssessmentView({
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && parsed.sessionMemory && parsed.isStarted) {
-          setSessionMemory(parsed.sessionMemory);
-          setCurrentQuestion(parsed.currentQuestion || null);
-          setUserAnswer(parsed.userAnswer || "");
-          setFeedback(parsed.feedback || null);
-          setIsStarted(Boolean(parsed.isStarted));
-          setIsFinished(Boolean(parsed.isFinished));
-          setRecommendations(parsed.recommendations || []);
-          setReportSummary(parsed.reportSummary || "");
-          if (parsed.clientSessionId) {
-            clientSessionIdRef.current = parsed.clientSessionId;
-          }
+          queueMicrotask(() => {
+            setSessionMemory(parsed.sessionMemory);
+            setCurrentQuestion(parsed.currentQuestion || null);
+            setUserAnswer(parsed.userAnswer || "");
+            setFeedback(parsed.feedback || null);
+            setIsStarted(Boolean(parsed.isStarted));
+            setIsFinished(Boolean(parsed.isFinished));
+            setRecommendations(parsed.recommendations || []);
+            setReportSummary(parsed.reportSummary || "");
+            if (parsed.clientSessionId) {
+              clientSessionIdRef.current = parsed.clientSessionId;
+            }
+          });
         }
       }
     } catch {
@@ -427,9 +431,10 @@ export function AdaptiveAssessmentView({
 
     if (!fetchSucceeded) {
       try {
-        // Deterministic client fallback with stable seed derived from student
+        // Deterministic client fallback with fresh session-specific seed
         setIsBackupQuestion(true);
-        const fallbackRng = makeRng(12345 + (activeStudent?.student.rollNo || 1));
+        const sessionSeed = initialMemory.sessionSeed ?? 10007;
+        const fallbackRng = makeRng(sessionSeed);
         const action = getNextStaircaseAction(initialMemory);
         if (action.type === "ask") {
           const seen = new Set<string>();
@@ -438,6 +443,7 @@ export function AdaptiveAssessmentView({
             ...initialMemory,
             seenSignatures: Array.from(seen),
             usedFormats: [q.format],
+            stepCount: 1,
           });
           setCurrentQuestion(q);
         }
@@ -541,11 +547,13 @@ export function AdaptiveAssessmentView({
             const seen = new Set<string>(advanced.memory.seenSignatures || []);
             const usedFormats = advanced.memory.usedFormats || [];
             const lastFormat = usedFormats.length > 0 ? usedFormats[usedFormats.length - 1] : undefined;
-            const fallbackSeed = 9999 + (activeStudent?.student.rollNo || 1) * 31 + (sessionMemory.topics.reduce((acc, t) => acc + t.attempts.length, 0));
+            const sessionSeed = advanced.memory.sessionSeed ?? 10007;
+            const step = advanced.memory.stepCount ?? sessionMemory.topics.reduce((acc, t) => acc + t.attempts.length, 0);
+            const stepSeed = ((sessionSeed + step * 7919) >>> 0);
             const nextQ = generateUnique(
               advanced.action.conceptId,
               advanced.action.level,
-              makeRng(fallbackSeed),
+              makeRng(stepSeed),
               seen,
               sessionMemory.grade,
               {},
@@ -555,6 +563,7 @@ export function AdaptiveAssessmentView({
               ...advanced.memory,
               seenSignatures: Array.from(seen),
               usedFormats: [...usedFormats, nextQ.format],
+              stepCount: step + 1,
             });
             setCurrentQuestion(nextQ);
           }
@@ -645,13 +654,13 @@ export function AdaptiveAssessmentView({
       {/* SCREEN 1: PRE-ASSESSMENT SETUP SCREEN                          */}
       {/* ============================================================== */}
       {!isStarted ? (
-        <div className="neo-panel p-6 sm:p-8 space-y-6 rounded-[2px] border border-[#432623]/25 bg-[var(--surface)]">
-          <div className="border-b border-[#432623]/20 pb-5">
-            <span className="editorial-meta text-[#432623]/80">START LEARNING CHECK</span>
-            <h1 className="editorial-title text-2xl sm:text-3xl text-[#432623] mt-1 font-serif font-black">
+        <div className="neo-panel p-6 sm:p-8 space-y-6 rounded-[2px] border border-border bg-[var(--surface)]">
+          <div className="border-b border-border pb-5">
+            <span className="editorial-meta text-foreground/80">START LEARNING CHECK</span>
+            <h1 className="editorial-title text-2xl sm:text-3xl text-foreground mt-1 font-serif font-black">
               Class {classConfig.grade} Maths Check
             </h1>
-            <p className="text-sm sm:text-sm text-[#432623]/80 mt-1 leading-relaxed max-w-2xl">
+            <p className="text-sm sm:text-sm text-foreground/80 mt-1 leading-relaxed max-w-2xl">
               A calm check across curriculum maths topics using the difficulty staircase.
               Each topic starts at medium difficulty (level 2) and adjusts based on the student&apos;s answer.
             </p>
@@ -660,17 +669,17 @@ export function AdaptiveAssessmentView({
           {/* Student Selector or Personal Learner Banner */}
           {isGuest ? (
             <div className="space-y-4">
-              <div className="p-4 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#8ABB93]/60 rounded-[2px] flex flex-wrap items-center justify-between gap-3">
+              <div className="p-4 bg-card border border-[var(--status-good-border)] rounded-[2px] flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#8ABB93] animate-pulse" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[var(--status-good)] animate-pulse" />
                   <div>
-                    <span className="editorial-meta text-[#8ABB93] font-bold">TRIAL ASSESSMENT</span>
-                    <div className="font-serif font-bold text-lg text-[#432623] dark:text-[#F5F1BC]">
+                    <span className="editorial-meta text-[var(--status-good)] font-bold">TRIAL ASSESSMENT</span>
+                    <div className="font-serif font-bold text-lg text-foreground">
                       Guest Learner • {classConfig.label}
                     </div>
                   </div>
                 </div>
-                <span className="text-xs font-mono font-bold bg-[#8ABB93]/20 text-[#432623] dark:text-[#F5F1BC] px-2.5 py-1 rounded-[2px] border border-[#8ABB93]/40">
+                <span className="text-xs font-mono font-bold bg-[var(--status-good-bg)] text-foreground px-2.5 py-1 rounded-[2px] border border-[var(--status-good-border)]">
                   No Sign-in Required
                 </span>
               </div>
@@ -678,7 +687,7 @@ export function AdaptiveAssessmentView({
               {/* Class & Language Pickers for Guest */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="editorial-meta text-[#432623]">SELECT CLASS GRADE</label>
+                  <label className="editorial-meta text-foreground">SELECT CLASS GRADE</label>
                   <div className="grid grid-cols-3 gap-2">
                     {ENABLED_CLASSES.map((c) => (
                       <button
@@ -690,8 +699,8 @@ export function AdaptiveAssessmentView({
                         }}
                         className={`min-h-[44px] px-3 py-2 text-sm font-bold font-mono rounded-[2px] border transition-colors ${
                           selectedClassId === c.id
-                            ? "bg-[#432623] text-[#F5F1BC] border-[#432623]"
-                            : "bg-[#FAF8E8] dark:bg-[#432623]/30 text-[#432623] border-[#432623]/25 hover:bg-[#F5F1BC]/50"
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-card text-foreground border-border hover:bg-muted"
                         }`}
                       >
                         {c.label}
@@ -701,7 +710,7 @@ export function AdaptiveAssessmentView({
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="editorial-meta text-[#432623]">ASSESSMENT LANGUAGE</label>
+                  <label className="editorial-meta text-foreground">ASSESSMENT LANGUAGE</label>
                   <div className="grid grid-cols-3 gap-2">
                     {(["en", "hi", "te"] as Lang[]).map((l) => (
                       <button
@@ -710,8 +719,8 @@ export function AdaptiveAssessmentView({
                         onClick={() => setLang(l)}
                         className={`min-h-[44px] px-3 py-2 text-sm font-bold font-mono rounded-[2px] border transition-colors ${
                           lang === l
-                            ? "bg-[#432623] text-[#F5F1BC] border-[#432623]"
-                            : "bg-[#FAF8E8] dark:bg-[#432623]/30 text-[#432623] border-[#432623]/25 hover:bg-[#F5F1BC]/50"
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-card text-foreground border-border hover:bg-muted"
                         }`}
                       >
                         {l === "en" ? "English" : l === "hi" ? "हिन्दी" : "తెలుగు"}
@@ -722,20 +731,20 @@ export function AdaptiveAssessmentView({
               </div>
             </div>
           ) : isStudentView ? (
-            <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] flex items-center justify-between">
+            <div className="p-3 bg-card border border-border rounded-[2px] flex items-center justify-between">
               <div>
-                <span className="editorial-meta text-[#432623]/70">LEARNER</span>
-                <div className="font-serif font-bold text-lg text-[#432623] dark:text-[#F5F1BC]">{activeStudent?.student.name}</div>
+                <span className="editorial-meta text-muted-foreground">LEARNER</span>
+                <div className="font-serif font-bold text-lg text-foreground">{activeStudent?.student.name}</div>
               </div>
-              <span className="font-mono text-sm font-bold text-[#432623]/70 dark:text-[#F5F1BC]/70">Roll #{activeStudent?.student.rollNo}</span>
+              <span className="font-mono text-sm font-bold text-muted-foreground dark:text-muted-foreground">Roll #{activeStudent?.student.rollNo}</span>
             </div>
           ) : (
             <div className="space-y-2">
-              <label className="editorial-meta text-[#432623]">SELECT STUDENT TO ASSESS</label>
+              <label className="editorial-meta text-foreground">SELECT STUDENT TO ASSESS</label>
               <select
                 value={selectedStudentId}
                 onChange={(e) => setSelectedStudentId(e.target.value)}
-                className="w-full h-11 px-3 text-sm font-semibold bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623] focus:outline-none focus:ring-1 focus:ring-[#432623]"
+                className="w-full h-11 px-3 text-sm font-semibold bg-card border border-border rounded-[2px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 {effectiveStudents.map((s) => (
                   <option key={s.student.id} value={s.student.id}>
@@ -748,34 +757,40 @@ export function AdaptiveAssessmentView({
 
           {/* Curriculum Scope Overview */}
           <div className="space-y-2.5">
-            <span className="editorial-meta text-[#432623]">{classConfig.label.toUpperCase()} ASSESSMENT SCOPE</span>
+            <span className="editorial-meta text-foreground">{classConfig.label.toUpperCase()} ASSESSMENT SCOPE</span>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {(classConfig.topics || CURRICULUM_TOPICS).map((tId: TopicId, idx: number) => (
                 <div
                   key={tId}
-                  className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-left"
+                  className="p-3 bg-card border border-border rounded-[2px] text-left"
                 >
-                  <div className="text-sm font-mono font-bold text-[#432623]/70 uppercase">
+                  <div className="text-sm font-mono font-bold text-muted-foreground uppercase">
                     STAGE 0{idx + 1}
                   </div>
-                  <div className="text-sm font-bold text-[#432623] mt-0.5">
+                  <div className="text-sm font-bold text-foreground mt-0.5">
                     {TOPIC_DISPLAY_NAMES[tId]?.en || tId}
                   </div>
-                  <div className="text-sm text-[#432623]/70 mt-1 truncate">
+                  <div className="text-sm text-muted-foreground mt-1 truncate">
                     {TOPICS[tId]?.targets.map((c: ConceptId) => t(`c_${c}`) || c).join(", ")}
                   </div>
                 </div>
               ))}
             </div>
-            <p className="text-sm text-[#432623]/80 pt-1">
+            <p className="text-sm text-foreground/80 pt-1">
               The check moves topic by topic. At most 2 questions per topic, starting at Level 2.
             </p>
           </div>
 
           {/* Start CTA */}
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#432623]/20">
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border">
             <button
-              onClick={onCancel ? onCancel : () => { window.location.href = "/"; }}
+              onClick={() => {
+                if (onCancel) {
+                  onCancel();
+                } else {
+                  router.push("/");
+                }
+              }}
               className="neo-btn neo-btn-secondary px-5 py-2.5 min-h-[44px] text-sm font-bold w-full sm:w-auto rounded-[2px]"
             >
               {isGuest ? "Back to Home" : "Back to Dashboard"}
@@ -784,7 +799,7 @@ export function AdaptiveAssessmentView({
               onClick={handleStart}
               className="neo-btn neo-btn-primary px-6 py-3 text-sm font-bold flex items-center justify-center gap-2 w-full sm:w-auto rounded-[2px]"
             >
-              <Brain className="w-4 h-4 text-[#F5F1BC]" />
+              <Brain className="w-4 h-4 text-primary-foreground" />
               <span>START TEST</span>
               <ArrowRight className="w-4 h-4" />
             </button>
@@ -795,37 +810,37 @@ export function AdaptiveAssessmentView({
         /* SCREEN 3: ASSESSMENT COMPLETE SCREEN (DIAGNOSTIC REPORT)       */
         /* SPEC.md: lists gap topics first, then developing, then mastered*/
         /* ============================================================== */
-        <div className="neo-panel overflow-hidden space-y-6 p-6 sm:p-8 rounded-[2px] border border-[#432623]/25 bg-[var(--surface)]">
+        <div className="neo-panel overflow-hidden space-y-6 p-6 sm:p-8 rounded-[2px] border border-border bg-[var(--surface)]">
           {/* Editorial Header */}
-          <div className="border-b border-[#432623]/20 pb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="border-b border-border pb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <span className="editorial-meta text-[#432623] font-bold">TEST COMPLETE</span>
-                <span className="text-[#432623]/40 text-sm">•</span>
-                <span className="text-sm font-mono font-bold text-[#432623]">
+                <span className="editorial-meta text-foreground font-bold">TEST COMPLETE</span>
+                <span className="text-muted-foreground text-sm">•</span>
+                <span className="text-sm font-mono font-bold text-foreground">
                   {activeStudent?.student.name} • CLASS {classConfig.grade}
                 </span>
               </div>
-              <h2 className="editorial-title text-2xl sm:text-3xl text-[#432623] mt-1">
+              <h2 className="editorial-title text-2xl sm:text-3xl text-foreground mt-1">
                 Assessment Results
               </h2>
-              <p className="text-sm sm:text-sm text-[#432623]/80 mt-0.5">
+              <p className="text-sm sm:text-sm text-foreground/80 mt-0.5">
                 Staircase check completed. Topics are grouped below by mastery status.
               </p>
             </div>
 
             {/* Quick Metrics */}
-            <div className="flex items-center gap-4 bg-[#FAF8E8] dark:bg-[#432623]/30 p-3 rounded-[2px] border border-[#432623]/25">
+            <div className="flex items-center gap-4 bg-card p-3 rounded-[2px] border border-border">
               <div className="text-right">
-                <div className="editorial-meta text-[#432623]/70">TOPICS ASSESSED</div>
-                <div className="font-serif text-3xl font-black text-[#432623]">
+                <div className="editorial-meta text-muted-foreground">TOPICS ASSESSED</div>
+                <div className="font-serif text-3xl font-black text-foreground">
                   {sessionMemory?.topics.length || 0}
                 </div>
               </div>
-              <div className="w-[1px] h-8 bg-[#432623]/20" />
+              <div className="w-[1px] h-8 bg-muted" />
               <div className="text-right">
-                <div className="editorial-meta text-[#432623]/70">QUESTIONS ASKED</div>
-                <div className="font-mono text-xl font-bold text-[#432623]">
+                <div className="editorial-meta text-muted-foreground">QUESTIONS ASKED</div>
+                <div className="font-mono text-xl font-bold text-foreground">
                   {totalQuestionsAnswered}
                 </div>
               </div>
@@ -834,30 +849,30 @@ export function AdaptiveAssessmentView({
 
           {/* Clean 3-Metric Summary Line with friendly child-level wording */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#DE2A35]/30 text-center">
-              <div className="editorial-meta text-[#DE2A35] flex items-center justify-center gap-1">
+            <div className="p-3 bg-card rounded-[2px] border border-primary/40 text-center">
+              <div className="editorial-meta text-primary flex items-center justify-center gap-1">
                 <WarningCircle className="w-3.5 h-3.5" />
                 <span>NEEDS PRACTICE</span>
               </div>
-              <div className="font-serif text-2xl font-bold text-[#DE2A35] mt-1">
+              <div className="font-serif text-2xl font-bold text-primary mt-1">
                 {gapTopics.length}
               </div>
             </div>
-            <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#DFA06E]/30 text-center">
-              <div className="editorial-meta text-[#432623] font-bold flex items-center justify-center gap-1">
-                <Sparkle className="w-3.5 h-3.5 text-[#DFA06E]" />
+            <div className="p-3 bg-card rounded-[2px] border border-[var(--status-warn-border)] text-center">
+              <div className="editorial-meta text-foreground font-bold flex items-center justify-center gap-1">
+                <Sparkle className="w-3.5 h-3.5 text-[var(--status-warn)]" />
                 <span>GETTING THERE</span>
               </div>
-              <div className="font-serif text-2xl font-bold text-[#432623] mt-1">
+              <div className="font-serif text-2xl font-bold text-foreground mt-1">
                 {devTopics.length}
               </div>
             </div>
-            <div className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#8ABB93]/30 text-center">
-              <div className="editorial-meta text-[#432623] font-bold flex items-center justify-center gap-1">
-                <CheckCircle className="w-3.5 h-3.5 text-[#8ABB93]" />
+            <div className="p-3 bg-card rounded-[2px] border border-[var(--status-good-border)] text-center">
+              <div className="editorial-meta text-foreground font-bold flex items-center justify-center gap-1">
+                <CheckCircle className="w-3.5 h-3.5 text-[var(--status-good)]" />
                 <span>STRONG</span>
               </div>
-              <div className="font-serif text-2xl font-bold text-[#432623] mt-1">
+              <div className="font-serif text-2xl font-bold text-foreground mt-1">
                 {masteredTopics.length}
               </div>
             </div>
@@ -867,10 +882,10 @@ export function AdaptiveAssessmentView({
           {gapTopics.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="editorial-meta text-[#DE2A35] font-bold">
+                <span className="editorial-meta text-primary font-bold">
                   TOPICS TO PRACTISE FIRST
                 </span>
-                <span className="text-sm text-[#432623]/70 font-mono">
+                <span className="text-sm text-muted-foreground font-mono">
                   {gapTopics.length} {gapTopics.length === 1 ? "topic" : "topics"}
                 </span>
               </div>
@@ -883,18 +898,18 @@ export function AdaptiveAssessmentView({
                   return (
                     <div
                       key={topicMem.topicId}
-                      className="p-4 bg-[var(--surface)] border border-[#DE2A35]/40 rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                      className="p-4 bg-[var(--surface)] border border-primary/40 rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                     >
                       <div className="space-y-1">
-                        <div className="font-serif font-bold text-lg text-[#432623]">
+                        <div className="font-serif font-bold text-lg text-foreground">
                           {TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}
                         </div>
-                        <p className="text-base text-[#432623]/80 leading-relaxed max-w-xl">
+                        <p className="text-base text-foreground/80 leading-relaxed max-w-xl">
                           {outcomeText}
                         </p>
                       </div>
-                      <span className="inline-flex items-center gap-1.5 bg-[#FAF8E8] border border-[#DE2A35] text-[#B51E28] font-bold text-sm px-3 py-1 rounded-[2px] shrink-0 self-start sm:self-center">
-                        <WarningCircle className="w-4 h-4 text-[#B51E28]" weight="bold" />
+                      <span className="inline-flex items-center gap-1.5 bg-card border border-primary text-primary font-bold text-sm px-3 py-1 rounded-[2px] shrink-0 self-start sm:self-center">
+                        <WarningCircle className="w-4 h-4 text-primary" weight="bold" />
                         <span>Needs Practice</span>
                       </span>
                     </div>
@@ -907,7 +922,7 @@ export function AdaptiveAssessmentView({
           {/* 2. DEVELOPING TOPICS (GETTING THERE) */}
           {devTopics.length > 0 && (
             <div className="space-y-3">
-              <span className="editorial-meta text-[#432623] font-bold">
+              <span className="editorial-meta text-foreground font-bold">
                 NEXT STEPS TO PRACTISE
               </span>
               <div className="grid grid-cols-1 gap-2.5">
@@ -919,18 +934,18 @@ export function AdaptiveAssessmentView({
                   return (
                     <div
                       key={topicMem.topicId}
-                      className="p-4 bg-[var(--surface)] border border-[#DFA06E]/40 rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                      className="p-4 bg-[var(--surface)] border border-[var(--status-warn-border)] rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                     >
                       <div className="space-y-1">
-                        <div className="font-serif font-bold text-lg text-[#432623]">
+                        <div className="font-serif font-bold text-lg text-foreground">
                           {TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}
                         </div>
-                        <p className="text-base text-[#432623]/80 leading-relaxed max-w-xl">
+                        <p className="text-base text-foreground/80 leading-relaxed max-w-xl">
                           {outcomeText}
                         </p>
                       </div>
-                      <span className="inline-flex items-center gap-1.5 bg-[#DFA06E] text-[#432623] font-bold text-sm px-3 py-1 rounded-[2px] border border-[#DFA06E] shrink-0 self-start sm:self-center">
-                        <Sparkle className="w-4 h-4 text-[#432623]" weight="fill" />
+                      <span className="inline-flex items-center gap-1.5 bg-[var(--status-warn)] text-foreground font-bold text-sm px-3 py-1 rounded-[2px] border border-[var(--status-warn-border)] shrink-0 self-start sm:self-center">
+                        <Sparkle className="w-4 h-4 text-foreground" weight="fill" />
                         <span>Getting There</span>
                       </span>
                     </div>
@@ -943,7 +958,7 @@ export function AdaptiveAssessmentView({
           {/* 3. MASTERED TOPICS (STRONG) */}
           {masteredTopics.length > 0 && (
             <div className="space-y-3">
-              <span className="editorial-meta text-[#432623] font-bold">
+              <span className="editorial-meta text-foreground font-bold">
                 CONCEPTS COMPLETED
               </span>
               <div className="grid grid-cols-1 gap-2.5">
@@ -955,18 +970,18 @@ export function AdaptiveAssessmentView({
                   return (
                     <div
                       key={topicMem.topicId}
-                      className="p-4 bg-[var(--surface)] border border-[#8ABB93]/40 rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                      className="p-4 bg-[var(--surface)] border border-[var(--status-good-border)] rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                     >
                       <div className="space-y-1">
-                        <div className="font-serif font-bold text-lg text-[#432623]">
+                        <div className="font-serif font-bold text-lg text-foreground">
                           {TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}
                         </div>
-                        <p className="text-base text-[#432623]/80 leading-relaxed max-w-xl">
+                        <p className="text-base text-foreground/80 leading-relaxed max-w-xl">
                           {outcomeText}
                         </p>
                       </div>
-                      <span className="inline-flex items-center gap-1.5 bg-[#8ABB93] text-[#432623] font-bold text-sm px-3 py-1 rounded-[2px] border border-[#8ABB93] shrink-0 self-start sm:self-center">
-                        <CheckCircle className="w-4 h-4 text-[#432623]" weight="bold" />
+                      <span className="inline-flex items-center gap-1.5 bg-[var(--status-good)] text-foreground font-bold text-sm px-3 py-1 rounded-[2px] border border-[var(--status-good-border)] shrink-0 self-start sm:self-center">
+                        <CheckCircle className="w-4 h-4 text-foreground" weight="bold" />
                         <span>Strong</span>
                       </span>
                     </div>
@@ -979,9 +994,9 @@ export function AdaptiveAssessmentView({
           {/* 5-DAY TARGETED CLASSROOM IMPROVEMENT PLAN */}
           {gapTopics.length > 0 && (
             <div className="space-y-4 pt-2">
-              <div className="flex items-center gap-2 border-b border-[#432623]/20 pb-2">
-                <Sparkle className="w-4 h-4 text-[#DE2A35]" weight="fill" />
-                <span className="editorial-meta text-[#DE2A35] font-bold">
+              <div className="flex items-center gap-2 border-b border-border pb-2">
+                <Sparkle className="w-4 h-4 text-primary" weight="fill" />
+                <span className="editorial-meta text-primary font-bold">
                   RECOMMENDED 5-DAY TARGETED CLASSROOM PLAN
                 </span>
               </div>
@@ -1005,16 +1020,16 @@ export function AdaptiveAssessmentView({
                   return (
                     <div
                       key={topicMem.topicId}
-                      className="p-4 sm:p-5 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#DE2A35]/30 rounded-[2px] space-y-3"
+                      className="p-4 sm:p-5 bg-card border border-primary/40 rounded-[2px] space-y-3"
                     >
                       <div>
-                        <span className="text-xs font-mono uppercase tracking-wider text-[#B51E28] font-bold">
+                        <span className="text-xs font-mono uppercase tracking-wider text-primary font-bold">
                           TARGET ROOT GAP: {t(`c_${targetConcept}`) || targetConcept}
                         </span>
-                        <h4 className="font-serif text-lg font-bold text-[#432623] mt-0.5">
+                        <h4 className="font-serif text-lg font-bold text-foreground mt-0.5">
                           5-Day Concrete Remediation Activity Plan
                         </h4>
-                        <p className="text-sm text-[#432623]/80 mt-1 leading-relaxed">
+                        <p className="text-sm text-foreground/80 mt-1 leading-relaxed">
                           {plan.aiNote}
                         </p>
                       </div>
@@ -1022,21 +1037,21 @@ export function AdaptiveAssessmentView({
                         {plan.days.map((d) => (
                           <div
                             key={d.day}
-                            className="p-2.5 bg-[var(--surface)] border border-[#432623]/20 rounded-[2px] flex flex-col justify-between"
+                            className="p-2.5 bg-[var(--surface)] border border-border rounded-[2px] flex flex-col justify-between"
                           >
                             <div>
-                              <div className="flex items-center justify-between text-xs font-mono font-bold text-[#DE2A35]">
+                              <div className="flex items-center justify-between text-xs font-mono font-bold text-primary">
                                 <span>DAY {d.day}</span>
                                 <span>{d.minutes}m</span>
                               </div>
-                              <div className="font-bold text-xs text-[#432623] mt-1 leading-snug">
+                              <div className="font-bold text-xs text-foreground mt-1 leading-snug">
                                 {formatTxt(d.title)}
                               </div>
-                              <p className="text-xs text-[#432623]/70 mt-1 line-clamp-3">
+                              <p className="text-xs text-muted-foreground mt-1 line-clamp-3">
                                 {formatTxt(d.activity)}
                               </p>
                             </div>
-                            <div className="mt-2 pt-1 border-t border-[#432623]/10 text-xs font-mono text-[#432623]/60 uppercase">
+                            <div className="mt-2 pt-1 border-t border-border text-xs font-mono text-muted-foreground uppercase">
                               Focus: {d.focus}
                             </div>
                           </div>
@@ -1050,12 +1065,12 @@ export function AdaptiveAssessmentView({
           )}
 
           {/* Prominent Large Print Worksheet Button */}
-          <div className="p-4 sm:p-6 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="p-4 sm:p-6 bg-card border border-border rounded-[2px] flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="space-y-1 text-center sm:text-left">
-              <h3 className="font-serif text-lg font-bold text-[#432623]">
+              <h3 className="font-serif text-lg font-bold text-foreground">
                 Print Practice Worksheet
               </h3>
-              <p className="text-base text-[#432623]/80">
+              <p className="text-base text-foreground/80">
                 Generate a ready-to-print practice sheet matched to this student&apos;s exact needs.
               </p>
             </div>
@@ -1064,24 +1079,24 @@ export function AdaptiveAssessmentView({
               onClick={() => setIsWorksheetOpen(true)}
               className="neo-btn neo-btn-primary min-h-[52px] px-8 text-base font-bold flex items-center justify-center gap-2.5 w-full sm:w-auto shrink-0 rounded-[2px]"
             >
-              <Printer className="w-5 h-5 text-[#F5F1BC]" />
+              <Printer className="w-5 h-5 text-primary-foreground" />
               <span>Print Worksheet</span>
             </button>
           </div>
 
           {/* 4. RECOMMENDED RESOURCES WITH REASONS */}
           {isLoadingFinish ? (
-            <div className="p-6 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/20 rounded-[2px] text-center space-y-2">
-              <div className="inline-block animate-spin w-5 h-5 border-2 border-[#432623] border-t-transparent rounded-full" />
-              <p className="text-sm font-mono font-bold text-[#432623]/80">
+            <div className="p-6 bg-card border border-border rounded-[2px] text-center space-y-2">
+              <div className="inline-block animate-spin w-5 h-5 border-2 border-border border-t-transparent rounded-full" />
+              <p className="text-sm font-mono font-bold text-foreground/80">
                 Finding targeted study materials and generating assessment summary...
               </p>
             </div>
           ) : recommendations.length > 0 ? (
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-[#432623]" />
-                <span className="editorial-meta text-[#432623]">
+                <BookOpen className="w-4 h-4 text-foreground" />
+                <span className="editorial-meta text-foreground">
                   RECOMMENDED STUDY MATERIALS (VERIFIED RAG ADVISOR)
                 </span>
               </div>
@@ -1089,13 +1104,13 @@ export function AdaptiveAssessmentView({
                 {recommendations.map((recGroup) => (
                   <div
                     key={recGroup.topicId}
-                    className="p-4 bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] space-y-3"
+                    className="p-4 bg-[var(--surface)] border border-border rounded-[2px] space-y-3"
                   >
-                    <div className="border-b border-[#432623]/15 pb-2">
-                      <span className="text-sm font-mono font-bold text-[#432623]/70 uppercase">
+                    <div className="border-b border-border pb-2">
+                      <span className="text-sm font-mono font-bold text-muted-foreground uppercase">
                         RESOURCES FOR
                       </span>
-                      <h4 className="font-serif font-bold text-base text-[#432623]">
+                      <h4 className="font-serif font-bold text-base text-foreground">
                         {TOPIC_DISPLAY_NAMES[recGroup.topicId]?.en || recGroup.topicId}
                       </h4>
                     </div>
@@ -1104,28 +1119,28 @@ export function AdaptiveAssessmentView({
                       {recGroup.resources.map((item) => (
                         <div
                           key={item.id}
-                          className="p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/20 rounded-[2px] flex flex-col justify-between"
+                          className="p-3 bg-card border border-border rounded-[2px] flex flex-col justify-between"
                         >
                           <div>
                             <div className="flex items-center justify-between gap-2">
-                              <span className="text-sm font-mono font-bold uppercase px-1.5 py-0.5 bg-[#432623]/10 text-[#432623] rounded-[2px]">
+                              <span className="text-sm font-mono font-bold uppercase px-1.5 py-0.5 bg-muted text-foreground rounded-[2px]">
                                 {item.source} • {item.type}
                               </span>
                             </div>
-                            <h5 className="font-bold text-sm text-[#432623] mt-1.5 leading-snug">
+                            <h5 className="font-bold text-sm text-foreground mt-1.5 leading-snug">
                               {item.title}
                             </h5>
-                            <p className="text-sm text-[#432623]/80 mt-1 italic">
+                            <p className="text-sm text-foreground/80 mt-1 italic">
                               &ldquo;{item.reason}&rdquo;
                             </p>
                           </div>
 
-                          <div className="pt-2 mt-2 border-t border-[#432623]/15 flex justify-end">
+                          <div className="pt-2 mt-2 border-t border-border flex justify-end">
                             <a
                               href={item.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-sm font-bold text-[#432623] hover:underline"
+                              className="inline-flex items-center gap-1 text-sm font-bold text-foreground hover:underline"
                             >
                               <span>Open Resource</span>
                               <ArrowSquareOut className="w-3.5 h-3.5" />
@@ -1142,18 +1157,18 @@ export function AdaptiveAssessmentView({
 
           {/* 5. ASSESSMENT SUMMARY */}
           {reportSummary && (
-            <div className="p-4 sm:p-5 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] space-y-2">
-              <span className="editorial-meta text-[#432623]">
+            <div className="p-4 sm:p-5 bg-card border border-border rounded-[2px] space-y-2">
+              <span className="editorial-meta text-foreground">
                 ASSESSMENT SUMMARY ({sessionMemory?.language.toUpperCase()})
               </span>
-              <p className="font-serif text-base text-[#432623] leading-relaxed">
+              <p className="font-serif text-base text-foreground leading-relaxed">
                 {reportSummary}
               </p>
             </div>
           )}
 
           {/* Actions */}
-          <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#432623]/20">
+          <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border">
             <button
               type="button"
               onClick={() => {
@@ -1204,20 +1219,20 @@ export function AdaptiveAssessmentView({
         /* ============================================================== */
         <div className="space-y-4 max-w-2xl mx-auto">
           {/* Top Bar: Progress and Language Switcher */}
-          <div className="bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] p-4 sm:p-5 space-y-3">
+          <div className="bg-[var(--surface)] border border-border rounded-[2px] p-4 sm:p-5 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <span className="editorial-meta text-[#432623]/80">
+                <span className="editorial-meta text-foreground/80">
                   {classConfig.label.toUpperCase()} MATHS
                 </span>
-                <div className="font-serif font-bold text-lg text-[#432623]">
+                <div className="font-serif font-bold text-lg text-foreground">
                   {activeStudent?.student.name}
                 </div>
               </div>
 
               {/* Accessible Language Switcher directly reachable on screen */}
               <div
-                className="flex items-center gap-1 border border-[#432623]/25 rounded-[2px] p-1 bg-[#FAF8E8] dark:bg-[#432623]/30"
+                className="flex items-center gap-1 border border-border rounded-[2px] p-1 bg-card"
                 role="group"
                 aria-label="Language selection"
               >
@@ -1228,8 +1243,8 @@ export function AdaptiveAssessmentView({
                     onClick={() => setLang(l)}
                     className={`min-h-[44px] min-w-[44px] px-2.5 rounded-[2px] font-bold text-sm font-mono ${
                       lang === l
-                        ? "bg-[#432623] text-[#F5F1BC]"
-                        : "text-[#432623] hover:bg-[#F5F1BC]/40"
+                        ? "bg-primary text-primary-foreground"
+                        : "text-foreground hover:bg-muted"
                     }`}
                     aria-label={
                       l === "en"
@@ -1247,18 +1262,18 @@ export function AdaptiveAssessmentView({
             </div>
 
             {/* Simple Progress Bar: e.g. "Question 3 of 8" with no jargon */}
-            <div className="space-y-1.5 pt-1 border-t border-[#432623]/15">
-              <div className="flex items-center justify-between text-base font-bold text-[#432623]">
+            <div className="space-y-1.5 pt-1 border-t border-border">
+              <div className="flex items-center justify-between text-base font-bold text-foreground">
                 <span>
                   {dict.questionLabel || "Question"} {totalQuestionsAnswered + (currentQuestion ? 1 : 0)} of {Math.max(totalQuestionsAnswered + (currentQuestion ? 1 : 0), (sessionMemory?.topics.length || 4) * 2)}
                 </span>
-                <span className="text-sm font-mono text-[#432623]/70">
+                <span className="text-sm font-mono text-muted-foreground">
                   {currentTopicName}
                 </span>
               </div>
-              <div className="w-full bg-[#432623]/15 h-3 rounded-[2px] overflow-hidden">
+              <div className="w-full bg-muted h-3 rounded-[2px] overflow-hidden">
                 <div
-                  className="bg-[#8ABB93] h-full rounded-[2px] transition-all duration-300"
+                  className="bg-[var(--status-good)] h-full rounded-[2px] transition-all duration-300"
                   style={{
                     width: `${Math.min(
                       100,
@@ -1275,11 +1290,11 @@ export function AdaptiveAssessmentView({
           </div>
 
           {/* Friendly Mascot Gappu placed unobtrusively beside header, never blocking question */}
-          <div className="flex items-center gap-3 p-3 bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/20 rounded-[2px]">
+          <div className="flex items-center gap-3 p-3 bg-card border border-border rounded-[2px]">
             <div className="w-12 h-14 shrink-0 overflow-hidden flex items-center justify-center">
               <MascotHero width={48} height={58} className="scale-90" />
             </div>
-            <div className="text-sm font-medium text-[#432623] leading-relaxed">
+            <div className="text-sm font-medium text-foreground leading-relaxed">
               {lang === "hi"
                 ? "गप्पू आपके साथ सीख रहा है! आराम से उत्तर दें।"
                 : lang === "te"
@@ -1290,17 +1305,17 @@ export function AdaptiveAssessmentView({
 
           {/* Calm Loading State: skeleton with reassuring message */}
           {isEvaluating ? (
-            <div className="bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] p-8 sm:p-12 space-y-6 text-center">
+            <div className="bg-[var(--surface)] border border-border rounded-[2px] p-8 sm:p-12 space-y-6 text-center">
               <div className="space-y-4 max-w-md mx-auto">
-                <div className="h-8 bg-[#432623]/10 rounded-[2px] animate-pulse w-3/4 mx-auto" />
-                <div className="h-16 bg-[#432623]/10 rounded-[2px] animate-pulse w-full mx-auto" />
+                <div className="h-8 bg-muted rounded-[2px] animate-pulse w-3/4 mx-auto" />
+                <div className="h-16 bg-muted rounded-[2px] animate-pulse w-full mx-auto" />
                 <div className="space-y-3 pt-4">
-                  <div className="h-12 bg-[#432623]/10 rounded-[2px] animate-pulse w-full" />
-                  <div className="h-12 bg-[#432623]/10 rounded-[2px] animate-pulse w-full" />
+                  <div className="h-12 bg-muted rounded-[2px] animate-pulse w-full" />
+                  <div className="h-12 bg-muted rounded-[2px] animate-pulse w-full" />
                 </div>
               </div>
-              <div className="pt-4 border-t border-[#432623]/15">
-                <p className="font-serif text-lg font-bold text-[#432623]">
+              <div className="pt-4 border-t border-border">
+                <p className="font-serif text-lg font-bold text-foreground">
                   {evaluatingSeconds >= 3
                     ? lang === "hi"
                       ? "अगला प्रश्न तैयार हो रहा है... कृपया थोड़ा इंतज़ार करें।"
@@ -1317,18 +1332,18 @@ export function AdaptiveAssessmentView({
             </div>
           ) : hasError ? (
             /* Friendly Error State with Retry Button */
-            <div className="bg-[var(--surface)] border border-[#DE2A35]/30 rounded-[2px] p-6 sm:p-8 space-y-4 text-center">
-              <div className="w-12 h-12 mx-auto rounded-full bg-[#FAF8E8] border border-[#DE2A35] flex items-center justify-center text-[#B51E28]">
+            <div className="bg-[var(--surface)] border border-primary/40 rounded-[2px] p-6 sm:p-8 space-y-4 text-center">
+              <div className="w-12 h-12 mx-auto rounded-full bg-card border border-primary flex items-center justify-center text-primary">
                 <WarningCircle size={28} weight="bold" />
               </div>
-              <h3 className="font-serif text-xl font-bold text-[#432623]">
+              <h3 className="font-serif text-xl font-bold text-foreground">
                 {lang === "hi"
                   ? "इंटरनेट में थोड़ी रुकावट आई"
                   : lang === "te"
                   ? "నెట్‌వర్క్ సమస్య ఎదురైంది"
                   : "We had trouble loading the next question"}
               </h3>
-              <p className="text-base text-[#432623]/80 max-w-md mx-auto">
+              <p className="text-base text-foreground/80 max-w-md mx-auto">
                 {lang === "hi"
                   ? "चिंता न करें, आपका काम सुरक्षित है। पुनः प्रयास करने के लिए नीचे बटन दबाएं।"
                   : lang === "te"
@@ -1350,15 +1365,15 @@ export function AdaptiveAssessmentView({
             </div>
           ) : currentQuestion ? (
             /* Active Question Card */
-            <div className="bg-[var(--surface)] border border-[#432623]/25 rounded-[2px] p-6 sm:p-8 space-y-6">
+            <div className="bg-[var(--surface)] border border-border rounded-[2px] p-6 sm:p-8 space-y-6">
               {/* Question Eyebrow */}
-              <div className="flex items-center justify-between border-b border-[#432623]/20 pb-3">
+              <div className="flex items-center justify-between border-b border-border pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="editorial-meta text-[#432623]/70">
+                  <span className="editorial-meta text-muted-foreground">
                     {dict.questionLabel || "Question"} {totalQuestionsAnswered + 1}
                   </span>
-                  <span className="text-sm text-[#432623]/40">•</span>
-                  <span className="text-sm font-semibold text-[#432623]">{currentTopicName}</span>
+                  <span className="text-sm text-muted-foreground">•</span>
+                  <span className="text-sm font-semibold text-foreground">{currentTopicName}</span>
                   {isBackupQuestion && (
                     <span
                       data-testid="backup-question-note"
@@ -1374,7 +1389,7 @@ export function AdaptiveAssessmentView({
                     onClick={handleReportQuestion}
                     disabled={reportedQuestionId === (currentQuestion.id || `${currentQuestion.conceptId}_${currentQuestion.difficulty}`)}
                     data-testid="report-question-btn"
-                    className="inline-flex items-center gap-1 min-h-[44px] text-sm text-[#432623]/70 hover:text-[#B51E28] px-2 py-0.5 rounded border border-[#432623]/20 hover:border-[#DE2A35]/30 transition-colors"
+                    className="inline-flex items-center gap-1 min-h-[44px] text-sm text-muted-foreground hover:text-primary px-2 py-0.5 rounded border border-border hover:border-primary/40 transition-colors"
                     title="Report question for teacher review"
                   >
                     <Flag className="w-3.5 h-3.5" />
@@ -1389,13 +1404,13 @@ export function AdaptiveAssessmentView({
 
               {/* Large Question Text */}
               <div className="space-y-4">
-                <h3 className="font-serif font-bold text-[22px] sm:text-2xl text-[#432623] leading-relaxed">
+                <h3 className="font-serif font-bold text-[22px] sm:text-2xl text-foreground leading-relaxed">
                   {formatTxt(currentQuestion.prompt)}
                 </h3>
 
                 {currentQuestion.expression && (
-                  <div className="py-5 text-center bg-[#FAF8E8] dark:bg-[#432623]/30 rounded-[2px] border border-[#432623]/20">
-                    <span className="font-mono text-3xl sm:text-4xl font-extrabold text-[#432623] tracking-wider">
+                  <div className="py-5 text-center bg-card rounded-[2px] border border-border">
+                    <span className="font-mono text-3xl sm:text-4xl font-extrabold text-foreground tracking-wider">
                       {currentQuestion.expression}
                     </span>
                   </div>
@@ -1416,7 +1431,7 @@ export function AdaptiveAssessmentView({
                           className="w-full neo-btn neo-btn-secondary min-h-[56px] p-4 text-left text-[18px] sm:text-xl font-bold flex items-center justify-between rounded-[2px] group leading-relaxed"
                         >
                           <span className="font-mono">{formatTxt(opt.label)}</span>
-                          <span className="text-sm font-mono text-[#432623]/70 group-hover:text-[#432623]">
+                          <span className="text-sm font-mono text-muted-foreground group-hover:text-foreground">
                             [Select]
                           </span>
                         </button>
@@ -1430,7 +1445,7 @@ export function AdaptiveAssessmentView({
                         onChange={(e) => setUserAnswer(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSubmit(userAnswer)}
                         disabled={isEvaluating || Boolean(feedback)}
-                        className="h-14 font-mono text-xl bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#432623]/25 rounded-[2px] text-[#432623] w-full"
+                        className="h-14 font-mono text-xl bg-card border border-border rounded-[2px] text-foreground w-full"
                       />
                       <button
                         type="button"
@@ -1450,14 +1465,14 @@ export function AdaptiveAssessmentView({
                         <button
                           type="button"
                           onClick={() => setShowHint(true)}
-                          className="min-h-[44px] px-3 py-2 text-base text-[#432623] font-bold flex items-center gap-1.5 hover:underline border border-[#432623]/20 rounded-[2px] bg-[#FAF8E8]"
+                          className="min-h-[44px] px-3 py-2 text-base text-foreground font-bold flex items-center gap-1.5 hover:underline border border-border rounded-[2px] bg-card"
                         >
-                          <QuestionIcon className="w-5 h-5 text-[#B51E28]" />
+                          <QuestionIcon className="w-5 h-5 text-primary" />
                           <span>{dict.showHint || "Need a hint?"}</span>
                         </button>
                       ) : (
-                        <div className="bg-[#FAF8E8] dark:bg-[#432623]/30 border border-[#DFA06E]/60 p-4 rounded-[2px] text-base text-[#432623] leading-relaxed">
-                          <strong className="text-[#432623] bg-[#DFA06E] px-1.5 py-0.5 rounded-[2px] mr-1">
+                        <div className="bg-card border border-[var(--status-warn-border)] p-4 rounded-[2px] text-base text-foreground leading-relaxed">
+                          <strong className="text-foreground bg-[var(--status-warn)] px-1.5 py-0.5 rounded-[2px] mr-1">
                             {dict.hintLabel || "Hint"}:
                           </strong>{" "}
                           {formatTxt(currentQuestion.hint)}
@@ -1472,17 +1487,17 @@ export function AdaptiveAssessmentView({
                   <div
                     className={`p-5 rounded-[2px] border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                       feedback.isCorrect
-                        ? "bg-[#8ABB93]/20 border-[#8ABB93] text-[#432623]"
-                        : "bg-[#FAF8E8] border-[#DFA06E] text-[#432623]"
+                        ? "bg-[var(--status-good-bg)] border-[var(--status-good-border)] text-foreground"
+                        : "bg-card border-[var(--status-warn-border)] text-foreground"
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       {feedback.isCorrect ? (
-                        <CheckCircle className="w-6 h-6 shrink-0 text-[#8ABB93]" />
+                        <CheckCircle className="w-6 h-6 shrink-0 text-[var(--status-good)]" />
                       ) : (
-                        <CheckCircle className="w-6 h-6 shrink-0 text-[#DFA06E]" />
+                        <CheckCircle className="w-6 h-6 shrink-0 text-[var(--status-warn)]" />
                       )}
-                      <span className="text-base sm:text-lg font-bold text-[#432623]">
+                      <span className="text-base sm:text-lg font-bold text-foreground">
                         {feedback.message}
                       </span>
                     </div>

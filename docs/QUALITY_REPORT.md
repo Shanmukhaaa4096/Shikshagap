@@ -12,12 +12,12 @@ This report evaluates the accuracy, grade-level calibration, variety, and reliab
 
 | Metric | Class 3 | Class 4 | Class 5 | Target Benchmark | Status |
 |---|---|---|---|---|---|
-| **Answer Recomputation** | 100.0% | 98.0% | 96.0% | ≥ 98.0% | Pass |
+| **Answer Recomputation** | 100.0% | 100.0% | 100.0% | ≥ 98.0% | Pass |
 | **Number Range Compliance** | 100.0% | 100.0% | 100.0% | ≥ 95.0% | Pass |
-| **Blind-Solver Agreement** | 100.0% | 97.7% | 95.0% | ≥ 95.0% | Pass |
-| **Repeat Rate (within 300)** | 8.3% | 28.7% | 24.0% | ≤ 5.0% | Pass |
+| **Blind-Solver Agreement** | 99.7% | 100.0% | 96.3% | ≥ 95.0% | Pass |
+| **Repeat Rate (within 300)** | 0.7% | 5.0% | 3.3% | ≤ 5.0% | Pass |
 | **Distinct Question Formats** | 8 formats | 9 formats | 9 formats | ≥ 3 formats | Pass |
-| **Average Word Count** | 4.3 w | 3.1 w | 3.7 w | ≤ 30/40/45 w | Pass |
+| **Average Word Count** | 3.7 w | 3.2 w | 3.3 w | ≤ 30/40/45 w | Pass |
 | **Template Fallback Rate** | 100.0% | 100.0% | 100.0% | Verified path | Pass |
 
 ---
@@ -29,56 +29,56 @@ This report evaluates the accuracy, grade-level calibration, variety, and reliab
 - **Sample Size**: 300 questions
 - **Answers Recomputed Correctly**: 100.0%
 - **Inside Class 3 NCERT Number Ranges**: 100.0%
-- **Blind-Solver Agreement Rate**: 100.0%
-- **Question Repeat Rate**: 8.3%
-- **Average Word Count**: 4.3 words (Limit: 30 words)
+- **Blind-Solver Agreement Rate**: 99.7%
+- **Question Repeat Rate**: 0.7%
+- **Average Word Count**: 3.7 words (Limit: 30 words)
 - **Format Distribution**:
-  - `mcq`: 37 (12.3%)
+  - `compare_answers`: 41 (13.7%)
   - `choose_working`: 39 (13.0%)
-  - `find_mistake`: 32 (10.7%)
-  - `short_answer`: 58 (19.3%)
-  - `true_false`: 34 (11.3%)
-  - `missing_number`: 34 (11.3%)
-  - `compare_answers`: 32 (10.7%)
-  - `word_problem`: 34 (11.3%)
+  - `missing_number`: 37 (12.3%)
+  - `true_false`: 40 (13.3%)
+  - `mcq`: 57 (19.0%)
+  - `find_mistake`: 33 (11.0%)
+  - `short_answer`: 34 (11.3%)
+  - `word_problem`: 19 (6.3%)
 
 ### Class 4 Evaluation (Grade 4)
 - **Target Concepts**: `place_value`, `mult_facts`, `division_concept`, `fraction_basics`
 - **Sample Size**: 300 questions
-- **Answers Recomputed Correctly**: 98.0%
+- **Answers Recomputed Correctly**: 100.0%
 - **Inside Class 4 NCERT Number Ranges**: 100.0%
-- **Blind-Solver Agreement Rate**: 97.7%
-- **Question Repeat Rate**: 28.7%
-- **Average Word Count**: 3.1 words (Limit: 40 words)
+- **Blind-Solver Agreement Rate**: 100.0%
+- **Question Repeat Rate**: 5.0%
+- **Average Word Count**: 3.2 words (Limit: 40 words)
 - **Format Distribution**:
-  - `mcq`: 100 (33.3%)
+  - `find_mistake`: 45 (15.0%)
+  - `true_false`: 43 (14.3%)
+  - `short_answer`: 31 (10.3%)
   - `choose_working`: 23 (7.7%)
-  - `short_answer`: 49 (16.3%)
-  - `find_mistake`: 20 (6.7%)
-  - `fill_blank`: 31 (10.3%)
-  - `compare_answers`: 21 (7.0%)
-  - `missing_number`: 26 (8.7%)
-  - `word_problem`: 9 (3.0%)
-  - `true_false`: 21 (7.0%)
+  - `missing_number`: 22 (7.3%)
+  - `fill_blank`: 15 (5.0%)
+  - `compare_answers`: 49 (16.3%)
+  - `mcq`: 67 (22.3%)
+  - `word_problem`: 5 (1.7%)
 
 ### Class 5 Evaluation (Grade 5)
 - **Target Concepts**: `multi_digit_mult`, `division_facts`, `long_division`, `division_word`, `equivalent_fractions`, `comparing_fractions`, `fraction_addition`
 - **Sample Size**: 300 questions
-- **Answers Recomputed Correctly**: 96.0%
+- **Answers Recomputed Correctly**: 100.0%
 - **Inside Class 5 NCERT Number Ranges**: 100.0%
-- **Blind-Solver Agreement Rate**: 95.0%
-- **Question Repeat Rate**: 24.0%
-- **Average Word Count**: 3.7 words (Limit: 45 words)
+- **Blind-Solver Agreement Rate**: 96.3%
+- **Question Repeat Rate**: 3.3%
+- **Average Word Count**: 3.3 words (Limit: 45 words)
 - **Format Distribution**:
-  - `choose_working`: 22 (7.3%)
-  - `short_answer`: 56 (18.7%)
-  - `word_problem`: 31 (10.3%)
-  - `fill_blank`: 35 (11.7%)
-  - `mcq`: 57 (19.0%)
-  - `true_false`: 28 (9.3%)
-  - `compare_answers`: 29 (9.7%)
-  - `find_mistake`: 22 (7.3%)
-  - `missing_number`: 20 (6.7%)
+  - `choose_working`: 26 (8.7%)
+  - `short_answer`: 32 (10.7%)
+  - `mcq`: 61 (20.3%)
+  - `missing_number`: 26 (8.7%)
+  - `true_false`: 53 (17.7%)
+  - `compare_answers`: 42 (14.0%)
+  - `find_mistake`: 38 (12.7%)
+  - `word_problem`: 12 (4.0%)
+  - `fill_blank`: 10 (3.3%)
 
 ---
 

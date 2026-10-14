@@ -232,26 +232,26 @@ export function LandingDemoSection() {
   };
 
   return (
-    <section id="demo" className="border-b border-[#432623]/25 px-4 sm:px-8 py-12 max-w-7xl mx-auto">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-[#432623]/20 pb-4">
+    <section id="demo" className="border-b border-border px-4 sm:px-8 py-12 max-w-7xl mx-auto">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-border pb-4">
         <div>
-          <div className="flex items-center gap-2 text-sm font-mono uppercase tracking-widest text-[#432623]/70 dark:text-[#FAF8E8]/70">
-            <span className="text-[#DE2A35] font-bold">04</span>
+          <div className="flex items-center gap-2 text-sm font-mono uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
+            <span className="text-primary font-bold">04</span>
             <span>/</span>
             <span>INTERACTIVE WORKFLOW CASE FILES</span>
           </div>
-          <h2 className="font-serif text-2xl sm:text-4xl font-normal mt-1 text-[#432623] dark:text-[#FAF8E8]">
+          <h2 className="font-serif text-2xl sm:text-4xl font-normal mt-1 text-foreground">
             How the Agent Runs in Five Steps
           </h2>
         </div>
-        <p className="text-sm font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 max-w-md">
+        <p className="text-sm font-mono text-muted-foreground dark:text-muted-foreground max-w-md">
           Select a class and student record below to test diagnostic checking, DAG backtracking, and 5-day practice sequences.
         </p>
       </div>
 
       {/* Class Selector Bar */}
-      <div className="mb-6 p-4 border border-[#432623]/20 bg-[#F5F1BC]/40 dark:bg-[#311E1B]/60">
-        <div className="text-sm font-mono uppercase tracking-wider text-[#432623]/70 dark:text-[#FAF8E8]/70 mb-2 font-bold">
+      <div className="mb-6 p-4 border border-border bg-muted dark:bg-card">
+        <div className="text-sm font-mono uppercase tracking-wider text-muted-foreground dark:text-muted-foreground mb-2 font-bold">
           Select Grade to Explore Curriculum Cases:
         </div>
         <ClassSelector
@@ -277,8 +277,8 @@ export function LandingDemoSection() {
               onClick={() => setActiveWorkflowStep(step.num as 1 | 2 | 3 | 4 | 5)}
               className={`min-h-[44px] p-2.5 border text-center font-bold cursor-pointer transition-none ${
                 isActive
-                  ? 'border-[#DE2A35] bg-[#DE2A35] text-[#FAF8E8]'
-                  : 'border-[#432623]/25 bg-[#FAF8E8] dark:bg-[#251614] text-[#432623] dark:text-[#FAF8E8] hover:bg-[#F5F1BC] dark:hover:bg-[#311E1B]'
+                  ? 'border-primary bg-primary text-primary-foreground'
+                  : 'border-border bg-card text-foreground hover:bg-muted'
               }`}
             >
               {step.label}
@@ -288,11 +288,11 @@ export function LandingDemoSection() {
       </div>
 
       {/* Interactive Stepper Content Card */}
-      <div className="border-2 border-[#432623]/30 bg-[#FAF8E8] dark:bg-[#251614] p-5 sm:p-7 shadow-xs">
+      <div className="border-2 border-border bg-card p-5 sm:p-7 shadow-xs">
         {/* Student selection bar */}
-        <div className="flex flex-wrap items-center justify-between pb-4 mb-5 border-b border-[#432623]/20 gap-3">
+        <div className="flex flex-wrap items-center justify-between pb-4 mb-5 border-b border-border gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70 uppercase font-bold">
+            <span className="text-sm font-mono text-muted-foreground dark:text-muted-foreground uppercase font-bold">
               {activeClassConfig.label} Case Records:
             </span>
             <div className="flex gap-2">
@@ -303,8 +303,8 @@ export function LandingDemoSection() {
                   onClick={() => setSelectedStudentIndex(idx)}
                   className={`min-h-[36px] px-3 border text-sm font-mono cursor-pointer transition-none ${
                     selectedStudentIndex === idx
-                      ? 'border-[#432623] dark:border-[#FAF8E8] bg-[#432623] text-[#FAF8E8] dark:bg-[#FAF8E8] dark:text-[#432623] font-bold'
-                      : 'border-[#432623]/20 bg-transparent text-[#432623] dark:text-[#FAF8E8] hover:bg-[#F5F1BC]'
+                      ? 'border-border bg-foreground text-background dark:bg-card dark:text-foreground font-bold'
+                      : 'border-border bg-transparent text-foreground hover:bg-muted'
                   }`}
                 >
                   {s.name} ({s.gradeLabel})
@@ -312,7 +312,7 @@ export function LandingDemoSection() {
               ))}
             </div>
           </div>
-          <div className="text-sm font-mono text-[#432623]/70 dark:text-[#FAF8E8]/70">
+          <div className="text-sm font-mono text-muted-foreground dark:text-muted-foreground">
             Roll No: #{currentStudent.rollNo}
           </div>
         </div>
@@ -322,26 +322,26 @@ export function LandingDemoSection() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-serif text-xl sm:text-2xl font-bold">Step 1: Student Diagnostic Profile</h3>
-              <span className="text-sm font-mono px-2 py-0.5 border border-[#432623]/20 bg-[#F5F1BC]/60 dark:bg-[#311E1B]">
+              <span className="text-sm font-mono px-2 py-0.5 border border-border bg-muted dark:bg-card">
                 Initial Status: {currentStudent.status}
               </span>
             </div>
-            <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80 leading-relaxed">
+            <p className="text-sm text-foreground/80 dark:text-muted-foreground leading-relaxed">
               The teacher or agent selects <strong>{currentStudent.name}</strong> from {currentStudent.gradeLabel}. Current evaluated topic: <em>{currentStudent.topic}</em>. Initial estimated mastery is {currentStudent.mastery}%.
             </p>
 
-            <div className="border border-[#432623]/20 p-4 bg-[#F5F1BC]/30 dark:bg-[#311E1B]/30 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm font-mono">
+            <div className="border border-border p-4 bg-muted dark:bg-card grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm font-mono">
               <div>
-                <span className="text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-sm">Student Name</span>
+                <span className="text-muted-foreground dark:text-muted-foreground uppercase block text-sm">Student Name</span>
                 <strong className="text-sm">{currentStudent.name}</strong>
               </div>
               <div>
-                <span className="text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-sm">Topic Under Assessment</span>
+                <span className="text-muted-foreground dark:text-muted-foreground uppercase block text-sm">Topic Under Assessment</span>
                 <strong>{currentStudent.topic}</strong>
               </div>
               <div>
-                <span className="text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-sm">Diagnostic Standing</span>
-                <strong className={currentStudent.statusType === 'critical' ? 'text-[#B51E28]' : 'text-[#432623] dark:text-[#FAF8E8] font-bold'}>
+                <span className="text-muted-foreground dark:text-muted-foreground uppercase block text-sm">Diagnostic Standing</span>
+                <strong className={currentStudent.statusType === 'critical' ? 'text-primary' : 'text-foreground font-bold'}>
                   {currentStudent.status} ({currentStudent.mastery}%)
                 </strong>
               </div>
@@ -351,7 +351,7 @@ export function LandingDemoSection() {
               <button
                 type="button"
                 onClick={() => setActiveWorkflowStep(2)}
-                className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
+                className="min-h-[44px] px-5 bg-primary text-primary-foreground text-sm font-mono uppercase font-bold hover:bg-primary cursor-pointer"
               >
                 Next: Check Learning
               </button>
@@ -363,12 +363,12 @@ export function LandingDemoSection() {
         {activeWorkflowStep === 2 && (
           <div className="space-y-4">
             <h3 className="font-serif text-xl sm:text-2xl font-bold">Step 2: Diagnostic Check Question</h3>
-            <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80">
+            <p className="text-sm text-foreground/80 dark:text-muted-foreground">
               The student answers a diagnostic question calibrated specifically for {currentStudent.topic}.
             </p>
 
-            <div className="border border-[#432623]/20 p-4 bg-[#FAF8E8] dark:bg-[#251614] space-y-3">
-              <div className="text-sm font-mono text-[#B51E28] font-bold uppercase">Diagnostic Item:</div>
+            <div className="border border-border p-4 bg-card space-y-3">
+              <div className="text-sm font-mono text-primary font-bold uppercase">Diagnostic Item:</div>
               <div className="text-sm font-bold font-mono">{currentStudent.question}</div>
               <div className="grid grid-cols-2 gap-2 text-sm font-mono pt-2">
                 {currentStudent.options.map((opt, i) => (
@@ -376,8 +376,8 @@ export function LandingDemoSection() {
                     key={i}
                     className={`p-2 border ${
                       opt === currentStudent.studentChoice
-                        ? 'border-[#DE2A35] bg-[#DE2A35]/10 font-bold'
-                        : 'border-[#432623]/20'
+                        ? 'border-primary bg-primary text-primary-foreground/10 font-bold'
+                        : 'border-border'
                     }`}
                   >
                     Option {i + 1}: {opt}
@@ -392,14 +392,14 @@ export function LandingDemoSection() {
               <button
                 type="button"
                 onClick={() => setActiveWorkflowStep(1)}
-                className="min-h-[44px] px-4 border border-[#432623]/20 text-sm font-mono uppercase hover:bg-[#F5F1BC] cursor-pointer"
+                className="min-h-[44px] px-4 border border-border text-sm font-mono uppercase hover:bg-muted cursor-pointer"
               >
                 Back
               </button>
               <button
                 type="button"
                 onClick={() => setActiveWorkflowStep(3)}
-                className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
+                className="min-h-[44px] px-5 bg-primary text-primary-foreground text-sm font-mono uppercase font-bold hover:bg-primary cursor-pointer"
               >
                 Next: Find Gaps
               </button>
@@ -411,26 +411,26 @@ export function LandingDemoSection() {
         {activeWorkflowStep === 3 && (
           <div className="space-y-4">
             <h3 className="font-serif text-xl sm:text-2xl font-bold">Step 3: Root Cause Analysis</h3>
-            <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80">
+            <p className="text-sm text-foreground/80 dark:text-muted-foreground">
               The system analyzes the error and traces the prerequisite gap back through the curriculum DAG.
             </p>
 
-            <div className="border border-[#432623]/20 p-4 bg-[#F5F1BC]/30 dark:bg-[#311E1B]/30 space-y-3 text-sm">
+            <div className="border border-border p-4 bg-muted dark:bg-card space-y-3 text-sm">
               <div>
-                <span className="font-mono text-[#B51E28] font-bold uppercase block text-sm">Observed Error Pattern:</span>
-                <p className="text-[#432623] dark:text-[#FAF8E8] mt-0.5">{currentStudent.observedMistake}</p>
+                <span className="font-mono text-primary font-bold uppercase block text-sm">Observed Error Pattern:</span>
+                <p className="text-foreground mt-0.5">{currentStudent.observedMistake}</p>
               </div>
-              <div className="border-t border-[#432623]/15 pt-2">
-                <span className="font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-sm">Diagnosed Root Gap:</span>
-                <strong className="text-sm font-serif text-[#B51E28]">{currentStudent.rootGap}</strong>
+              <div className="border-t border-border pt-2">
+                <span className="font-mono text-muted-foreground dark:text-muted-foreground uppercase block text-sm">Diagnosed Root Gap:</span>
+                <strong className="text-sm font-serif text-primary">{currentStudent.rootGap}</strong>
               </div>
-              <div className="border-t border-[#432623]/15 pt-2">
-                <span className="font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-sm">Foundational Prerequisite For:</span>
+              <div className="border-t border-border pt-2">
+                <span className="font-mono text-muted-foreground dark:text-muted-foreground uppercase block text-sm">Foundational Prerequisite For:</span>
                 <p>{currentStudent.prerequisiteFor}</p>
               </div>
-              <div className="border-t border-[#432623]/15 pt-2">
-                <span className="font-mono text-[#432623]/60 dark:text-[#FAF8E8]/60 uppercase block text-sm">Diagnostic Evidence:</span>
-                <p className="italic text-[#432623]/80 dark:text-[#FAF8E8]/80">{currentStudent.evidence}</p>
+              <div className="border-t border-border pt-2">
+                <span className="font-mono text-muted-foreground dark:text-muted-foreground uppercase block text-sm">Diagnostic Evidence:</span>
+                <p className="italic text-foreground/80 dark:text-muted-foreground">{currentStudent.evidence}</p>
               </div>
             </div>
 
@@ -438,14 +438,14 @@ export function LandingDemoSection() {
               <button
                 type="button"
                 onClick={() => setActiveWorkflowStep(2)}
-                className="min-h-[44px] px-4 border border-[#432623]/20 text-sm font-mono uppercase hover:bg-[#F5F1BC] cursor-pointer"
+                className="min-h-[44px] px-4 border border-border text-sm font-mono uppercase hover:bg-muted cursor-pointer"
               >
                 Back
               </button>
               <button
                 type="button"
                 onClick={() => setActiveWorkflowStep(4)}
-                className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
+                className="min-h-[44px] px-5 bg-primary text-primary-foreground text-sm font-mono uppercase font-bold hover:bg-primary cursor-pointer"
               >
                 Next: Practice Plan
               </button>
@@ -457,15 +457,15 @@ export function LandingDemoSection() {
         {activeWorkflowStep === 4 && (
           <div className="space-y-4">
             <h3 className="font-serif text-xl sm:text-2xl font-bold">Step 4: 5-Day Classroom Practice Plan</h3>
-            <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80">
+            <p className="text-sm text-foreground/80 dark:text-muted-foreground">
               A concrete, manipulative-assisted 5-day classroom sequence for the teacher.
             </p>
 
-            <div className="border border-[#432623]/20 p-4 bg-[#FAF8E8] dark:bg-[#251614] space-y-2.5">
+            <div className="border border-border p-4 bg-card space-y-2.5">
               {currentStudent.plan.map((p, i) => (
-                <div key={i} className="flex gap-3 text-sm border-b border-[#432623]/15 pb-2 last:border-b-0 last:pb-0">
-                  <span className="font-mono font-bold text-[#DE2A35] w-14 shrink-0">{p.day}:</span>
-                  <span className="text-[#432623]/80 dark:text-[#FAF8E8]/80">{p.task}</span>
+                <div key={i} className="flex gap-3 text-sm border-b border-border pb-2 last:border-b-0 last:pb-0">
+                  <span className="font-mono font-bold text-primary w-14 shrink-0">{p.day}:</span>
+                  <span className="text-foreground/80 dark:text-muted-foreground">{p.task}</span>
                 </div>
               ))}
             </div>
@@ -474,14 +474,14 @@ export function LandingDemoSection() {
               <button
                 type="button"
                 onClick={() => setActiveWorkflowStep(3)}
-                className="min-h-[44px] px-4 border border-[#432623]/20 text-sm font-mono uppercase hover:bg-[#F5F1BC] cursor-pointer"
+                className="min-h-[44px] px-4 border border-border text-sm font-mono uppercase hover:bg-muted cursor-pointer"
               >
                 Back
               </button>
               <button
                 type="button"
                 onClick={() => setActiveWorkflowStep(5)}
-                className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold hover:bg-[#B51E28] cursor-pointer"
+                className="min-h-[44px] px-5 bg-primary text-primary-foreground text-sm font-mono uppercase font-bold hover:bg-primary cursor-pointer"
               >
                 Next: Check Again
               </button>
@@ -493,16 +493,16 @@ export function LandingDemoSection() {
         {activeWorkflowStep === 5 && (
           <div className="space-y-4">
             <h3 className="font-serif text-xl sm:text-2xl font-bold">Step 5: Verification & Check Again</h3>
-            <p className="text-sm text-[#432623]/80 dark:text-[#FAF8E8]/80">
+            <p className="text-sm text-foreground/80 dark:text-muted-foreground">
               After 5 days of practice, the student is checked again to verify mastery.
             </p>
 
-            <div className="border border-[#8ABB93] p-4 bg-[#8ABB93]/15 space-y-2">
-              <div className="flex items-center gap-2 text-[#432623] dark:text-[#FAF8E8] font-mono font-bold text-sm uppercase">
-                <CheckCircle size={16} className="text-[#8ABB93]" />
+            <div className="border border-[var(--status-good-border)] p-4 bg-[var(--status-good-bg)] space-y-2">
+              <div className="flex items-center gap-2 text-foreground font-mono font-bold text-sm uppercase">
+                <CheckCircle size={16} className="text-[var(--status-good)]" />
                 <span>Learning Verified on Paper & Slate</span>
               </div>
-              <p className="text-sm text-[#432623] dark:text-[#FAF8E8] leading-relaxed">
+              <p className="text-sm text-foreground leading-relaxed">
                 {currentStudent.reassessmentResult}
               </p>
             </div>
@@ -511,13 +511,13 @@ export function LandingDemoSection() {
               <button
                 type="button"
                 onClick={() => setActiveWorkflowStep(4)}
-                className="min-h-[44px] px-4 border border-[#432623]/20 text-sm font-mono uppercase hover:bg-[#F5F1BC] cursor-pointer"
+                className="min-h-[44px] px-4 border border-border text-sm font-mono uppercase hover:bg-muted cursor-pointer"
               >
                 Back to Step 4
               </button>
               <Link
                 href="/assessment"
-                className="min-h-[44px] px-5 bg-[#DE2A35] text-[#FAF8E8] text-sm font-mono uppercase font-bold hover:bg-[#B51E28] inline-flex items-center cursor-pointer shadow-xs"
+                className="min-h-[44px] px-5 bg-primary text-primary-foreground text-sm font-mono uppercase font-bold hover:bg-primary inline-flex items-center cursor-pointer shadow-xs"
               >
                 Assess Test Now
               </Link>
