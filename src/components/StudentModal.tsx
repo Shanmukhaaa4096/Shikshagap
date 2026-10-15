@@ -14,7 +14,13 @@ import {
 } from 'lucide-react';
 
 export const StudentModal: React.FC = () => {
-  const { selectedStudent, selectStudent, openPracticeModal, openReassessmentModal } = useApp();
+  const {
+    selectedStudent,
+    selectStudent,
+    openPracticeModal,
+    openReassessmentModal,
+    startAssessment,
+  } = useApp();
   const { language } = useLanguage();
   const [activeTab, setActiveTab] = useState<'diagnosis' | 'remediation' | 'history'>('diagnosis');
 
@@ -272,6 +278,17 @@ export const StudentModal: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                const id = selectedStudent.id;
+                selectStudent(null);
+                startAssessment(id);
+              }}
+              className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 transition-colors cursor-pointer flex items-center gap-1.5"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+              <span>Run Diagnostic</span>
+            </button>
             <button
               onClick={() => openPracticeModal(selectedStudent.id)}
               className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 transition-colors cursor-pointer"

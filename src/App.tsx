@@ -4,6 +4,10 @@ import { Header } from './components/Header';
 import { ClassroomDashboard } from './components/ClassroomDashboard';
 import { StudentModal } from './components/StudentModal';
 import { DemoTourModal } from './components/DemoTourModal';
+import { AssessmentModal } from './components/AssessmentModal';
+import { PracticeModal } from './components/PracticeModal';
+import { ReassessmentModal } from './components/ReassessmentModal';
+import { SettingsModal } from './components/SettingsModal';
 
 function AppContent() {
   return (
@@ -17,6 +21,10 @@ function AppContent() {
       {/* Modals */}
       <StudentModal />
       <DemoTourModal />
+      <AssessmentModal />
+      <PracticeModal />
+      <ReassessmentModal />
+      <SettingsModal />
 
       {/* Footer */}
       <footer className="bg-white border-t border-slate-200 py-6 px-4 text-center text-xs text-slate-500">
