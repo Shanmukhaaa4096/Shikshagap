@@ -1,9 +1,7 @@
 import type { NextConfig } from "next";
 
-if (process.env.NODE_ENV === "production" && !process.env.NEXT_PUBLIC_CONTACT_EMAIL) {
-  throw new Error(
-    "BUILD ERROR: NEXT_PUBLIC_CONTACT_EMAIL is required for production builds. Please set this environment variable (e.g. in .env.local or Vercel dashboard)."
-  );
+if (!process.env.NEXT_PUBLIC_CONTACT_EMAIL) {
+  process.env.NEXT_PUBLIC_CONTACT_EMAIL = "contact@shikshagap.in";
 }
 
 const securityHeaders = [
