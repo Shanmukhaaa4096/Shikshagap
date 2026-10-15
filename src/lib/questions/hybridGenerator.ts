@@ -57,13 +57,40 @@ export function validateReadingLevel(
   return { valid: wordCount <= maxAllowed, wordCount, maxAllowed };
 }
 
+const INDIC_DIGIT_MAP: Record<string, string> = {
+  // Devanagari (Hindi)
+  "०": "0", "१": "1", "२": "2", "३": "3", "४": "4",
+  "५": "5", "६": "6", "७": "7", "८": "8", "९": "9",
+  // Telugu
+  "౦": "0", "౧": "1", "౨": "2", "౩": "3", "౪": "4",
+  "౫": "5", "౬": "6", "౭": "7", "౮": "8", "౯": "9",
+};
+
+export function normalizeIndicDigits(str: string): string {
+  return str.replace(/[\u0966-\u096F\u0C66-\u0C6F]/g, (ch) => INDIC_DIGIT_MAP[ch] || ch);
+}
+
 export function normalizeAnswer(ans: string | number | undefined | null): string {
   if (ans === undefined || ans === null) return "";
-  let s = String(ans).trim().toLowerCase();
-  // Strip trailing punctuation first
-  s = s.replace(/[.?]+$/, "").trim();
-  // Strip currency prefixes/suffixes: Rs, Rs., ₹, /-, rupees
-  s = s.replace(/^(₹|rs\.?|rupees?\s*)/i, "").replace(/(\/-\s*|rupees?\s*)$/i, "").trim();
+  let s = String(ans).trim();
+  // Normalize Devanagari and Telugu digits to standard 0-9
+  s = normalizeIndicDigits(s).toLowerCase();
+  // Strip trailing punctuation
+  s = s.replace(/[.?!,]+$/, "").trim();
+  // Strip currency prefixes/suffixes: Rs, Rs., ₹, /-, rupees, inr
+  s = s.replace(/^(₹|rs\.?|inr|rupees?\s*)/i, "").replace(/(\/-\s*|rupees?\s*|rs\.?|inr)$/i, "").trim();
+  // Normalize fraction spacing: " 1 / 2 " -> "1/2"
+  s = s.replace(/\s*\/\s*/g, "/");
+  // Remove formatting commas between digits (e.g., "1,200" -> "1200")
+  s = s.replace(/(\d),(\d)/g, "$1$2");
+  // Strip common counting/unit words that primary students naturally append
+  s = s
+    .replace(
+      /\s*(sweets?|candies|candy|chocolates?|pens?|pencils?|books?|apples?|mangoes?|items?|pieces?|students?|children|toys?|km|cm|mm|m|kg|g|l|ml|litres?|liters?|hours?|hrs?|mins?|minutes?|days?|groups?)\b/gi,
+      ""
+    )
+    .trim();
+
   // Numeric normalization (e.g. 05 -> 5)
   const num = Number(s);
   if (!Number.isNaN(num) && s !== "" && !s.includes("/")) {

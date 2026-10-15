@@ -83,7 +83,7 @@ http://www.apache.org/licenses/LICENSE-2.0`
 
 export default function LicensesPage() {
   return (
-    <div className="min-h-screen bg-card dark:bg-muted text-foreground font-sans selection:bg-primary text-primary-foreground selection:text-primary-foreground p-6 sm:p-12">
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground p-6 sm:p-12">
       <div className="max-w-4xl mx-auto">
         <div className="border-b border-border pb-6 mb-8">
           <Link href="/" className="text-xs font-mono uppercase text-muted-foreground dark:text-muted-foreground hover:underline">

@@ -25,6 +25,7 @@ import { getClassConfig } from "../src/lib/curriculum/classes.ts";
 import { getSkillRange } from "../src/data/skillSheet.ts";
 import {
   generateQuestionWithVariety,
+  generateUnique,
   canonicalQuestionFingerprint,
 } from "../src/lib/questions/generator.ts";
 import {
@@ -211,8 +212,9 @@ async function runEvaluation() {
       const concept = concepts[i % concepts.length];
       const d = ((i % 3) + 1);
 
-      // Generate question with format variety and grade calibration
-      const q = generateQuestionWithVariety(concept, d, rng, grade, { avoidFormat: prevFormat });
+      // Generate unique question with format variety and grade calibration
+      const previouslySeen = new Set(seenFingerprints);
+      const q = generateUnique(concept, d, rng, seenFingerprints, grade, {}, { avoidFormat: prevFormat });
       if (prevFormat && q.format === prevFormat) {
         consecutiveFormatRepeats++;
       }
@@ -241,10 +243,8 @@ async function runEvaluation() {
 
       // 4. Exact Repeat rate check using canonical fingerprint
       const canonicalFp = canonicalQuestionFingerprint(q);
-      if (seenFingerprints.has(canonicalFp)) {
+      if (previouslySeen.has(canonicalFp)) {
         repeats++;
-      } else {
-        seenFingerprints.add(canonicalFp);
       }
 
       // 5. Word count

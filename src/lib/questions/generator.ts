@@ -125,6 +125,7 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
       return {
         format: "mcq",
         prompt: T("q.ns.bigger"),
+        expression: `${a} or ${b}`,
         answerKind: "choice",
         answer: String(ans),
         options: shuffle(
@@ -151,6 +152,7 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
       return {
         format: "mcq",
         prompt: T("q.ns.largest"),
+        expression: nums.join(", "),
         answerKind: "choice",
         answer: String(ans),
         options: shuffle(
@@ -185,10 +187,14 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
   place_value(d, rng, _ctx, grade) {
     const range = getSkillRange("place_value", grade, d);
     if (d === 1) {
-      const n = randInt(rng, range.min, range.max);
-      const digitArr = digits(n);
+      let n = randInt(rng, range.min, range.max);
+      let digitArr = digits(n);
       const tensIdx = digitArr.length >= 2 ? digitArr.length - 2 : 0;
-      const t = digitArr[tensIdx] || 1;
+      if (digitArr[tensIdx] === 0) {
+        n += randInt(rng, 1, 9) * 10;
+        digitArr = digits(n);
+      }
+      const t = digitArr[digitArr.length >= 2 ? digitArr.length - 2 : 0];
       const ans = t * 10;
       const bugs: Record<string, ErrorType> = {};
       addBug(bugs, t, "place_value", ans);
@@ -206,12 +212,16 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
       };
     }
     if (d === 2) {
-      const n = randInt(rng, range.min, range.max);
-      const digitArr = digits(n);
+      let n = randInt(rng, range.min, range.max);
+      let digitArr = digits(n);
       const askH = digitArr.length >= 3 && rng() < 0.5;
       const idx = askH ? digitArr.length - 3 : Math.max(0, digitArr.length - 2);
-      const digit = digitArr[idx] || 1;
       const placeMultiplier = 10 ** (digitArr.length - 1 - idx);
+      if (digitArr[idx] === 0) {
+        n += randInt(rng, 1, 9) * placeMultiplier;
+        digitArr = digits(n);
+      }
+      const digit = digitArr[idx];
       const ans = digit * placeMultiplier;
       const bugs: Record<string, ErrorType> = {};
       addBug(bugs, digit, "place_value", ans);
@@ -225,7 +235,9 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
         hint: T("hint.place_value"),
       };
     }
-    const n = randInt(rng, range.min, range.max);
+    const minN = Math.max(1000, range.min);
+    const maxN = Math.max(minN + 1, range.max);
+    const n = randInt(rng, minN, maxN);
     const th = Math.floor(n / 1000);
     const remTh = n % 1000;
     const h = Math.floor(remTh / 100);
@@ -739,6 +751,20 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
         [[5, 6], [3, 4]],
         [[3, 8], [1, 2]],
         [[4, 5], [2, 3]],
+        [[3, 5], [4, 7]],
+        [[5, 8], [3, 5]],
+        [[5, 7], [3, 4]],
+        [[7, 10], [2, 3]],
+        [[4, 9], [3, 7]],
+        [[5, 9], [1, 2]],
+        [[7, 12], [3, 5]],
+        [[5, 6], [7, 9]],
+        [[3, 10], [1, 4]],
+        [[7, 8], [5, 6]],
+        [[2, 7], [1, 4]],
+        [[5, 12], [3, 8]],
+        [[4, 7], [5, 9]],
+        [[8, 9], [7, 8]],
       ];
       [a, b] = shuffle(rng, [...pick(rng, pairs)]) as [[number, number], [number, number]];
     }
@@ -752,6 +778,7 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
     return {
       format: "mcq",
       prompt: T("q.cf.bigger"),
+      expression: `${frac(...a)} vs ${frac(...b)}`,
       answerKind: "choice",
       answer: frac(...big),
       options,
@@ -772,6 +799,18 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
         [1, 4, 3, 8],
         [1, 5, 3, 10],
         [1, 2, 3, 8],
+        [2, 3, 1, 6],
+        [3, 4, 1, 8],
+        [2, 5, 1, 10],
+        [1, 3, 2, 9],
+        [1, 4, 1, 12],
+        [1, 6, 5, 12],
+        [3, 10, 1, 5],
+        [1, 2, 1, 8],
+        [2, 5, 3, 10],
+        [1, 3, 1, 9],
+        [1, 2, 1, 10],
+        [1, 4, 5, 12],
       ]);
     } else {
       d1 = d2 = randInt(rng, Math.max(3, range.min), Math.max(4, range.max));
@@ -1089,32 +1128,54 @@ export function applyQuestionFormat(
   rng: Rng
 ): Question {
   const meta = q.meta;
-  const a = meta.a;
-  const b = meta.b;
-  const op = meta.op;
+  const a = meta?.a;
+  const b = meta?.b;
+  const op = meta?.op;
 
   // Formats apply where binary operation, numeric operands, and numeric answer are well defined
   if (
     a === undefined ||
     b === undefined ||
     !op ||
-    isNaN(Number(q.answer)) ||
+    isNaN(Number(a)) ||
+    isNaN(Number(b)) ||
     (q.prompt && "key" in q.prompt && q.prompt.key === "q.ld.remainder") ||
     (q.conceptId === "long_division" && q.difficulty === 3)
   ) {
     return q;
   }
 
-  const opSymbol = op === "x" ? "×" : op === "/" ? "÷" : op === "-" ? "−" : "+";
-  const numAnswer = Number(q.answer);
+  const aNum = Number(a);
+  const bNum = Number(b);
+  const opSymbol =
+    op === "x"
+      ? "×"
+      : op === "/"
+      ? "÷"
+      : op === "-"
+      ? "−"
+      : "+";
+
+  // Compute the authoritative mathematical result of (aNum op bNum)
+  let trueVal: number;
+  if (op === "+") trueVal = aNum + bNum;
+  else if (op === "-") trueVal = aNum - bNum;
+  else if (op === "x") trueVal = aNum * bNum;
+  else if (op === "/") trueVal = Math.floor(aNum / bNum);
+  else trueVal = Number(q.answer);
+
+  if (isNaN(trueVal)) {
+    return q;
+  }
 
   if (format === "missing_number") {
-    // Determine which operand to hide: a op [ ] = ans or [ ] op b = ans
+    // Hide second operand: a op [ ? ] = trueVal (missing is b)
+    // Or hide first operand: [ ? ] op b = trueVal (missing is a)
     const hideSecond = rng() < 0.5;
     const expression = hideSecond
-      ? `${a} ${opSymbol} [ ? ] = ${q.answer}`
-      : `[ ? ] ${opSymbol} ${b} = ${q.answer}`;
-    const missingVal = hideSecond ? b : a;
+      ? `${aNum} ${opSymbol} [ ? ] = ${trueVal}`
+      : `[ ? ] ${opSymbol} ${bNum} = ${trueVal}`;
+    const missingVal = hideSecond ? bNum : aNum;
 
     return {
       ...q,
@@ -1123,7 +1184,15 @@ export function applyQuestionFormat(
       expression,
       answer: String(missingVal),
       answerKind: "choice",
-      options: numericOptions(rng, missingVal, { [String(missingVal + 1)]: "slip", [String(missingVal - 1)]: "slip" }, 2),
+      options: numericOptions(
+        rng,
+        missingVal,
+        {
+          [String(missingVal + 1)]: "slip",
+          [String(Math.max(1, missingVal - 1))]: "slip",
+        },
+        2
+      ),
     };
   }
 
@@ -1131,16 +1200,21 @@ export function applyQuestionFormat(
     const isActuallyTrue = rng() < 0.5;
     let statementExpr = "";
     if (isActuallyTrue) {
-      statementExpr = `${a} ${opSymbol} ${b} = ${q.answer}`;
+      statementExpr = `${aNum} ${opSymbol} ${bNum} = ${trueVal}`;
     } else {
-      const bugEntries = Object.keys(meta.bugs || {}).filter((k) => k !== String(q.answer));
-      let wrongAns = bugEntries.length > 0
-        ? bugEntries[0]
-        : String(!isNaN(numAnswer) ? numAnswer + 2 : "10");
-      if (wrongAns === String(q.answer)) {
-        wrongAns = String(!isNaN(numAnswer) ? numAnswer + 3 : "11");
+      const bugEntries = Object.keys(meta?.bugs || {})
+        .filter((k) => k !== String(trueVal) && !isNaN(Number(k)))
+        .map(Number);
+      let wrongAns =
+        bugEntries.length > 0
+          ? bugEntries[0]
+          : trueVal > 0
+          ? trueVal + 2
+          : trueVal + 3;
+      if (wrongAns === trueVal) {
+        wrongAns = trueVal + 3;
       }
-      statementExpr = `${a} ${opSymbol} ${b} = ${wrongAns}`;
+      statementExpr = `${aNum} ${opSymbol} ${bNum} = ${wrongAns}`;
     }
 
     const correctAns = isActuallyTrue ? "True" : "False";
@@ -1162,15 +1236,20 @@ export function applyQuestionFormat(
 
   if (format === "find_mistake") {
     const hasMistake = rng() < 0.5;
-    const bugEntries = Object.keys(meta.bugs || {}).filter((k) => k !== String(q.answer));
-    let wrongVal = bugEntries.length > 0
-      ? bugEntries[0]
-      : String(!isNaN(numAnswer) ? numAnswer + 3 : "12");
-    if (wrongVal === String(q.answer)) {
-      wrongVal = String(!isNaN(numAnswer) ? numAnswer + 4 : "13");
+    const bugEntries = Object.keys(meta?.bugs || {})
+      .filter((k) => k !== String(trueVal) && !isNaN(Number(k)))
+      .map(Number);
+    let wrongVal =
+      bugEntries.length > 0
+        ? bugEntries[0]
+        : trueVal > 0
+        ? trueVal + 3
+        : trueVal + 4;
+    if (wrongVal === trueVal) {
+      wrongVal = trueVal + 4;
     }
-    const displayedAns = hasMistake ? wrongVal : q.answer;
-    const workingStr = `${a} ${opSymbol} ${b} = ${displayedAns}`;
+    const displayedAns = hasMistake ? wrongVal : trueVal;
+    const workingStr = `${aNum} ${opSymbol} ${bNum} = ${displayedAns}`;
 
     const correctAns = hasMistake ? "Mistake" : "Correct";
     const options: Option[] = [
@@ -1190,21 +1269,25 @@ export function applyQuestionFormat(
   }
 
   if (format === "choose_working") {
-    // Options showing different methods/breakdowns
     let correctMethod = "";
     let wrongMethod = "";
     if (op === "+") {
-      correctMethod = `${a} + ${b} = (${Math.floor(a / 10) * 10} + ${Math.floor(b / 10) * 10}) + (${a % 10} + ${b % 10})`;
-      wrongMethod = `${a} + ${b} = (${a} + 10) - ${b}`;
+      correctMethod = `${aNum} + ${bNum} = (${Math.floor(aNum / 10) * 10} + ${Math.floor(bNum / 10) * 10}) + (${aNum % 10} + ${bNum % 10})`;
+      wrongMethod = `${aNum} + ${bNum} = ${aNum} − ${bNum}`;
     } else if (op === "x") {
-      correctMethod = `${a} × ${b} = (${a} × ${Math.floor(b / 2)}) + (${a} × ${b - Math.floor(b / 2)})`;
-      wrongMethod = `${a} × ${b} = ${a} + ${b}`;
+      const bHalf = Math.floor(bNum / 2);
+      if (bHalf > 0 && bNum - bHalf > 0) {
+        correctMethod = `${aNum} × ${bNum} = (${aNum} × ${bHalf}) + (${aNum} × ${bNum - bHalf})`;
+      } else {
+        correctMethod = `${aNum} × ${bNum} = ${trueVal}`;
+      }
+      wrongMethod = `${aNum} × ${bNum} = ${aNum + bNum}`;
     } else if (op === "-") {
-      correctMethod = `${a} − ${b} = (${a} − ${Math.floor(b / 10) * 10}) − ${b % 10}`;
-      wrongMethod = `${a} − ${b} = ${b} − ${a}`;
+      correctMethod = `${aNum} − ${bNum} = (${aNum} − ${Math.floor(bNum / 10) * 10}) − ${bNum % 10}`;
+      wrongMethod = `${aNum} − ${bNum} = ${aNum + bNum}`;
     } else {
-      correctMethod = `${a} ÷ ${b} = ${q.answer}`;
-      wrongMethod = `${a} ÷ ${b} = ${a} − ${b}`;
+      correctMethod = `${aNum} ÷ ${bNum} = ${trueVal}`;
+      wrongMethod = `${aNum} ÷ ${bNum} = ${aNum * bNum}`;
     }
 
     const options: Option[] = shuffle(rng, [
@@ -1215,8 +1298,8 @@ export function applyQuestionFormat(
     return {
       ...q,
       format: "choose_working",
-      prompt: T("q.format.choose_working", { problem: `${a} ${opSymbol} ${b}` }),
-      expression: `${a} ${opSymbol} ${b} = ?`,
+      prompt: T("q.format.choose_working", { problem: `${aNum} ${opSymbol} ${bNum}` }),
+      expression: `${aNum} ${opSymbol} ${bNum} = ?`,
       answer: correctMethod,
       answerKind: "choice",
       options,
@@ -1226,17 +1309,22 @@ export function applyQuestionFormat(
   if (format === "compare_answers") {
     const student1Name = "Student A";
     const student2Name = "Student B";
-    const bugEntries = Object.keys(meta.bugs || {}).filter((k) => k !== String(q.answer));
-    let wrongVal = bugEntries.length > 0
-      ? bugEntries[0]
-      : String(!isNaN(numAnswer) ? numAnswer + 2 : "15");
-    if (wrongVal === String(q.answer)) {
-      wrongVal = String(!isNaN(numAnswer) ? numAnswer + 3 : "16");
+    const bugEntries = Object.keys(meta?.bugs || {})
+      .filter((k) => k !== String(trueVal) && !isNaN(Number(k)))
+      .map(Number);
+    let wrongVal =
+      bugEntries.length > 0
+        ? bugEntries[0]
+        : trueVal > 0
+        ? trueVal + 2
+        : trueVal + 3;
+    if (wrongVal === trueVal) {
+      wrongVal = trueVal + 3;
     }
 
-    const student1Ans = rng() < 0.5 ? q.answer : wrongVal;
-    const student2Ans = student1Ans === q.answer ? wrongVal : q.answer;
-    const correctStudent = student1Ans === q.answer ? `${student1Name}: ${student1Ans}` : `${student2Name}: ${student2Ans}`;
+    const student1Ans = rng() < 0.5 ? String(trueVal) : String(wrongVal);
+    const student2Ans = student1Ans === String(trueVal) ? String(wrongVal) : String(trueVal);
+    const correctStudent = student1Ans === String(trueVal) ? `${student1Name}: ${student1Ans}` : `${student2Name}: ${student2Ans}`;
 
     const options: Option[] = [
       { id: "opt_s1", label: R(`${student1Name}: ${student1Ans}`), value: `${student1Name}: ${student1Ans}` },
@@ -1247,7 +1335,7 @@ export function applyQuestionFormat(
       ...q,
       format: "compare_answers",
       prompt: T("q.format.compare_answers"),
-      expression: `${a} ${opSymbol} ${b} = ?`,
+      expression: `${aNum} ${opSymbol} ${bNum} = ?`,
       answer: correctStudent,
       answerKind: "choice",
       options,
@@ -1271,16 +1359,42 @@ export function generateQuestionWithVariety(
       : (optionsOrAvoidFormat ?? {});
   const base = generateQuestion(conceptId, difficulty, rng, grade, ctx);
 
-  // Available candidate shapes for varied assessment formats
-  const candidateFormats: QuestionFormat[] = [
-    "mcq",
-    "short_answer",
-    "missing_number",
-    "find_mistake",
-    "true_false",
-    "choose_working",
-    "compare_answers",
-  ];
+  // Check if base has well-defined arithmetic operands to support interactive transformation
+  const canApplyInteractiveFormats =
+    base.meta?.op !== undefined &&
+    base.meta?.a !== undefined &&
+    base.meta?.b !== undefined &&
+    !isNaN(Number(base.meta.a)) &&
+    !isNaN(Number(base.meta.b)) &&
+    base.conceptId !== "long_division";
+
+  // Check if question is choice-dependent (options represent the options being selected/compared)
+  const isChoiceDependent =
+    base.conceptId === "comparing_fractions" ||
+    (base.conceptId === "division_concept" && base.difficulty === 3) ||
+    (base.conceptId === "number_sense" && (base.difficulty === 1 || base.difficulty === 2)) ||
+    (base.conceptId === "equivalent_fractions" && base.difficulty === 3) ||
+    (base.conceptId === "mult_concept" && base.difficulty === 2) ||
+    base.answerKind === "choice";
+
+  let candidateFormats: QuestionFormat[];
+  if (canApplyInteractiveFormats) {
+    candidateFormats = [
+      "mcq",
+      "short_answer",
+      "missing_number",
+      "find_mistake",
+      "true_false",
+      "choose_working",
+      "compare_answers",
+    ];
+  } else if (isChoiceDependent) {
+    candidateFormats = ["mcq"];
+  } else if (base.format === "word_problem") {
+    candidateFormats = ["word_problem", "mcq", "short_answer"];
+  } else {
+    candidateFormats = ["mcq", base.format];
+  }
 
   const allowed = options.allowedFormats || candidateFormats;
   const filtered = allowed.filter((f) => f !== options.avoidFormat);
@@ -1290,7 +1404,7 @@ export function generateQuestionWithVariety(
   if (targetFormat === "mcq" && base.format !== "mcq") {
     const numAns = Number(base.answer);
     if (!isNaN(numAns)) {
-      const bugs = base.meta.bugs || {};
+      const bugs = base.meta?.bugs || {};
       const optionsList = numericOptions(rng, numAns, bugs);
       return {
         ...base,
@@ -1301,22 +1415,25 @@ export function generateQuestionWithVariety(
     }
   }
 
-  // If converting to short_answer from MCQ, remove choice options
+  // If converting to short_answer from MCQ, remove choice options ONLY if not choice-dependent
   if (targetFormat === "short_answer" && base.format === "mcq") {
-    return {
-      ...base,
-      format: "short_answer",
-      answerKind: typeof base.answer === "number" || !isNaN(Number(base.answer)) ? "int" : base.answerKind,
-      options: undefined,
-    };
+    if (!isChoiceDependent && (base.expression || !isNaN(Number(base.answer)))) {
+      return {
+        ...base,
+        format: "short_answer",
+        answerKind:
+          typeof base.answer === "number" || !isNaN(Number(base.answer))
+            ? "int"
+            : base.answerKind,
+        options: undefined,
+      };
+    }
   }
 
   if (
-    base.format === "fill_blank" ||
     base.format === "word_problem" ||
     targetFormat === base.format ||
-    targetFormat === "word_problem" ||
-    targetFormat === "fill_blank"
+    targetFormat === "word_problem"
   ) {
     return base;
   }
@@ -1337,7 +1454,7 @@ export function generateUnique(
   const effectiveCtx = typeof gradeOrCtx === "object" ? gradeOrCtx : ctx;
   let q = generateQuestionWithVariety(conceptId, difficulty, rng, grade, options, effectiveCtx);
   let attempts = 0;
-  while ((seen.has(questionSignature(q)) || !validateQuestionIntegrity(q).valid) && attempts < 15) {
+  while ((seen.has(questionSignature(q)) || !validateQuestionIntegrity(q).valid) && attempts < 50) {
     attempts++;
     q = generateQuestionWithVariety(
       conceptId,
@@ -1345,7 +1462,7 @@ export function generateUnique(
       rng,
       grade,
       options,
-      attempts < 5 ? effectiveCtx : { ...effectiveCtx, link: undefined }
+      attempts < 15 ? effectiveCtx : { ...effectiveCtx, link: undefined }
     );
   }
 

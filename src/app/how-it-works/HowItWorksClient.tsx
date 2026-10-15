@@ -47,7 +47,7 @@ export default function HowItWorksClient() {
   ];
 
   return (
-    <div className="min-h-[100dvh] bg-card dark:bg-muted text-foreground font-sans selection:bg-primary text-primary-foreground selection:text-primary-foreground p-4 sm:p-8">
+    <div className="min-h-[100dvh] bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground p-4 sm:p-8">
       <div className="max-w-3xl mx-auto">
         {/* Navigation Bar */}
         <div className="pb-4 mb-6 border-b border-border flex items-center justify-between">

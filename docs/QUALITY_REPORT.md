@@ -14,10 +14,10 @@ This report evaluates the accuracy, grade-level calibration, variety, and reliab
 |---|---|---|---|---|---|
 | **Answer Recomputation** | 100.0% | 100.0% | 100.0% | ≥ 98.0% | Pass |
 | **Number Range Compliance** | 100.0% | 100.0% | 100.0% | ≥ 95.0% | Pass |
-| **Blind-Solver Agreement** | 99.7% | 100.0% | 96.3% | ≥ 95.0% | Pass |
-| **Repeat Rate (within 300)** | 0.7% | 5.0% | 3.3% | ≤ 5.0% | Pass |
+| **Blind-Solver Agreement** | 100.0% | 100.0% | 100.0% | ≥ 95.0% | Pass |
+| **Repeat Rate (within 300)** | 0.0% | 0.0% | 0.7% | ≤ 5.0% | Pass |
 | **Distinct Question Formats** | 8 formats | 9 formats | 9 formats | ≥ 3 formats | Pass |
-| **Average Word Count** | 3.7 w | 3.2 w | 3.3 w | ≤ 30/40/45 w | Pass |
+| **Average Word Count** | 3.1 w | 3.2 w | 2.4 w | ≤ 30/40/45 w | Pass |
 | **Template Fallback Rate** | 100.0% | 100.0% | 100.0% | Verified path | Pass |
 
 ---
@@ -29,18 +29,18 @@ This report evaluates the accuracy, grade-level calibration, variety, and reliab
 - **Sample Size**: 300 questions
 - **Answers Recomputed Correctly**: 100.0%
 - **Inside Class 3 NCERT Number Ranges**: 100.0%
-- **Blind-Solver Agreement Rate**: 99.7%
-- **Question Repeat Rate**: 0.7%
-- **Average Word Count**: 3.7 words (Limit: 30 words)
+- **Blind-Solver Agreement Rate**: 100.0%
+- **Question Repeat Rate**: 0.0%
+- **Average Word Count**: 3.1 words (Limit: 30 words)
 - **Format Distribution**:
-  - `compare_answers`: 41 (13.7%)
-  - `choose_working`: 39 (13.0%)
-  - `missing_number`: 37 (12.3%)
-  - `true_false`: 40 (13.3%)
-  - `mcq`: 57 (19.0%)
-  - `find_mistake`: 33 (11.0%)
-  - `short_answer`: 34 (11.3%)
-  - `word_problem`: 19 (6.3%)
+  - `mcq`: 72 (24.0%)
+  - `choose_working`: 25 (8.3%)
+  - `word_problem`: 108 (36.0%)
+  - `compare_answers`: 21 (7.0%)
+  - `find_mistake`: 19 (6.3%)
+  - `missing_number`: 17 (5.7%)
+  - `short_answer`: 23 (7.7%)
+  - `true_false`: 15 (5.0%)
 
 ### Class 4 Evaluation (Grade 4)
 - **Target Concepts**: `place_value`, `mult_facts`, `division_concept`, `fraction_basics`
@@ -48,37 +48,37 @@ This report evaluates the accuracy, grade-level calibration, variety, and reliab
 - **Answers Recomputed Correctly**: 100.0%
 - **Inside Class 4 NCERT Number Ranges**: 100.0%
 - **Blind-Solver Agreement Rate**: 100.0%
-- **Question Repeat Rate**: 5.0%
+- **Question Repeat Rate**: 0.0%
 - **Average Word Count**: 3.2 words (Limit: 40 words)
 - **Format Distribution**:
-  - `find_mistake`: 45 (15.0%)
-  - `true_false`: 43 (14.3%)
-  - `short_answer`: 31 (10.3%)
+  - `mcq`: 113 (37.7%)
   - `choose_working`: 23 (7.7%)
-  - `missing_number`: 22 (7.3%)
-  - `fill_blank`: 15 (5.0%)
-  - `compare_answers`: 49 (16.3%)
-  - `mcq`: 67 (22.3%)
-  - `word_problem`: 5 (1.7%)
+  - `short_answer`: 33 (11.0%)
+  - `true_false`: 10 (3.3%)
+  - `find_mistake`: 16 (5.3%)
+  - `fill_blank`: 25 (8.3%)
+  - `compare_answers`: 22 (7.3%)
+  - `word_problem`: 42 (14.0%)
+  - `missing_number`: 16 (5.3%)
 
 ### Class 5 Evaluation (Grade 5)
 - **Target Concepts**: `multi_digit_mult`, `division_facts`, `long_division`, `division_word`, `equivalent_fractions`, `comparing_fractions`, `fraction_addition`
 - **Sample Size**: 300 questions
 - **Answers Recomputed Correctly**: 100.0%
 - **Inside Class 5 NCERT Number Ranges**: 100.0%
-- **Blind-Solver Agreement Rate**: 96.3%
-- **Question Repeat Rate**: 3.3%
-- **Average Word Count**: 3.3 words (Limit: 45 words)
+- **Blind-Solver Agreement Rate**: 100.0%
+- **Question Repeat Rate**: 0.7%
+- **Average Word Count**: 2.4 words (Limit: 45 words)
 - **Format Distribution**:
-  - `choose_working`: 26 (8.7%)
-  - `short_answer`: 32 (10.7%)
-  - `mcq`: 61 (20.3%)
-  - `missing_number`: 26 (8.7%)
-  - `true_false`: 53 (17.7%)
-  - `compare_answers`: 42 (14.0%)
-  - `find_mistake`: 38 (12.7%)
-  - `word_problem`: 12 (4.0%)
-  - `fill_blank`: 10 (3.3%)
+  - `choose_working`: 11 (3.7%)
+  - `short_answer`: 56 (18.7%)
+  - `mcq`: 101 (33.7%)
+  - `word_problem`: 68 (22.7%)
+  - `compare_answers`: 10 (3.3%)
+  - `find_mistake`: 12 (4.0%)
+  - `missing_number`: 14 (4.7%)
+  - `fill_blank`: 17 (5.7%)
+  - `true_false`: 11 (3.7%)
 
 ---
 

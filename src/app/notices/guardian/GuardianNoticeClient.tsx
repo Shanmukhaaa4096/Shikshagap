@@ -137,7 +137,7 @@ export default function GuardianNoticeClient() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleShare}
-              className="min-h-[44px] px-3 border border-border text-sm font-mono uppercase inline-flex items-center gap-1.5 hover:bg-muted dark:hover:bg-[#381f1c]"
+              className="min-h-[44px] px-3 border border-border text-sm font-mono uppercase inline-flex items-center gap-1.5 hover:bg-muted"
               aria-label="Share notice template"
             >
               {isCopied ? <Check size={16} className="text-[var(--status-good)]" /> : <ShareNetwork size={16} />}

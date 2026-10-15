@@ -128,7 +128,7 @@ export function LandingHowAgentWorksSection({ sampleQ1Expression, sampleQ2Expres
               Target Skill: Equal Sharing Division Concept
             </div>
 
-            <div className="border border-border p-3 space-y-1 bg-white">
+            <div className="border border-border p-3 space-y-1 bg-card text-card-foreground">
               <div className="text-sm font-bold font-sans">1. Solve the following problem:</div>
               <div className="text-sm font-mono font-bold">{sampleQ1Expression}</div>
               <div className="h-8 border-b border-dashed border-border flex items-end text-sm text-muted-foreground font-mono">
@@ -136,7 +136,7 @@ export function LandingHowAgentWorksSection({ sampleQ1Expression, sampleQ2Expres
               </div>
             </div>
 
-            <div className="border border-border p-3 space-y-1 bg-white">
+            <div className="border border-border p-3 space-y-1 bg-card text-card-foreground">
               <div className="text-sm font-bold font-sans">2. Solve the following problem:</div>
               <div className="text-sm font-mono font-bold">{sampleQ2Expression}</div>
               <div className="h-8 border-b border-dashed border-border flex items-end text-sm text-muted-foreground font-mono">

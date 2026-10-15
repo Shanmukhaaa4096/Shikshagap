@@ -44,6 +44,7 @@ import {
 } from "@/lib/agents/staircase";
 import { generateUnique } from "@/lib/questions/generator";
 import { normalizeAnswer } from "@/lib/questions/hybridGenerator";
+import { areAnswersEquivalent } from "@/lib/questions/integrity";
 import { makeRng } from "@/lib/rng";
 import { getClassConfig, DEFAULT_CLASS_ID, ENABLED_CLASSES } from "@/lib/curriculum/classes";
 import { generateRemediationPlan } from "@/lib/engine/remediation";
@@ -463,11 +464,18 @@ export function AdaptiveAssessmentView({
     const trimmed = answerValue.trim();
     if (!trimmed) return;
 
-    const isCorrect = trimmed === String(currentQuestion.answer) || normalizeAnswer(trimmed) === normalizeAnswer(currentQuestion.answer);
+    const isCorrect = areAnswersEquivalent(trimmed, currentQuestion.answer);
 
+    const normTrimmed = normalizeAnswer(trimmed);
     let errorType: string | undefined = undefined;
-    if (!isCorrect && currentQuestion.meta.bugs && currentQuestion.meta.bugs[trimmed]) {
-      errorType = currentQuestion.meta.bugs[trimmed];
+    if (!isCorrect && currentQuestion.meta.bugs) {
+      if (currentQuestion.meta.bugs[trimmed]) {
+        errorType = currentQuestion.meta.bugs[trimmed];
+      } else if (currentQuestion.meta.bugs[normTrimmed]) {
+        errorType = currentQuestion.meta.bugs[normTrimmed];
+      } else {
+        errorType = "slip";
+      }
     } else if (!isCorrect) {
       errorType = "slip";
     }

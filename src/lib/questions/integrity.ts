@@ -54,6 +54,14 @@ export function areAnswersEquivalent(a: string | number, b: string | number): bo
     return fracA[0] * fracB[1] === fracB[0] * fracA[1];
   }
 
+  // Check fraction vs integer equivalence (e.g. "4/2" vs "2")
+  if (fracA && !fracB && !isNaN(numB)) {
+    return fracA[0] === numB * fracA[1];
+  }
+  if (!fracA && fracB && !isNaN(numA)) {
+    return numA * fracB[1] === fracB[0];
+  }
+
   return false;
 }
 
@@ -99,7 +107,36 @@ export function recomputeGroundTruthAnswer(q: Question): string | null {
     return q.answer;
   }
 
-  if (q.format === "choose_working" || q.format === "compare_answers" || q.format === "missing_number") {
+  if (q.format === "missing_number") {
+    const expr = q.expression || "";
+    const matchSecond = expr.match(/(\d+)\s*([+\-×÷−*\/])\s*\[\s*\?\s*\]\s*=\s*(\d+)/);
+    if (matchSecond) {
+      const a = Number(matchSecond[1]);
+      const op = matchSecond[2];
+      const c = Number(matchSecond[3]);
+      let missing: number | null = null;
+      if (op === "+" || op === "add") missing = c - a;
+      else if (op === "-" || op === "−") missing = a - c;
+      else if (op === "×" || op === "*") missing = a !== 0 ? Math.round(c / a) : null;
+      else if (op === "÷" || op === "/") missing = c !== 0 ? Math.round(a / c) : null;
+      if (missing !== null) return String(missing);
+    }
+    const matchFirst = expr.match(/\[\s*\?\s*\]\s*([+\-×÷−*\/])\s*(\d+)\s*=\s*(\d+)/);
+    if (matchFirst) {
+      const op = matchFirst[1];
+      const b = Number(matchFirst[2]);
+      const c = Number(matchFirst[3]);
+      let missing: number | null = null;
+      if (op === "+" || op === "add") missing = c - b;
+      else if (op === "-" || op === "−") missing = c + b;
+      else if (op === "×" || op === "*") missing = b !== 0 ? Math.round(c / b) : null;
+      else if (op === "÷" || op === "/") missing = c * b;
+      if (missing !== null) return String(missing);
+    }
+    return q.answer;
+  }
+
+  if (q.format === "choose_working" || q.format === "compare_answers") {
     return q.answer;
   }
 
@@ -286,6 +323,22 @@ export function validateQuestionIntegrity(q: Question): IntegrityCheckResult {
         reason: `Mathematical mismatch: operands recompute to "${normExpected}", but question answer is "${normAns}"`,
         recomputedAnswer: normExpected,
       };
+    }
+  }
+
+  // 6. Solvability & Context check: Prompt and expression must not leave question unanswerable
+  if (!q.options || q.options.length === 0) {
+    if (q.conceptId === "comparing_fractions" && !q.expression) {
+      return { valid: false, reason: "comparing_fractions requires options or explicit fractions to compare" };
+    }
+    if (q.conceptId === "number_sense" && (q.difficulty === 1 || q.difficulty === 2) && !q.expression) {
+      return { valid: false, reason: "number_sense choice question missing options and expression" };
+    }
+    if (q.conceptId === "division_concept" && q.difficulty === 3) {
+      return { valid: false, reason: "division_concept meaning question requires choice options" };
+    }
+    if (q.answerKind === "choice") {
+      return { valid: false, reason: "choice question cannot have empty options" };
     }
   }
 

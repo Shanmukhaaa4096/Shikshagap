@@ -28,7 +28,13 @@ function AssessmentInner() {
 
   const [isDark, setIsDark] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
-      return document.documentElement.classList.contains('dark');
+      try {
+        const stored = localStorage.getItem('shikshagap_theme') || localStorage.getItem('theme');
+        if (stored) return stored === 'dark';
+        return document.documentElement.classList.contains('dark') || window.matchMedia('(prefers-color-scheme: dark)').matches;
+      } catch {
+        return false;
+      }
     }
     return false;
   });
@@ -50,10 +56,16 @@ function AssessmentInner() {
     setIsDark(nextDark);
     if (nextDark) {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
+      try {
+        localStorage.setItem('shikshagap_theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+      } catch {}
     } else {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+      try {
+        localStorage.setItem('shikshagap_theme', 'light');
+        localStorage.setItem('theme', 'light');
+      } catch {}
     }
   };
 

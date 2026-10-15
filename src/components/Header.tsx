@@ -39,7 +39,7 @@ export function Header({
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== "undefined") {
       try {
-        const savedTheme = localStorage.getItem("shikshagap_theme");
+        const savedTheme = localStorage.getItem("shikshagap_theme") || localStorage.getItem("theme");
         if (savedTheme) {
           return savedTheme === "dark";
         }
@@ -65,6 +65,7 @@ export function Header({
     setIsDark(nextDark);
     try {
       localStorage.setItem("shikshagap_theme", nextDark ? "dark" : "light");
+      localStorage.setItem("theme", nextDark ? "dark" : "light");
     } catch {
       // ignore
     }

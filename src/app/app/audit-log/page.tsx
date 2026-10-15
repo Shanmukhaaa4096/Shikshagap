@@ -72,7 +72,7 @@ export default function AuditLogPage() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-card dark:bg-muted text-foreground font-sans selection:bg-primary text-primary-foreground selection:text-primary-foreground p-4 sm:p-8">
+    <div className="min-h-[100dvh] bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-6 border-b border-border gap-3">
@@ -146,7 +146,7 @@ export default function AuditLogPage() {
                 </thead>
                 <tbody className="divide-y divide-border dark:divide-border">
                   {logs.map((log) => (
-                    <tr key={log.id} className="hover:bg-muted dark:hover:bg-[#381f1c]/50">
+                    <tr key={log.id} className="hover:bg-muted">
                       <td className="p-3 whitespace-nowrap text-muted-foreground dark:text-muted-foreground">
                         {new Date(log.timestamp).toLocaleString()}
                       </td>

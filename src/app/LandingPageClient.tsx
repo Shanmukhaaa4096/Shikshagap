@@ -135,7 +135,7 @@ function PublicLandingPageContent() {
   };
 
   return (
-    <div className="min-h-screen bg-card text-foreground font-sans flex flex-col selection:bg-primary text-primary-foreground selection:text-primary-foreground pb-16 sm:pb-0 overflow-x-hidden">
+    <div className="min-h-screen bg-card text-foreground font-sans flex flex-col selection:bg-primary selection:text-primary-foreground pb-16 sm:pb-0 overflow-x-hidden">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

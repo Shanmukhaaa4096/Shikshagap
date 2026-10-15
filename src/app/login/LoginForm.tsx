@@ -75,10 +75,10 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen bg-card dark:bg-muted text-foreground flex flex-col justify-between p-4 sm:p-8 font-sans">
+    <div className="min-h-screen bg-background text-foreground flex flex-col justify-between p-4 sm:p-8 font-sans">
       <div className="w-full max-w-md mx-auto my-auto py-8">
         {/* Header */}
-        <div className="border border-border bg-card dark:bg-muted p-6 mb-4">
+        <div className="border border-border bg-card text-card-foreground p-6 mb-4">
           <div className="flex items-center justify-between pb-4 mb-4 border-b border-border">
             <div>
               <Link href="/" className="font-serif text-2xl font-bold tracking-tight text-foreground">
