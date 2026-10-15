@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LanguageProvider } from '@/lib/i18n/context';
 import { Header } from '@/components/Header';
 import { TeacherDashboard } from '@/components/TeacherDashboard';
@@ -8,6 +8,7 @@ import { StudentDiagnosticModal } from '@/components/StudentDiagnosticModal';
 import { AdaptiveAssessmentView } from '@/components/AdaptiveAssessmentView';
 import { StudentHome } from '@/components/StudentHome';
 import { WorksheetModal } from '@/components/WorksheetModal';
+import { TeacherProfileModal } from '@/components/TeacherProfileModal';
 import { loadStudents, saveStudents, resetDemoData, type DemoStudentData } from '@/lib/data/demo';
 
 import { DEFAULT_CLASS_ID } from '@/lib/curriculum/classes';
@@ -29,8 +30,25 @@ function AuthenticatedApp() {
   const [studentSubView, setStudentSubView] = useState<'home' | 'assessment'>('home');
   const [selectedStudent, setSelectedStudent] = useState<DemoStudentData | null>(null);
   const [isDiagnosticOpen, setIsDiagnosticOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [worksheetStudent, setWorksheetStudent] = useState<DemoStudentData | null>(null);
   const [isWorksheetOpen, setIsWorksheetOpen] = useState(false);
+
+  // Sync server-persisted teacher classroom progress
+  useEffect(() => {
+    let active = true;
+    fetch(`/api/auth/classroom-data?classId=${selectedClassId}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((payload) => {
+        if (active && payload?.data && Array.isArray(payload.data) && payload.data.length > 0) {
+          setStudents(payload.data);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [selectedClassId]);
 
   // Reassessment specific triggers
   const [reassessStudentId, setReassessStudentId] = useState<string | undefined>();
@@ -81,7 +99,15 @@ function AuthenticatedApp() {
       s.student.id === updatedStudent.student.id ? updatedStudent : s
     );
     setStudents(updated);
-    saveStudents(updated);
+    saveStudents(updated, selectedClassId);
+
+    // Asynchronously persist to server for authenticated teacher
+    fetch('/api/auth/classroom-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ classId: selectedClassId, data: updated }),
+    }).catch(() => {});
+
     setSelectedStudent(updatedStudent);
     setIsDiagnosticOpen(true);
     setCurrentView('teacher');
@@ -90,6 +116,15 @@ function AuthenticatedApp() {
   const handleSignOut = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {
+      // ignore
+    }
+    // Clear cached student and selection data so returning/different teacher has clean isolated session
+    try {
+      localStorage.removeItem('sg_selected_class');
+      localStorage.removeItem('shikshagap_students_class_3a_v2');
+      localStorage.removeItem('shikshagap_students_class_4a_v2');
+      localStorage.removeItem('shikshagap_students_class_5a_v2');
     } catch {
       // ignore
     }
@@ -110,6 +145,7 @@ function AuthenticatedApp() {
         selectedClassId={selectedClassId}
         onSelectClass={handleSelectClass}
         onSignOut={handleSignOut}
+        onOpenProfile={() => setIsProfileOpen(true)}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -167,6 +203,13 @@ function AuthenticatedApp() {
         data={worksheetStudent}
         isOpen={isWorksheetOpen}
         onClose={() => setIsWorksheetOpen(false)}
+      />
+
+      {/* Teacher Profile & Account Management Modal */}
+      <TeacherProfileModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        onSignOut={handleSignOut}
       />
     </div>
   );

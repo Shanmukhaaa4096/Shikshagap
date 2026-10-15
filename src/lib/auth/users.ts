@@ -106,6 +106,22 @@ export function resetLoginAttempts(key: string): void {
   loginAttempts.delete(key);
 }
 
+import { findTeacherByEmail } from "./accountStore.ts";
+
+export class AccountPendingVerificationError extends Error {
+  pendingDetails: {
+    email: string;
+    phone: string;
+    phoneVerified: boolean;
+    emailVerified: boolean;
+  };
+  constructor(details: { email: string; phone: string; phoneVerified: boolean; emailVerified: boolean }) {
+    super("Account registration is incomplete. Please complete verification.");
+    this.name = "AccountPendingVerificationError";
+    this.pendingDetails = details;
+  }
+}
+
 export async function verifyCredentials(
   emailInput: string,
   passwordInput: string
@@ -113,7 +129,38 @@ export async function verifyCredentials(
   checkDemoConfigNotice();
   const normalizedEmail = emailInput.trim().toLowerCase();
 
-  // In production, demo login works only if DEMO_* env vars are set
+  // 1. Check registered teacher accounts first
+  const registeredTeacher = await findTeacherByEmail(normalizedEmail);
+  if (registeredTeacher) {
+    const isPasswordCorrect = await bcrypt.compare(passwordInput, registeredTeacher.passwordHash).catch(() => false);
+    if (!isPasswordCorrect) {
+      return null;
+    }
+    if (!registeredTeacher.phoneVerified || !registeredTeacher.emailVerified || registeredTeacher.status !== "active") {
+      throw new AccountPendingVerificationError({
+        email: registeredTeacher.email,
+        phone: registeredTeacher.phone,
+        phoneVerified: registeredTeacher.phoneVerified,
+        emailVerified: registeredTeacher.emailVerified,
+      });
+    }
+    return {
+      id: registeredTeacher.id,
+      email: registeredTeacher.email,
+      name: registeredTeacher.fullName,
+      role: registeredTeacher.role,
+      schoolId: registeredTeacher.institutionName,
+      classId: registeredTeacher.gradesTaught[0] || "class_5",
+      phone: registeredTeacher.phone,
+      institutionName: registeredTeacher.institutionName,
+      gradesTaught: registeredTeacher.gradesTaught,
+      subjectsTaught: registeredTeacher.subjectsTaught,
+      designation: registeredTeacher.designation,
+      status: registeredTeacher.status,
+    };
+  }
+
+  // 2. In production, demo login works only if DEMO_* env vars are set
   if (isDemoLoginDisabled(normalizedEmail)) {
     const dummyHash = "$2a$10$wI5f2h7aQpX3U9X1pUqKGeB4b4L6D5E9zF8a0b1c2d3e4f5g6h7i8";
     await bcrypt.compare(passwordInput, dummyHash).catch(() => false);

@@ -7,6 +7,12 @@ export interface AuthUser {
   role: UserRole;
   schoolId: string;
   classId?: string;
+  phone?: string;
+  institutionName?: string;
+  gradesTaught?: string[];
+  subjectsTaught?: string[];
+  designation?: string;
+  status?: string;
 }
 
 export interface SessionData {

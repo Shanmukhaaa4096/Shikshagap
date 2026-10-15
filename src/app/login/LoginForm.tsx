@@ -13,6 +13,11 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [pendingVerification, setPendingVerification] = useState<{
+    email: string;
+    phone: string;
+    url: string;
+  } | null>(null);
 
   const submitWithCredentials = async (loginEmail: string, loginPassword: string) => {
     if (isLoading) return;
@@ -34,7 +39,18 @@ export default function LoginForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        setErrorMessage(data.error || 'Authentication failed. Please check your credentials.');
+        if (res.status === 403 && data.code === 'PENDING_VERIFICATION') {
+          const emailParam = encodeURIComponent(data.pendingEmail || loginEmail);
+          const phoneParam = encodeURIComponent(data.pendingPhone || '');
+          setPendingVerification({
+            email: data.pendingEmail || loginEmail,
+            phone: data.pendingPhone || '',
+            url: `/verify?email=${emailParam}&phone=${phoneParam}`,
+          });
+          setErrorMessage(data.error || 'Your account registration is incomplete. Please verify your phone and email.');
+        } else {
+          setErrorMessage(data.error || 'Authentication failed. Please check your credentials.');
+        }
         setIsLoading(false);
         return;
       }
@@ -97,7 +113,28 @@ export default function LoginForm() {
             Restricted portal for verified government school educators and school administrative heads. Student assessment records are protected under India DPDP Act 2023.
           </p>
 
-          {errorMessage && (
+          {pendingVerification && (
+            <div
+              role="alert"
+              className="mb-6 p-4 border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-100 text-sm rounded-[2px]"
+            >
+              <div className="font-bold flex items-center gap-2 mb-1">
+                <WarningCircle size={18} className="text-amber-600 dark:text-amber-400" />
+                <span>Verification Incomplete</span>
+              </div>
+              <p className="text-xs text-amber-800 dark:text-amber-200 mb-3">
+                Your teacher account has been registered, but requires phone SMS OTP and email verification before access is granted.
+              </p>
+              <Link
+                href={pendingVerification.url}
+                className="inline-block py-1.5 px-3 bg-amber-600 hover:bg-amber-700 text-white text-xs font-mono font-bold rounded-[2px] transition"
+              >
+                Complete Verification Now &rarr;
+              </Link>
+            </div>
+          )}
+
+          {errorMessage && !pendingVerification && (
             <div 
               role="alert" 
               className="mb-6 p-3 border border-[var(--status-urgent-border)] bg-[var(--status-urgent-bg)] text-foreground text-sm flex items-start gap-2 rounded-[2px]"
@@ -141,15 +178,23 @@ export default function LoginForm() {
                 >
                   Password
                 </label>
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="min-h-[44px] px-2 text-sm text-muted-foreground dark:text-muted-foreground underline hover:text-foreground dark:hover:text-primary-foreground flex items-center gap-1"
-                  aria-label={showPassword ? 'Hide password text' : 'Show password text'}
-                >
-                  {showPassword ? <EyeSlash size={16} /> : <Eye size={16} />}
-                  <span>{showPassword ? 'Hide' : 'Show'}</span>
-                </button>
+                <div className="flex items-center gap-3">
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs text-primary underline hover:opacity-80"
+                  >
+                    Forgot password?
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="min-h-[44px] px-2 text-sm text-muted-foreground dark:text-muted-foreground underline hover:text-foreground dark:hover:text-primary-foreground flex items-center gap-1"
+                    aria-label={showPassword ? 'Hide password text' : 'Show password text'}
+                  >
+                    {showPassword ? <EyeSlash size={16} /> : <Eye size={16} />}
+                    <span>{showPassword ? 'Hide' : 'Show'}</span>
+                  </button>
+                </div>
               </div>
               <div className="relative">
                 <input
@@ -166,7 +211,7 @@ export default function LoginForm() {
               </div>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-2 space-y-2">
               <button
                 type="submit"
                 disabled={isLoading}
@@ -174,6 +219,13 @@ export default function LoginForm() {
               >
                 {isLoading ? 'Verifying Credentials...' : 'Authenticate & Enter Dashboard'}
               </button>
+
+              <Link
+                href="/register"
+                className="w-full min-h-[44px] bg-card border border-border hover:bg-muted text-foreground py-2.5 px-4 text-xs font-mono uppercase tracking-wider font-bold flex items-center justify-center rounded-[2px] transition"
+              >
+                New Teacher? Register Here &rarr;
+              </Link>
             </div>
           </form>
 

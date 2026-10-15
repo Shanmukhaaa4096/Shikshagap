@@ -51,7 +51,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const user = await verifyCredentials(email, password);
+    let user;
+    try {
+      user = await verifyCredentials(email, password);
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === "AccountPendingVerificationError") {
+        const pendingErr = err as unknown as { pendingDetails: unknown };
+        return NextResponse.json(
+          {
+            error: "Your account registration is incomplete. Please complete phone and email verification.",
+            code: "PENDING_VERIFICATION",
+            pendingVerification: pendingErr.pendingDetails,
+          },
+          { status: 403 }
+        );
+      }
+      throw err;
+    }
 
     if (!user) {
       recordFailedLogin(rateLimitKey);

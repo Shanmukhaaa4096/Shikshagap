@@ -13,6 +13,7 @@ import {
   GraduationCap,
   BookOpen,
   ArrowCounterClockwise,
+  User,
 } from "@phosphor-icons/react";
 import { getClassConfig, DEFAULT_CLASS_ID } from "@/lib/curriculum/classes";
 import { ClassSelector } from "./ClassSelector";
@@ -23,6 +24,7 @@ interface HeaderProps {
   onResetDemo?: () => void;
   userRole?: "teacher" | "admin" | "student" | null;
   onSignOut?: () => void;
+  onOpenProfile?: () => void;
   selectedClassId?: string;
   onSelectClass?: (classId: string) => void;
 }
@@ -32,6 +34,7 @@ export function Header({
   onViewChange,
   onResetDemo,
   onSignOut,
+  onOpenProfile,
   selectedClassId = DEFAULT_CLASS_ID,
   onSelectClass,
 }: HeaderProps) {
@@ -178,6 +181,19 @@ export function Header({
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
 
+            {/* Desktop Teacher Profile */}
+            {onOpenProfile && (
+              <button
+                type="button"
+                onClick={onOpenProfile}
+                className="hidden sm:flex min-h-[44px] px-3 border border-border text-foreground hover:bg-muted items-center gap-1.5 font-bold rounded-[2px]"
+                aria-label="Teacher Account Profile"
+              >
+                <User size={16} />
+                <span>Profile</span>
+              </button>
+            )}
+
             {/* Desktop Sign Out */}
             {onSignOut && (
               <button
@@ -290,6 +306,20 @@ export function Header({
               >
                 <span>Guardian Notice</span>
               </Link>
+
+              {onOpenProfile && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onOpenProfile();
+                    setIsMenuOpen(false);
+                  }}
+                  className="min-h-[44px] px-3 border border-border text-foreground hover:bg-muted flex items-center gap-1.5 font-bold"
+                >
+                  <User size={14} />
+                  <span>Teacher Profile</span>
+                </button>
+              )}
 
               {onSignOut && (
                 <button
