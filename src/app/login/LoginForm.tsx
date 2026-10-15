@@ -14,8 +14,8 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const submitWithCredentials = async (loginEmail: string, loginPassword: string) => {
+    if (isLoading) return;
     setIsLoading(true);
     setErrorMessage(null);
 
@@ -28,36 +28,50 @@ export default function LoginForm() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: loginEmail.trim(), password: loginPassword }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
         setErrorMessage(data.error || 'Authentication failed. Please check your credentials.');
+        setIsLoading(false);
         return;
       }
 
-      // Successful login
-      router.push(redirectUrl);
-      router.refresh();
+      // Hard navigation ensures session cookie is immediately sent to middleware/protected routes on first click
+      window.location.assign(redirectUrl);
     } catch {
       setErrorMessage('Network connection error. Please try again.');
-    } finally {
       setIsLoading(false);
     }
   };
 
-  const fillDemoTeacher = () => {
-    setEmail('teacher@shikshagap.in');
-    setPassword('ShikshaTeacher@2026');
-    setErrorMessage(null);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    submitWithCredentials(email, password);
   };
 
-  const fillDemoAdmin = () => {
-    setEmail('admin@shikshagap.in');
-    setPassword('ShikshaAdmin@2026');
+  const fillDemoTeacher = (autoSubmit = false) => {
+    const demoEmail = 'teacher@shikshagap.in';
+    const demoPass = 'ShikshaTeacher@2026';
+    setEmail(demoEmail);
+    setPassword(demoPass);
     setErrorMessage(null);
+    if (autoSubmit) {
+      submitWithCredentials(demoEmail, demoPass);
+    }
+  };
+
+  const fillDemoAdmin = (autoSubmit = false) => {
+    const demoEmail = 'admin@shikshagap.in';
+    const demoPass = 'ShikshaAdmin@2026';
+    setEmail(demoEmail);
+    setPassword(demoPass);
+    setErrorMessage(null);
+    if (autoSubmit) {
+      submitWithCredentials(demoEmail, demoPass);
+    }
   };
 
   return (
@@ -86,11 +100,11 @@ export default function LoginForm() {
           {errorMessage && (
             <div 
               role="alert" 
-              className="mb-6 p-3 border border-primary bg-primary text-primary-foreground/10 text-foreground text-sm flex items-start gap-2"
+              className="mb-6 p-3 border border-[var(--status-urgent-border)] bg-[var(--status-urgent-bg)] text-foreground text-sm flex items-start gap-2 rounded-[2px]"
             >
-              <WarningCircle size={18} className="text-primary shrink-0 mt-0.5" />
+              <WarningCircle size={18} className="text-[var(--status-urgent)] shrink-0 mt-0.5" />
               <div>
-                <span className="font-bold text-primary">Access Denied: </span>
+                <span className="font-bold text-[var(--status-urgent)]">Access Denied: </span>
                 <span>{errorMessage}</span>
               </div>
             </div>
@@ -156,7 +170,7 @@ export default function LoginForm() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full min-h-[44px] bg-primary text-primary-foreground dark:bg-muted dark:text-foreground py-2.5 px-4 text-sm font-mono uppercase tracking-wider font-bold border border-border disabled:opacity-50 flex items-center justify-center"
+                className="w-full min-h-[44px] bg-primary text-primary-foreground py-2.5 px-4 text-sm font-mono uppercase tracking-wider font-bold border border-primary hover:opacity-95 disabled:opacity-50 flex items-center justify-center cursor-pointer rounded-[2px]"
               >
                 {isLoading ? 'Verifying Credentials...' : 'Authenticate & Enter Dashboard'}
               </button>
@@ -166,33 +180,45 @@ export default function LoginForm() {
           {/* Quick Demo Credentials for Evaluation */}
           <div className="mt-6 pt-4 border-t border-border">
             <p className="text-sm font-mono uppercase text-muted-foreground dark:text-muted-foreground mb-2">
-              Evaluation & Review Credentials
+              Evaluation & Review Credentials (1-Click Login)
             </p>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={fillDemoTeacher}
-                className="text-left p-2 border border-border hover:bg-muted dark:hover:bg-[#381f1c] text-sm"
+                onClick={() => fillDemoTeacher(true)}
+                className="text-left p-2.5 border border-border hover:bg-muted text-foreground text-sm rounded-[2px] transition-colors cursor-pointer group"
+                title="Click to sign in immediately as Class Teacher"
               >
-                <div className="font-bold flex items-center gap-1">
-                  <CheckCircle size={12} className="text-[var(--status-good)]" />
-                  <span>Class Teacher</span>
+                <div className="font-bold flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <CheckCircle size={14} className="text-[var(--status-good)]" />
+                    <span>Class Teacher</span>
+                  </div>
+                  <span className="text-xs font-mono px-1.5 py-0.5 bg-primary text-primary-foreground font-bold rounded-[2px]">
+                    1-Click
+                  </span>
                 </div>
-                <div className="text-muted-foreground dark:text-muted-foreground font-mono text-sm mt-0.5">
-                  Class 5 Mathematics
+                <div className="text-muted-foreground font-mono text-xs mt-1">
+                  teacher@shikshagap.in
                 </div>
               </button>
               <button
                 type="button"
-                onClick={fillDemoAdmin}
-                className="text-left p-2 border border-border hover:bg-muted dark:hover:bg-[#381f1c] text-sm"
+                onClick={() => fillDemoAdmin(true)}
+                className="text-left p-2.5 border border-border hover:bg-muted text-foreground text-sm rounded-[2px] transition-colors cursor-pointer group"
+                title="Click to sign in immediately as Headmaster"
               >
-                <div className="font-bold flex items-center gap-1">
-                  <CheckCircle size={12} className="text-[var(--status-warn)]" />
-                  <span>Headmaster</span>
+                <div className="font-bold flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <CheckCircle size={14} className="text-[var(--status-warn)]" />
+                    <span>Headmaster</span>
+                  </div>
+                  <span className="text-xs font-mono px-1.5 py-0.5 bg-primary text-primary-foreground font-bold rounded-[2px]">
+                    1-Click
+                  </span>
                 </div>
-                <div className="text-muted-foreground dark:text-muted-foreground font-mono text-sm mt-0.5">
-                  School Admin Access
+                <div className="text-muted-foreground font-mono text-xs mt-1">
+                  admin@shikshagap.in
                 </div>
               </button>
             </div>
