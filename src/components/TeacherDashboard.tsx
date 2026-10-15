@@ -335,13 +335,13 @@ export function TeacherDashboard({
               <button
                 type="button"
                 onClick={() => handleFilterClick("critical")}
-                className="p-4 border border-primary bg-primary text-primary-foreground/15 rounded-[2px] text-left hover:bg-primary text-primary-foreground/25 transition-none flex flex-col justify-between min-h-[96px]"
+                className="p-4 border border-primary bg-primary/10 rounded-[2px] text-left hover:bg-primary/20 transition-none flex flex-col justify-between min-h-[96px]"
               >
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-sm uppercase font-bold text-primary">
                     {dict.criticalGaps || "Critical"}
                   </span>
-                  <span className="w-3 h-3 rounded-[2px] bg-primary text-primary-foreground" />
+                  <span className="w-3 h-3 rounded-[2px] bg-primary" />
                 </div>
                 <div className="flex items-baseline justify-between mt-2">
                   <span className="font-serif text-4xl font-black text-primary">
@@ -389,7 +389,7 @@ export function TeacherDashboard({
                       <span
                         className={`text-sm font-mono font-bold px-2 py-0.5 rounded-[2px] border ${
                           gap.severity === "high"
-                            ? "bg-primary text-primary-foreground/15 text-primary border-primary/40"
+                            ? "bg-primary/15 text-primary border-primary/40"
                             : "bg-[var(--status-warn-bg)] text-foreground border-[var(--status-warn-border)]"
                         }`}
                       >
@@ -408,7 +408,7 @@ export function TeacherDashboard({
 
                     <div className="w-full bg-muted h-2 rounded-[2px] overflow-hidden">
                       <div
-                        className={`h-full rounded-[2px] ${gap.severity === "high" ? "bg-primary text-primary-foreground" : "bg-[var(--status-warn)]"}`}
+                        className={`h-full rounded-[2px] ${gap.severity === "high" ? "bg-primary" : "bg-[var(--status-warn)]"}`}
                         style={{ width: `${gap.pct}%` }}
                       />
                     </div>
@@ -429,7 +429,7 @@ export function TeacherDashboard({
                   Top learners needing teacher support in class today.
                 </p>
               </div>
-              <span className="text-sm font-mono font-bold text-primary bg-primary text-primary-foreground/10 px-2.5 py-1 rounded-[2px] border border-primary/40">
+              <span className="text-sm font-mono font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-[2px] border border-primary/40">
                 {urgentStudents.length} Students
               </span>
             </div>
@@ -466,7 +466,7 @@ export function TeacherDashboard({
                           <span
                             className={`text-sm font-mono font-bold uppercase px-1.5 py-0.2 rounded-[2px] border ${
                               isCritical
-                                ? "bg-primary text-primary-foreground/15 text-primary border-primary"
+                                ? "bg-primary/15 text-primary border-primary"
                                 : "bg-[var(--status-warn-bg)] text-foreground border-[var(--status-warn-border)]"
                             }`}
                           >
@@ -630,7 +630,7 @@ export function TeacherDashboard({
                         <span
                           className={`text-sm font-mono font-bold uppercase px-2 py-0.5 rounded-[2px] border ${
                             isCritical
-                              ? "bg-primary text-primary-foreground/15 text-primary border-primary"
+                              ? "bg-primary/15 text-primary border-primary"
                               : isNeedPractice
                               ? "bg-[var(--status-warn-bg)] text-foreground border-[var(--status-warn-border)]"
                               : "bg-[var(--status-good)] text-foreground font-bold border-[var(--status-good-border)]"
@@ -690,7 +690,7 @@ export function TeacherDashboard({
                               <span
                                 className={`inline-block px-2 py-0.5 rounded-[2px] text-sm font-mono font-bold uppercase border ${
                                   isCritical
-                                    ? "bg-primary text-primary-foreground/15 text-primary border-primary"
+                                    ? "bg-primary/15 text-primary border-primary"
                                     : isNeedPractice
                                     ? "bg-[var(--status-warn-bg)] text-foreground border-[var(--status-warn-border)]"
                                     : "bg-[var(--status-good)] text-foreground font-bold border-[var(--status-good-border)]"
@@ -818,7 +818,7 @@ export function TeacherDashboard({
                     <span
                       className={`text-sm font-mono font-bold px-2 py-0.5 rounded-[2px] border ${
                         gap.severity === "high"
-                          ? "bg-primary text-primary-foreground/15 text-primary border-primary/40"
+                          ? "bg-primary/15 text-primary border-primary/40"
                           : "bg-[var(--status-warn-bg)] text-foreground border-[var(--status-warn-border)]"
                       }`}
                     >
@@ -839,7 +839,7 @@ export function TeacherDashboard({
                   <div className="w-full bg-muted h-2 rounded-[2px] overflow-hidden">
                     <div
                       className={`h-full rounded-[2px] ${
-                        gap.severity === "high" ? "bg-primary text-primary-foreground" : "bg-[var(--status-warn)]"
+                        gap.severity === "high" ? "bg-primary" : "bg-[var(--status-warn)]"
                       }`}
                       style={{ width: `${gap.pct}%` }}
                     />
@@ -980,7 +980,7 @@ export function TeacherDashboard({
                 <div className="flex items-center gap-3 text-sm font-mono">
                   <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-[var(--status-good)]" /> &ge;75%</span>
                   <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-[var(--status-warn)]" /> 50-74%</span>
-                  <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-primary text-primary-foreground" /> &lt;50%</span>
+                  <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-primary" /> &lt;50%</span>
                 </div>
               </div>
 
@@ -1005,7 +1005,7 @@ export function TeacherDashboard({
                         {CONCEPT_IDS.map((cId) => {
                           const est = s.profile.concepts[cId];
                           const m = est?.mastery ?? 0;
-                          const bg = m >= 0.75 ? "bg-[var(--status-good)]" : m >= 0.5 ? "bg-[var(--status-warn)]" : "bg-primary text-primary-foreground text-white";
+                          const bg = m >= 0.75 ? "bg-[var(--status-good)]" : m >= 0.5 ? "bg-[var(--status-warn)]" : "bg-primary text-primary-foreground";
                           return (
                             <td key={cId} className="py-2 px-1 text-center font-mono text-sm">
                               <span className={`inline-block px-1 py-0.5 rounded-[2px] ${bg}`}>
@@ -1048,7 +1048,7 @@ export function TeacherDashboard({
                 Download {classConfig.label} - Section {classConfig.section} student records with formula injection protection and UTF-8 encoding for Excel.
               </p>
               {exportError && (
-                <div className="p-2 border border-primary bg-primary text-primary-foreground/10 text-sm text-primary">
+                <div className="p-2 border border-primary bg-primary/10 text-sm text-primary">
                   {exportError}
                 </div>
               )}
@@ -1112,7 +1112,7 @@ export function TeacherDashboard({
 
           {/* Re-auth Password Modal */}
           {showReauthModal && (
-            <div className="p-4 border border-primary bg-primary text-primary-foreground/10 rounded-[2px] space-y-3">
+            <div className="p-4 border border-primary bg-primary/10 rounded-[2px] space-y-3">
               <div className="text-sm font-bold text-primary flex items-center gap-1.5">
                 <Warning size={16} />
                 <span>Re-authentication Required Prior to Exporting Child Records</span>

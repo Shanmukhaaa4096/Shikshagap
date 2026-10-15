@@ -226,7 +226,7 @@ export function StudentDiagnosticModal({
                       ? "bg-[var(--status-good-bg)] text-foreground border border-[var(--status-good-border)]"
                       : profile.status === "need_practice"
                       ? "bg-[var(--status-warn-bg)] text-foreground border border-[var(--status-warn-border)]"
-                      : "bg-primary text-primary-foreground/20 text-primary border border-primary"
+                      : "bg-primary/20 text-primary border border-primary"
                   }`}
                 >
                   {profile.status === "on_track"
@@ -475,12 +475,12 @@ export function StudentDiagnosticModal({
                     <div className="bg-[var(--card)] border border-[var(--border)] rounded-[2px] p-5 space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-[2px] bg-primary text-primary-foreground" />
+                          <span className="w-2.5 h-2.5 rounded-[2px] bg-primary" />
                           <span className="text-sm font-mono uppercase tracking-wider font-bold text-primary">
                             ROOT CAUSE IDENTIFIED
                           </span>
                         </div>
-                        <span className="text-sm font-mono font-bold uppercase bg-primary text-primary-foreground/15 text-primary px-2 py-0.5 rounded-[2px] border border-primary">
+                        <span className="text-sm font-mono font-bold uppercase bg-primary/15 text-primary px-2 py-0.5 rounded-[2px] border border-primary">
                           {rootCause.severity === "high" ? "HIGH PRIORITY GAP" : "FOUNDATIONAL GAP"}
                         </span>
                       </div>
@@ -838,7 +838,7 @@ export function StudentDiagnosticModal({
                 </div>
 
                 {shareError && (
-                  <div className="p-3 border border-primary bg-primary text-primary-foreground/10 text-sm text-primary">
+                  <div className="p-3 border border-primary bg-primary/10 text-sm text-primary">
                     {shareError}
                   </div>
                 )}

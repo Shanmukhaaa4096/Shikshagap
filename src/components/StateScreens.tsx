@@ -164,7 +164,7 @@ export function ErrorState({
   }[lang];
 
   return (
-    <div className={`border-2 border-primary p-8 text-center bg-primary text-primary-foreground/10 dark:bg-primary text-primary-foreground/15 ${className}`} role="alert">
+    <div className={`border-2 border-primary p-8 text-center bg-primary/10 dark:bg-primary/15 ${className}`} role="alert">
       <div className="flex justify-center mb-3">
         <SvgIcons.Error />
       </div>

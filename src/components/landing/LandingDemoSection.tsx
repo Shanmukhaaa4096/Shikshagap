@@ -376,7 +376,7 @@ export function LandingDemoSection() {
                     key={i}
                     className={`p-2 border ${
                       opt === currentStudent.studentChoice
-                        ? 'border-primary bg-primary text-primary-foreground/10 font-bold'
+                        ? 'border-primary bg-primary text-primary-foreground font-bold'
                         : 'border-border'
                     }`}
                   >

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateUnique } from "@/lib/questions/generator";
+import { generateQuestion, generateUnique } from "@/lib/questions/generator";
 import { enhanceQuestionWithHybridWording } from "@/lib/questions/hybridGenerator";
+import { validateQuestionIntegrity } from "@/lib/questions/integrity";
 import { makeRng } from "@/lib/rng";
 import {
   getNextStaircaseAction,
@@ -174,13 +175,25 @@ export async function POST(req: NextRequest) {
     );
 
     // 5. Enhance wording with Gemini hybrid generator (validated against operands, script, and safety)
-    const nextQuestion = await enhanceQuestionWithHybridWording(
+    let nextQuestion = await enhanceQuestionWithHybridWording(
       baseQuestion,
       currentMemory.language,
       currentMemory.grade,
       seen,
       { ip }
     );
+
+    // Strict mathematical validation boundary before returning to student
+    let integrity = validateQuestionIntegrity(nextQuestion);
+    if (!integrity.valid) {
+      console.warn(`[AgentRoute] Integrity validation failed: ${integrity.reason}. Falling back to base question.`);
+      nextQuestion = baseQuestion;
+      integrity = validateQuestionIntegrity(nextQuestion);
+      if (!integrity.valid) {
+        nextQuestion = generateQuestion(nextAction.conceptId, nextAction.level, rng, currentMemory.grade);
+      }
+    }
+
     currentMemory.seenSignatures = Array.from(seen);
     currentMemory.usedFormats = [...usedFormats, nextQuestion.format];
     currentMemory.stepCount = currentStep + 1;

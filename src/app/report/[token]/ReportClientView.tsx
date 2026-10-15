@@ -76,7 +76,7 @@ export default function ReportClientView({ expiresAt }: Props) {
   return (
     <div className="min-h-[100dvh] bg-card dark:bg-muted text-foreground font-sans p-4 sm:p-8 print:p-0 print:bg-white print:text-black">
       {/* Top Floating Action Bar */}
-      <div className="max-w-2xl mx-auto mb-6 flex flex-wrap items-center justify-between gap-3 print:hidden">
+      <div className="w-full max-w-4xl lg:max-w-5xl mx-auto mb-6 flex flex-wrap items-center justify-between gap-3 print:hidden">
         <div className="flex gap-1" role="group" aria-label="Select report language">
           {(['en', 'hi', 'te'] as const).map((l) => (
             <button
@@ -103,7 +103,7 @@ export default function ReportClientView({ expiresAt }: Props) {
       </div>
 
       {/* 1-Page Printable Report Sheet */}
-      <article className="max-w-2xl mx-auto border border-border bg-card dark:bg-card print:bg-white print:border-black print:text-black p-6 sm:p-10 shadow-none">
+      <article className="w-full max-w-4xl lg:max-w-5xl mx-auto border border-border bg-card dark:bg-card print:bg-white print:border-black print:text-black p-6 sm:p-10 shadow-none">
         {/* Header */}
         <div className="border-b-2 border-border print:border-black pb-4 mb-6">
           <div className="flex items-center justify-between text-sm font-mono uppercase mb-2">
@@ -137,7 +137,7 @@ export default function ReportClientView({ expiresAt }: Props) {
             <Warning size={16} />
             <span>{content.gapTitle}</span>
           </div>
-          <p className="text-sm sm:text-sm text-foreground/80 dark:text-muted-foreground print:text-black leading-relaxed bg-primary text-primary-foreground/10 print:bg-gray-50 p-3.5 border border-primary/40 print:border-gray-300 font-medium">
+          <p className="text-sm sm:text-sm text-foreground/80 dark:text-muted-foreground print:text-black leading-relaxed bg-primary/10 print:bg-gray-50 p-3.5 border border-primary/40 print:border-gray-300 font-medium">
             {content.gapText}
           </p>
         </div>

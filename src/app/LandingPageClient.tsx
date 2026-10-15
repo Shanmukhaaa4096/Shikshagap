@@ -67,7 +67,15 @@ export default function PublicLandingPage() {
 function PublicLandingPageContent() {
   const { lang, setLang } = useI18n();
   const selectedClassId = DEFAULT_CLASS_ID;
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('shikshagap_theme') || localStorage.getItem('theme');
+      if (stored) return stored === 'dark';
+      return document.documentElement.classList.contains('dark') ||
+        window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Dynamic class configuration
@@ -76,10 +84,18 @@ function PublicLandingPageContent() {
   const toggleTheme = () => {
     const next = !isDark;
     setIsDark(next);
-    if (next) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('shikshagap_theme', next ? 'dark' : 'light');
+        localStorage.setItem('theme', next ? 'dark' : 'light');
+      } catch {
+        // ignore
+      }
+      if (next) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
     }
   };
 

@@ -17,6 +17,7 @@ import { z } from "zod";
 import type { ConceptId, Difficulty, Lang, Question } from "../types.ts";
 import { getSkillEntry, getSkillRange } from "../../data/skillSheet.ts";
 import { retrieveQuestionMemory, saveValidatedQuestion } from "../db/questionMemory.ts";
+import { validateQuestionIntegrity } from "./integrity.ts";
 
 // ---------------------------------------------------------------------------
 // 1. Zod Schema for Structured Output
@@ -316,6 +317,22 @@ export interface ExtractedQuestionOperands {
 }
 
 export function extractQuestionOperands(q: Question): ExtractedQuestionOperands | null {
+  // Specialized interactive formats (true_false, find_mistake, choose_working, compare_answers, missing_number)
+  // have custom options that must not be overwritten by arbitrary word problems.
+  const specializedFormats = [
+    "true_false",
+    "find_mistake",
+    "choose_working",
+    "compare_answers",
+    "missing_number",
+  ];
+  if (specializedFormats.includes(q.format)) {
+    return {
+      operands: [],
+      isEligibleForWordProblem: false,
+    };
+  }
+
   const a = q.meta?.a;
   const b = q.meta?.b;
   const op = q.meta?.op;
@@ -656,12 +673,23 @@ STRICT MANDATORY RULES:
       const timeRemainingForSolver = totalBudgetMs - (Date.now() - startTime);
       if (options.skipBlindSolver || timeRemainingForSolver < 800) {
         // Skip blind solver if time would exceed 4s limit or explicitly skipped
-        setCachedWording(cacheKey, generatedText);
-        seenSignatures.add(generatedText);
-        return {
+        const candidateQuestion: Question = {
           ...baseQuestion,
           prompt: { raw: generatedText },
         };
+        const integrity = validateQuestionIntegrity(candidateQuestion);
+        if (!integrity.valid) {
+          logFallback("validation", {
+            conceptId: baseQuestion.conceptId,
+            difficulty: baseQuestion.difficulty,
+            language,
+            detail: `integrity_failed_${integrity.reason}`,
+          });
+          continue;
+        }
+        setCachedWording(cacheKey, generatedText);
+        seenSignatures.add(generatedText);
+        return candidateQuestion;
       }
 
       try {
@@ -717,12 +745,23 @@ STRICT MANDATORY RULES:
           "wordProblem" in parsedSolver &&
           !("answer" in parsedSolver)
         ) {
-          setCachedWording(cacheKey, generatedText);
-          seenSignatures.add(generatedText);
-          return {
+          const candidateQuestion: Question = {
             ...baseQuestion,
             prompt: { raw: generatedText },
           };
+          const integrity = validateQuestionIntegrity(candidateQuestion);
+          if (!integrity.valid) {
+            logFallback("validation", {
+              conceptId: baseQuestion.conceptId,
+              difficulty: baseQuestion.difficulty,
+              language,
+              detail: `integrity_failed_${integrity.reason}`,
+            });
+            continue;
+          }
+          setCachedWording(cacheKey, generatedText);
+          seenSignatures.add(generatedText);
+          return candidateQuestion;
         }
 
         const solverResult = BlindSolverResponseSchema.safeParse(parsedSolver);
@@ -766,10 +805,22 @@ STRICT MANDATORY RULES:
           // Non-blocking persistent memory save
         });
 
-        return {
+        const candidateQuestion: Question = {
           ...baseQuestion,
           prompt: { raw: generatedText },
         };
+        const integrity = validateQuestionIntegrity(candidateQuestion);
+        if (!integrity.valid) {
+          logFallback("validation", {
+            conceptId: baseQuestion.conceptId,
+            difficulty: baseQuestion.difficulty,
+            language,
+            detail: `integrity_failed_${integrity.reason}`,
+          });
+          continue;
+        }
+
+        return candidateQuestion;
       } catch (solverErr) {
         const isTimeout = solverErr instanceof Error && /timed out/i.test(solverErr.message);
         logFallback(isTimeout ? "timeout" : "validation", {

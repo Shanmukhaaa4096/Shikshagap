@@ -129,7 +129,7 @@ export default function DataRequestForm() {
             />
 
             {error && (
-              <div className="p-3 bg-primary text-primary-foreground/15 border border-primary rounded-[2px] text-primary flex items-center gap-2">
+              <div className="p-3 bg-primary/15 border border-primary rounded-[2px] text-primary flex items-center gap-2">
                 <Warning className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
               </div>

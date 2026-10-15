@@ -46,7 +46,7 @@ export function WorksheetModal({ data, isOpen, onClose }: Props) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto p-6 sm:p-8 rounded-[2px] bg-[var(--background)] text-[var(--foreground)] border border-[var(--border)] print:p-0 print:m-0 print:max-w-none print:border-none">
+      <DialogContent className="max-w-4xl xl:max-w-5xl 2xl:max-w-6xl max-h-[92vh] overflow-y-auto p-6 sm:p-8 lg:p-10 rounded-[2px] bg-[var(--background)] text-[var(--foreground)] border border-[var(--border)] print:p-0 print:m-0 print:max-w-none print:border-none">
         {/* Actions bar (hidden during print) */}
         <div className="flex items-center justify-between pb-4 border-b border-[var(--border)] print:hidden">
           <div>

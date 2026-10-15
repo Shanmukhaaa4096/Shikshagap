@@ -87,8 +87,17 @@ function AuthenticatedApp() {
     setCurrentView('teacher');
   };
 
+  const handleSignOut = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {
+      // ignore
+    }
+    window.location.href = '/login';
+  };
+
   return (
-    <div className="min-h-screen bg-card dark:bg-muted text-foreground font-sans flex flex-col selection:bg-primary text-primary-foreground selection:text-primary-foreground">
+    <div className="min-h-screen bg-card dark:bg-muted text-foreground font-sans flex flex-col selection:bg-primary selection:text-primary-foreground">
       <Header
         currentView={currentView}
         onViewChange={(view) => {
@@ -100,6 +109,7 @@ function AuthenticatedApp() {
         onResetDemo={handleResetDemo}
         selectedClassId={selectedClassId}
         onSelectClass={handleSelectClass}
+        onSignOut={handleSignOut}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">

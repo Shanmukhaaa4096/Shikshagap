@@ -239,7 +239,7 @@ export default function GuardianNoticeClient() {
         </div>
 
         {/* Legal Draft Warning */}
-        <div className="mb-4 p-2.5 border border-primary bg-primary text-primary-foreground/10 print:border-gray-400 print:bg-gray-100 text-sm text-foreground print:text-black leading-tight">
+        <div className="mb-4 p-2.5 border border-primary bg-primary/10 print:border-gray-400 print:bg-gray-100 text-sm text-foreground print:text-black leading-tight">
           <span className="font-bold text-primary print:text-black">NOTICE: </span>
           <span>{t.disclaimer}</span>
         </div>

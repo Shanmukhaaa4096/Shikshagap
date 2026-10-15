@@ -18,6 +18,7 @@ import type {
 import type { TKey } from "../i18n/keys.ts";
 import { gcd, pick, randInt, shuffle, uid, type Rng } from "../rng.ts";
 import { getSkillRange } from "../../data/skillSheet.ts";
+import { validateQuestionIntegrity } from "./integrity.ts";
 
 const T = (key: TKey, params?: Record<string, string | number>): Txt => ({ key, params });
 const R = (raw: string | number): Txt => ({ raw: String(raw) });
@@ -40,13 +41,27 @@ function numericOptions(rng: Rng, answer: number, bugs: Record<string, ErrorType
     used.add(v);
     opts.push({ id: `o${opts.length}`, label: R(v), value: v, errorType: e });
   }
+  let currentSpread = spread;
   let guard = 0;
-  while (opts.length < 4 && guard++ < 50) {
-    const delta = randInt(rng, 1, spread) * (rng() < 0.5 ? -1 : 1);
-    const v = String(answer + delta);
-    if (used.has(v) || answer + delta < 0) continue;
+  while (opts.length < 4 && guard++ < 80) {
+    if (guard > 25) currentSpread = Math.max(currentSpread, 8);
+    const delta = randInt(rng, 1, currentSpread) * (rng() < 0.5 ? -1 : 1);
+    const candidate = answer + delta;
+    const v = String(candidate);
+    if (used.has(v) || candidate < 0) continue;
     used.add(v);
     opts.push({ id: `o${opts.length}`, label: R(v), value: v, errorType: "slip" });
+  }
+  // Deterministic fallback if spread/non-negative constraint needs wider range
+  let fallbackDelta = 1;
+  while (opts.length < 4) {
+    const candidate = answer + fallbackDelta;
+    const v = String(candidate);
+    if (!used.has(v)) {
+      used.add(v);
+      opts.push({ id: `o${opts.length}`, label: R(v), value: v, errorType: "slip" });
+    }
+    fallbackDelta++;
   }
   return shuffle(rng, opts);
 }
@@ -315,21 +330,36 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
     }
     if (d === 2) {
       const n = randInt(rng, range.min, range.max);
-      const v = randInt(rng, range.operandBMin ?? 2, range.operandBMax ?? 7);
+      let v = randInt(rng, range.operandBMin ?? 2, range.operandBMax ?? 7);
+      if (v === n) {
+        v = v < (range.operandBMax ?? 7) ? v + 1 : v - 1;
+      }
       const expr = Array(n).fill(v).join(" + ");
-      const options: Option[] = shuffle(rng, [
-        { id: "o0", label: R(`${n} × ${v}`), value: `${n}x${v}` },
-        { id: "o1", label: R(`${n} + ${v}`), value: `${n}+${v}`, errorType: "wrong_operation" as ErrorType },
-        { id: "o2", label: R(`${v} × ${v}`), value: `${v}x${v}`, errorType: "unclassified" as ErrorType },
-        { id: "o3", label: R(`${n} − ${v}`), value: `${n}-${v}`, errorType: "wrong_operation" as ErrorType },
-      ]);
+      const correctVal = `${n}x${v}`;
+      const usedValues = new Set([correctVal]);
+      const options: Option[] = [{ id: "o0", label: R(`${n} × ${v}`), value: correctVal }];
+
+      const addOption = (labelStr: string, valStr: string, errorType: ErrorType) => {
+        if (!usedValues.has(valStr) && options.length < 4) {
+          usedValues.add(valStr);
+          options.push({ id: `o${options.length}`, label: R(labelStr), value: valStr, errorType });
+        }
+      };
+
+      addOption(`${n} + ${v}`, `${n}+${v}`, "wrong_operation");
+      addOption(`${v} × ${v}`, `${v}x${v}`, "unclassified");
+      addOption(`${n} − ${v}`, `${n}-${v}`, "wrong_operation");
+      addOption(`${v} × ${n}`, `${v}x${n}`, "slip");
+      addOption(`${n + 1} × ${v}`, `${n + 1}x${v}`, "slip");
+      addOption(`${n} × ${v + 1}`, `${n}x${v + 1}`, "slip");
+
       return {
         format: "mcq",
         prompt: T("q.mc.repeated"),
         expression: expr,
         answerKind: "choice",
-        answer: `${n}x${v}`,
-        options,
+        answer: correctVal,
+        options: shuffle(rng, options),
         meta: { a: n, b: v },
         hint: T("hint.mult_concept", { a: n, b: v }),
       };
@@ -579,21 +609,37 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
   fraction_basics(d, rng, _ctx, grade) {
     const range = getSkillRange("fraction_basics", grade, d);
     if (d === 1) {
-      const den = randInt(rng, Math.max(2, range.min), Math.max(3, range.max));
-      let num = randInt(rng, 1, den - 1);
-      if (num * 2 === den) num = Math.max(1, num - 1);
-      const options: Option[] = shuffle(rng, [
-        { id: "o0", label: R(frac(num, den)), value: frac(num, den) },
-        { id: "o1", label: R(frac(den - num, den)), value: frac(den - num, den), errorType: "unclassified" as ErrorType },
-        { id: "o2", label: R(frac(den, num)), value: frac(den, num), errorType: "fraction_inverted" as ErrorType },
-        { id: "o3", label: R(frac(num, den - num)), value: frac(num, den - num), errorType: "unclassified" as ErrorType },
-      ]);
+      const den = randInt(rng, Math.max(3, range.min), Math.max(4, range.max));
+      const num = randInt(rng, 1, den - 1);
+      const correctVal = frac(num, den);
+      const used = new Set([correctVal]);
+      const options: Option[] = [{ id: "o0", label: R(correctVal), value: correctVal }];
+
+      const addOpt = (n: number, d: number, errorType: ErrorType) => {
+        if (d > 0 && n > 0 && options.length < 4) {
+          const val = frac(n, d);
+          if (!used.has(val)) {
+            used.add(val);
+            options.push({ id: `o${options.length}`, label: R(val), value: val, errorType });
+          }
+        }
+      };
+
+      addOpt(den - num, den, "unclassified");
+      addOpt(den, num, "fraction_inverted");
+      addOpt(num, den - num, "unclassified");
+      addOpt(num + 1, den, "slip");
+      addOpt(Math.max(1, num - 1), den, "slip");
+      addOpt(num, den + 1, "slip");
+      addOpt(num, Math.max(2, den - 1), "slip");
+      addOpt(1, den, "unclassified");
+
       return {
         format: "mcq",
         prompt: T("q.fb.shaded"),
         answerKind: "choice",
-        answer: frac(num, den),
-        options,
+        answer: correctVal,
+        options: shuffle(rng, options),
         visual: { kind: "fraction_bar", num, den },
         meta: { a: num, b: den },
         hint: T("hint.fraction_basics"),
@@ -1047,75 +1093,15 @@ export function applyQuestionFormat(
   const b = meta.b;
   const op = meta.op;
 
-  // Formats apply where binary operation / numeric operands are well defined
-  if (a === undefined || b === undefined || !op) {
-    if (a !== undefined) {
-      const numAnswer = Number(q.answer);
-      const bugEntries = Object.keys(meta.bugs || {});
-      const wrongVal = bugEntries.length > 0
-        ? bugEntries[0]
-        : (!isNaN(numAnswer) ? String(numAnswer + (rng() < 0.5 ? 10 : -10)) : "0");
-
-      if (format === "true_false") {
-        const isActuallyTrue = rng() < 0.5;
-        const claimedVal = isActuallyTrue ? q.answer : wrongVal;
-        const stmt = q.expression
-          ? `${q.expression.replace(/\s*=\s*\?/, "")} = ${claimedVal}`
-          : `${claimedVal}`;
-        const correctAns = isActuallyTrue ? "True" : "False";
-        return {
-          ...q,
-          format: "true_false",
-          prompt: T("q.format.true_false", { statement: stmt }),
-          expression: stmt,
-          answer: correctAns,
-          answerKind: "choice",
-          options: [
-            { id: "opt_true", label: R("True"), value: "True" },
-            { id: "opt_false", label: R("False"), value: "False" },
-          ],
-        };
-      }
-
-      if (format === "find_mistake") {
-        const hasMistake = rng() < 0.5;
-        const displayedAns = hasMistake ? wrongVal : q.answer;
-        const workingStr = q.expression
-          ? `${q.expression.replace(/\s*=\s*\?/, "")} = ${displayedAns}`
-          : `${displayedAns}`;
-        const correctAns = hasMistake ? "Mistake" : "Correct";
-        return {
-          ...q,
-          format: "find_mistake",
-          prompt: T("q.format.find_mistake", { working: workingStr }),
-          expression: workingStr,
-          answer: correctAns,
-          answerKind: "choice",
-          options: [
-            { id: "opt_correct", label: R("Correct (No mistake)"), value: "Correct" },
-            { id: "opt_mistake", label: R("Mistake (Incorrect)"), value: "Mistake" },
-          ],
-        };
-      }
-
-      if (format === "compare_answers") {
-        const student1Ans = rng() < 0.5 ? q.answer : wrongVal;
-        const student2Ans = student1Ans === q.answer ? wrongVal : q.answer;
-        const correctStudent = student1Ans === q.answer ? `Student A: ${student1Ans}` : `Student B: ${student2Ans}`;
-        return {
-          ...q,
-          format: "compare_answers",
-          prompt: T("q.format.compare_answers"),
-          expression: q.expression ?? `Answer = ?`,
-          answer: correctStudent,
-          answerKind: "choice",
-          options: [
-            { id: "opt_s1", label: R(`Student A: ${student1Ans}`), value: `Student A: ${student1Ans}` },
-            { id: "opt_s2", label: R(`Student B: ${student2Ans}`), value: `Student B: ${student2Ans}` },
-          ],
-        };
-      }
-    }
+  // Formats apply where binary operation, numeric operands, and numeric answer are well defined
+  if (
+    a === undefined ||
+    b === undefined ||
+    !op ||
+    isNaN(Number(q.answer)) ||
+    (q.prompt && "key" in q.prompt && q.prompt.key === "q.ld.remainder") ||
+    (q.conceptId === "long_division" && q.difficulty === 3)
+  ) {
     return q;
   }
 
@@ -1147,10 +1133,13 @@ export function applyQuestionFormat(
     if (isActuallyTrue) {
       statementExpr = `${a} ${opSymbol} ${b} = ${q.answer}`;
     } else {
-      const bugEntries = Object.keys(meta.bugs || {});
-      const wrongAns = bugEntries.length > 0
+      const bugEntries = Object.keys(meta.bugs || {}).filter((k) => k !== String(q.answer));
+      let wrongAns = bugEntries.length > 0
         ? bugEntries[0]
         : String(!isNaN(numAnswer) ? numAnswer + 2 : "10");
+      if (wrongAns === String(q.answer)) {
+        wrongAns = String(!isNaN(numAnswer) ? numAnswer + 3 : "11");
+      }
       statementExpr = `${a} ${opSymbol} ${b} = ${wrongAns}`;
     }
 
@@ -1173,10 +1162,14 @@ export function applyQuestionFormat(
 
   if (format === "find_mistake") {
     const hasMistake = rng() < 0.5;
-    const bugEntries = Object.keys(meta.bugs || {});
-    const displayedAns = hasMistake
-      ? (bugEntries.length > 0 ? bugEntries[0] : String(!isNaN(numAnswer) ? numAnswer + 3 : "12"))
-      : q.answer;
+    const bugEntries = Object.keys(meta.bugs || {}).filter((k) => k !== String(q.answer));
+    let wrongVal = bugEntries.length > 0
+      ? bugEntries[0]
+      : String(!isNaN(numAnswer) ? numAnswer + 3 : "12");
+    if (wrongVal === String(q.answer)) {
+      wrongVal = String(!isNaN(numAnswer) ? numAnswer + 4 : "13");
+    }
+    const displayedAns = hasMistake ? wrongVal : q.answer;
     const workingStr = `${a} ${opSymbol} ${b} = ${displayedAns}`;
 
     const correctAns = hasMistake ? "Mistake" : "Correct";
@@ -1233,8 +1226,13 @@ export function applyQuestionFormat(
   if (format === "compare_answers") {
     const student1Name = "Student A";
     const student2Name = "Student B";
-    const bugEntries = Object.keys(meta.bugs || {});
-    const wrongVal = bugEntries.length > 0 ? bugEntries[0] : String(!isNaN(numAnswer) ? numAnswer + 2 : "15");
+    const bugEntries = Object.keys(meta.bugs || {}).filter((k) => k !== String(q.answer));
+    let wrongVal = bugEntries.length > 0
+      ? bugEntries[0]
+      : String(!isNaN(numAnswer) ? numAnswer + 2 : "15");
+    if (wrongVal === String(q.answer)) {
+      wrongVal = String(!isNaN(numAnswer) ? numAnswer + 3 : "16");
+    }
 
     const student1Ans = rng() < 0.5 ? q.answer : wrongVal;
     const student2Ans = student1Ans === q.answer ? wrongVal : q.answer;
@@ -1313,7 +1311,13 @@ export function generateQuestionWithVariety(
     };
   }
 
-  if (targetFormat === base.format || targetFormat === "word_problem" || targetFormat === "fill_blank") {
+  if (
+    base.format === "fill_blank" ||
+    base.format === "word_problem" ||
+    targetFormat === base.format ||
+    targetFormat === "word_problem" ||
+    targetFormat === "fill_blank"
+  ) {
     return base;
   }
 
@@ -1332,16 +1336,24 @@ export function generateUnique(
   const grade = typeof gradeOrCtx === "number" ? gradeOrCtx : 5;
   const effectiveCtx = typeof gradeOrCtx === "object" ? gradeOrCtx : ctx;
   let q = generateQuestionWithVariety(conceptId, difficulty, rng, grade, options, effectiveCtx);
-  for (let i = 0; i < 12 && seen.has(questionSignature(q)); i++) {
+  let attempts = 0;
+  while ((seen.has(questionSignature(q)) || !validateQuestionIntegrity(q).valid) && attempts < 15) {
+    attempts++;
     q = generateQuestionWithVariety(
       conceptId,
       difficulty,
       rng,
       grade,
       options,
-      i < 3 ? effectiveCtx : { ...effectiveCtx, link: undefined }
+      attempts < 5 ? effectiveCtx : { ...effectiveCtx, link: undefined }
     );
   }
+
+  // Fallback to strict base generator if variety failed integrity checks
+  if (!validateQuestionIntegrity(q).valid) {
+    q = generateQuestion(conceptId, difficulty, rng, grade, effectiveCtx);
+  }
+
   seen.add(questionSignature(q));
   return q;
 }

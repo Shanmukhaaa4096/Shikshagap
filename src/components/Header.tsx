@@ -177,6 +177,19 @@ export function Header({
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
             </button>
 
+            {/* Desktop Sign Out */}
+            {onSignOut && (
+              <button
+                type="button"
+                onClick={onSignOut}
+                className="hidden sm:flex min-h-[44px] px-3 border border-primary text-primary hover:bg-primary hover:text-primary-foreground items-center gap-1.5 font-bold"
+                aria-label="Sign out"
+              >
+                <SignOut size={14} />
+                <span>Sign out</span>
+              </button>
+            )}
+
             {/* Mobile / Secondary Menu Button */}
             <button
               type="button"
@@ -281,7 +294,7 @@ export function Header({
                 <button
                   type="button"
                   onClick={onSignOut}
-                  className="min-h-[44px] px-3 border border-primary text-primary hover:bg-primary text-primary-foreground/10 flex items-center gap-1.5 font-bold"
+                  className="min-h-[44px] px-3 border border-primary text-primary hover:bg-primary hover:text-primary-foreground flex items-center gap-1.5 font-bold"
                 >
                   <SignOut size={14} />
                   <span>Sign out</span>

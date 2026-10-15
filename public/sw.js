@@ -38,8 +38,8 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // SECURITY: Strictly ignore and never cache API calls or authenticated routes
-  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/app')) {
+  // SECURITY: Strictly ignore and never cache API calls, authenticated routes, or student reports
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/app') || url.pathname.startsWith('/report')) {
     return; // Pass through to network directly
   }
 

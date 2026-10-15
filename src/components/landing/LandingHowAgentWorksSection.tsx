@@ -44,7 +44,7 @@ export function LandingHowAgentWorksSection({ sampleQ1Expression, sampleQ2Expres
               <h3 className="font-serif text-xl font-bold">Student Gap Report</h3>
             </div>
             <div className="flex flex-col items-end gap-1">
-              <span className="text-sm font-mono px-2 py-1 bg-primary text-primary-foreground/15 text-primary border border-primary/40 font-bold">
+              <span className="text-sm font-mono px-2 py-1 bg-primary/15 text-primary border border-primary/40 font-bold">
                 Class 5A : 42%
               </span>
               <span className="text-sm font-mono px-1.5 py-0.5 bg-card text-foreground/80 dark:text-muted-foreground border border-border">

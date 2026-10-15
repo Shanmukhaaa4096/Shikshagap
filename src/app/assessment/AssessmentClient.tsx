@@ -62,8 +62,8 @@ function AssessmentInner() {
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex flex-col font-sans transition-colors duration-200">
       {/* Top Navigation Bar */}
-      <header className="border-b border-border bg-card px-4 sm:px-6 py-3 sticky top-0 z-40">
-        <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
+      <header className="border-b border-border bg-card px-4 sm:px-6 lg:px-8 py-3 sticky top-0 z-40">
+        <div className="w-full max-w-7xl mx-auto flex items-center justify-between gap-4">
           {/* Logo & Back Link */}
           <div className="flex items-center gap-3">
             <Link
@@ -112,8 +112,8 @@ function AssessmentInner() {
         </div>
       </header>
 
-      {/* Main Assessment Container */}
-      <main className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+      {/* Main Assessment Container - comfortably wide on laptop and desktop displays */}
+      <main className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 xl:p-10">
         <AdaptiveAssessmentView
           isGuest={true}
           isStudentView={true}
@@ -127,7 +127,7 @@ function AssessmentInner() {
 
       {/* Privacy and Trust Footer */}
       <footer className="border-t border-border bg-card px-4 py-4 text-center text-xs font-mono text-muted-foreground">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div className="w-full max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-1.5">
             <ShieldCheck size={14} className="text-[var(--status-good)]" />
             <span>DPDP Act 2023 Compliant • Strictly Pseudonymous • Zero Child Tracking Cookies</span>

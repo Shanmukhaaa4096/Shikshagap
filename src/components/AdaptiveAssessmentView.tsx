@@ -650,7 +650,7 @@ export function AdaptiveAssessmentView({
   const totalQuestionsAnswered = sessionMemory?.topics.reduce((acc, t) => acc + t.attempts.length, 0) || 0;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full max-w-5xl xl:max-w-6xl mx-auto space-y-6">
       {/* ============================================================== */}
       {/* SCREEN 1: PRE-ASSESSMENT SETUP SCREEN                          */}
       {/* ============================================================== */}
@@ -1218,15 +1218,15 @@ export function AdaptiveAssessmentView({
         /* ============================================================== */
         /* SCREEN 2: ACTIVE ADAPTIVE ASSESSMENT (CHILD-FRIENDLY ONE THING AT A TIME) */
         /* ============================================================== */
-        <div className="space-y-4 max-w-2xl mx-auto">
+        <div className="space-y-6 w-full max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto">
           {/* Top Bar: Progress and Language Switcher */}
-          <div className="bg-[var(--surface)] border border-border rounded-[2px] p-4 sm:p-5 space-y-3">
+          <div className="bg-[var(--surface)] border border-border rounded-[2px] p-4 sm:p-6 lg:p-7 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <span className="editorial-meta text-foreground/80">
                   {classConfig.label.toUpperCase()} MATHS
                 </span>
-                <div className="font-serif font-bold text-lg text-foreground">
+                <div className="font-serif font-bold text-xl sm:text-2xl text-foreground">
                   {activeStudent?.student.name}
                 </div>
               </div>
@@ -1242,7 +1242,7 @@ export function AdaptiveAssessmentView({
                     key={l}
                     type="button"
                     onClick={() => setLang(l)}
-                    className={`min-h-[44px] min-w-[44px] px-2.5 rounded-[2px] font-bold text-sm font-mono ${
+                    className={`min-h-[44px] min-w-[44px] px-3 rounded-[2px] font-bold text-sm font-mono ${
                       lang === l
                         ? "bg-primary text-primary-foreground"
                         : "text-foreground hover:bg-muted"
@@ -1263,16 +1263,16 @@ export function AdaptiveAssessmentView({
             </div>
 
             {/* Simple Progress Bar: e.g. "Question 3 of 8" with no jargon */}
-            <div className="space-y-1.5 pt-1 border-t border-border">
-              <div className="flex items-center justify-between text-base font-bold text-foreground">
+            <div className="space-y-2 pt-2 border-t border-border">
+              <div className="flex items-center justify-between text-base sm:text-lg font-bold text-foreground">
                 <span>
                   {dict.questionLabel || "Question"} {totalQuestionsAnswered + (currentQuestion ? 1 : 0)} of {Math.max(totalQuestionsAnswered + (currentQuestion ? 1 : 0), (sessionMemory?.topics.length || 4) * 2)}
                 </span>
-                <span className="text-sm font-mono text-muted-foreground">
+                <span className="text-sm sm:text-base font-mono text-muted-foreground">
                   {currentTopicName}
                 </span>
               </div>
-              <div className="w-full bg-muted h-3 rounded-[2px] overflow-hidden">
+              <div className="w-full bg-muted h-3.5 sm:h-4 rounded-[2px] overflow-hidden">
                 <div
                   className="bg-[var(--status-good)] h-full rounded-[2px] transition-all duration-300"
                   style={{
@@ -1291,11 +1291,11 @@ export function AdaptiveAssessmentView({
           </div>
 
           {/* Friendly Mascot Gappu placed unobtrusively beside header, never blocking question */}
-          <div className="flex items-center gap-3 p-3 bg-card border border-border rounded-[2px]">
-            <div className="w-12 h-14 shrink-0 overflow-hidden flex items-center justify-center">
-              <MascotHero width={48} height={58} className="scale-90" />
+          <div className="flex items-center gap-3.5 p-3.5 sm:p-4.5 bg-card border border-border rounded-[2px]">
+            <div className="w-12 h-14 sm:w-14 sm:h-16 shrink-0 overflow-hidden flex items-center justify-center">
+              <MascotHero width={52} height={62} className="scale-90" />
             </div>
-            <div className="text-sm font-medium text-foreground leading-relaxed">
+            <div className="text-sm sm:text-base font-medium text-foreground leading-relaxed">
               {lang === "hi"
                 ? "गप्पू आपके साथ सीख रहा है! आराम से उत्तर दें।"
                 : lang === "te"
@@ -1366,9 +1366,9 @@ export function AdaptiveAssessmentView({
             </div>
           ) : currentQuestion ? (
             /* Active Question Card */
-            <div className="bg-[var(--surface)] border border-border rounded-[2px] p-6 sm:p-8 space-y-6">
+            <div className="bg-[var(--surface)] border border-border rounded-[2px] p-6 sm:p-8 lg:p-10 space-y-6 sm:space-y-8">
               {/* Question Eyebrow */}
-              <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center justify-between border-b border-border pb-3.5">
                 <div className="flex items-center gap-2">
                   <span className="editorial-meta text-muted-foreground">
                     {dict.questionLabel || "Question"} {totalQuestionsAnswered + 1}
@@ -1405,31 +1405,31 @@ export function AdaptiveAssessmentView({
 
               {/* Large Question Text */}
               <div className="space-y-4">
-                <h3 className="font-serif font-bold text-[22px] sm:text-2xl text-foreground leading-relaxed">
+                <h3 className="font-serif font-bold text-[22px] sm:text-3xl lg:text-4xl text-foreground leading-relaxed">
                   {formatTxt(currentQuestion.prompt)}
                 </h3>
 
                 {currentQuestion.expression && (
-                  <div className="py-5 text-center bg-card rounded-[2px] border border-border">
-                    <span className="font-mono text-3xl sm:text-4xl font-extrabold text-foreground tracking-wider">
+                  <div className="py-6 sm:py-8 text-center bg-card rounded-[2px] border border-border">
+                    <span className="font-mono text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground tracking-wider">
                       {currentQuestion.expression}
                     </span>
                   </div>
                 )}
               </div>
 
-              {/* Answer Options as large full-width buttons */}
+              {/* Answer Options: responsive 2-column grid on desktop, 1-col on mobile */}
               {!feedback ? (
                 <div className="space-y-4 pt-2">
                   {currentQuestion.options && currentQuestion.options.length > 0 ? (
-                    <div className="space-y-3">
+                    <div className={currentQuestion.options.length <= 2 ? "grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4" : "grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4"}>
                       {currentQuestion.options.map((opt) => (
                         <button
                           key={opt.id}
                           type="button"
                           onClick={() => handleSubmit(opt.value)}
                           disabled={isEvaluating || Boolean(feedback)}
-                          className="w-full neo-btn neo-btn-secondary min-h-[56px] p-4 text-left text-[18px] sm:text-xl font-bold flex items-center justify-between rounded-[2px] group leading-relaxed"
+                          className="w-full neo-btn neo-btn-secondary min-h-[64px] sm:min-h-[72px] p-4 sm:p-5 text-left text-[18px] sm:text-xl lg:text-2xl font-bold flex items-center justify-between rounded-[2px] group leading-relaxed"
                         >
                           <span className="font-mono">{formatTxt(opt.label)}</span>
                           <span className="text-sm font-mono text-muted-foreground group-hover:text-foreground">
@@ -1439,20 +1439,20 @@ export function AdaptiveAssessmentView({
                       ))}
                     </div>
                   ) : (
-                    <div className="flex flex-col sm:flex-row gap-2 w-full">
+                    <div className="flex flex-col sm:flex-row gap-2.5 w-full">
                       <Input
                         placeholder={dict.enterAnswer}
                         value={userAnswer}
                         onChange={(e) => setUserAnswer(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSubmit(userAnswer)}
                         disabled={isEvaluating || Boolean(feedback)}
-                        className="h-14 font-mono text-xl bg-card border border-border rounded-[2px] text-foreground w-full"
+                        className="h-16 font-mono text-xl sm:text-2xl bg-card border border-border rounded-[2px] text-foreground w-full px-4"
                       />
                       <button
                         type="button"
                         onClick={() => handleSubmit(userAnswer)}
                         disabled={isEvaluating || Boolean(feedback)}
-                        className="neo-btn neo-btn-primary px-8 min-h-[56px] text-lg font-bold shrink-0 rounded-[2px]"
+                        className="neo-btn neo-btn-primary px-8 sm:px-10 min-h-[64px] text-lg sm:text-xl font-bold shrink-0 rounded-[2px]"
                       >
                         {dict.submitAnswer}
                       </button>
