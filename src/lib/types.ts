@@ -7,6 +7,8 @@ import type { TKey } from "@/lib/i18n/keys";
 
 export type Lang = "en" | "hi" | "te";
 
+export type Board = "CBSE" | "ICSE";
+
 export type ConceptId =
   | "number_sense"
   | "place_value"
@@ -153,6 +155,8 @@ export interface Question {
   provenanceLabel?: string;
   /** Multi-book pedagogical source style */
   sourceStyle?: SourceStyle;
+  /** Curriculum board tag ("CBSE" or "ICSE") */
+  board: Board;
 }
 
 export type Classification = "correct" | ErrorType;

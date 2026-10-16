@@ -179,6 +179,15 @@ export async function POST(req: NextRequest) {
       rng()
     );
 
+    const targetBoard: "CBSE" | "ICSE" =
+      currentMemory.boardPreference === "ICSE"
+        ? "ICSE"
+        : currentMemory.boardPreference === "CBSE"
+        ? "CBSE"
+        : (targetSourceStyle === "icse_selina" || targetSourceStyle === "icse_foundation")
+        ? "ICSE"
+        : "CBSE";
+
     let nextQuestion: Question | null = null;
 
     // 4a. Primary: Retrieve matching multi-board question (NCERT, Exemplar, CBSE Ref, ICSE Selina/Foundation)
@@ -188,7 +197,7 @@ export async function POST(req: NextRequest) {
         conceptId: nextAction.conceptId,
         difficulty: nextAction.level as DifficultyLevel,
         sourceStyle: targetSourceStyle,
-        board: currentMemory.boardPreference === "ICSE" ? "ICSE" : undefined,
+        board: targetBoard,
         excludeIds: Array.from(seen),
       },
       currentMemory.language
@@ -204,8 +213,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 4b. Secondary: Retrieve verified textbook question from official NCERT question bank
-    if (!nextQuestion) {
+    // 4b. Secondary: Retrieve verified textbook question from official NCERT question bank (CBSE only)
+    if (!nextQuestion && targetBoard === "CBSE") {
       const textbookCandidate = getVerifiedTextbookQuestion(
         {
           class: currentMemory.grade,
@@ -227,12 +236,13 @@ export async function POST(req: NextRequest) {
           nextQuestion = {
             ...textbookCandidate,
             sourceStyle: targetSourceStyle,
+            board: "CBSE",
           };
         }
       }
     }
 
-    // 5. Fallback: generate and enhance with Gemini hybrid generator in the requested sourceStyle
+    // 5. Fallback: generate and enhance with Gemini hybrid generator in the requested sourceStyle & board
     if (!nextQuestion) {
       const baseQuestion = generateUnique(
         nextAction.conceptId,
@@ -243,6 +253,7 @@ export async function POST(req: NextRequest) {
         {},
         { avoidFormat: lastFormat }
       );
+      baseQuestion.board = targetBoard;
 
       // Enhance wording with Gemini hybrid generator (validated against operands, script, and safety)
       let enhanced = await enhanceQuestionWithHybridWording(
@@ -252,6 +263,7 @@ export async function POST(req: NextRequest) {
         seen,
         { ip, sourceStyle: targetSourceStyle }
       );
+      enhanced.board = targetBoard;
 
       // Strict question validation
       let strictCheck = validateQuestionStrict(enhanced, {
@@ -262,18 +274,21 @@ export async function POST(req: NextRequest) {
       if (!strictCheck.valid) {
         console.warn(`[AgentRoute] Enhanced question failed validation: ${strictCheck.errors.join(", ")}. Falling back to base.`);
         enhanced = baseQuestion;
+        enhanced.board = targetBoard;
         strictCheck = validateQuestionStrict(enhanced, {
           targetLang: currentMemory.language,
           requireTextbookProvenance: false,
         });
         if (!strictCheck.valid) {
           enhanced = generateQuestion(nextAction.conceptId, nextAction.level, rng, currentMemory.grade);
+          enhanced.board = targetBoard;
         }
       }
 
       nextQuestion = {
         ...enhanced,
         sourceStyle: targetSourceStyle,
+        board: targetBoard,
       };
     }
 
@@ -285,20 +300,64 @@ export async function POST(req: NextRequest) {
 
     if (!finalCheck.valid) {
       console.error(`[AgentRoute] CRITICAL: Question failed final validation:`, finalCheck.errors);
-      const emergencyQ = getVerifiedTextbookQuestion(
+      if (targetBoard === "ICSE") {
+        const emergencyICSE = getMultiBoardQuestion(
+          {
+            class: currentMemory.grade,
+            board: "ICSE",
+            excludeIds: Array.from(seen),
+          },
+          currentMemory.language
+        );
+        if (emergencyICSE) {
+          nextQuestion = emergencyICSE;
+        }
+      } else {
+        const emergencyQ = getVerifiedTextbookQuestion(
+          {
+            class: currentMemory.grade,
+            language: currentMemory.language,
+            excludeIds: Array.from(seen),
+            onlyVerified: true,
+          },
+          currentMemory.language
+        );
+        if (emergencyQ) {
+          nextQuestion = {
+            ...emergencyQ,
+            sourceStyle: targetSourceStyle,
+            board: "CBSE",
+          };
+        }
+      }
+    }
+
+    // Server-Side Strict Board Isolation Guard
+    if (targetBoard === "ICSE" && nextQuestion.board !== "ICSE") {
+      const emergencyICSE = getMultiBoardQuestion(
         {
           class: currentMemory.grade,
-          language: currentMemory.language,
-          excludeIds: Array.from(seen),
-          onlyVerified: true,
+          board: "ICSE",
         },
         currentMemory.language
       );
-      if (emergencyQ) {
-        nextQuestion = {
-          ...emergencyQ,
-          sourceStyle: targetSourceStyle,
-        };
+      if (emergencyICSE) {
+        nextQuestion = emergencyICSE;
+      } else {
+        nextQuestion.board = "ICSE";
+      }
+    } else if (targetBoard === "CBSE" && nextQuestion.board !== "CBSE") {
+      const emergencyCBSE = getMultiBoardQuestion(
+        {
+          class: currentMemory.grade,
+          board: "CBSE",
+        },
+        currentMemory.language
+      );
+      if (emergencyCBSE) {
+        nextQuestion = emergencyCBSE;
+      } else {
+        nextQuestion.board = "CBSE";
       }
     }
 

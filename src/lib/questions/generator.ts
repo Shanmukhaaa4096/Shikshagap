@@ -6,6 +6,7 @@
  * renders in English, Hindi and Telugu.
  */
 import type {
+  Board,
   ConceptId,
   Difficulty,
   ErrorType,
@@ -30,7 +31,9 @@ export interface GenContext {
   focus?: number;
 }
 
-type Base = Omit<Question, "id" | "conceptId" | "difficulty" | "source">;
+type Base = Omit<Question, "id" | "conceptId" | "difficulty" | "source" | "board"> & {
+  board?: Board;
+};
 
 function numericOptions(rng: Rng, answer: number, bugs: Record<string, ErrorType>, spread = 2): Option[] {
   const opts: Option[] = [{ id: "o0", label: R(answer), value: String(answer) }];
@@ -1018,6 +1021,7 @@ export function generateQuestion(
   }
   const base = generatorFn(difficulty, rng, effectiveCtx, grade);
   return {
+    board: base.board || "CBSE",
     ...base,
     id: uid("q"),
     conceptId,

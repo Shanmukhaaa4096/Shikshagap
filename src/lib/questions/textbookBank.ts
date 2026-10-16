@@ -1456,6 +1456,7 @@ export function convertTextbookQuestionToAppQuestion(
       provenanceLabel,
     },
     provenanceLabel,
+    board: "CBSE",
   };
 }
 

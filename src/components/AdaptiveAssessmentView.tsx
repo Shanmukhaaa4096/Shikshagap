@@ -741,7 +741,13 @@ export function AdaptiveAssessmentView({
                 <div className="flex items-center gap-2">
                   <span className="editorial-meta text-primary font-bold">MATHEMATICS ASSESSMENT</span>
                   <span className="text-muted-foreground text-xs">•</span>
-                  <span className="text-xs font-mono font-bold text-foreground">NCERT / CBSE (2024–25)</span>
+                  <span className="text-xs font-mono font-bold text-foreground">
+                    {boardPreference === "ICSE"
+                      ? "ICSE (CISCE syllabus)"
+                      : boardPreference === "BOTH"
+                      ? "CBSE & ICSE (Balanced)"
+                      : "NCERT / CBSE (2024-25)"}
+                  </span>
                 </div>
                 <h1 className="editorial-title text-2xl sm:text-3xl text-foreground mt-1 font-serif font-black">
                   {classConfig.label} Maths Check
@@ -1405,9 +1411,22 @@ export function AdaptiveAssessmentView({
             <div className="bg-[var(--surface)] border border-border rounded-[2px] p-5 sm:p-8 lg:p-10 space-y-6">
               {/* Question Eyebrow & Provenance */}
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="editorial-meta text-muted-foreground">
                     {dict.questionLabel || "Question"} {totalQuestionsAnswered + 1}
+                  </span>
+                  <span
+                    data-testid="question-board-badge"
+                    className={`inline-flex items-center text-xs font-mono font-bold px-2 py-0.5 rounded border ${
+                      currentQuestion.board === "ICSE"
+                        ? "bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800"
+                        : "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-200 dark:border-emerald-800"
+                    }`}
+                  >
+                    {currentQuestion.board === "ICSE" ? "ICSE" : "CBSE"}
+                  </span>
+                  <span className="text-xs font-mono text-muted-foreground">
+                    Level {currentQuestion.difficulty} of 5
                   </span>
                   {isBackupQuestion && (
                     <span

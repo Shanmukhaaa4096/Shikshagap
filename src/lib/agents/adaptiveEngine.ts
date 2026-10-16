@@ -217,42 +217,39 @@ export function rotateSourceStyle(
 ): SourceStyle {
   const cbseStyles: SourceStyle[] = ["ncert", "exemplar", "cbse_reference"];
   const icseStyles: SourceStyle[] = ["icse_selina", "icse_foundation"];
-  const allStyles: SourceStyle[] = [...cbseStyles, ...icseStyles];
 
   const lastStyle = history.length > 0 ? history[history.length - 1] : undefined;
   const recentWindow = history.slice(-4); // Last 4 + new 1 = 5 question window
 
-  // Determine target board category for this turn
-  let preferBoard: "CBSE" | "ICSE";
+  // Determine target board category for this turn:
+  // - ICSE: strictly 100% ICSE styles
+  // - CBSE: strictly 100% CBSE styles
+  // - BOTH: strictly alternates between CBSE and ICSE boards
+  let targetBoard: "CBSE" | "ICSE";
   if (boardPreference === "CBSE") {
-    // 70% CBSE, 30% ICSE
-    preferBoard = pseudoRandomSeed < 0.7 ? "CBSE" : "ICSE";
+    targetBoard = "CBSE";
   } else if (boardPreference === "ICSE") {
-    // 70% ICSE, 30% CBSE
-    preferBoard = pseudoRandomSeed < 0.7 ? "ICSE" : "CBSE";
+    targetBoard = "ICSE";
   } else {
-    // BOTH: alternate boards if possible
+    // BOTH: strict alternation between CBSE and ICSE boards
     if (lastStyle && cbseStyles.includes(lastStyle)) {
-      preferBoard = "ICSE";
+      targetBoard = "ICSE";
     } else if (lastStyle && icseStyles.includes(lastStyle)) {
-      preferBoard = "CBSE";
+      targetBoard = "CBSE";
     } else {
-      preferBoard = pseudoRandomSeed < 0.5 ? "CBSE" : "ICSE";
+      targetBoard = pseudoRandomSeed < 0.5 ? "CBSE" : "ICSE";
     }
   }
 
-  // Filter candidates matching preferred board, excluding lastStyle
-  let candidates = (preferBoard === "CBSE" ? cbseStyles : icseStyles).filter(
-    (s) => s !== lastStyle
-  );
+  const pool = targetBoard === "CBSE" ? cbseStyles : icseStyles;
 
-  // If none available in preferred board, pick from alternative board (excluding lastStyle)
+  // Filter candidates within the target board pool, excluding lastStyle
+  let candidates = pool.filter((s) => s !== lastStyle);
   if (candidates.length === 0) {
-    candidates = allStyles.filter((s) => s !== lastStyle);
+    candidates = pool;
   }
 
-  // Enforce rule: in any 5 questions, at least 2 different styles
-  // If recent window has only 1 unique style, strictly pick a different style
+  // Enforce rule: in any 5 questions, at least 2 different styles if possible
   const uniqueInWindow = new Set(recentWindow).size;
   if (recentWindow.length >= 4 && uniqueInWindow === 1) {
     const forcedDifferent = candidates.filter((s) => !recentWindow.includes(s));
@@ -263,7 +260,7 @@ export function rotateSourceStyle(
 
   // Deterministic pick based on seed and history length
   const pickIndex = Math.floor(Math.abs(pseudoRandomSeed * 1000 + history.length)) % candidates.length;
-  return candidates[pickIndex] || (lastStyle === "ncert" ? "icse_selina" : "ncert");
+  return candidates[pickIndex] || pool[0];
 }
 
 /**

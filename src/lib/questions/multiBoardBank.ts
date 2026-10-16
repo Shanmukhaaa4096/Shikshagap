@@ -579,6 +579,278 @@ export const MULTI_BOARD_QUESTION_BANK: MultiBoardQuestionEntry[] = [
     },
     provenanceLabel: "ICSE Selina Concise Mathematics Class 5",
   },
+  {
+    id: "selina_m5_num_l1_01",
+    sourceStyle: "icse_selina",
+    board: "ICSE",
+    bookFamily: "Selina Concise Mathematics 5",
+    class: 5,
+    conceptIds: ["place_value", "number_sense"],
+    difficulty: 1, // L1 Recall
+    format: "mcq",
+    prompt: {
+      en: "In the number 8,45,210, what is the place value of the digit 4 in the Indian number system?",
+      hi: "संख्या 8,45,210 में भारतीय संख्या प्रणाली में अंक 4 का स्थानीय मान क्या है?",
+      te: "భారతీయ సంఖ్యా మానంలో 8,45,210 సంఖ్యలో 4 అంకె యొక్క స్థాన విలువ ఎంత?",
+    },
+    expression: "8,45,210",
+    options: [
+      { id: "o1", value: "40000", label: { en: "40,000 (Forty Thousand)", hi: "40,000 (चालीस हजार)", te: "40,000 (నలభై వేలు)" } },
+      { id: "o2", value: "4000", label: { en: "4,000", hi: "4,000", te: "4,000" }, errorType: "place_value" },
+      { id: "o3", value: "400000", label: { en: "4,00,000", hi: "4,00,000", te: "4,00,000" }, errorType: "place_value" },
+      { id: "o4", value: "400", label: { en: "400", hi: "400", te: "400" }, errorType: "slip" },
+    ],
+    correctAnswer: "40000",
+    verifiedSolution: {
+      en: "The digit 4 lies in the ten-thousands place: 4 × 10,000 = 40,000.",
+      hi: "अंक 4 दस हजार के स्थान पर है: 4 × 10,000 = 40,000।",
+      te: "4 అంకె పదివేల స్థానంలో ఉంది: 4 × 10,000 = 40,000.",
+    },
+    hint: {
+      en: "Count the places from right: ones, tens, hundreds, thousands, ten thousands.",
+      hi: "दाएं से स्थान गिनें: इकाई, दहाई, सैकड़ा, हजार, दस हजार।",
+      te: "కుడి వైపు నుండి లెక్కించండి: ఒకట్లు, పదులు, వందలు, వేలు, పదివేలు.",
+    },
+    provenanceLabel: "ICSE Selina Concise Mathematics Class 5",
+  },
+  {
+    id: "foundation_m5_num_l2_01",
+    sourceStyle: "icse_foundation",
+    board: "ICSE",
+    bookFamily: "ML Aggarwal Primary Maths Class 5",
+    class: 5,
+    conceptIds: ["number_sense", "place_value"],
+    difficulty: 2, // L2 Understanding
+    format: "mcq",
+    prompt: {
+      en: "Write the numeral for: Seven lakh fifty thousand two hundred and four.",
+      hi: "अंकों में लिखें: सात लाख पचास हजार दो सौ चार।",
+      te: "సంఖ్యారూపంలో రాయండి: ఏడు లక్షల యాభై వేల రెండు వందల నాలుగు.",
+    },
+    expression: "7,00,000 + 50,000 + 200 + 4",
+    options: [
+      { id: "o1", value: "750204", label: { en: "7,50,204", hi: "7,50,204", te: "7,50,204" } },
+      { id: "o2", value: "705204", label: { en: "7,05,204", hi: "7,05,204", te: "7,05,204" }, errorType: "place_value" },
+      { id: "o3", value: "75204", label: { en: "75,204", hi: "75,204", te: "75,204" }, errorType: "slip" },
+      { id: "o4", value: "752004", label: { en: "7,52,004", hi: "7,52,004", te: "7,52,004" }, errorType: "place_value" },
+    ],
+    correctAnswer: "750204",
+    verifiedSolution: {
+      en: "7 lakhs = 7,00,000; 50 thousands = 50,000; 2 hundreds = 200; 4 ones = 4. Total = 7,50,204.",
+      hi: "7 लाख = 7,00,000; 50 हजार = 50,000; 2 सौ = 200; 4 इकाई = 4। कुल = 7,50,204।",
+      te: "7 లక్షలు = 7,00,000; 50 వేలు = 50,000; 2 వందలు = 200; 4 ఒకట్లు = 4. మొత్తం = 7,50,204.",
+    },
+    hint: {
+      en: "Place digits in Lakhs, Ten-Thousands, Thousands, Hundreds, Tens, and Ones places.",
+      hi: "अंकों को लाख, दस हजार, हजार, सैकड़ा, दहाई और इकाई के स्थानों पर रखें।",
+      te: "లక్షలు, పదివేలు, వేలు, వందలు, పదులు, ఒకట్ల స్థానాల్లో అంకెలను ఉంచండి.",
+    },
+    provenanceLabel: "ICSE ML Aggarwal Primary Maths Class 5",
+  },
+  {
+    id: "selina_m5_mult_l2_01",
+    sourceStyle: "icse_selina",
+    board: "ICSE",
+    bookFamily: "Selina Concise Mathematics 5",
+    class: 5,
+    conceptIds: ["multi_digit_mult", "mult_facts"],
+    difficulty: 2, // L2 Understanding
+    format: "mcq",
+    prompt: {
+      en: "A school box contains 144 pencils. How many pencils are there in 25 such boxes?",
+      hi: "एक स्कूल बॉक्स में 144 पेंसिलें हैं। ऐसे 25 बॉक्सों में कुल कितनी पेंसिलें होंगी?",
+      te: "ఒక పెట్టెలో 144 పెన్సిళ్లు ఉన్నాయి. అలాంటి 25 పెట్టెలలో మొత్తం ఎన్ని పెన్సిళ్లు ఉంటాయి?",
+    },
+    expression: "144 × 25 = ?",
+    options: [
+      { id: "o1", value: "3600", label: { en: "3,600 pencils", hi: "3,600 पेंसिलें", te: "3,600 పెన్సిళ్లు" } },
+      { id: "o2", value: "3400", label: { en: "3,400 pencils", hi: "3,400 पेंसिलें", te: "3,400 పెన్సిళ్లు" }, errorType: "regrouping" },
+      { id: "o3", value: "360", label: { en: "360 pencils", hi: "360 पेंसिलें", te: "360 పెన్సిళ్లు" }, errorType: "place_value" },
+      { id: "o4", value: "3800", label: { en: "3,800 pencils", hi: "3,800 पेंसिलें", te: "3,800 పెన్సిళ్లు" }, errorType: "slip" },
+    ],
+    correctAnswer: "3600",
+    verifiedSolution: {
+      en: "144 × 25 = 144 × (100 ÷ 4) = 14,400 ÷ 4 = 3,600 pencils.",
+      hi: "144 × 25 = 3,600 पेंसिलें।",
+      te: "144 × 25 = 3,600 పెన్సిళ్లు.",
+    },
+    hint: {
+      en: "Multiply 144 by 25 using standard multiplication or 144 × 100 ÷ 4.",
+      hi: "144 को 25 से गुणा करें।",
+      te: "144 ను 25 తో గుణించండి.",
+    },
+    provenanceLabel: "ICSE Selina Concise Mathematics Class 5",
+  },
+  {
+    id: "foundation_m5_mult_l3_01",
+    sourceStyle: "icse_foundation",
+    board: "ICSE",
+    bookFamily: "ML Aggarwal Primary Maths Class 5",
+    class: 5,
+    conceptIds: ["multi_digit_mult"],
+    difficulty: 3, // L3 Application
+    format: "mcq",
+    prompt: {
+      en: "Calculate the product: 325 × 48.",
+      hi: "गुणनफल ज्ञात कीजिए: 325 × 48।",
+      te: "గుణకారం చేయండి: 325 × 48.",
+    },
+    expression: "325 × 48 = ?",
+    options: [
+      { id: "o1", value: "15600", label: { en: "15,600", hi: "15,600", te: "15,600" } },
+      { id: "o2", value: "15300", label: { en: "15,300", hi: "15,300", te: "15,300" }, errorType: "regrouping" },
+      { id: "o3", value: "14600", label: { en: "14,600", hi: "14,600", te: "14,600" }, errorType: "slip" },
+      { id: "o4", value: "16000", label: { en: "16,000", hi: "16,000", te: "16,000" }, errorType: "slip" },
+    ],
+    correctAnswer: "15600",
+    verifiedSolution: {
+      en: "325 × 8 = 2,600. 325 × 40 = 13,000. Sum = 2,600 + 13,000 = 15,600.",
+      hi: "325 × 8 = 2,600। 325 × 40 = 13,000। योग = 2,600 + 13,000 = 15,600।",
+      te: "325 × 8 = 2,600. 325 × 40 = 13,000. మొత్తం = 2,600 + 13,000 = 15,600.",
+    },
+    hint: {
+      en: "Multiply 325 by 8, then 325 by 40, and add the two partial products.",
+      hi: "325 को 8 से गुणा करें, फिर 40 से गुणा करें और दोनों को जोड़ें।",
+      te: "325 ని 8 తో, తరువాత 40 తో గుణించి రెండింటినీ కూడండి.",
+    },
+    provenanceLabel: "ICSE ML Aggarwal Primary Maths Class 5",
+  },
+  {
+    id: "selina_m5_div_l2_01",
+    sourceStyle: "icse_selina",
+    board: "ICSE",
+    bookFamily: "Selina Concise Mathematics 5",
+    class: 5,
+    conceptIds: ["division_facts", "long_division"],
+    difficulty: 2, // L2 Understanding
+    format: "mcq",
+    prompt: {
+      en: "Divide 864 by 12. What is the quotient?",
+      hi: "864 को 12 से भाग दीजिए। भागफल क्या है?",
+      te: "864 ను 12 తో భాగించండి. భాగఫలం ఎంత?",
+    },
+    expression: "864 ÷ 12 = ?",
+    options: [
+      { id: "o1", value: "72", label: { en: "72", hi: "72", te: "72" } },
+      { id: "o2", value: "70", label: { en: "70", hi: "70", te: "70" }, errorType: "slip" },
+      { id: "o3", value: "68", label: { en: "68", hi: "68", te: "68" }, errorType: "regrouping" },
+      { id: "o4", value: "74", label: { en: "74", hi: "74", te: "74" }, errorType: "slip" },
+    ],
+    correctAnswer: "72",
+    verifiedSolution: {
+      en: "86 ÷ 12 = 7 with remainder 2. Bring down 4: 24 ÷ 12 = 2. Quotient = 72, Remainder = 0.",
+      hi: "86 ÷ 12 = 7 (शेष 2)। 24 ÷ 12 = 2। भागफल = 72।",
+      te: "86 ÷ 12 = 7 (శేషం 2). 24 ÷ 12 = 2. భాగఫలం = 72.",
+    },
+    hint: {
+      en: "12 × 7 = 84. Subtract 84 from 86 to get 2.",
+      hi: "12 × 7 = 84। 86 में से 84 घटाकर 2 प्राप्त करें।",
+      te: "12 × 7 = 84. 86 నుండి 84 తీసివేస్తే 2 వస్తుంది.",
+    },
+    provenanceLabel: "ICSE Selina Concise Mathematics Class 5",
+  },
+  {
+    id: "foundation_m5_div_l3_01",
+    sourceStyle: "icse_foundation",
+    board: "ICSE",
+    bookFamily: "ML Aggarwal Primary Maths Class 5",
+    class: 5,
+    conceptIds: ["long_division", "division_word"],
+    difficulty: 3, // L3 Application
+    format: "mcq",
+    prompt: {
+      en: "A school auditorium has 936 seats arranged equally in 26 rows. How many seats are there in each row?",
+      hi: "एक स्कूल सभागार में 936 सीटें 26 पंक्तियों में बराबर व्यवस्थित हैं। प्रत्येक पंक्ति में कितनी सीटें हैं?",
+      te: "ఒక ఆడిటోరియంలో 936 సీట్లు 26 వరుసలలో సమానంగా అమర్చబడి ఉన్నాయి. ప్రతి వరుసలో ఎన్ని సీట్లు ఉన్నాయి?",
+    },
+    expression: "936 ÷ 26 = ?",
+    options: [
+      { id: "o1", value: "36", label: { en: "36 seats", hi: "36 सीटें", te: "36 సీట్లు" } },
+      { id: "o2", value: "34", label: { en: "34 seats", hi: "34 सीटें", te: "34 సీట్లు" }, errorType: "regrouping" },
+      { id: "o3", value: "38", label: { en: "38 seats", hi: "38 सीटें", te: "38 సీట్లు" }, errorType: "slip" },
+      { id: "o4", value: "32", label: { en: "32 seats", hi: "32 सीटें", te: "32 సీట్లు" }, errorType: "wrong_operation" },
+    ],
+    correctAnswer: "36",
+    verifiedSolution: {
+      en: "936 ÷ 26 = 36. Check: 26 × 36 = 936 seats per row.",
+      hi: "936 ÷ 26 = 36 सीटें। जांच: 26 × 36 = 936।",
+      te: "936 ÷ 26 = 36 సీట్లు. తనిఖీ: 26 × 36 = 936.",
+    },
+    hint: {
+      en: "Divide the total seats (936) by the number of rows (26).",
+      hi: "कुल सीटों (936) को पंक्तियों की संख्या (26) से भाग दें।",
+      te: "మొత్తం సీట్లను (936) వరుసల సంఖ్యతో (26) భాగించండి.",
+    },
+    provenanceLabel: "ICSE ML Aggarwal Primary Maths Class 5",
+  },
+  {
+    id: "selina_m5_div_l4_01",
+    sourceStyle: "icse_selina",
+    board: "ICSE",
+    bookFamily: "Selina Concise Mathematics 5",
+    class: 5,
+    conceptIds: ["long_division", "division_word"],
+    difficulty: 4, // L4 Analysis
+    format: "mcq",
+    prompt: {
+      en: "When 1,575 is divided by 15, what is the quotient and the remainder?",
+      hi: "जब 1,575 को 15 से भाग दिया जाता है, तो भागफल और शेषफल क्या होता है?",
+      te: "1,575 ను 15 తో భాగించినప్పుడు, భాగఫలం మరియు శేషం ఎంత?",
+    },
+    expression: "1,575 ÷ 15",
+    options: [
+      { id: "o1", value: "Quotient 105, Remainder 0", label: { en: "Quotient 105, Remainder 0", hi: "भागफल 105, शेष 0", te: "భాగఫలం 105, శేషం 0" } },
+      { id: "o2", value: "Quotient 15, Remainder 0", label: { en: "Quotient 15, Remainder 0", hi: "भागफल 15, शेष 0", te: "భాగఫలం 15, శేషం 0" }, errorType: "place_value" },
+      { id: "o3", value: "Quotient 100, Remainder 75", label: { en: "Quotient 100, Remainder 75", hi: "भागफल 100, शेष 75", te: "భాగఫలం 100, శేషం 75" }, errorType: "slip" },
+      { id: "o4", value: "Quotient 150, Remainder 5", label: { en: "Quotient 150, Remainder 5", hi: "भागफल 150, शेष 5", te: "భాగఫలం 150, శేషం 5" }, errorType: "regrouping" },
+    ],
+    correctAnswer: "Quotient 105, Remainder 0",
+    verifiedSolution: {
+      en: "15 ÷ 15 = 1. Bring down 7: 7 cannot be divided by 15, so write 0 in quotient. Bring down 5: 75 ÷ 15 = 5. Quotient = 105, Remainder = 0.",
+      hi: "15 ÷ 15 = 1। 7 उतारा: भाग नहीं जाता तो 0 लिखा। 75 ÷ 15 = 5। भागफल = 105, शेष = 0।",
+      te: "15 ÷ 15 = 1. 7 కి భాగించలేము కాబట్టి భాగఫలంలో 0. 75 ÷ 15 = 5. భాగఫలం = 105, శేషం = 0.",
+    },
+    hint: {
+      en: "Remember to put a 0 in the tens place of the quotient when the digit brought down is smaller than the divisor.",
+      hi: "ध्यान रहे: जब उतारा गया अंक भाजक से छोटा हो तो भागफल में 0 लगाएं।",
+      te: "కిందికి దించిన అంకె విభాజకం కంటే చిన్నదైతే భాగఫలంలో 0 ఉంచడం మర్చిపోకండి.",
+    },
+    provenanceLabel: "ICSE Selina Concise Mathematics Class 5",
+  },
+  {
+    id: "foundation_m5_mult_l4_01",
+    sourceStyle: "icse_foundation",
+    board: "ICSE",
+    bookFamily: "ML Aggarwal Primary Maths Class 5",
+    class: 5,
+    conceptIds: ["multi_digit_mult", "division_word"],
+    difficulty: 4, // L4 Analysis
+    format: "mcq",
+    prompt: {
+      en: "A school bus travels 48 km in one trip. If it makes 12 trips a week for 4 weeks, what is the total distance travelled by the bus?",
+      hi: "एक स्कूल बस एक चक्कर में 48 किमी चलती है। यदि वह 4 सप्ताह तक प्रति सप्ताह 12 चक्कर लगाती है, तो बस द्वारा तय की गई कुल दूरी क्या है?",
+      te: "ఒక స్కూల్ బస్సు ఒక ట్రిప్‌లో 48 కి.మీ ప్రయాణిస్తుంది. అది 4 వారాల పాటు వారానికి 12 ట్రిప్పులు వేస్తే, బస్సు మొత్తం ఎంత దూరం ప్రయాణించింది?",
+    },
+    expression: "48 × 12 × 4 = ?",
+    options: [
+      { id: "o1", value: "2304", label: { en: "2,304 km", hi: "2,304 किमी", te: "2,304 కి.మీ" } },
+      { id: "o2", value: "2204", label: { en: "2,204 km", hi: "2,204 किमी", te: "2,204 కి.మీ" }, errorType: "regrouping" },
+      { id: "o3", value: "2400", label: { en: "2,400 km", hi: "2,400 किमी", te: "2,400 కి.మీ" }, errorType: "slip" },
+      { id: "o4", value: "1920", label: { en: "1,920 km", hi: "1,920 किमी", te: "1,920 కి.మీ" }, errorType: "wrong_operation" },
+    ],
+    correctAnswer: "2304",
+    verifiedSolution: {
+      en: "Total trips = 12 × 4 = 48 trips. Total distance = 48 km × 48 trips = 2,304 km.",
+      hi: "कुल चक्कर = 12 × 4 = 48 चक्कर। कुल दूरी = 48 किमी × 48 = 2,304 किमी।",
+      te: "మొత్తం ట్రిప్పులు = 12 × 4 = 48. మొత్తం దూరం = 48 కి.మీ × 48 = 2,304 కి.మీ.",
+    },
+    hint: {
+      en: "Find the total number of trips first (12 × 4), then multiply by 48 km.",
+      hi: "पहले कुल चक्करों की संख्या (12 × 4) निकालें, फिर 48 से गुणा करें।",
+      te: "ముందుగా మొత్తం ట్రిప్పుల సంఖ్యను (12 × 4) కనుగొని, ఆపై 48 తో గుణించండి.",
+    },
+    provenanceLabel: "ICSE ML Aggarwal Primary Maths Class 5",
+  },
 ];
 
 /**
@@ -597,9 +869,17 @@ export function getMultiBoardQuestion(
 ): Question | null {
   const excludeSet = new Set(filter.excludeIds || []);
 
-  // 1. Strict match: class, concept, difficulty, and sourceStyle
+  const boardMatches = (q: MultiBoardQuestionEntry) => {
+    if (!filter.board) return true;
+    if (filter.board === "ICSE") return q.board === "ICSE";
+    if (filter.board === "CBSE") return q.board === "CBSE" || q.board === "NCERT";
+    return true;
+  };
+
+  // 1. Strict match: class, concept, difficulty, sourceStyle, and board
   let candidates = MULTI_BOARD_QUESTION_BANK.filter((q) => {
     if (excludeSet.has(q.id)) return false;
+    if (!boardMatches(q)) return false;
     if (filter.class && q.class !== filter.class) return false;
     if (filter.conceptId && !q.conceptIds.includes(filter.conceptId)) return false;
     if (filter.difficulty && q.difficulty !== filter.difficulty) return false;
@@ -607,10 +887,11 @@ export function getMultiBoardQuestion(
     return true;
   });
 
-  // 2. Relaxed match: matching concept & difficulty
+  // 2. Relaxed match: matching class, concept, difficulty, and board
   if (candidates.length === 0) {
     candidates = MULTI_BOARD_QUESTION_BANK.filter((q) => {
       if (excludeSet.has(q.id)) return false;
+      if (!boardMatches(q)) return false;
       if (filter.class && q.class !== filter.class) return false;
       if (filter.conceptId && !q.conceptIds.includes(filter.conceptId)) return false;
       if (filter.difficulty && q.difficulty !== filter.difficulty) return false;
@@ -618,11 +899,31 @@ export function getMultiBoardQuestion(
     });
   }
 
-  // 3. Fallback match: matching concept
+  // 3. Fallback match: matching concept and board
   if (candidates.length === 0) {
     candidates = MULTI_BOARD_QUESTION_BANK.filter((q) => {
       if (excludeSet.has(q.id)) return false;
+      if (!boardMatches(q)) return false;
       if (filter.conceptId && !q.conceptIds.includes(filter.conceptId)) return false;
+      return true;
+    });
+  }
+
+  // 4. Any question matching class and board
+  if (candidates.length === 0) {
+    candidates = MULTI_BOARD_QUESTION_BANK.filter((q) => {
+      if (excludeSet.has(q.id)) return false;
+      if (!boardMatches(q)) return false;
+      if (filter.class && q.class !== filter.class) return false;
+      return true;
+    });
+  }
+
+  // 5. Any question matching board
+  if (candidates.length === 0) {
+    candidates = MULTI_BOARD_QUESTION_BANK.filter((q) => {
+      if (excludeSet.has(q.id)) return false;
+      if (!boardMatches(q)) return false;
       return true;
     });
   }
@@ -666,5 +967,6 @@ export function convertMultiBoardEntryToAppQuestion(
     isTextbookVerified: true,
     provenanceLabel: entry.provenanceLabel,
     sourceStyle: entry.sourceStyle,
+    board: entry.board === "ICSE" ? "ICSE" : "CBSE",
   };
 }
