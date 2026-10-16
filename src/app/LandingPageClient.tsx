@@ -14,7 +14,8 @@ import {
   FileText
 } from '@phosphor-icons/react';
 import { useI18n, LanguageProvider } from '@/lib/i18n/context';
-import type { Lang } from '@/lib/types';
+import type { ConceptId, Lang } from '@/lib/types';
+import { CONCEPTS } from '@/lib/concepts/graph';
 import { 
   getClassConfig, 
   DEFAULT_CLASS_ID 
@@ -100,7 +101,9 @@ function PublicLandingPageContent() {
   };
 
   // Dynamic worksheet preview sample question
-  const targetConcept = activeClassConfig.targetConcepts[0] || 'mult_facts';
+  const targetConcept: ConceptId = (activeClassConfig.targetConcepts.find(
+    (c): c is ConceptId => c in CONCEPTS
+  ) || 'mult_facts');
   const previewRng = makeRng(42);
   const previewSampleQ1 = generateQuestion(targetConcept, 1, previewRng);
   const previewSampleQ2 = generateQuestion(targetConcept, 2, previewRng);

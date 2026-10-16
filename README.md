@@ -26,13 +26,25 @@
 
 ---
 
-## 2. Multi-Class Curriculum Support
+## 2. Multi-Class Curriculum & Multi-Board Architecture
 
-ShikshaGap supports **Classes 3, 4, and 5** with syllabus-aligned mathematics topics and 1-page paper worksheets:
-- **Class 3**: Number sense, 2-digit & 3-digit column addition with carrying, 3-digit subtraction with borrowing, equal sharing division, and money calculations (rupees and paise).
-- **Class 4**: Place value up to 10,000, multiplication facts (2 to 9), sharing division, and unit fractions.
-- **Class 5**: Multi-digit multiplication, long division with remainders, division word problems, and equivalent fractions.
-- **Classes 1, 2, 6, 7, 8**: Marked as "Coming soon" with disabled states. No unverified syllabus content is added.
+ShikshaGap features a modular, data-driven curriculum system (`src/data/curriculum/`) supporting **Classes 1 through 10** mapped strictly to official public syllabi from **NCERT** (`ncert.nic.in`) and **CISCE** (`cisce.org`):
+
+### Concept Dependency Graph (DAG)
+- **180 Concepts Registered**: Complete trilingual coverage in English, Hindi, and Telugu.
+- **229 Prerequisite Edges**: Strictly acyclic directed graph with deep cross-grade and cross-board prerequisite links.
+- **Deep Backtracking**: Gap diagnosis traces foundational root causes across grade boundaries (e.g. Class 10 Quadratic Equations backtracks through Class 9 Polynomials → Class 8 Factorisation → Class 7 Expressions → Class 6 Algebra Basics → Class 5 Multiplication → Class 4 Facts → Class 3 Addition → Class 2 → Class 1).
+- **Class Bands**:
+  - **Band 1-2**: Early numeracy, counting, place value to 100, addition/subtraction, shapes, time, money.
+  - **Band 3-5 (Active Interactive Testing)**: Scored diagnostic assessment, multi-digit operations, fractions, division sharing, measurement, data handling, and 1-page paper worksheets.
+  - **Band 6-8**: Integers, fractions/decimals, ratio & proportion, algebra basics, geometry, mensuration.
+  - **Band 9-10**: Polynomials, linear equations, coordinate geometry, trigonometry, statistics, probability, quadratic equations, arithmetic/geometric progressions.
+
+### Multi-Board Filtering (CBSE & ICSE)
+- **CBSE (NCERT)**: 100% CBSE-sourced questions (`ncert`, `exemplar`, `cbse_reference`) with 0% ICSE leakage.
+- **ICSE (CISCE)**: 100% ICSE-sourced questions (`icse_selina`, `icse_foundation`) with 0% CBSE leakage.
+- **Both**: Balanced, deterministic alternation between boards.
+- **Server-Side Guard**: Every question carries verified board provenance enforced by API route validation.
 
 ---
 

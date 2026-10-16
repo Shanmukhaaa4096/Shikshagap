@@ -149,6 +149,50 @@ This document tracks all relocations and design hierarchy changes made to make S
   * Screen 3: "Adaptive Difficulty Path & Curriculum Sources" card showing complete trajectory (e.g. `L2 → L3 → L4 → L3`), peak level reached, and all source styles encountered.
 * **Test Suite Verification**:
   * 18 unit tests in `tests/adaptive-difficulty.test.mjs` verifying all transition rules, source rotation, board weighting, and Bayesian scaling.
-  * 221 total unit and regression tests passing. Zero lint errors. Next.js production build passing.
+  * 228 total unit and regression tests passing. Zero lint errors. Next.js production build passing.
+
+---
+
+## 8. Strict Board Filtering & Source Isolation
+* **100% Board Isolation**:
+  * When `ICSE` is selected: 100% ICSE questions (`icse_selina`, `icse_foundation`), 0% CBSE questions.
+  * When `CBSE` is selected: 100% CBSE questions (`ncert`, `exemplar`, `cbse_reference`), 0% ICSE questions.
+  * When `BOTH` is selected: strictly alternating between CBSE and ICSE boards.
+* **Dynamic Board Presentation**:
+  * Assessment screen header dynamically indicates: `ICSE (CISCE syllabus)`, `NCERT / CBSE (2024-25)`, or `CBSE & ICSE (Balanced)`.
+  * Question cards display `[ICSE]` or `[CBSE]` badges with the active difficulty level.
+* **Server-Side API Guard (`src/app/api/assessment/agent/route.ts`)**:
+  * Enforces `board: "CBSE" | "ICSE"` on every generated question.
+  * Rejects and regenerates if a question from the unselected board leaks.
+* **Test Suite**:
+  * `tests/board-filtering.test.mjs`: Tests 30 consecutive questions under ICSE (0 CBSE), 30 under CBSE (0 ICSE), and strict alternation under BOTH.
+
+---
+
+## 9. Data-Driven K-10 Curriculum Graph (Classes 1 - 10)
+* **Architecture (`src/data/curriculum/`)**:
+  * Replaced hardcoded Class 3-5 concept setup with modular, data-driven curriculum files for Classes 1 to 10 for both CBSE (NCERT) and ICSE (CISCE).
+  * 20 curriculum data files (`cbse-class-1.ts` to `cbse-class-10.ts`, `icse-class-1.ts` to `icse-class-10.ts`).
+  * 180 total concepts registered across 4 key grade bands:
+    * **Classes 1-2**: Counting, place value to 100, addition/subtraction, shapes, time, money.
+    * **Classes 3-5**: Core arithmetic, measurement, geometry basics, data handling (preserving all legacy Class 3-5 concept IDs).
+    * **Classes 6-8**: Integers, fractions/decimals, ratio & proportion, algebra basics, geometry, mensuration.
+    * **Classes 9-10**: Polynomials, linear equations, coordinate geometry, trigonometry, statistics, probability, quadratic equations, progressions.
+* **Strict DAG Concept Dependency Graph**:
+  * 229 prerequisite edges connecting concepts across grades and boards.
+  * Strictly ACYCLIC (verified by cycle-detection DFS algorithm with 3-color states).
+  * 100% referential integrity (0 missing prerequisite IDs).
+  * 100% trilingual completeness (`name.en`, `name.hi`, `name.te` populated for all 180 concepts).
+  * Shared underlying skills modeled between NCERT and ICSE equivalents.
+* **Deep Cross-Grade Backtracking (`src/lib/concepts/graph.ts`)**:
+  * Implemented `tracePrerequisiteBacktrack` and enhanced `ancestorsOf` and `prerequisitesOf` to traverse grade boundaries.
+  * A Class 10 gap (e.g. Quadratic Equations) backtracks seamlessly through Class 9 Polynomials → Class 8 Factorisation → Class 7 Expressions → Class 6 Algebra Basics → Class 5 Multiplication → Class 4 Facts → Class 3 Addition → Class 2 → Class 1.
+* **Class Selector & Metadata (`src/lib/curriculum/classes.ts`, `AdaptiveAssessmentView.tsx`)**:
+  * Configured Classes 3-5 as ready (`enabled: true`) with interactive questions.
+  * Marked Classes 1, 2, 6-10 with "Soon" status and full syllabus descriptions.
+  * Headers, metadata, and tooltips reflect chosen class and board.
+* **Automated Validation**:
+  * CLI validation script: `scripts/validateCurriculumGraph.mjs`.
+  * Unit test suite: `tests/curriculum-graph.test.mjs` verifying DAG acyclicity, 0 missing prerequisites, trilingual completeness, and deep Class 10 backtracking.
 
 

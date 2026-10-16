@@ -39,13 +39,36 @@ export const TOPIC_IDS = Object.keys(TOPICS) as TopicId[];
 
 export const STRANDS: Strand[] = ["number", "muldiv", "fractions", "measurement"];
 
-export function prerequisitesOf(id: ConceptId): ConceptId[] {
-  return CONCEPTS[id].prerequisites;
+import {
+  CURRICULUM_REGISTRY,
+  prerequisitesOfConcept,
+  ancestorsOfConcept,
+  getCurriculumConcept,
+} from "../../data/curriculum/index.ts";
+
+export function prerequisitesOf(id: ConceptId): ConceptId[];
+export function prerequisitesOf(id: string): string[];
+export function prerequisitesOf(id: string): string[] {
+  // If present in data-driven curriculum registry, use its official syllabus prerequisites
+  const currPrereqs = prerequisitesOfConcept(id);
+  if (currPrereqs && currPrereqs.length > 0) {
+    return currPrereqs;
+  }
+  if (CONCEPTS[id as ConceptId]) {
+    return CONCEPTS[id as ConceptId].prerequisites;
+  }
+  return [];
 }
 
-/** All transitive prerequisites (ancestors) of a concept. */
-export function ancestorsOf(id: ConceptId): Set<ConceptId> {
-  const out = new Set<ConceptId>();
+/** All transitive prerequisites (ancestors) of a concept (Classes 1 to 10). */
+export function ancestorsOf(id: ConceptId): Set<ConceptId>;
+export function ancestorsOf(id: string): Set<string>;
+export function ancestorsOf(id: string): Set<string> {
+  // Use data-driven ancestors if registered
+  if (CURRICULUM_REGISTRY[id]) {
+    return ancestorsOfConcept(id);
+  }
+  const out = new Set<string>();
   const stack = [...prerequisitesOf(id)];
   while (stack.length) {
     const c = stack.pop()!;
@@ -56,9 +79,90 @@ export function ancestorsOf(id: ConceptId): Set<ConceptId> {
   return out;
 }
 
+export interface BacktrackNode {
+  conceptId: string;
+  name: { en: string; hi: string; te: string };
+  grade: number;
+  board?: string;
+  chapterName?: string;
+}
+
+/**
+ * Traces a learning gap down its prerequisite tree across grade boundaries (Classes 1-10).
+ * For example, a Class 10 gap in Quadratic Equations backtracks through
+ * Class 9 Polynomials -> Class 8 Factorisation -> Class 7 Expressions -> Class 6 Algebra Basics ->
+ * Class 5 Multiplication -> Class 4 Facts -> Class 3 Addition -> Class 2 -> Class 1.
+ */
+export function tracePrerequisiteBacktrack(
+  conceptId: string,
+  isPrereqStruggling?: (prereqId: string) => boolean
+): BacktrackNode[] {
+  const chain: BacktrackNode[] = [];
+  const visited = new Set<string>();
+  let currentId: string | null = conceptId;
+
+  while (currentId && !visited.has(currentId)) {
+    visited.add(currentId);
+
+    // Look up concept metadata
+    const curr = getCurriculumConcept(currentId);
+    const legacy = CONCEPTS[currentId as ConceptId];
+
+    if (curr) {
+      chain.push({
+        conceptId: curr.id,
+        name: curr.name,
+        grade: curr.class,
+        board: curr.board,
+        chapterName: curr.chapterName,
+      });
+    } else if (legacy) {
+      chain.push({
+        conceptId: legacy.id,
+        name: {
+          en: legacy.id.replace(/_/g, " "),
+          hi: legacy.id.replace(/_/g, " "),
+          te: legacy.id.replace(/_/g, " "),
+        },
+        grade: legacy.grade,
+        chapterName: `Class ${legacy.grade} Mathematics`,
+      });
+    } else {
+      chain.push({
+        conceptId: currentId,
+        name: { en: currentId, hi: currentId, te: currentId },
+        grade: 0,
+      });
+    }
+
+    const prereqs: string[] = prerequisitesOf(currentId);
+    if (!prereqs || prereqs.length === 0) {
+      break;
+    }
+
+    if (isPrereqStruggling) {
+      // Step down to the first struggling prerequisite
+      const struggling: string | undefined = prereqs.find((p: string) => isPrereqStruggling(p));
+      currentId = struggling || null;
+    } else {
+      // Follow the first prerequisite path down to foundational roots
+      currentId = prereqs[0];
+    }
+  }
+
+  return chain;
+}
+
 /** Concepts that directly depend on `id`. */
-export function dependentsOf(id: ConceptId): ConceptId[] {
-  return CONCEPT_IDS.filter((c) => CONCEPTS[c].prerequisites.includes(id));
+export function dependentsOf(id: ConceptId): ConceptId[];
+export function dependentsOf(id: string): string[];
+export function dependentsOf(id: string): string[] {
+  // Check both legacy CONCEPTS and CURRICULUM_REGISTRY
+  const legacyDeps = CONCEPT_IDS.filter((c) => CONCEPTS[c]?.prerequisites?.includes(id as ConceptId));
+  const currDeps = Object.values(CURRICULUM_REGISTRY)
+    .filter((c) => c.prerequisites.includes(id))
+    .map((c) => c.id);
+  return Array.from(new Set([...legacyDeps, ...currDeps]));
 }
 
 /** Topological order (prerequisites first): stable, used for learning maps. */

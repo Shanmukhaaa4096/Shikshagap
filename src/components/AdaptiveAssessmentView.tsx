@@ -815,8 +815,8 @@ export function AdaptiveAssessmentView({
                     }}
                     title={
                       c.enabled
-                        ? `Select ${c.label} for scored NCERT assessment`
-                        : `${c.label}: NCERT curriculum mapped. Official verification in progress.`
+                        ? `Select ${c.label} for scored ${boardPreference === "ICSE" ? "ICSE" : boardPreference === "BOTH" ? "CBSE & ICSE" : "CBSE"} assessment`
+                        : `${c.label}: ${boardPreference === "ICSE" ? "ICSE (CISCE)" : "CBSE (NCERT)"} curriculum mapped. Question engine coming soon.`
                     }
                     className={`min-h-[44px] px-2 py-2 text-xs font-bold font-mono rounded-[2px] border flex flex-col items-center justify-center cursor-pointer ${
                       selectedClassId === c.id

@@ -1,0 +1,88 @@
+import type { CurriculumConcept } from "./types.ts";
+
+export const ICSE_CLASS_1_CONCEPTS: CurriculumConcept[] = [
+  {
+    id: "icse_1_shapes",
+    name: {
+      en: "Pre-Number Concepts and Basic Shapes",
+      hi: "पूर्व-संख्या अवधारणाएं और मूल आकार",
+      te: "పూర్వ సంఖ్యా భావనలు మరియు ప్రాథమిక ఆకారాలు",
+    },
+    class: 1,
+    board: "ICSE",
+    chapterName: "Shapes and Spatial Relationships",
+    prerequisites: [],
+    difficultyLevels: [1, 2, 3],
+    questionTypes: ["mcq", "short_answer"],
+  },
+  {
+    id: "icse_1_numbers_20",
+    name: {
+      en: "Numbers from 1 to 20: Counting, Comparison, and Ordering",
+      hi: "1 से 20 तक संख्याएं: गिनती, तुलना और क्रम",
+      te: "1 నుండి 20 సంఖ్యలు: లెక్కింపు, పోలిక మరియు క్రమం",
+    },
+    class: 1,
+    board: "ICSE",
+    chapterName: "Numbers up to 20",
+    prerequisites: [],
+    difficultyLevels: [1, 2, 3],
+    questionTypes: ["mcq", "short_answer"],
+  },
+  {
+    id: "icse_1_add_sub_20",
+    name: {
+      en: "Addition and Subtraction within 20",
+      hi: "20 के भीतर जोड़ और घटाव",
+      te: "20 లోపు సంకలనం మరియు తీసివేత",
+    },
+    class: 1,
+    board: "ICSE",
+    chapterName: "Addition and Subtraction up to 20",
+    prerequisites: ["icse_1_numbers_20"],
+    difficultyLevels: [1, 2, 3],
+    questionTypes: ["mcq", "short_answer", "word_problem"],
+  },
+  {
+    id: "icse_1_numbers_100",
+    name: {
+      en: "Numbers up to 100: Tens and Ones",
+      hi: "100 तक संख्याएं: दहाई और इकाई",
+      te: "100 వరకు సంఖ్యలు: పదులు మరియు ఒకట్లు",
+    },
+    class: 1,
+    board: "ICSE",
+    chapterName: "Numbers up to 100",
+    prerequisites: ["icse_1_numbers_20"],
+    difficultyLevels: [1, 2, 3],
+    questionTypes: ["mcq", "short_answer"],
+  },
+  {
+    id: "icse_1_measurement",
+    name: {
+      en: "Non-Standard Measurement of Length and Weight",
+      hi: "लंबाई और वजन का गैर-मानक मापन",
+      te: "పొడవు మరియు బరువుల అప్రమాణిక కొలతలు",
+    },
+    class: 1,
+    board: "ICSE",
+    chapterName: "Measurement",
+    prerequisites: ["icse_1_shapes"],
+    difficultyLevels: [1, 2, 3],
+    questionTypes: ["mcq", "short_answer"],
+  },
+  {
+    id: "icse_1_time_money",
+    name: {
+      en: "Time and Money: Coin Recognition and Daily Clock Reading",
+      hi: "समय और मुद्रा: सिक्कों की पहचान और घड़ी देखना",
+      te: "సమయం మరియు డబ్బు: నాణేల గుర్తింపు",
+    },
+    class: 1,
+    board: "ICSE",
+    chapterName: "Time and Money",
+    prerequisites: ["icse_1_numbers_20"],
+    difficultyLevels: [1, 2, 3],
+    questionTypes: ["mcq", "short_answer"],
+  },
+];
