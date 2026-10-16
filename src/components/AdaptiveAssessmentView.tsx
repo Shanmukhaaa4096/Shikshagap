@@ -30,6 +30,7 @@ import {
   Sparkle,
 } from "@phosphor-icons/react";
 import { MascotHero } from "@/components/illustrations/MascotHero";
+import { FlowerPetal, BotanicalLeaf, WarmSparkle, GiftBoxMotif } from "@/components/illustrations/FloralMotifs";
 import { WorksheetModal } from "@/components/WorksheetModal";
 import {
   CURRICULUM_TOPICS,
@@ -730,12 +731,12 @@ export function AdaptiveAssessmentView({
       {/* SCREEN 1: PRE-ASSESSMENT SETUP SCREEN                          */}
       {/* ============================================================== */}
       {!isStarted ? (
-        <div className="neo-panel p-5 sm:p-8 space-y-5 rounded-[2px] border border-border bg-[var(--surface)]">
+        <div className="neo-panel p-5 sm:p-8 space-y-5 rounded-[24px] border border-border bg-[var(--surface)] shadow-warm">
           {/* Header */}
           <div className="border-b border-border pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="w-14 h-16 sm:w-16 sm:h-20 shrink-0 flex items-center justify-center">
-                <MascotHero width={56} height={68} className="scale-95" />
+                <MascotHero width={64} height={76} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -762,7 +763,7 @@ export function AdaptiveAssessmentView({
               </div>
             </div>
             {isGuest && (
-              <span className="self-start sm:self-auto text-xs font-mono font-bold bg-[var(--status-good-bg)] text-foreground px-3 py-1.5 rounded-[2px] border border-[var(--status-good-border)] shrink-0">
+              <span className="self-start sm:self-auto text-xs font-mono font-bold bg-[var(--status-good-bg)] text-foreground px-3 py-1.5 rounded-[16px] border border-[var(--status-good-border)] shrink-0">
                 Trial Mode • No Sign-in Required
               </span>
             )}
@@ -775,7 +776,7 @@ export function AdaptiveAssessmentView({
               <select
                 value={selectedStudentId}
                 onChange={(e) => setSelectedStudentId(e.target.value)}
-                className="w-full min-h-[44px] px-3 text-sm font-semibold bg-card border border-border rounded-[2px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full min-h-[44px] px-3 text-sm font-semibold bg-card border border-border rounded-[16px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 {effectiveStudents.map((s) => (
                   <option key={s.student.id} value={s.student.id}>
@@ -785,7 +786,7 @@ export function AdaptiveAssessmentView({
               </select>
             </div>
           ) : !isGuest && isStudentView ? (
-            <div className="p-3 bg-card border border-border rounded-[2px] flex items-center justify-between">
+            <div className="p-3 bg-card border border-border rounded-[16px] flex items-center justify-between">
               <div>
                 <span className="editorial-meta text-muted-foreground">LEARNER</span>
                 <div className="font-serif font-bold text-lg text-foreground">{activeStudent?.student.name}</div>
@@ -818,7 +819,7 @@ export function AdaptiveAssessmentView({
                         ? `Select ${c.label} for scored ${boardPreference === "ICSE" ? "ICSE" : boardPreference === "BOTH" ? "CBSE & ICSE" : "CBSE"} assessment`
                         : `${c.label}: ${boardPreference === "ICSE" ? "ICSE (CISCE)" : "CBSE (NCERT)"} curriculum mapped. Question engine coming soon.`
                     }
-                    className={`min-h-[44px] px-2 py-2 text-xs font-bold font-mono rounded-[2px] border flex flex-col items-center justify-center cursor-pointer ${
+                    className={`min-h-[44px] px-2 py-2 text-xs font-bold font-mono rounded-[16px] border flex flex-col items-center justify-center cursor-pointer ${
                       selectedClassId === c.id
                         ? "bg-primary text-primary-foreground border-primary"
                         : c.enabled
@@ -842,7 +843,7 @@ export function AdaptiveAssessmentView({
                     key={l}
                     type="button"
                     onClick={() => setLang(l)}
-                    className={`min-h-[44px] px-3 py-2 text-xs font-bold font-mono rounded-[2px] border cursor-pointer ${
+                    className={`min-h-[44px] px-3 py-2 text-xs font-bold font-mono rounded-[16px] border cursor-pointer ${
                       lang === l
                         ? "bg-primary text-primary-foreground border-primary"
                         : "bg-card text-foreground border-border hover:bg-muted"
@@ -866,7 +867,7 @@ export function AdaptiveAssessmentView({
                     key={b}
                     type="button"
                     onClick={() => setBoardPreference(b)}
-                    className={`min-h-[44px] px-3 py-2 text-xs font-bold font-mono rounded-[2px] border cursor-pointer ${
+                    className={`min-h-[44px] px-3 py-2 text-xs font-bold font-mono rounded-[16px] border cursor-pointer ${
                       boardPreference === b
                         ? "bg-primary text-primary-foreground border-primary shadow-xs"
                         : "bg-card text-foreground border-border hover:bg-muted"
@@ -893,7 +894,7 @@ export function AdaptiveAssessmentView({
               {(classConfig.topics || CURRICULUM_TOPICS).map((tId: TopicId) => (
                 <span
                   key={tId}
-                  className="px-3 py-1.5 bg-card border border-border text-xs font-mono font-bold text-foreground rounded-[2px]"
+                  className="px-3 py-1.5 bg-card border border-border text-xs font-mono font-bold text-foreground rounded-[16px]"
                 >
                   {TOPIC_DISPLAY_NAMES[tId]?.en || tId}
                 </span>
@@ -912,14 +913,14 @@ export function AdaptiveAssessmentView({
                   router.push("/");
                 }
               }}
-              className="neo-btn neo-btn-secondary px-5 py-2.5 min-h-[48px] text-sm font-bold w-full sm:w-auto rounded-[2px] cursor-pointer"
+              className="neo-btn neo-btn-secondary px-5 py-2.5 min-h-[48px] text-sm font-bold w-full sm:w-auto rounded-full cursor-pointer"
             >
               {isGuest ? "Back to Home" : "Back to Dashboard"}
             </button>
             <button
               type="button"
               onClick={handleStart}
-              className="neo-btn neo-btn-primary px-8 py-3 min-h-[52px] text-base font-bold flex items-center justify-center gap-2 w-full sm:w-auto rounded-[2px] cursor-pointer"
+              className="neo-btn neo-btn-primary px-8 py-3 min-h-[52px] text-base font-bold flex items-center justify-center gap-2 w-full sm:w-auto rounded-full cursor-pointer"
             >
               <Brain className="w-5 h-5 text-primary-foreground" />
               <span>{dict.startPractice || "START ASSESSMENT"}</span>
@@ -931,12 +932,12 @@ export function AdaptiveAssessmentView({
         /* ============================================================== */
         /* SCREEN 3: ASSESSMENT COMPLETE SCREEN (STUDENT-FIRST RESULTS)   */
         /* ============================================================== */
-        <div className="neo-panel overflow-hidden space-y-6 p-5 sm:p-8 rounded-[2px] border border-border bg-[var(--surface)]">
+        <div className="neo-panel overflow-hidden space-y-6 p-5 sm:p-8 rounded-[24px] border border-border bg-[var(--surface)] shadow-warm">
           {/* Friendly Celebratory Header */}
           <div className="border-b border-border pb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="w-14 h-16 sm:w-16 sm:h-20 shrink-0 flex items-center justify-center">
-                <MascotHero width={56} height={68} className="scale-95" />
+                <MascotHero width={64} height={76} state="success" />
               </div>
               <div>
                 <span className="editorial-meta text-primary font-bold">ASSESSMENT COMPLETE</span>
@@ -950,7 +951,7 @@ export function AdaptiveAssessmentView({
             </div>
 
             {/* Quick Summary Pill */}
-            <div className="flex items-center gap-2 bg-card p-2.5 rounded-[2px] border border-border shrink-0 self-start sm:self-center">
+            <div className="flex items-center gap-2 bg-card p-2.5 rounded-[16px] border border-border shrink-0 self-start sm:self-center">
               <span className="text-xs font-mono font-bold text-foreground">
                 {masteredTopics.length} Mastered • {gapTopics.length + devTopics.length} To Practise
               </span>
@@ -960,7 +961,7 @@ export function AdaptiveAssessmentView({
           {/* Simple, Non-Overwhelming Results Breakdown (2 clear blocks) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* 1. What You Understand Well */}
-            <div className="p-4 sm:p-5 bg-card border border-[var(--status-good-border)] rounded-[2px] space-y-3">
+            <div className="p-4 sm:p-5 bg-card border border-[var(--status-good-border)] rounded-[16px] space-y-3">
               <div className="flex items-center gap-2 text-foreground font-bold text-base">
                 <CheckCircle className="w-5 h-5 text-[var(--status-good)] shrink-0" weight="bold" />
                 <span>What You Know Well</span>
@@ -970,10 +971,10 @@ export function AdaptiveAssessmentView({
                   {masteredTopics.map((topicMem) => (
                     <li
                       key={topicMem.topicId}
-                      className="p-2.5 bg-[var(--surface)] border border-border rounded-[2px] flex items-center justify-between text-sm font-bold text-foreground"
+                      className="p-2.5 bg-[var(--surface)] border border-border rounded-[22px] shadow-warm-sm flex items-center justify-between text-sm font-bold text-foreground"
                     >
                       <span>{TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}</span>
-                      <span className="text-xs font-mono font-bold text-[var(--status-good)] px-2 py-0.5 bg-[var(--status-good-bg)] rounded-[2px]">
+                      <span className="text-xs font-mono font-bold text-[var(--status-good)] px-2 py-0.5 bg-[var(--status-good-bg)] rounded-[16px]">
                         Solid
                       </span>
                     </li>
@@ -987,7 +988,7 @@ export function AdaptiveAssessmentView({
             </div>
 
             {/* 2. What to Practise Next */}
-            <div className="p-4 sm:p-5 bg-card border border-primary/40 rounded-[2px] space-y-3">
+            <div className="p-4 sm:p-5 bg-card border border-primary/40 rounded-[16px] space-y-3">
               <div className="flex items-center gap-2 text-primary font-bold text-base">
                 <Sparkle className="w-5 h-5 text-primary shrink-0" weight="fill" />
                 <span>Next Topics to Practise</span>
@@ -999,11 +1000,11 @@ export function AdaptiveAssessmentView({
                     return (
                       <li
                         key={topicMem.topicId}
-                        className="p-2.5 bg-[var(--surface)] border border-border rounded-[2px] flex items-center justify-between text-sm font-bold text-foreground"
+                        className="p-2.5 bg-[var(--surface)] border border-border rounded-[22px] shadow-warm-sm flex items-center justify-between text-sm font-bold text-foreground"
                       >
                         <span>{TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}</span>
                         <span
-                          className={`text-xs font-mono font-bold px-2 py-0.5 rounded-[2px] ${
+                          className={`text-xs font-mono font-bold px-2 py-0.5 rounded-[16px] ${
                             isGap
                               ? "bg-primary/10 text-primary border border-primary/30"
                               : "bg-[var(--status-warn-bg)] text-foreground border border-[var(--status-warn-border)]"
@@ -1037,7 +1038,7 @@ export function AdaptiveAssessmentView({
                   recGroup.resources.map((item) => (
                     <div
                       key={item.id}
-                      className="p-3 bg-card border border-border rounded-[2px] flex items-center justify-between gap-3"
+                      className="p-3 bg-card border border-border rounded-[16px] flex items-center justify-between gap-3"
                     >
                       <div>
                         <div className="text-xs font-mono uppercase text-primary font-bold">
@@ -1051,7 +1052,7 @@ export function AdaptiveAssessmentView({
                         href={item.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-mono font-bold text-foreground hover:underline px-2.5 py-1.5 border border-border rounded-[2px] bg-[var(--surface)] shrink-0"
+                        className="inline-flex items-center gap-1 text-xs font-mono font-bold text-foreground hover:underline px-2.5 py-1.5 border border-border rounded-[16px] bg-[var(--surface)] shrink-0"
                       >
                         <span>Open</span>
                         <ArrowSquareOut className="w-3.5 h-3.5" />
@@ -1094,7 +1095,7 @@ export function AdaptiveAssessmentView({
                   return (
                     <div
                       key={tMem.topicId}
-                      className="p-3.5 bg-card border border-border rounded-[2px] space-y-2"
+                      className="p-3.5 bg-card border border-border rounded-[16px] space-y-2"
                       data-testid={`topic-adaptive-card-${tMem.topicId}`}
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -1103,7 +1104,7 @@ export function AdaptiveAssessmentView({
                             {TOPIC_DISPLAY_NAMES[tMem.topicId]?.en || tMem.topicId}
                           </span>
                           <span
-                            className={`text-xs font-mono font-bold px-2 py-0.5 rounded-[2px] ${
+                            className={`text-xs font-mono font-bold px-2 py-0.5 rounded-[16px] ${
                               tMem.status === "mastered"
                                 ? "bg-[var(--status-good-bg)] text-[var(--status-good)] border border-[var(--status-good-border)]"
                                 : tMem.status === "gap"
@@ -1183,7 +1184,7 @@ export function AdaptiveAssessmentView({
                   setCurrentQuestion(null);
                   setFeedback(null);
                 }}
-                className="neo-btn neo-btn-secondary min-h-[48px] px-5 text-sm font-bold flex items-center justify-center gap-2 rounded-[2px] w-full sm:w-auto cursor-pointer"
+                className="neo-btn neo-btn-secondary min-h-[48px] px-5 text-sm font-bold flex items-center justify-center gap-2 rounded-full w-full sm:w-auto cursor-pointer"
               >
                 <ArrowCounterClockwise className="w-4 h-4" />
                 <span>{isGuest ? "Try Another Check" : "Check Another Student"}</span>
@@ -1192,7 +1193,7 @@ export function AdaptiveAssessmentView({
                 <button
                   type="button"
                   onClick={() => setIsWorksheetOpen(true)}
-                  className="neo-btn neo-btn-secondary min-h-[48px] px-5 text-sm font-bold flex items-center justify-center gap-2 rounded-[2px] w-full sm:w-auto cursor-pointer"
+                  className="neo-btn neo-btn-secondary min-h-[48px] px-5 text-sm font-bold flex items-center justify-center gap-2 rounded-full w-full sm:w-auto cursor-pointer"
                 >
                   <Printer className="w-4 h-4" />
                   <span>Print Practice Worksheet</span>
@@ -1203,7 +1204,7 @@ export function AdaptiveAssessmentView({
             {isGuest ? (
               <a
                 href="/login?redirect=/app"
-                className="neo-btn neo-btn-primary min-h-[48px] px-6 text-sm font-bold flex items-center justify-center gap-2 rounded-[2px] w-full sm:w-auto text-center cursor-pointer"
+                className="neo-btn neo-btn-primary min-h-[48px] px-6 text-sm font-bold flex items-center justify-center gap-2 rounded-full w-full sm:w-auto text-center cursor-pointer"
               >
                 <span>Teacher Sign In to Save</span>
                 <ArrowRight className="w-4 h-4" />
@@ -1213,7 +1214,7 @@ export function AdaptiveAssessmentView({
                 type="button"
                 onClick={handleSaveAndFinish}
                 disabled={isLoadingFinish}
-                className="neo-btn neo-btn-primary min-h-[48px] px-6 text-sm font-bold flex items-center justify-center gap-2 rounded-[2px] w-full sm:w-auto cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="neo-btn neo-btn-primary min-h-[48px] px-6 text-sm font-bold flex items-center justify-center gap-2 rounded-full w-full sm:w-auto cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span>{isLoadingFinish ? "Saving Assessment..." : "Save & Return to Dashboard"}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -1236,7 +1237,7 @@ export function AdaptiveAssessmentView({
         /* ============================================================== */
         <div className="space-y-4 sm:space-y-6 w-full max-w-4xl xl:max-w-5xl mx-auto">
           {/* Top Bar: Progress & Language Switcher & Report */}
-          <div className="bg-[var(--surface)] border border-border rounded-[2px] p-4 sm:p-5 space-y-3">
+          <div className="bg-[var(--surface)] border border-border rounded-[22px] shadow-warm-sm p-4 sm:p-5 space-y-3">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs font-mono uppercase font-bold text-muted-foreground">
@@ -1263,7 +1264,7 @@ export function AdaptiveAssessmentView({
               {/* Compact Language Selector + Report Button */}
               <div className="flex items-center gap-2">
                 <div
-                  className="flex items-center gap-1 border border-border rounded-[2px] p-0.5 bg-card"
+                  className="flex items-center gap-1 border border-border rounded-[16px] p-0.5 bg-card"
                   role="group"
                   aria-label="Language selection"
                 >
@@ -1272,7 +1273,7 @@ export function AdaptiveAssessmentView({
                       key={l}
                       type="button"
                       onClick={() => setLang(l)}
-                      className={`min-h-[36px] min-w-[36px] px-2 rounded-[2px] font-bold text-xs font-mono cursor-pointer ${
+                      className={`min-h-[36px] min-w-[36px] px-2 rounded-[16px] font-bold text-xs font-mono cursor-pointer ${
                         lang === l
                           ? "bg-primary text-primary-foreground"
                           : "text-foreground hover:bg-muted"
@@ -1328,9 +1329,9 @@ export function AdaptiveAssessmentView({
                   )}%
                 </span>
               </div>
-              <div className="w-full bg-muted h-2.5 sm:h-3 rounded-[2px] overflow-hidden">
+              <div className="w-full bg-muted h-2.5 sm:h-3 rounded-[16px] overflow-hidden">
                 <div
-                  className="bg-[var(--status-good)] h-full rounded-[2px] transition-all duration-300"
+                  className="bg-[var(--status-good)] h-full rounded-[16px] transition-all duration-300"
                   style={{
                     width: `${Math.min(
                       100,
@@ -1348,13 +1349,13 @@ export function AdaptiveAssessmentView({
 
           {/* Calm Loading State */}
           {isEvaluating ? (
-            <div className="bg-[var(--surface)] border border-border rounded-[2px] p-8 sm:p-12 space-y-6 text-center">
+            <div className="bg-[var(--surface)] border border-border rounded-[22px] shadow-warm-sm p-8 sm:p-12 space-y-6 text-center">
               <div className="space-y-4 max-w-md mx-auto">
-                <div className="h-8 bg-muted rounded-[2px] animate-pulse w-3/4 mx-auto" />
-                <div className="h-16 bg-muted rounded-[2px] animate-pulse w-full mx-auto" />
+                <div className="h-8 bg-muted rounded-[16px] animate-pulse w-3/4 mx-auto" />
+                <div className="h-16 bg-muted rounded-[16px] animate-pulse w-full mx-auto" />
                 <div className="space-y-3 pt-4">
-                  <div className="h-12 bg-muted rounded-[2px] animate-pulse w-full" />
-                  <div className="h-12 bg-muted rounded-[2px] animate-pulse w-full" />
+                  <div className="h-12 bg-muted rounded-[16px] animate-pulse w-full" />
+                  <div className="h-12 bg-muted rounded-[16px] animate-pulse w-full" />
                 </div>
               </div>
               <div className="pt-4 border-t border-border">
@@ -1375,7 +1376,7 @@ export function AdaptiveAssessmentView({
             </div>
           ) : hasError ? (
             /* Friendly Error State with Retry Button */
-            <div className="bg-[var(--surface)] border border-primary/40 rounded-[2px] p-6 sm:p-8 space-y-4 text-center">
+            <div className="bg-[var(--surface)] border border-primary/40 rounded-[22px] shadow-warm-sm p-6 sm:p-8 space-y-4 text-center">
               <div className="w-12 h-12 mx-auto rounded-full bg-card border border-primary flex items-center justify-center text-primary">
                 <WarningCircle size={28} weight="bold" />
               </div>
@@ -1400,7 +1401,7 @@ export function AdaptiveAssessmentView({
                     setHasError(false);
                     handleNextStep();
                   }}
-                  className="neo-btn neo-btn-primary min-h-[48px] px-8 text-base font-bold rounded-[2px] cursor-pointer"
+                  className="neo-btn neo-btn-primary min-h-[48px] px-8 text-base font-bold rounded-full cursor-pointer"
                 >
                   {lang === "hi" ? "फिर से कोशिश करें (Retry)" : lang === "te" ? "మళ్ళీ ప్రయత్నించండి" : "Try Again"}
                 </button>
@@ -1408,7 +1409,7 @@ export function AdaptiveAssessmentView({
             </div>
           ) : currentQuestion ? (
             /* Active Question Card */
-            <div className="bg-[var(--surface)] border border-border rounded-[2px] p-5 sm:p-8 lg:p-10 space-y-6">
+            <div className="bg-[var(--surface)] border border-border rounded-[22px] shadow-warm-sm p-5 sm:p-8 lg:p-10 space-y-6">
               {/* Question Eyebrow & Provenance */}
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
                 <div className="flex flex-wrap items-center gap-2">
@@ -1462,7 +1463,7 @@ export function AdaptiveAssessmentView({
                 </h2>
 
                 {currentQuestion.expression && (
-                  <div className="py-4 sm:py-6 text-center bg-card rounded-[2px] border border-border">
+                  <div className="py-4 sm:py-6 text-center bg-card rounded-[16px] border border-border">
                     <span className="font-mono text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground tracking-wider">
                       {currentQuestion.expression}
                     </span>
@@ -1483,9 +1484,9 @@ export function AdaptiveAssessmentView({
                             type="button"
                             onClick={() => handleSubmit(opt.value)}
                             disabled={isEvaluating || Boolean(feedback)}
-                            className="w-full neo-btn neo-btn-secondary min-h-[56px] sm:min-h-[64px] p-4 text-left text-[18px] sm:text-xl font-bold flex items-center gap-3.5 rounded-[2px] group leading-relaxed cursor-pointer"
+                            className="w-full neo-btn neo-btn-secondary min-h-[56px] sm:min-h-[64px] p-4 text-left text-[18px] sm:text-xl font-bold flex items-center gap-3.5 rounded-[20px] group leading-relaxed shadow-warm-sm hover:shadow-warm transition-all cursor-pointer"
                           >
-                            <span className="w-8 h-8 rounded-[2px] bg-muted/80 text-foreground text-sm font-mono font-bold flex items-center justify-center shrink-0 border border-border">
+                            <span className="w-8 h-8 rounded-[16px] bg-muted/80 text-foreground text-sm font-mono font-bold flex items-center justify-center shrink-0 border border-border">
                               {optLetter}
                             </span>
                             <span className="font-mono flex-1">{formatTxt(opt.label)}</span>
@@ -1502,13 +1503,13 @@ export function AdaptiveAssessmentView({
                         onChange={(e) => setUserAnswer(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSubmit(userAnswer)}
                         disabled={isEvaluating || Boolean(feedback)}
-                        className="min-h-[52px] font-mono text-xl sm:text-2xl bg-card border border-border rounded-[2px] text-foreground w-full px-4"
+                        className="min-h-[52px] font-mono text-xl sm:text-2xl bg-card border border-border rounded-[16px] text-foreground w-full px-4"
                       />
                       <button
                         type="button"
                         onClick={() => handleSubmit(userAnswer)}
                         disabled={isEvaluating || Boolean(feedback)}
-                        className="neo-btn neo-btn-primary px-8 min-h-[52px] text-base sm:text-lg font-bold shrink-0 rounded-[2px] cursor-pointer"
+                        className="neo-btn neo-btn-primary px-8 min-h-[52px] text-base sm:text-lg font-bold shrink-0 rounded-full cursor-pointer"
                       >
                         {dict.submitAnswer || "Submit"}
                       </button>
@@ -1523,14 +1524,14 @@ export function AdaptiveAssessmentView({
                           <button
                             type="button"
                             onClick={() => setShowHint(true)}
-                            className="min-h-[44px] px-3 py-1.5 text-sm text-foreground font-semibold flex items-center gap-1.5 hover:underline border border-border rounded-[2px] bg-card cursor-pointer"
+                            className="min-h-[44px] px-3 py-1.5 text-sm text-foreground font-semibold flex items-center gap-1.5 hover:underline border border-border rounded-[16px] bg-card cursor-pointer"
                           >
                             <QuestionIcon className="w-4 h-4 text-primary" />
                             <span>{dict.showHint || "Need a hint?"}</span>
                           </button>
                         ) : (
-                          <div className="bg-card border border-[var(--status-warn-border)] p-3.5 rounded-[2px] text-sm text-foreground leading-relaxed">
-                            <strong className="text-foreground bg-[var(--status-warn)] px-1.5 py-0.5 rounded-[2px] mr-1 font-mono text-xs">
+                          <div className="bg-card border border-[var(--status-warn-border)] p-3.5 rounded-[16px] text-sm text-foreground leading-relaxed">
+                            <strong className="text-foreground bg-[var(--status-warn)] px-1.5 py-0.5 rounded-[16px] mr-1 font-mono text-xs">
                               {dict.hintLabel || "Hint"}:
                             </strong>{" "}
                             {formatTxt(currentQuestion.hint)}
@@ -1544,7 +1545,7 @@ export function AdaptiveAssessmentView({
                       onClick={handleDontKnow}
                       disabled={isEvaluating || Boolean(feedback)}
                       data-testid="dont-know-btn"
-                      className="min-h-[44px] px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground font-mono flex items-center gap-1.5 border border-dashed border-border hover:border-foreground/40 rounded-[2px] bg-transparent cursor-pointer ml-auto"
+                      className="min-h-[44px] px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground font-mono flex items-center gap-1.5 border border-dashed border-border hover:border-foreground/40 rounded-[16px] bg-transparent cursor-pointer ml-auto"
                     >
                       <span>I don&apos;t know yet</span>
                     </button>
@@ -1554,7 +1555,7 @@ export function AdaptiveAssessmentView({
                 /* Post-Submission Feedback and prominent Next Button */
                 <div className="space-y-4 pt-2">
                   <div
-                    className={`p-4 sm:p-5 rounded-[2px] border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                    className={`p-4 sm:p-5 rounded-[16px] border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                       feedback.isCorrect
                         ? "bg-[var(--status-good-bg)] border-[var(--status-good-border)] text-foreground"
                         : "bg-card border-[var(--status-warn-border)] text-foreground"
@@ -1575,7 +1576,7 @@ export function AdaptiveAssessmentView({
                       type="button"
                       onClick={handleNextStep}
                       disabled={isEvaluating}
-                      className="neo-btn neo-btn-primary min-h-[52px] px-8 text-base font-bold flex items-center justify-center gap-2 shrink-0 rounded-[2px] cursor-pointer"
+                      className="neo-btn neo-btn-primary min-h-[52px] px-8 text-base font-bold flex items-center justify-center gap-2 shrink-0 rounded-full cursor-pointer"
                     >
                       <span>{dict.nextQuestion || "Next Question"}</span>
                       <ArrowRight className="w-4 h-4" />

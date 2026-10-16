@@ -6,19 +6,27 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans), 'Bricolage Grotesque', var(--font-devanagari), var(--font-telugu), system-ui, sans-serif;
-  --font-serif: var(--font-serif), 'Instrument Serif', Georgia, Cambria, serif;
-  --font-display: var(--font-sans);
+  --font-sans: var(--font-sans), 'Nunito', var(--font-devanagari), var(--font-telugu), system-ui, sans-serif;
+  --font-serif: var(--font-heading), 'Outfit', 'Instrument Serif', Georgia, serif;
+  --font-display: var(--font-heading), 'Outfit', system-ui, sans-serif;
+  --font-heading: var(--font-heading), 'Outfit', 'Quiche Sans', system-ui, sans-serif;
   --font-mono: ui-monospace, Menlo, Monaco, Consolas, monospace;
-  --font-heading: var(--font-serif);
 
-  /* Exact Coolors 5-color Palette */
-  --color-sg-burgundy: #36151E;
-  --color-sg-offwhite: #EEF0F2;
-  --color-sg-stone: #C6C7C4;
-  --color-sg-mauve: #A2999E;
-  --color-sg-coral: #F56276;
+  /* Sealed Stories Brand Board Color Tokens */
+  --color-leaf-green: #6CA24A;
+  --color-sunshine: #F4C542;
+  --color-marigold: #F28C38;
+  --color-blush: #F7B7C4;
+  --color-cream: #FFF7E6;
+  --color-sage: #C7DDAE;
+  --color-deep-text: #2F4A1E;
 
+  /* Legacy aliases mapped to Sealed Stories palette for compatibility */
+  --color-sg-burgundy: #2F4A1E;
+  --color-sg-offwhite: #FFF7E6;
+  --color-sg-stone: #C7DDAE;
+  --color-sg-mauve: #6CA24A;
+  --color-sg-coral: #F28C38;
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -45,126 +53,155 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
 
-  --radius-xs: 2px;
-  --radius-sm: 2px;
-  --radius-md: 2px;
-  --radius-lg: 2px;
-  --radius-xl: 2px;
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
 }
 
 :root {
-  /* ShikshaGap Exact Coolors Palette - Light Mode */
-  /* Main background: Cool off-white #EEF0F2 */
-  --background: #EEF0F2;
-  /* Primary text: Deep burgundy #36151E (14.35:1 contrast against #EEF0F2) */
-  --foreground: #36151E;
-  /* Cards & elevated containers: Pure white with stone border for crisp separation */
-  --card: #FFFFFF;
-  --card-foreground: #36151E;
-  --popover: #FFFFFF;
-  --popover-foreground: #36151E;
-  /* Primary visual accent: Coral pink #F56276 */
-  --primary: #F56276;
-  /* Text on coral buttons/badges: Deep burgundy #36151E (5.39:1 contrast, passes WCAG AA) */
-  --primary-foreground: #36151E;
-  /* Secondary surfaces: soft stone tint */
-  --secondary: #E3E5E8;
-  --secondary-foreground: #36151E;
-  --muted: #E2E4E7;
-  /* Secondary text / muted elements: Mauve grey #5E5257 (> 4.8:1 contrast on #EEF0F2 and white) */
-  --muted-foreground: #5E5257;
-  --accent: #F56276;
-  --accent-foreground: #36151E;
-  --destructive: #B91C1C;
-  /* Borders: Stone grey #C6C7C4 */
-  --border: #C6C7C4;
-  --input: #C6C7C4;
-  --ring: #F56276;
-  --radius: 2px;
+  /* Sealed Stories - Warm, Whimsical, Illustrated, Gift-Forward Theme */
+  --background: #FFF7E6;
+  --foreground: #2F4A1E;
+  --card: #FFFDF8;
+  --card-foreground: #2F4A1E;
+  --popover: #FFFDF8;
+  --popover-foreground: #2F4A1E;
+  --primary: #6CA24A;
+  --primary-foreground: #FFF7E6;
+  --secondary: #C7DDAE;
+  --secondary-foreground: #2F4A1E;
+  --muted: #F5EEDB;
+  --muted-foreground: #4B6833;
+  --accent: #F28C38;
+  --accent-foreground: #FFF7E6;
+  --destructive: #D9483B;
+  --border: #D2E2BE;
+  --input: #D2E2BE;
+  --ring: #6CA24A;
+  --radius: 20px;
 
   /* Surfaces */
-  --surface: #FFFFFF;
-  --surface-muted: #E2E4E7;
+  --surface: #FFFDF8;
+  --surface-muted: #F3EBD8;
 
-  /* Learning Status Tokens (accessible & distinct from brand) */
-  --status-good: #15803D;
-  --status-good-bg: #DCFCE7;
-  --status-good-border: #86EFAC;
-  --status-warn: #B45309;
-  --status-warn-bg: #FEF3C7;
-  --status-warn-border: #FCD34D;
-  --status-urgent: #B91C1C;
-  --status-urgent-bg: #FEE2E2;
-  --status-urgent-border: #FCA5A5;
+  /* Soft Warm Shadows */
+  --shadow-warm-sm: 0 2px 8px -1px rgba(47, 74, 30, 0.08), 0 1px 4px -1px rgba(242, 140, 56, 0.04);
+  --shadow-warm: 0 8px 24px -4px rgba(47, 74, 30, 0.10), 0 3px 8px -2px rgba(242, 140, 56, 0.06);
+  --shadow-warm-lg: 0 16px 36px -6px rgba(47, 74, 30, 0.14), 0 6px 14px -3px rgba(242, 140, 56, 0.08);
+
+  /* Learning Status Tokens */
+  --status-good: #3E8424;
+  --status-good-bg: #EAF5E1;
+  --status-good-border: #B7DE9E;
+  --status-warn: #C26C15;
+  --status-warn-bg: #FFF3DA;
+  --status-warn-border: #FCD685;
+  --status-urgent: #C03527;
+  --status-urgent-bg: #FEECEB;
+  --status-urgent-border: #F7B7C4;
 }
 
 .dark {
-  /* ShikshaGap Exact Coolors Palette - Dark Mode */
-  /* Main background: Deep burgundy #36151E */
-  --background: #36151E;
-  /* Primary text & headings: Cool off-white #EEF0F2 (14.35:1 contrast against #36151E) */
-  --foreground: #EEF0F2;
-  /* Cards, dialogs, popovers: Dark burgundy surface #250D15 */
-  --card: #250D15;
-  --card-foreground: #EEF0F2;
-  --popover: #250D15;
-  --popover-foreground: #EEF0F2;
-  --surface: #250D15;
-  --surface-muted: #431B27;
-  /* Primary visual accent: Coral pink #F56276 */
-  --primary: #F56276;
-  /* Text on coral buttons/badges: Deep burgundy #36151E (5.39:1 contrast, passes WCAG AA) */
-  --primary-foreground: #36151E;
-  /* Secondary surfaces: elevated dark burgundy #431B27 */
-  --secondary: #431B27;
-  --secondary-foreground: #EEF0F2;
-  --muted: rgba(238, 240, 242, 0.12);
-  /* Secondary text / details: Stone grey #C6C7C4 (9.58:1 contrast on #36151E) */
-  --muted-foreground: #C6C7C4;
-  --accent: #F56276;
-  --accent-foreground: #36151E;
+  /* Earthy Deep Forest Moss Theme for Dark Mode */
+  --background: #1C2D14;
+  --foreground: #FFF7E6;
+  --card: #253C1B;
+  --card-foreground: #FFF7E6;
+  --popover: #253C1B;
+  --popover-foreground: #FFF7E6;
+  --surface: #253C1B;
+  --surface-muted: #2E4822;
+  --primary: #85C060;
+  --primary-foreground: #1C2D14;
+  --secondary: #355227;
+  --secondary-foreground: #FFF7E6;
+  --muted: #2E4822;
+  --muted-foreground: #C7DDAE;
+  --accent: #F4A259;
+  --accent-foreground: #1C2D14;
   --destructive: #F87171;
-  /* Borders: Stone grey with opacity */
-  --border: rgba(198, 199, 196, 0.30);
-  --input: rgba(198, 199, 196, 0.40);
-  --ring: #F56276;
+  --border: #3F6030;
+  --input: #3F6030;
+  --ring: #85C060;
 
-  /* Learning Status Tokens (Dark) */
-  --status-good: #4ADE80;
-  --status-good-bg: rgba(34, 197, 94, 0.18);
-  --status-good-border: rgba(34, 197, 94, 0.45);
-  --status-warn: #FBBF24;
-  --status-warn-bg: rgba(245, 158, 11, 0.18);
-  --status-warn-border: rgba(245, 158, 11, 0.45);
+  --shadow-warm-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --shadow-warm: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-warm-lg: 0 16px 36px rgba(0, 0, 0, 0.45);
+
+  --status-good: #85C060;
+  --status-good-bg: rgba(133, 192, 96, 0.18);
+  --status-good-border: rgba(133, 192, 96, 0.45);
+  --status-warn: #F4C542;
+  --status-warn-bg: rgba(244, 197, 66, 0.18);
+  --status-warn-border: rgba(244, 197, 66, 0.45);
   --status-urgent: #F87171;
-  --status-urgent-bg: rgba(239, 68, 68, 0.18);
-  --status-urgent-border: rgba(239, 68, 68, 0.45);
+  --status-urgent-bg: rgba(248, 113, 113, 0.18);
+  --status-urgent-border: rgba(248, 113, 113, 0.45);
 }
 
-.neo-panel {
+/* Warm Whimsical Cards and Panels */
+.neo-panel, .warm-card {
   background-color: var(--card);
   color: var(--card-foreground);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
+  border-radius: 22px;
+  box-shadow: var(--shadow-warm-sm);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
 }
 
-.neo-btn {
+.warm-card-interactive:hover {
+  transform: translateY(-2px) rotate(-0.3deg);
+  box-shadow: var(--shadow-warm);
+}
+
+/* Whimsical Pill Buttons */
+.neo-btn, .pill-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  border-radius: 2px;
+  border-radius: 9999px;
   cursor: pointer;
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease, filter 0.2s ease;
+}
+
+.neo-btn:hover, .pill-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -2px rgba(108, 162, 74, 0.22);
+}
+
+.neo-btn:active, .pill-btn:active {
+  transform: translateY(0) scale(0.97);
 }
 
 .neo-btn-primary {
   background-color: var(--primary) !important;
   color: var(--primary-foreground) !important;
   border-color: var(--primary) !important;
+  box-shadow: 0 4px 14px rgba(108, 162, 74, 0.24);
 }
 
 .neo-btn-primary:hover {
-  filter: brightness(0.95);
+  filter: brightness(1.06);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 20px rgba(108, 162, 74, 0.32);
+}
+
+.neo-btn-cta, .btn-marigold {
+  background-color: #F28C38 !important;
+  color: #FFF7E6 !important;
+  border-color: #F28C38 !important;
+  box-shadow: 0 4px 16px rgba(242, 140, 56, 0.28);
+}
+
+.neo-btn-cta:hover, .btn-marigold:hover {
+  filter: brightness(1.05);
+  transform: translateY(-2px) scale(1.01) rotate(-0.5deg);
+  box-shadow: 0 8px 22px rgba(242, 140, 56, 0.38);
 }
 
 .neo-btn-secondary {
@@ -175,25 +212,56 @@
 
 .neo-btn-secondary:hover {
   background-color: var(--muted);
+  border-color: var(--primary);
+}
+
+/* Chat & Agent UI Tokens */
+.user-bubble {
+  background-color: #F7B7C4;
+  color: #2F4A1E;
+  border-radius: 20px 20px 4px 20px;
+  box-shadow: var(--shadow-warm-sm);
+}
+
+.agent-bubble {
+  background-color: #FFFDF8;
+  color: #2F4A1E;
+  border: 1.5px solid #6CA24A;
+  border-radius: 20px 20px 20px 4px;
+  box-shadow: var(--shadow-warm-sm);
 }
 
 .editorial-meta {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted-foreground);
+  font-weight: 700;
 }
 
 .editorial-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-heading);
   color: var(--foreground);
+}
+
+/* Botanical Illustrated Background Motifs */
+.botanical-dots {
+  background-image: radial-gradient(circle, rgba(108, 162, 74, 0.12) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+.sticker-lift {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+.sticker-lift:hover {
+  transform: translateY(-3px) rotate(-0.6deg);
+  box-shadow: var(--shadow-warm);
 }
 
 @layer base {
   * {
     border-color: var(--border);
-    box-shadow: none !important;
   }
 
   body {
@@ -201,24 +269,19 @@
     color: var(--foreground);
     font-family: var(--font-sans);
     letter-spacing: -0.01em;
-    line-height: 1.5;
+    line-height: 1.55;
   }
 
-  h1, h2, h3, h4, .font-serif {
-    font-family: var(--font-serif);
+  h1, h2, h3, h4, .font-serif, .font-heading {
+    font-family: var(--font-heading);
     letter-spacing: -0.02em;
   }
 
-  /* Design ban enforcement: instant hover/focus, no easing transitions */
-  button, a, input, select, textarea {
-    transition: none !important;
-    border-radius: 2px;
-  }
-
-  /* Keyboard focus ring with >= 3:1 contrast */
+  /* Keyboard focus ring with friendly rounded leaf green outline */
   *:focus-visible {
-    outline: 2px solid var(--ring) !important;
+    outline: 2.5px solid var(--ring) !important;
     outline-offset: 2px !important;
+    border-radius: 8px;
   }
 
   /* Skip to content link */
@@ -232,14 +295,16 @@
     color: var(--primary-foreground);
     font-weight: bold;
     text-decoration: underline;
-    border-radius: 2px;
+    border-radius: 9999px;
+    box-shadow: var(--shadow-warm);
+    transition: top 0.2s ease;
   }
   .skip-to-content:focus {
     top: 1rem;
   }
 }
 
-/* Print Stylesheet (Phase E & UI Step 7 rule: clean A4 print, black text, large font, no navigation) */
+/* Print Stylesheet */
 @media print {
   @page {
     size: A4 portrait;

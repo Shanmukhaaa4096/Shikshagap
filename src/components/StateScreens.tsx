@@ -2,24 +2,24 @@
 
 import Link from 'next/link';
 
-// Consistent SVG stroke icons (no emojis, no lucide, no sparkles)
+// Consistent SVG stroke icons
 const SvgIcons = {
   Empty: () => (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square">
-      <rect x="3" y="4" width="18" height="16" />
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="16" rx="2" />
       <line x1="3" y1="10" x2="21" y2="10" />
       <line x1="8" y1="15" x2="16" y2="15" />
     </svg>
   ),
   Error: () => (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--destructive)" strokeWidth="1.5" strokeLinecap="square">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--destructive)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <polygon points="12 2 22 20 2 20" />
       <line x1="12" y1="9" x2="12" y2="13" />
       <line x1="12" y1="17" x2="12.01" y2="17" strokeWidth="2" />
     </svg>
   ),
   Offline: () => (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--status-warn)" strokeWidth="1.5" strokeLinecap="square">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--status-warn)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <line x1="1" y1="1" x2="23" y2="23" />
       <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55" />
       <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39" />
@@ -28,34 +28,34 @@ const SvgIcons = {
     </svg>
   ),
   SlowNetwork: () => (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--status-warn)" strokeWidth="1.5" strokeLinecap="square">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--status-warn)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="9" />
       <polyline points="12 7 12 12 15 15" />
     </svg>
   ),
   NoSearchResults: () => (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="11" cy="11" r="7" />
       <line x1="21" y1="21" x2="16.65" y2="16.65" />
       <line x1="8" y1="11" x2="14" y2="11" />
     </svg>
   ),
   PermissionDenied: () => (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--destructive)" strokeWidth="1.5" strokeLinecap="square">
-      <rect x="5" y="11" width="14" height="10" />
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--destructive)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="5" y="11" width="14" height="10" rx="2" />
       <path d="M8 11V7a4 4 0 0 1 8 0v4" />
       <circle cx="12" cy="16" r="1" fill="currentColor" />
     </svg>
   ),
   SessionExpired: () => (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--destructive)" strokeWidth="1.5" strokeLinecap="square">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--destructive)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
       <polyline points="10 17 15 12 10 7" />
       <line x1="15" y1="12" x2="3" y2="12" />
     </svg>
   ),
   Success: () => (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--status-good)" strokeWidth="1.5" strokeLinecap="square">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--status-good)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="9" />
       <polyline points="8 12 11 15 16 9" />
     </svg>
@@ -92,16 +92,16 @@ export function EmptyState({ lang = 'en', onAction, className = '' }: BaseStateP
   }[lang];
 
   return (
-    <div className={`border border-border p-8 text-center bg-card ${className}`}>
-      <div className="flex justify-center mb-3 text-muted-foreground dark:text-muted-foreground">
+    <div className={`rounded-[28px] border-2 border-[#C7DDAE] p-8 text-center bg-[#FFF7E6] dark:bg-[#1C2817] shadow-card ${className}`}>
+      <div className="flex justify-center mb-3 text-muted-foreground">
         <SvgIcons.Empty />
       </div>
-      <h3 className="font-serif text-lg font-bold mb-1 text-foreground">{text.title}</h3>
-      <p className="text-sm text-foreground/80 dark:text-muted-foreground max-w-md mx-auto mb-5 leading-relaxed">{text.desc}</p>
+      <h3 className="font-heading text-xl font-bold mb-1 text-foreground">{text.title}</h3>
+      <p className="text-xs sm:text-sm text-foreground/80 max-w-md mx-auto mb-5 leading-relaxed font-sans">{text.desc}</p>
       {onAction && (
         <button
           onClick={onAction}
-          className="border-2 border-primary bg-primary text-primary-foreground px-4 py-2 text-sm font-mono uppercase font-bold hover:bg-primary min-h-[44px] cursor-pointer"
+          className="rounded-full bg-primary text-primary-foreground px-6 py-2.5 text-xs font-sans uppercase font-bold hover:bg-primary/90 min-h-[44px] cursor-pointer shadow-warm transition-transform active:scale-95"
         >
           {text.action}
         </button>
@@ -114,14 +114,14 @@ export function EmptyState({ lang = 'en', onAction, className = '' }: BaseStateP
 export function LoadingSkeletonState({ className = '' }: { className?: string }) {
   return (
     <div className={`space-y-4 ${className}`} aria-label="Loading content" role="status">
-      <div className="border border-border p-4 bg-card dark:bg-card space-y-3">
-        <div className="h-4 bg-muted dark:bg-muted w-1/3" />
-        <div className="h-3 bg-muted dark:bg-muted w-2/3" />
+      <div className="rounded-[20px] border border-[#C7DDAE] p-5 bg-[#FFF7E6] dark:bg-[#1C2817] space-y-3">
+        <div className="h-4 bg-[#C7DDAE]/40 rounded-full w-1/3 animate-pulse" />
+        <div className="h-3 bg-[#C7DDAE]/30 rounded-full w-2/3 animate-pulse" />
       </div>
-      <div className="border border-border p-4 bg-card dark:bg-card space-y-3">
-        <div className="h-4 bg-muted dark:bg-muted w-1/4" />
-        <div className="h-8 bg-muted dark:bg-muted w-full" />
-        <div className="h-8 bg-muted dark:bg-muted w-full" />
+      <div className="rounded-[20px] border border-[#C7DDAE] p-5 bg-[#FFF7E6] dark:bg-[#1C2817] space-y-3">
+        <div className="h-4 bg-[#C7DDAE]/40 rounded-full w-1/4 animate-pulse" />
+        <div className="h-8 bg-[#C7DDAE]/20 rounded-[14px] w-full animate-pulse" />
+        <div className="h-8 bg-[#C7DDAE]/20 rounded-[14px] w-full animate-pulse" />
       </div>
       <span className="sr-only">Loading content, please wait...</span>
     </div>
@@ -164,19 +164,19 @@ export function ErrorState({
   }[lang];
 
   return (
-    <div className={`border-2 border-primary p-8 text-center bg-primary/10 dark:bg-primary/15 ${className}`} role="alert">
+    <div className={`rounded-[28px] border-2 border-accent/40 p-8 text-center bg-[#FFF7E6] dark:bg-[#1C2817] shadow-card ${className}`} role="alert">
       <div className="flex justify-center mb-3">
         <SvgIcons.Error />
       </div>
-      <h3 className="font-serif text-lg font-bold mb-1 text-primary">{text.title}</h3>
-      <p className="text-sm text-foreground/80 dark:text-muted-foreground max-w-md mx-auto mb-3 leading-relaxed">{text.desc}</p>
-      <div className="text-sm font-mono text-muted-foreground dark:text-muted-foreground mb-5">
+      <h3 className="font-heading text-xl font-bold mb-1 text-accent">{text.title}</h3>
+      <p className="text-xs sm:text-sm text-foreground/80 max-w-md mx-auto mb-3 leading-relaxed font-sans">{text.desc}</p>
+      <div className="text-xs font-mono text-muted-foreground mb-5">
         {text.ref}: <span className="font-bold select-all">{referenceId}</span>
       </div>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="border-2 border-primary bg-primary text-primary-foreground px-4 py-2 text-sm font-mono uppercase font-bold hover:bg-primary min-h-[44px] cursor-pointer"
+          className="rounded-full bg-accent text-accent-foreground px-6 py-2.5 text-xs font-sans uppercase font-bold hover:bg-accent/90 min-h-[44px] cursor-pointer shadow-warm transition-transform active:scale-95"
         >
           {text.action}
         </button>
@@ -206,16 +206,16 @@ export function OfflineState({ lang = 'en', onRetry, className = '' }: BaseState
   }[lang];
 
   return (
-    <div className={`border border-[var(--status-warn-border)] p-6 text-center bg-[var(--status-warn)]/10 ${className}`}>
+    <div className={`rounded-[24px] border border-[var(--status-warn-border)] p-6 text-center bg-[var(--status-warn)]/10 shadow-warm ${className}`}>
       <div className="flex justify-center mb-2">
         <SvgIcons.Offline />
       </div>
-      <h3 className="font-serif text-base font-bold mb-1 text-foreground">{text.title}</h3>
-      <p className="text-sm text-foreground/80 dark:text-muted-foreground max-w-md mx-auto mb-4">{text.desc}</p>
+      <h3 className="font-heading text-base font-bold mb-1 text-foreground">{text.title}</h3>
+      <p className="text-xs sm:text-sm text-foreground/80 max-w-md mx-auto mb-4 font-sans">{text.desc}</p>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="border border-border px-3 py-1.5 text-sm font-mono uppercase hover:bg-card dark:hover:bg-muted"
+          className="rounded-full border border-[#C7DDAE] px-4 py-2 text-xs font-sans uppercase font-bold hover:bg-[#C7DDAE]/30"
         >
           {text.action}
         </button>
@@ -245,20 +245,20 @@ export function SlowNetworkState({ lang = 'en', onCancel, className = '' }: { la
   }[lang];
 
   return (
-    <div className={`border border-[var(--status-warn-border)] p-4 bg-[var(--status-warn)]/10 flex flex-col sm:flex-row items-center justify-between gap-3 ${className}`}>
+    <div className={`rounded-[20px] border border-[var(--status-warn-border)] p-4 bg-[var(--status-warn)]/10 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs ${className}`}>
       <div className="flex items-center gap-3">
         <div className="text-foreground shrink-0">
           <SvgIcons.SlowNetwork />
         </div>
-        <div className="text-left">
-          <div className="text-sm font-bold text-foreground">{text.title}</div>
-          <div className="text-sm text-muted-foreground dark:text-muted-foreground">{text.desc}</div>
+        <div className="text-left font-sans">
+          <div className="text-xs sm:text-sm font-bold text-foreground">{text.title}</div>
+          <div className="text-xs text-muted-foreground">{text.desc}</div>
         </div>
       </div>
       {onCancel && (
         <button
           onClick={onCancel}
-          className="border border-border px-3 py-1 text-sm font-mono uppercase shrink-0 hover:bg-card dark:hover:bg-muted"
+          className="rounded-full border border-[#C7DDAE] px-4 py-1.5 text-xs font-sans uppercase shrink-0 hover:bg-[#C7DDAE]/30 cursor-pointer font-bold"
         >
           {text.action}
         </button>
@@ -288,16 +288,16 @@ export function NoSearchResultsState({ lang = 'en', onClear, className = '' }: {
   }[lang];
 
   return (
-    <div className={`border border-border p-8 text-center bg-card ${className}`}>
-      <div className="flex justify-center mb-2 text-muted-foreground dark:text-muted-foreground">
+    <div className={`rounded-[24px] border border-[#C7DDAE] p-8 text-center bg-[#FFF7E6] dark:bg-[#1C2817] shadow-card ${className}`}>
+      <div className="flex justify-center mb-2 text-muted-foreground">
         <SvgIcons.NoSearchResults />
       </div>
-      <h3 className="font-serif text-base font-bold mb-1 text-foreground">{text.title}</h3>
-      <p className="text-sm text-foreground/80 dark:text-muted-foreground mb-4">{text.desc}</p>
+      <h3 className="font-heading text-lg font-bold mb-1 text-foreground">{text.title}</h3>
+      <p className="text-xs sm:text-sm text-foreground/80 mb-4 font-sans">{text.desc}</p>
       {onClear && (
         <button
           onClick={onClear}
-          className="border border-border px-3.5 py-1.5 text-sm font-mono uppercase hover:bg-muted min-h-[44px] cursor-pointer"
+          className="rounded-full border border-[#C7DDAE] px-5 py-2 text-xs font-sans uppercase font-bold hover:bg-[#C7DDAE]/30 min-h-[44px] cursor-pointer shadow-xs"
         >
           {text.action}
         </button>
@@ -327,15 +327,15 @@ export function PermissionDeniedState({ lang = 'en', requiredRole = 'School Admi
   }[lang];
 
   return (
-    <div className={`border border-primary p-8 text-center bg-card dark:bg-card ${className}`} role="alert">
+    <div className={`rounded-[28px] border-2 border-accent/40 p-8 text-center bg-[#FFF7E6] dark:bg-[#1C2817] shadow-card ${className}`} role="alert">
       <div className="flex justify-center mb-2">
         <SvgIcons.PermissionDenied />
       </div>
-      <h3 className="font-serif text-base font-bold mb-1 text-primary">{text.title}</h3>
-      <p className="text-sm text-foreground/80 dark:text-muted-foreground max-w-md mx-auto mb-5">{text.desc}</p>
+      <h3 className="font-heading text-xl font-bold mb-1 text-accent">{text.title}</h3>
+      <p className="text-xs sm:text-sm text-foreground/80 max-w-md mx-auto mb-5 font-sans leading-relaxed">{text.desc}</p>
       <Link
         href="/app"
-        className="border border-border bg-primary text-primary-foreground px-4 py-2 text-sm font-mono uppercase font-bold hover:bg-primary"
+        className="rounded-full bg-primary text-primary-foreground px-6 py-2.5 text-xs font-sans uppercase font-bold hover:bg-primary/90 shadow-warm inline-block"
       >
         {text.action}
       </Link>
@@ -364,15 +364,15 @@ export function SessionExpiredState({ lang = 'en', className = '' }: BaseStatePr
   }[lang];
 
   return (
-    <div className={`border border-primary p-8 text-center bg-card dark:bg-card ${className}`} role="alert">
+    <div className={`rounded-[28px] border-2 border-accent/40 p-8 text-center bg-[#FFF7E6] dark:bg-[#1C2817] shadow-card ${className}`} role="alert">
       <div className="flex justify-center mb-2">
         <SvgIcons.SessionExpired />
       </div>
-      <h3 className="font-serif text-base font-bold mb-1 text-primary">{text.title}</h3>
-      <p className="text-sm text-foreground/80 dark:text-muted-foreground max-w-md mx-auto mb-5">{text.desc}</p>
+      <h3 className="font-heading text-xl font-bold mb-1 text-accent">{text.title}</h3>
+      <p className="text-xs sm:text-sm text-foreground/80 max-w-md mx-auto mb-5 font-sans leading-relaxed">{text.desc}</p>
       <Link
         href="/login?redirect=/app"
-        className="border border-primary bg-primary text-primary-foreground px-4 py-2 text-sm font-mono uppercase font-bold hover:bg-foreground text-background"
+        className="rounded-full bg-accent text-accent-foreground px-6 py-2.5 text-xs font-sans uppercase font-bold hover:bg-accent/90 shadow-warm inline-block"
       >
         {text.action}
       </Link>
@@ -401,16 +401,16 @@ export function SuccessState({ lang = 'en', message, onAction, className = '' }:
   }[lang];
 
   return (
-    <div className={`border border-[var(--status-good-border)] p-8 text-center bg-[var(--status-good)]/10 ${className}`}>
+    <div className={`rounded-[28px] border-2 border-[#6CA24A]/40 p-8 text-center bg-[#C7DDAE]/20 shadow-card ${className}`}>
       <div className="flex justify-center mb-2">
         <SvgIcons.Success />
       </div>
-      <h3 className="font-serif text-base font-bold mb-1 text-foreground">{text.title}</h3>
-      <p className="text-sm text-foreground/80 dark:text-muted-foreground max-w-md mx-auto mb-4">{text.desc}</p>
+      <h3 className="font-heading text-xl font-bold mb-1 text-foreground">{text.title}</h3>
+      <p className="text-xs sm:text-sm text-foreground/80 max-w-md mx-auto mb-4 font-sans leading-relaxed">{text.desc}</p>
       {onAction && (
         <button
           onClick={onAction}
-          className="border border-border bg-primary text-primary-foreground px-4 py-2 text-sm font-mono uppercase font-bold hover:bg-[var(--status-good)]"
+          className="rounded-full bg-primary text-primary-foreground px-6 py-2.5 text-xs font-sans uppercase font-bold hover:bg-primary/90 shadow-warm"
         >
           {text.action}
         </button>

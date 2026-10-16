@@ -1,6 +1,9 @@
+'use client';
+
 import Link from 'next/link';
 import { ArrowRight } from '@phosphor-icons/react';
 import { WorksheetPreviewIllustration } from '@/components/illustrations/WorksheetPreviewIllustration';
+import { FlowerPetal, BotanicalLeaf, WarmSparkle } from '@/components/illustrations/FloralMotifs';
 
 interface Props {
   sampleQ1Expression: string;
@@ -9,24 +12,24 @@ interface Props {
 
 export function LandingHowAgentWorksSection({ sampleQ1Expression, sampleQ2Expression }: Props) {
   return (
-    <section id="how-agent-works" className="border-b border-border px-4 sm:px-8 py-12 max-w-7xl mx-auto bg-muted dark:bg-card">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-border pb-4">
+    <section id="how-agent-works" className="px-4 sm:px-8 py-14 max-w-7xl mx-auto bg-[#FFF7E6] dark:bg-[#1A2615] rounded-[32px] border border-[#C7DDAE]/60 my-6 shadow-card">
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-[#C7DDAE]/60 pb-4">
         <div>
-          <div className="flex items-center gap-2 text-sm font-mono uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
-            <span className="text-primary font-bold">03</span>
-            <span>/</span>
-            <span>HOW THE AI AGENT WORKS : VISUAL SAMPLES</span>
+          <div className="flex items-center gap-2 text-xs font-sans uppercase tracking-widest text-primary font-bold">
+            <BotanicalLeaf size={16} />
+            <span>03 / HOW THE AI AGENT WORKS : VISUAL SAMPLES</span>
           </div>
-          <h2 className="font-serif text-2xl sm:text-4xl font-normal mt-1 text-foreground">
+          <h2 className="font-heading text-2xl sm:text-4xl font-bold mt-1 text-foreground">
             From 6-Minute Check to Actionable Gap Report
           </h2>
         </div>
         <div className="flex items-center gap-3">
           <Link
             href="/assessment"
-            className="border-2 border-primary bg-primary text-primary-foreground px-4 py-2 min-h-[44px] inline-flex items-center text-sm font-mono uppercase font-bold hover:bg-primary cursor-pointer"
+            className="rounded-full bg-primary text-primary-foreground px-6 py-2.5 min-h-[44px] inline-flex items-center gap-1.5 text-xs font-sans uppercase font-bold hover:bg-primary/90 cursor-pointer shadow-warm transition-transform active:scale-95"
           >
-            Start an Assessment Now
+            <span>Start an Assessment Now</span>
+            <ArrowRight size={14} weight="bold" />
           </Link>
         </div>
       </div>
@@ -35,80 +38,80 @@ export function LandingHowAgentWorksSection({ sampleQ1Expression, sampleQ2Expres
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         
         {/* Visual Specimen 1: Student Gap Report */}
-        <div className="border-2 border-border bg-card p-6 shadow-sm space-y-4">
-          <div className="border-b border-border pb-3 flex items-center justify-between">
+        <div className="rounded-[28px] border-2 border-[#C7DDAE] bg-[#FFF7E6] dark:bg-[#1C2817] p-6 shadow-card space-y-4">
+          <div className="border-b border-[#C7DDAE]/60 pb-3 flex items-center justify-between">
             <div>
-              <span className="text-sm font-mono uppercase tracking-wider text-primary font-bold">
-                SAMPLE REPORT
+              <span className="text-xs font-sans uppercase tracking-wider text-primary font-bold flex items-center gap-1">
+                <WarmSparkle size={13} /> SAMPLE REPORT
               </span>
-              <h3 className="font-serif text-xl font-bold">Student Gap Report</h3>
+              <h3 className="font-heading text-xl font-bold text-foreground">Student Gap Report</h3>
             </div>
             <div className="flex flex-col items-end gap-1">
-              <span className="text-sm font-mono px-2 py-1 bg-primary/15 text-primary border border-primary/40 font-bold">
+              <span className="text-xs font-sans px-3 py-1 rounded-full bg-[#F4C542]/25 text-[#9E6000] dark:text-[#F4C542] border border-[#F4C542]/50 font-bold">
                 Class 5A : 42%
               </span>
-              <span className="text-sm font-mono px-1.5 py-0.5 bg-card text-foreground/80 dark:text-muted-foreground border border-border">
+              <span className="text-xs font-sans px-2 py-0.5 rounded-full bg-[#C7DDAE]/20 text-muted-foreground border border-[#C7DDAE]/40">
                 Sample data. Not a real student.
               </span>
             </div>
           </div>
 
           {/* Diagnosed Root Gap */}
-          <div className="border border-border p-4 bg-muted dark:bg-card space-y-2">
-            <div className="flex items-center justify-between text-sm font-mono">
-              <span className="text-muted-foreground dark:text-muted-foreground uppercase text-sm">Student:</span>
-              <strong>Rajesh Kumar (Roll #7)</strong>
+          <div className="rounded-[20px] border border-[#C7DDAE] p-4 bg-[#C7DDAE]/20 space-y-2">
+            <div className="flex items-center justify-between text-xs font-sans">
+              <span className="text-muted-foreground uppercase">Student:</span>
+              <strong className="text-foreground">Rajesh Kumar (Roll #7)</strong>
             </div>
-            <div className="text-sm font-mono">
-              <span className="text-primary font-bold uppercase text-sm block">Diagnosed Root Cause:</span>
-              <p className="font-serif text-base font-bold text-primary">
+            <div className="text-xs font-sans">
+              <span className="text-accent font-bold uppercase block">Diagnosed Root Cause:</span>
+              <p className="font-heading text-base font-bold text-primary">
                 Class 3 Subtraction Regrouping (Tens to Units Borrowing)
               </p>
             </div>
-            <p className="text-sm text-foreground/80 dark:text-muted-foreground leading-relaxed italic border-t border-border pt-2">
+            <p className="text-xs text-foreground/80 leading-relaxed italic border-t border-[#C7DDAE]/50 pt-2">
               &ldquo;Student attempted long division in 24 / 6 by subtracting 6 repeatedly, but subtracted the smaller ones digit from the larger digit without borrowing.&rdquo;
             </p>
           </div>
 
           {/* Prerequisite Backtracking Graph Trail */}
-          <div className="border border-border p-3 bg-white dark:bg-card space-y-2 text-sm font-mono">
-            <span className="text-sm uppercase font-bold text-muted-foreground dark:text-muted-foreground block">
-              AI Agent Backtracking Trail:
+          <div className="rounded-[20px] border border-[#C7DDAE] p-3.5 bg-white dark:bg-[#1A2615] space-y-2 text-xs font-sans">
+            <span className="uppercase font-bold text-primary flex items-center gap-1">
+              <FlowerPetal size={13} /> AI Agent Backtracking Trail:
             </span>
-            <div className="flex items-center justify-between text-sm bg-card p-2 border border-border">
+            <div className="flex items-center justify-between text-xs bg-[#FFF7E6] dark:bg-[#1C2817] p-2.5 rounded-[14px] border border-[#C7DDAE]/60">
               <span className="text-primary font-bold">Class 3 Place Value</span>
-              <ArrowRight size={12} className="text-primary" />
+              <ArrowRight size={13} weight="bold" className="text-accent" />
               <span className="text-primary font-bold">Class 4 Mult Facts</span>
-              <ArrowRight size={12} className="text-primary" />
-              <span className="text-muted-foreground dark:text-muted-foreground">Class 5 Long Division</span>
+              <ArrowRight size={13} weight="bold" className="text-accent" />
+              <span className="text-muted-foreground font-semibold">Class 5 Long Division</span>
             </div>
           </div>
 
           {/* 5-Day Plan Summary */}
-          <div className="border border-[var(--status-good-border)]/50 p-3 bg-[var(--status-good)]/10 space-y-1.5 text-sm font-mono">
-            <span className="text-sm uppercase font-bold text-foreground block">
+          <div className="rounded-[20px] border border-[#6CA24A]/40 p-4 bg-[#C7DDAE]/30 space-y-1.5 text-xs font-sans">
+            <span className="uppercase font-bold text-foreground block">
               Prescribed 5-Day Classroom Sequence:
             </span>
-            <div className="text-sm text-foreground/80 dark:text-muted-foreground">
+            <div className="text-foreground/80 leading-relaxed">
               Day 1 to 2: Physical pebble bundles for grouping. Day 3: Inverse facts on slate. Day 4 to 5: Single-sheet paper checks.
             </div>
           </div>
         </div>
 
         {/* Visual Specimen 2: Single-Sheet Printable Practice Worksheet */}
-        <div className="border-2 border-border p-6 bg-card text-foreground rounded-[2px] shadow-sm space-y-4">
-          <div className="border-b border-border pb-3 flex items-center justify-between">
+        <div className="rounded-[28px] border-2 border-[#C7DDAE] p-6 bg-[#FFF7E6] dark:bg-[#1C2817] text-foreground shadow-card space-y-4">
+          <div className="border-b border-[#C7DDAE]/60 pb-3 flex items-center justify-between">
             <div>
-              <span className="text-sm font-mono uppercase tracking-wider text-muted-foreground font-bold">
-                SAMPLE WORKSHEET
+              <span className="text-xs font-sans uppercase tracking-wider text-muted-foreground font-bold flex items-center gap-1">
+                <FlowerPetal size={13} /> SAMPLE WORKSHEET
               </span>
-              <h3 className="font-serif text-xl font-bold">1-Page Paper Worksheet</h3>
+              <h3 className="font-heading text-xl font-bold">1-Page Paper Worksheet</h3>
             </div>
             <div className="flex flex-col items-end gap-1">
-              <span className="text-sm font-mono px-2 py-1 bg-[var(--status-good-bg)] text-[var(--status-good)] border border-[var(--status-good-border)] font-bold">
+              <span className="text-xs font-sans px-3 py-1 rounded-full bg-[#C7DDAE]/40 text-primary border border-[#6CA24A]/40 font-bold">
                 Standard A4 Print
               </span>
-              <span className="text-sm font-mono px-1.5 py-0.5 bg-card text-foreground/80 border border-border">
+              <span className="text-xs font-sans px-2 py-0.5 rounded-full bg-[#C7DDAE]/20 text-muted-foreground border border-[#C7DDAE]/40">
                 Sample data. Not a real student.
               </span>
             </div>
@@ -117,36 +120,36 @@ export function LandingHowAgentWorksSection({ sampleQ1Expression, sampleQ2Expres
             <WorksheetPreviewIllustration className="max-w-[170px]" />
           </div>
 
-          <div className="grid grid-cols-3 gap-2 border border-border p-2 text-sm font-mono bg-muted">
+          <div className="grid grid-cols-3 gap-2 border border-[#C7DDAE] p-2.5 rounded-[16px] text-xs font-sans bg-[#C7DDAE]/20">
             <div>STUDENT: <strong>Rajesh Kumar</strong></div>
             <div>ROLL NO: <strong>#7</strong></div>
             <div className="text-right">CLASS: <strong>5A</strong></div>
           </div>
 
           <div className="space-y-3 pt-1">
-            <div className="text-sm font-mono uppercase tracking-wider text-muted-foreground">
+            <div className="text-xs font-sans uppercase tracking-wider text-primary font-bold">
               Target Skill: Equal Sharing Division Concept
             </div>
 
-            <div className="border border-border p-3 space-y-1 bg-card text-card-foreground">
-              <div className="text-sm font-bold font-sans">1. Solve the following problem:</div>
-              <div className="text-sm font-mono font-bold">{sampleQ1Expression}</div>
-              <div className="h-8 border-b border-dashed border-border flex items-end text-sm text-muted-foreground font-mono">
+            <div className="border border-[#C7DDAE] p-3 rounded-[16px] space-y-1 bg-white dark:bg-[#1A2615]">
+              <div className="text-xs font-bold font-sans">1. Solve the following problem:</div>
+              <div className="text-xs font-mono font-bold text-primary">{sampleQ1Expression}</div>
+              <div className="h-8 border-b border-dashed border-[#C7DDAE] flex items-end text-xs text-muted-foreground font-sans">
                 Answer: _______________________
               </div>
             </div>
 
-            <div className="border border-border p-3 space-y-1 bg-card text-card-foreground">
-              <div className="text-sm font-bold font-sans">2. Solve the following problem:</div>
-              <div className="text-sm font-mono font-bold">{sampleQ2Expression}</div>
-              <div className="h-8 border-b border-dashed border-border flex items-end text-sm text-muted-foreground font-mono">
+            <div className="border border-[#C7DDAE] p-3 rounded-[16px] space-y-1 bg-white dark:bg-[#1A2615]">
+              <div className="text-xs font-bold font-sans">2. Solve the following problem:</div>
+              <div className="text-xs font-mono font-bold text-primary">{sampleQ2Expression}</div>
+              <div className="h-8 border-b border-dashed border-[#C7DDAE] flex items-end text-xs text-muted-foreground font-sans">
                 Answer: _______________________
               </div>
             </div>
           </div>
 
-          <div className="pt-2 text-center text-sm font-mono text-muted-foreground border-t border-border">
-            Deterministic Question Bank : Generated for Student Diagnosis : Form SG-A4-2026
+          <div className="pt-2 text-center text-xs font-sans text-muted-foreground border-t border-[#C7DDAE]/50">
+            Deterministic Question Bank &bull; Generated for Student Diagnosis &bull; Form SG-A4-2026
           </div>
         </div>
 

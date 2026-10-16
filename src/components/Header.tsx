@@ -17,6 +17,7 @@ import {
 } from "@phosphor-icons/react";
 import { getClassConfig, DEFAULT_CLASS_ID } from "@/lib/curriculum/classes";
 import { ClassSelector } from "./ClassSelector";
+import { FlowerPetal } from "@/components/illustrations/FloralMotifs";
 
 interface HeaderProps {
   currentView?: "teacher" | "student";
@@ -75,7 +76,7 @@ export function Header({
   };
 
   return (
-    <header className="border-b border-border bg-card dark:bg-card sticky top-0 z-30">
+    <header className="border-b border-border/80 bg-[var(--surface)]/95 backdrop-blur-md sticky top-0 z-30 shadow-warm-sm">
       {/* Accessible skip link */}
       <a
         href="#main-content"
@@ -93,14 +94,14 @@ export function Header({
               className="flex items-center gap-2 text-inherit no-underline"
               aria-label="ShikshaGap Home"
             >
-              <div className="h-8 w-8 rounded-[2px] bg-primary text-primary-foreground flex items-center justify-center font-mono font-bold text-sm border border-border">
+              <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-mono font-bold text-sm border border-border">
                 SG
               </div>
               <div>
                 <span className="font-serif font-bold text-lg tracking-tight text-foreground">
                   ShikshaGap
                 </span>
-                <span className="ml-2 text-sm font-mono font-bold uppercase text-foreground/80 dark:text-muted-foreground border border-border px-1.5 py-0.5 rounded-[2px] bg-muted dark:bg-muted">
+                <span className="ml-2 text-sm font-mono font-bold uppercase text-foreground/80 dark:text-muted-foreground border border-border px-1.5 py-0.5 rounded-full bg-muted dark:bg-muted">
                   {getClassConfig(selectedClassId).shortLabel}
                 </span>
               </div>
@@ -121,11 +122,11 @@ export function Header({
           <div className="flex items-center gap-2">
             {/* View Switcher: Teacher vs Student */}
             {onViewChange && (
-              <div className="hidden sm:flex items-center gap-1 bg-card dark:bg-muted border border-border rounded-[2px] p-1 text-sm font-mono">
+              <div className="hidden sm:flex items-center gap-1 bg-card dark:bg-muted border border-border rounded-full p-1 text-sm font-mono">
                 <button
                   type="button"
                   onClick={() => onViewChange("teacher")}
-                  className={`min-h-[44px] px-3 rounded-[2px] flex items-center gap-1.5 font-bold ${
+                  className={`min-h-[44px] px-3 rounded-full flex items-center gap-1.5 font-bold ${
                     currentView === "teacher"
                       ? "bg-primary text-primary-foreground dark:bg-muted dark:text-foreground"
                       : "text-foreground hover:bg-muted"
@@ -138,7 +139,7 @@ export function Header({
                 <button
                   type="button"
                   onClick={() => onViewChange("student")}
-                  className={`min-h-[44px] px-3 rounded-[2px] flex items-center gap-1.5 font-bold ${
+                  className={`min-h-[44px] px-3 rounded-full flex items-center gap-1.5 font-bold ${
                     currentView === "student"
                       ? "bg-primary text-primary-foreground dark:bg-muted dark:text-foreground"
                       : "text-foreground hover:bg-muted"
@@ -152,13 +153,13 @@ export function Header({
             )}
 
             {/* Language Switcher */}
-            <div className="flex items-center gap-1 border border-border rounded-[2px] p-1 text-sm font-mono" role="group" aria-label="Select language">
+            <div className="flex items-center gap-1 border border-border rounded-full p-1 text-sm font-mono" role="group" aria-label="Select language">
               {(["en", "hi", "te"] as Lang[]).map((l) => (
                 <button
                   key={l}
                   type="button"
                   onClick={() => setLang(l)}
-                  className={`min-h-[44px] min-w-[44px] px-2.5 rounded-[2px] font-bold ${
+                  className={`min-h-[44px] min-w-[44px] px-2.5 rounded-full font-bold ${
                     lang === l
                       ? "bg-primary text-primary-foreground dark:bg-muted dark:text-foreground"
                       : "text-foreground hover:bg-muted"
@@ -175,7 +176,7 @@ export function Header({
             <button
               type="button"
               onClick={toggleDarkMode}
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center border border-border rounded-[2px] text-foreground hover:bg-muted"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center border border-border rounded-full text-foreground hover:bg-muted"
               aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
             >
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
@@ -186,7 +187,7 @@ export function Header({
               <button
                 type="button"
                 onClick={onOpenProfile}
-                className="hidden sm:flex min-h-[44px] px-3 border border-border text-foreground hover:bg-muted items-center gap-1.5 font-bold rounded-[2px]"
+                className="hidden sm:flex min-h-[44px] px-3 border border-border text-foreground hover:bg-muted items-center gap-1.5 font-bold rounded-full"
                 aria-label="Teacher Account Profile"
               >
                 <User size={16} />
@@ -211,7 +212,7 @@ export function Header({
             <button
               type="button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center border border-border rounded-[2px] text-foreground hover:bg-muted"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center border border-border rounded-full text-foreground hover:bg-muted"
               aria-label={isMenuOpen ? "Close menu" : "Open menu"}
               aria-expanded={isMenuOpen}
             >
@@ -232,7 +233,7 @@ export function Header({
                     onViewChange("teacher");
                     setIsMenuOpen(false);
                   }}
-                  className={`flex-1 min-h-[44px] px-3 border border-border rounded-[2px] font-bold flex items-center justify-center gap-2 ${
+                  className={`flex-1 min-h-[44px] px-3 border border-border rounded-full font-bold flex items-center justify-center gap-2 ${
                     currentView === "teacher"
                       ? "bg-primary text-primary-foreground"
                       : "bg-card text-foreground"
@@ -247,7 +248,7 @@ export function Header({
                     onViewChange("student");
                     setIsMenuOpen(false);
                   }}
-                  className={`flex-1 min-h-[44px] px-3 border border-border rounded-[2px] font-bold flex items-center justify-center gap-2 ${
+                  className={`flex-1 min-h-[44px] px-3 border border-border rounded-full font-bold flex items-center justify-center gap-2 ${
                     currentView === "student"
                       ? "bg-primary text-primary-foreground"
                       : "bg-card text-foreground"

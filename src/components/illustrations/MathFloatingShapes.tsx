@@ -11,92 +11,100 @@ export function MathFloatingShapes() {
 
   const shapes = [
     {
-      id: 'plus',
-      x: '12%',
-      y: '18%',
+      id: 'flower-1',
+      x: '10%',
+      y: '16%',
       duration: 7,
       content: (
-        <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
-          <circle cx="17" cy="17" r="15" fill="#EEF0F2" stroke="#36151E" strokeWidth="3" />
-          <line x1="17" y1="9" x2="17" y2="25" stroke="#F56276" strokeWidth="4" strokeLinecap="round" />
-          <line x1="9" y1="17" x2="25" y2="17" stroke="#F56276" strokeWidth="4" strokeLinecap="round" />
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+          <circle cx="18" cy="11" r="5.5" fill="#F4C542" />
+          <circle cx="24.5" cy="15.5" r="5.5" fill="#F4C542" />
+          <circle cx="22" cy="23.5" r="5.5" fill="#F4C542" />
+          <circle cx="14" cy="23.5" r="5.5" fill="#F4C542" />
+          <circle cx="11.5" cy="15.5" r="5.5" fill="#F4C542" />
+          <circle cx="18" cy="18" r="4.2" fill="#F28C38" />
         </svg>
       ),
     },
     {
-      id: 'star-1',
+      id: 'sparkle-gold',
       x: '86%',
-      y: '22%',
+      y: '20%',
       duration: 8.5,
       content: (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-          <polygon
-            points="15,2 18,10 26,11 20,17 22,25 15,20 8,25 10,17 4,11 12,10"
-            fill="#C6C7C4"
-            stroke="#36151E"
-            strokeWidth="2.5"
-            strokeLinejoin="round"
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <path
+            d="M 16 2 C 16 10 10 16 2 16 C 10 16 16 22 16 30 C 16 22 22 16 30 16 C 22 16 16 10 16 2 Z"
+            fill="#F4C542"
+            stroke="#2F4A1E"
+            strokeWidth="1.8"
           />
         </svg>
       ),
     },
     {
-      id: 'divide',
-      x: '82%',
+      id: 'leaf-green',
+      x: '84%',
       y: '68%',
       duration: 6.8,
       content: (
-        <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-          <rect x="3" y="3" width="30" height="30" rx="8" fill="#EEF0F2" stroke="#36151E" strokeWidth="3" />
-          <line x1="10" y1="18" x2="26" y2="18" stroke="#36151E" strokeWidth="3.5" strokeLinecap="round" />
-          <circle cx="18" cy="11" r="2.5" fill="#F56276" />
-          <circle cx="18" cy="25" r="2.5" fill="#F56276" />
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+          <path
+            d="M 6 30 C 9 18 21 8 32 4 C 32 16 22 28 6 30 Z"
+            fill="#6CA24A"
+            stroke="#2F4A1E"
+            strokeWidth="1.8"
+          />
+          <path
+            d="M 9 27 Q 19 20 28 8"
+            stroke="#FFF7E6"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
         </svg>
       ),
     },
     {
       id: 'notebook-mini',
-      x: '8%',
+      x: '7%',
       y: '72%',
       duration: 9.2,
       content: (
-        <svg width="38" height="42" viewBox="0 0 38 42" fill="none">
-          <rect x="5" y="4" width="28" height="34" rx="4" fill="#A2999E" stroke="#36151E" strokeWidth="3" />
-          <line x1="12" y1="12" x2="26" y2="12" stroke="#EEF0F2" strokeWidth="2.5" strokeLinecap="round" />
-          <line x1="12" y1="19" x2="26" y2="19" stroke="#EEF0F2" strokeWidth="2.5" strokeLinecap="round" />
-          <line x1="12" y1="26" x2="20" y2="26" stroke="#EEF0F2" strokeWidth="2.5" strokeLinecap="round" />
-          {/* Spiral binding rings */}
-          <circle cx="5" cy="10" r="2" fill="#36151E" />
-          <circle cx="5" cy="18" r="2" fill="#36151E" />
-          <circle cx="5" cy="26" r="2" fill="#36151E" />
-          <circle cx="5" cy="34" r="2" fill="#36151E" />
+        <svg width="38" height="42" viewBox="0 0 38 42" fill="none" aria-hidden="true">
+          <rect x="5" y="4" width="28" height="34" rx="8" fill="#C7DDAE" stroke="#2F4A1E" strokeWidth="2.5" />
+          <line x1="12" y1="13" x2="26" y2="13" stroke="#FFF7E6" strokeWidth="2.5" strokeLinecap="round" />
+          <line x1="12" y1="20" x2="26" y2="20" stroke="#FFF7E6" strokeWidth="2.5" strokeLinecap="round" />
+          <line x1="12" y1="27" x2="20" y2="27" stroke="#FFF7E6" strokeWidth="2.5" strokeLinecap="round" />
+          {/* Flower on notebook cover */}
+          <circle cx="25" cy="27" r="3" fill="#F4C542" />
         </svg>
       ),
     },
     {
-      id: 'multiply',
+      id: 'plus-sunshine',
       x: '24%',
       y: '48%',
       duration: 7.8,
       content: (
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-          <line x1="7" y1="7" x2="21" y2="21" stroke="#A2999E" strokeWidth="4" strokeLinecap="round" />
-          <line x1="21" y1="7" x2="7" y2="21" stroke="#A2999E" strokeWidth="4" strokeLinecap="round" />
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <circle cx="16" cy="16" r="14" fill="#FFF7E6" stroke="#6CA24A" strokeWidth="2.5" />
+          <line x1="16" y1="8" x2="16" y2="24" stroke="#F28C38" strokeWidth="3.5" strokeLinecap="round" />
+          <line x1="8" y1="16" x2="24" y2="16" stroke="#F28C38" strokeWidth="3.5" strokeLinecap="round" />
         </svg>
       ),
     },
     {
-      id: 'sparkle',
+      id: 'sparkle-blush',
       x: '74%',
       y: '44%',
       duration: 6.2,
       content: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
           <path
-            d="M 12 2 Q 12 12 2 12 Q 12 12 12 22 Q 12 12 22 12 Q 12 12 12 2 Z"
-            fill="#F56276"
-            stroke="#36151E"
-            strokeWidth="2"
+            d="M 14 2 Q 14 14 2 14 Q 14 14 14 26 Q 14 14 26 14 Q 14 14 14 2 Z"
+            fill="#F7B7C4"
+            stroke="#2F4A1E"
+            strokeWidth="1.8"
           />
         </svg>
       ),
@@ -104,21 +112,27 @@ export function MathFloatingShapes() {
   ];
 
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden z-15" aria-hidden="true">
-      {shapes.map((s, index) => (
+    <div
+      className="absolute inset-0 pointer-events-none overflow-hidden select-none z-10"
+      aria-hidden="true"
+    >
+      {shapes.map((item) => (
         <motion.div
-          key={s.id}
-          className="absolute opacity-80 hidden sm:block pointer-events-none select-none"
-          style={{ left: s.x, top: s.y }}
-          initial={{ opacity: 0, scale: 0.85, y: 10 }}
-          animate={{ opacity: 0.8, scale: 1, y: 0 }}
+          key={item.id}
+          className="absolute"
+          style={{ left: item.x, top: item.y }}
+          animate={{
+            y: [-12, 14, -12],
+            rotate: [-6, 6, -6],
+            scale: [0.96, 1.04, 0.96],
+          }}
           transition={{
-            duration: 0.5,
-            delay: 0.12 + index * 0.07,
-            ease: 'easeOut',
+            duration: item.duration,
+            repeat: Infinity,
+            ease: 'easeInOut',
           }}
         >
-          {s.content}
+          {item.content}
         </motion.div>
       ))}
     </div>

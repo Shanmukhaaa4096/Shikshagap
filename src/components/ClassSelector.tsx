@@ -31,10 +31,10 @@ export function ClassSelector({
                 key={conf.id}
                 type="button"
                 onClick={() => onSelectClass(conf.id)}
-                className={`min-h-[44px] min-w-[44px] px-3 py-1.5 text-sm font-mono font-bold rounded-[2px] border transition-none shrink-0 ${
+                className={`min-h-[44px] min-w-[44px] px-3.5 py-1.5 text-sm font-bold rounded-full border shrink-0 transition-transform hover:-translate-y-0.5 cursor-pointer ${
                   isSelected
-                    ? 'border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)]'
-                    : 'border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] hover:bg-[var(--muted)]'
+                    ? 'border-primary bg-primary text-primary-foreground shadow-warm-sm'
+                    : 'border-border bg-card text-foreground hover:bg-muted'
                 }`}
                 title={conf.label}
               >
@@ -45,16 +45,16 @@ export function ClassSelector({
           <button
             type="button"
             onClick={() => setShowUpcoming(!showUpcoming)}
-            className="min-h-[44px] text-sm font-mono text-[var(--muted-foreground)] hover:underline shrink-0 px-2.5 py-1.5 flex items-center"
+            className="min-h-[44px] text-sm font-bold text-muted-foreground hover:text-foreground hover:underline shrink-0 px-2.5 py-1.5 flex items-center cursor-pointer"
           >
             {showUpcoming ? 'Hide other classes' : 'More classes coming soon'}
           </button>
         </div>
         {showUpcoming && (
-          <div className="flex flex-wrap items-center gap-1.5 text-sm font-mono text-[var(--muted-foreground)] bg-[var(--muted)]/50 p-2 rounded-[2px]">
-            <span>Coming soon:</span>
+          <div className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground bg-muted/60 p-2.5 rounded-[16px] border border-border">
+            <span className="font-bold">Coming soon:</span>
             {upcomingClasses.map((c) => (
-              <span key={c.id} className="px-2 py-1 border border-[var(--border)] bg-[var(--card)] opacity-60">
+              <span key={c.id} className="px-2.5 py-1 border border-border bg-card rounded-full opacity-70">
                 {c.label}
               </span>
             ))}
@@ -76,15 +76,15 @@ export function ClassSelector({
               key={conf.id}
               type="button"
               onClick={() => onSelectClass(conf.id)}
-              className={`min-h-[44px] px-3.5 py-2 text-sm font-mono font-bold rounded-[2px] border transition-none shrink-0 flex items-center gap-1.5 ${
+              className={`min-h-[44px] px-4 py-2 text-sm font-bold rounded-full border shrink-0 flex items-center gap-1.5 transition-transform hover:-translate-y-0.5 cursor-pointer ${
                 isSelected
-                  ? 'border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)]'
-                  : 'border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] hover:bg-[var(--muted)]'
+                  ? 'border-primary bg-primary text-primary-foreground shadow-warm-sm'
+                  : 'border-border bg-card text-foreground hover:bg-muted'
               }`}
               aria-pressed={isSelected}
             >
               <span>{conf.label}</span>
-              <span className="text-sm font-bold opacity-75">
+              <span className="text-sm font-normal opacity-90">
                 ({conf.topics.length} topics)
               </span>
             </button>
@@ -96,24 +96,20 @@ export function ClassSelector({
         <button
           type="button"
           onClick={() => setShowUpcoming(!showUpcoming)}
-          className="min-h-[44px] text-sm font-mono text-muted-foreground dark:text-muted-foreground hover:underline flex items-center gap-1.5 cursor-pointer"
+          className="min-h-[44px] text-sm font-bold text-muted-foreground hover:text-foreground hover:underline flex items-center gap-1.5 cursor-pointer"
         >
-          <span>{showUpcoming ? 'Hide upcoming classes' : `More classes coming soon (Classes ${upcomingListText})`}</span>
+          <span>{showUpcoming ? 'Hide upcoming class roadmap' : 'See classes 1, 2, 6–10 coverage status'}</span>
         </button>
-
-        {showUpcoming && (
-          <div className="mt-2 flex flex-wrap gap-1.5 p-2 bg-card border border-border rounded-[2px]">
-            {upcomingClasses.map((conf: ClassConfig) => (
-              <span
-                key={conf.id}
-                className="text-sm font-mono px-2 py-1 bg-muted dark:bg-card border border-border text-muted-foreground dark:text-muted-foreground"
-              >
-                {conf.label} (Coming soon)
-              </span>
-            ))}
-          </div>
-        )}
       </div>
+
+      {showUpcoming && (
+        <div className="p-3.5 bg-muted/60 border border-border rounded-[18px] text-sm space-y-1.5 leading-relaxed">
+          <div className="font-bold text-foreground">Classes 1, 2, 6–10 Curriculum Status:</div>
+          <p className="text-foreground/80">
+            Official NCERT Math-Magic & Mathematics textbooks for {upcomingListText} are completely mapped into our acyclic prerequisite skill graph. Automated multi-choice question generators for these grades are undergoing pedagogical verification.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

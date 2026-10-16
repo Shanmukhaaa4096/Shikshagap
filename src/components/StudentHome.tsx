@@ -3,6 +3,7 @@
 import type { DemoStudentData } from "@/lib/data/demo";
 import { useI18n } from "@/lib/i18n/context";
 import { ArrowRight, WarningCircle } from "@phosphor-icons/react";
+import { FlowerPetal, BotanicalLeaf, WarmSparkle } from "@/components/illustrations/FloralMotifs";
 
 interface Props {
   studentData?: DemoStudentData | null;
@@ -27,17 +28,17 @@ export function StudentHome({
   if (isLoading) {
     return (
       <div className="w-full max-w-xl mx-auto py-8 sm:py-12 px-4 space-y-6 text-center">
-        <div className="bg-card dark:bg-card border border-border rounded-[2px] p-8 space-y-4">
-          <div className="h-8 bg-muted rounded-[2px] animate-pulse w-2/3 mx-auto" />
-          <div className="h-4 bg-muted rounded-[2px] animate-pulse w-1/2 mx-auto" />
-          <div className="h-24 bg-muted rounded-[2px] animate-pulse w-full mt-6" />
+        <div className="bg-[#FFF7E6] dark:bg-[#1C2817] border-2 border-[#C7DDAE] rounded-[28px] p-8 space-y-4 shadow-card">
+          <div className="h-8 bg-[#C7DDAE]/40 rounded-full animate-pulse w-2/3 mx-auto" />
+          <div className="h-4 bg-[#C7DDAE]/30 rounded-full animate-pulse w-1/2 mx-auto" />
+          <div className="h-24 bg-[#C7DDAE]/20 rounded-[20px] animate-pulse w-full mt-6" />
         </div>
-        <p className="font-serif text-base font-bold text-foreground">
+        <p className="font-heading text-base font-bold text-foreground">
           {lang === "hi"
             ? "सीखने का विवरण लोड हो रहा है..."
             : lang === "te"
             ? "పాఠ్యాంశాల వివరాలు లోడ్ అవుతున్నాయి..."
-            : "Loading your learning details..."}
+            : "Unwrapping your learning journey..."}
         </p>
       </div>
     );
@@ -47,30 +48,30 @@ export function StudentHome({
   if (isError || !studentData) {
     return (
       <div className="w-full max-w-xl mx-auto py-8 sm:py-12 px-4 space-y-6 text-center">
-        <div className="bg-card dark:bg-card border border-primary/40 rounded-[2px] p-8 space-y-4">
-          <div className="w-12 h-12 mx-auto rounded-full bg-card border border-primary flex items-center justify-center text-primary">
-            <WarningCircle size={28} weight="bold" />
+        <div className="bg-[#FFF7E6] dark:bg-[#1C2817] border-2 border-accent/40 rounded-[28px] p-8 space-y-4 shadow-card">
+          <div className="w-14 h-14 mx-auto rounded-full bg-accent/20 border border-accent flex items-center justify-center text-accent">
+            <WarningCircle size={32} weight="bold" />
           </div>
-          <h2 className="font-serif text-2xl font-bold text-foreground">
+          <h2 className="font-heading text-2xl font-bold text-foreground">
             {lang === "hi"
               ? "विद्यार्थी की जानकारी नहीं मिल सकी"
               : lang === "te"
               ? "విద్యార్థి సమాచారం లోడ్ కాలేదు"
               : "Could not load student information"}
           </h2>
-          <p className="text-base text-foreground/80 dark:text-muted-foreground">
+          <p className="text-sm text-foreground/80 font-sans">
             {lang === "hi"
               ? "कृपया दोबारा प्रयास करें।"
               : lang === "te"
               ? "దయచేసి మళ్ళీ ప్రయత్నించండి."
-              : "Please check your network and try again."}
+              : "Please check your connection and give it another try."}
           </p>
           {onRetry && (
             <div className="pt-2">
               <button
                 type="button"
                 onClick={onRetry}
-                className="neo-btn neo-btn-primary min-h-[48px] px-8 text-base font-bold rounded-[2px]"
+                className="rounded-full min-h-[48px] px-8 text-sm font-bold bg-primary text-primary-foreground shadow-warm hover:bg-primary/90 transition-transform active:scale-95"
               >
                 {lang === "hi" ? "फिर से कोशिश करें" : lang === "te" ? "మళ్ళీ ప్రయత్నించండి" : "Try Again"}
               </button>
@@ -106,52 +107,57 @@ export function StudentHome({
   return (
     <div className="w-full max-w-xl mx-auto py-6 sm:py-10 px-4 space-y-6">
       {/* 1. Welcoming Greeting Card */}
-      <div className="bg-card dark:bg-card border border-border rounded-[2px] p-6 sm:p-8 space-y-2 text-center">
-        <span className="font-mono text-sm uppercase tracking-wider font-bold text-muted-foreground dark:text-muted-foreground block">
-          Class 5 Mathematics
+      <div className="bg-[#FFF7E6] dark:bg-[#1C2817] border-2 border-[#C7DDAE] rounded-[28px] p-6 sm:p-8 space-y-2 text-center shadow-card relative overflow-hidden">
+        <div className="absolute top-3 right-4 opacity-30 pointer-events-none">
+          <FlowerPetal size={36} />
+        </div>
+        <span className="text-xs font-sans uppercase tracking-wider font-bold text-primary flex items-center justify-center gap-1.5">
+          <BotanicalLeaf size={14} /> Class 5 Mathematics
         </span>
-        <h1 className="font-serif text-3xl sm:text-4xl font-black text-foreground">
+        <h1 className="font-heading text-3xl sm:text-4xl font-bold text-foreground">
           {greetingWord}, {student.name}!
         </h1>
-        <p className="text-base sm:text-lg text-foreground/80 dark:text-muted-foreground leading-relaxed max-w-md mx-auto">
+        <p className="text-base sm:text-lg text-foreground/80 leading-relaxed max-w-md mx-auto font-sans">
           {encouragingTitle}
         </p>
       </div>
 
       {/* 2. Today's Practice (Primary Action) */}
-      <div className="bg-card dark:bg-card border border-border rounded-[2px] p-6 sm:p-8 space-y-6">
+      <div className="bg-[#FFF7E6] dark:bg-[#1C2817] border-2 border-[#C7DDAE] rounded-[28px] p-6 sm:p-8 space-y-6 shadow-card">
         <div className="space-y-1">
-          <div className="flex items-center justify-between text-sm font-mono font-bold uppercase text-muted-foreground dark:text-muted-foreground">
-            <span>{dict.todaysPractice || "Today's Practice"}</span>
-            <span>15 min</span>
+          <div className="flex items-center justify-between text-xs font-sans font-bold uppercase text-primary">
+            <span className="flex items-center gap-1">
+              <WarmSparkle size={13} /> {dict.todaysPractice || "Today's Practice"}
+            </span>
+            <span className="px-2.5 py-0.5 rounded-full bg-[#C7DDAE]/30 text-foreground">15 min</span>
           </div>
-          <h2 className="font-serif text-xl sm:text-2xl font-bold text-foreground">
+          <h2 className="font-heading text-xl sm:text-2xl font-bold text-foreground">
             {targetConceptName}
           </h2>
-          <p className="text-sm text-foreground/80 dark:text-muted-foreground leading-relaxed">
+          <p className="text-xs sm:text-sm text-foreground/80 leading-relaxed font-sans">
             Fun and simple math exercises designed just for you today.
           </p>
         </div>
 
-        {/* Big Primary Red Action Button */}
+        {/* Primary Marigold Action Button */}
         <button
           type="button"
           onClick={() => onStartPractice(targetConcept)}
-          className="w-full min-h-[56px] py-4 px-6 bg-primary text-primary-foreground font-serif text-lg font-bold rounded-[2px] border border-primary flex items-center justify-center gap-3 transition-none hover:bg-[#c2202a]"
+          className="w-full min-h-[56px] py-4 px-6 bg-accent text-accent-foreground font-heading text-lg font-bold rounded-full shadow-warm flex items-center justify-center gap-3 hover:bg-accent/90 transition-transform active:scale-98"
         >
           <span>{dict.startPractice || "Start Today's Practice"}</span>
           <ArrowRight size={22} weight="bold" />
         </button>
 
         {/* Simple Progress Bar */}
-        <div className="space-y-2 pt-2 border-t border-border">
-          <div className="flex items-center justify-between text-sm font-mono text-muted-foreground dark:text-muted-foreground">
+        <div className="space-y-2 pt-2 border-t border-[#C7DDAE]/50">
+          <div className="flex items-center justify-between text-xs font-sans text-muted-foreground">
             <span>Skill Progress</span>
-            <span className="font-bold">Step {completedSteps} of {totalSteps}</span>
+            <span className="font-bold text-primary">Step {completedSteps} of {totalSteps}</span>
           </div>
-          <div className="w-full bg-muted dark:bg-muted h-3 rounded-[2px] overflow-hidden">
+          <div className="w-full bg-[#C7DDAE]/30 h-3 rounded-full overflow-hidden">
             <div
-              className="bg-[var(--status-good)] h-full rounded-[2px]"
+              className="bg-primary h-full rounded-full transition-all duration-300"
               style={{ width: `${progressPct}%` }}
             />
           </div>
@@ -159,12 +165,12 @@ export function StudentHome({
       </div>
 
       {/* 3. Take Assessment (Secondary Outline Button) */}
-      <div className="bg-card dark:bg-card border border-border rounded-[2px] p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-[#FFF7E6] dark:bg-[#1C2817] border-2 border-[#C7DDAE] rounded-[24px] p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-warm">
         <div className="space-y-0.5 text-center sm:text-left">
-          <h3 className="font-serif text-base sm:text-lg font-bold text-foreground">
+          <h3 className="font-heading text-base sm:text-lg font-bold text-foreground">
             {dict.takeAssessment || "Take assessment"}
           </h3>
-          <p className="text-sm sm:text-sm text-muted-foreground dark:text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground font-sans">
             Check your progress anytime with a quick check.
           </p>
         </div>
@@ -172,7 +178,7 @@ export function StudentHome({
         <button
           type="button"
           onClick={() => onTakeAssessment(student.id, targetConcept)}
-          className="w-full sm:w-auto min-h-[48px] px-6 py-2.5 bg-transparent text-foreground font-mono text-sm font-bold uppercase rounded-[2px] border border-border hover:bg-muted dark:hover:bg-muted shrink-0"
+          className="w-full sm:w-auto min-h-[48px] px-6 py-2.5 bg-primary text-primary-foreground font-sans text-xs font-bold uppercase rounded-full shadow-warm hover:bg-primary/90 shrink-0 transition-transform active:scale-95"
         >
           {dict.takeAssessment || "Take assessment"}
         </button>

@@ -1,24 +1,32 @@
 import type { Metadata } from "next";
 import {
+  Nunito,
+  Outfit,
   Instrument_Serif,
-  Bricolage_Grotesque,
   Noto_Sans_Devanagari,
   Noto_Sans_Telugu,
 } from "next/font/google";
 import "./globals.css";
+
+const nunito = Nunito({
+  variable: "--font-sans",
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800"],
+  display: "swap",
+});
+
+const outfit = Outfit({
+  variable: "--font-heading",
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+  display: "swap",
+});
 
 const instrumentSerif = Instrument_Serif({
   variable: "--font-serif",
   subsets: ["latin"],
   weight: "400",
   style: ["normal", "italic"],
-  display: "swap",
-});
-
-const bricolageGrotesque = Bricolage_Grotesque({
-  variable: "--font-sans",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -91,7 +99,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${bricolageGrotesque.variable} ${instrumentSerif.variable} ${notoDevanagari.variable} ${notoTelugu.variable} h-full`}
+      className={`${nunito.variable} ${outfit.variable} ${instrumentSerif.variable} ${notoDevanagari.variable} ${notoTelugu.variable} h-full`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)] font-sans antialiased">
