@@ -15,6 +15,7 @@ export function MathFloatingShapes() {
       x: '10%',
       y: '16%',
       duration: 7,
+      mobile: true,
       content: (
         <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
           <circle cx="18" cy="11" r="5.5" fill="#F4C542" />
@@ -31,6 +32,7 @@ export function MathFloatingShapes() {
       x: '86%',
       y: '20%',
       duration: 8.5,
+      mobile: false,
       content: (
         <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
           <path
@@ -47,6 +49,7 @@ export function MathFloatingShapes() {
       x: '84%',
       y: '68%',
       duration: 6.8,
+      mobile: true,
       content: (
         <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
           <path
@@ -69,6 +72,7 @@ export function MathFloatingShapes() {
       x: '7%',
       y: '72%',
       duration: 9.2,
+      mobile: false,
       content: (
         <svg width="38" height="42" viewBox="0 0 38 42" fill="none" aria-hidden="true">
           <rect x="5" y="4" width="28" height="34" rx="8" fill="#C7DDAE" stroke="#2F4A1E" strokeWidth="2.5" />
@@ -85,6 +89,7 @@ export function MathFloatingShapes() {
       x: '24%',
       y: '48%',
       duration: 7.8,
+      mobile: true,
       content: (
         <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
           <circle cx="16" cy="16" r="14" fill="#FFF7E6" stroke="#6CA24A" strokeWidth="2.5" />
@@ -98,6 +103,7 @@ export function MathFloatingShapes() {
       x: '74%',
       y: '44%',
       duration: 6.2,
+      mobile: false,
       content: (
         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
           <path
@@ -119,7 +125,7 @@ export function MathFloatingShapes() {
       {shapes.map((item) => (
         <motion.div
           key={item.id}
-          className="absolute"
+          className={`absolute ${item.mobile ? '' : 'hidden md:block'}`}
           style={{ left: item.x, top: item.y }}
           animate={{
             y: [-12, 14, -12],

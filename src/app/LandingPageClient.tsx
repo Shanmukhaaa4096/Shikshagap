@@ -161,29 +161,43 @@ function PublicLandingPageContent() {
       </a>
 
       {/* TOP WHIMSICAL BANNER */}
-      <div className="bg-[#FFF7E6] dark:bg-[#1A2615] border-b border-[#C7DDAE]/60 dark:border-[#3B5428] px-4 sm:px-8 py-2 text-xs sm:text-sm font-sans text-foreground/80 flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <FlowerPetal size={16} color="#F4C542" />
-          <span className="font-bold text-primary tracking-wide">SHIKSHAGAP &bull; PRIMARY MATHEMATICS</span>
-          <span className="opacity-40 hidden md:inline">|</span>
-          <span className="hidden md:inline italic text-muted-foreground">The unboxing starts before you open it.</span>
-        </div>
-        <div className="flex items-center gap-2 text-xs">
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#C7DDAE]/50 dark:bg-[#2A3E1F] text-foreground font-semibold">
-            <GiftBoxMotif size={13} /> Free for Govt Schools
-          </span>
-          <span className="opacity-40 hidden sm:inline">|</span>
-          <span className="text-primary font-semibold hidden sm:inline">DPDP Act 2023 Principles</span>
+      <div className="bg-[#FFF7E6] dark:bg-[#1A2615] border-b border-[#C7DDAE]/60 dark:border-[#3B5428] px-3 sm:px-8 py-2 text-xs font-sans text-foreground/80">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+          {/* Mobile single-line edition badge */}
+          <div className="flex sm:hidden items-center justify-between w-full text-[12px] font-bold text-primary">
+            <span className="flex items-center gap-1.5">
+              <FlowerPetal size={14} color="#F4C542" />
+              <span>SHIKSHAGAP &bull; PRIMARY MATH</span>
+            </span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#C7DDAE]/50 dark:bg-[#2A3E1F] text-foreground text-[12px]">
+              <GiftBoxMotif size={12} /> Free for Schools
+            </span>
+          </div>
+
+          {/* Desktop full banner */}
+          <div className="hidden sm:flex items-center gap-2">
+            <FlowerPetal size={16} color="#F4C542" />
+            <span className="font-bold text-primary tracking-wide">SHIKSHAGAP &bull; PRIMARY MATHEMATICS</span>
+            <span className="opacity-40 hidden md:inline">|</span>
+            <span className="hidden md:inline italic text-muted-foreground">The unboxing starts before you open it.</span>
+          </div>
+          <div className="hidden sm:flex items-center gap-2 text-xs">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#C7DDAE]/50 dark:bg-[#2A3E1F] text-foreground font-semibold">
+              <GiftBoxMotif size={13} /> Free for Govt Schools
+            </span>
+            <span className="opacity-40 hidden sm:inline">|</span>
+            <span className="text-primary font-semibold hidden sm:inline">DPDP Act 2023 Principles</span>
+          </div>
         </div>
       </div>
 
       {/* STICKY NAVBAR with rounded pill styling */}
-      <header className="sticky top-0 z-50 bg-[#FFF7E6]/90 dark:bg-[#1C2817]/90 backdrop-blur-md border-b border-[#C7DDAE]/60 dark:border-[#3B5428] px-4 sm:px-8 py-3 transition-colors duration-200">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5 group">
-              <span className="h-9 w-9 rounded-full bg-primary text-primary-foreground font-heading text-base flex items-center justify-center font-bold shadow-warm group-hover:rotate-6 transition-transform">
-                <FlowerPetal size={20} color="#FFF7E6" centerColor="#F4C542" />
+      <header className="sticky top-0 z-50 bg-[#FFF7E6]/90 dark:bg-[#1C2817]/90 backdrop-blur-md border-b border-[#C7DDAE]/60 dark:border-[#3B5428] px-3 sm:px-8 py-2.5 sm:py-3 transition-colors duration-200">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link href="/" className="font-heading text-xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2 group">
+              <span className="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-primary text-primary-foreground font-heading text-sm sm:text-base flex items-center justify-center font-bold shadow-warm group-hover:rotate-6 transition-transform">
+                <FlowerPetal size={18} color="#FFF7E6" centerColor="#F4C542" />
               </span>
               <span className="tracking-tight text-primary font-extrabold">Shiksha<span className="text-accent">Gap</span></span>
             </Link>
@@ -192,7 +206,7 @@ function PublicLandingPageContent() {
             </span>
           </div>
 
-          <div className="flex items-center gap-2.5 sm:gap-4">
+          <div className="flex items-center gap-1.5 sm:gap-4">
             {/* Desktop Navigation Links */}
             <nav className="hidden lg:flex items-center gap-2 text-sm font-sans font-semibold text-foreground/80" aria-label="Main Navigation">
               <a href="#cover" className="px-3 py-1.5 rounded-full hover:bg-[#C7DDAE]/40 hover:text-primary transition-all">01 Cover</a>
@@ -202,18 +216,19 @@ function PublicLandingPageContent() {
             </nav>
 
             {/* Language Switcher (EN / हिन्दी / తెలుగు) as soft rounded pill container */}
-            <div className="flex items-center border border-[#C7DDAE] dark:border-[#3B5428] rounded-full p-0.5 text-xs font-sans bg-[#FFF7E6] dark:bg-[#1A2615] shadow-xs">
+            <div className="flex items-center border border-[#C7DDAE] dark:border-[#3B5428] rounded-full p-0.5 text-xs font-sans bg-[#FFF7E6] dark:bg-[#1A2615] shadow-xs" role="group" aria-label="Language selection">
               {(['en', 'hi', 'te'] as Lang[]).map((l) => (
                 <button
                   key={l}
                   type="button"
                   onClick={() => setLang(l)}
-                  className={`min-h-[36px] px-3 rounded-full font-bold cursor-pointer transition-all focus-visible:outline-2 focus-visible:outline-ring ${
+                  className={`min-h-[44px] px-2 sm:px-3 rounded-full font-bold cursor-pointer transition-all focus-visible:outline-2 focus-visible:outline-ring text-xs ${
                     lang === l
                       ? 'bg-primary text-primary-foreground shadow-xs'
                       : 'text-foreground/70 hover:text-foreground hover:bg-[#C7DDAE]/30'
                   }`}
                   aria-label={`Switch language to ${l === 'en' ? 'English' : l === 'hi' ? 'Hindi' : 'Telugu'}`}
+                  aria-pressed={lang === l}
                 >
                   {l === 'en' ? 'EN' : l === 'hi' ? 'हिन्दी' : 'తెలుగు'}
                 </button>
@@ -225,7 +240,7 @@ function PublicLandingPageContent() {
               type="button"
               onClick={toggleTheme}
               aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-              className="w-10 h-10 rounded-full flex items-center justify-center border border-[#C7DDAE] dark:border-[#3B5428] bg-[#FFF7E6] dark:bg-[#1A2615] hover:bg-[#C7DDAE]/30 text-foreground cursor-pointer shadow-xs transition-colors"
+              className="w-11 h-11 rounded-full flex items-center justify-center border border-[#C7DDAE] dark:border-[#3B5428] bg-[#FFF7E6] dark:bg-[#1A2615] hover:bg-[#C7DDAE]/30 text-foreground cursor-pointer shadow-xs transition-colors"
             >
               {isDark ? <Sun size={17} weight="bold" className="text-secondary" /> : <Moon size={17} weight="bold" className="text-primary" />}
             </button>
@@ -233,16 +248,16 @@ function PublicLandingPageContent() {
             {/* Secondary Link: Sign In */}
             <Link
               href="/login"
-              className="hidden sm:inline-flex rounded-full border border-[#C7DDAE] dark:border-[#3B5428] bg-transparent text-foreground px-4 py-2 min-h-[40px] items-center text-xs font-sans uppercase font-bold hover:bg-[#C7DDAE]/30 cursor-pointer transition-colors"
+              className="hidden sm:inline-flex rounded-full border border-[#C7DDAE] dark:border-[#3B5428] bg-transparent text-foreground px-4 py-2 min-h-[44px] items-center text-xs font-sans uppercase font-bold hover:bg-[#C7DDAE]/30 cursor-pointer transition-colors"
             >
               Sign In
             </Link>
 
-            {/* PRIMARY ACTION: ASSESS TEST BUTTON (Marigold CTA Pill) */}
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+            {/* PRIMARY ACTION: ASSESS TEST BUTTON (Hidden on mobile header to avoid crowding; present in Hero, Drawer & Sticky Bottom) */}
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="hidden sm:inline-block">
               <Link
                 href="/assessment"
-                className="inline-flex rounded-full bg-accent text-accent-foreground px-5 sm:px-6 py-2.5 min-h-[42px] items-center text-sm font-sans font-bold hover:bg-accent/90 focus-visible:outline-2 focus-visible:outline-ring cursor-pointer shadow-warm tracking-wide transition-all"
+                className="inline-flex rounded-full bg-accent text-accent-foreground px-5 sm:px-6 py-2.5 min-h-[44px] items-center text-sm font-sans font-bold hover:bg-accent/90 focus-visible:outline-2 focus-visible:outline-ring cursor-pointer shadow-warm tracking-wide transition-all"
               >
                 <span>Assess Test</span>
                 <ArrowRight size={15} weight="bold" className="ml-1.5" />
@@ -255,7 +270,7 @@ function PublicLandingPageContent() {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
               aria-expanded={isMobileMenuOpen}
-              className="lg:hidden w-10 h-10 rounded-full flex items-center justify-center border border-[#C7DDAE] bg-[#FFF7E6] dark:bg-[#1A2615] text-foreground cursor-pointer"
+              className="lg:hidden w-11 h-11 rounded-full flex items-center justify-center border border-[#C7DDAE] bg-[#FFF7E6] dark:bg-[#1A2615] text-foreground cursor-pointer"
             >
               {isMobileMenuOpen ? <X size={20} /> : <List size={20} />}
             </button>
@@ -275,35 +290,35 @@ function PublicLandingPageContent() {
             <a
               href="#cover"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="min-h-[42px] rounded-[16px] flex items-center px-4 border border-[#C7DDAE] bg-[#FFF7E6] dark:bg-[#1A2615]"
+              className="min-h-[44px] rounded-[16px] flex items-center px-4 border border-[#C7DDAE] bg-[#FFF7E6] dark:bg-[#1A2615]"
             >
               01 Cover Story
             </a>
             <a
               href="#how-agent-works"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="min-h-[42px] rounded-[16px] flex items-center px-4 border border-[#C7DDAE] bg-[#FFF7E6] dark:bg-[#1A2615]"
+              className="min-h-[44px] rounded-[16px] flex items-center px-4 border border-[#C7DDAE] bg-[#FFF7E6] dark:bg-[#1A2615]"
             >
               02 How Agent Works
             </a>
             <a
               href="#demo"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="min-h-[42px] rounded-[16px] flex items-center px-4 border border-[#C7DDAE] bg-[#FFF7E6] dark:bg-[#1A2615]"
+              className="min-h-[44px] rounded-[16px] flex items-center px-4 border border-[#C7DDAE] bg-[#FFF7E6] dark:bg-[#1A2615]"
             >
               03 Interactive Workflow
             </a>
             <a
               href="#faq"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="min-h-[42px] rounded-[16px] flex items-center px-4 border border-[#C7DDAE] bg-[#FFF7E6] dark:bg-[#1A2615]"
+              className="min-h-[44px] rounded-[16px] flex items-center px-4 border border-[#C7DDAE] bg-[#FFF7E6] dark:bg-[#1A2615]"
             >
               04 Inquiries &amp; FAQ
             </a>
             <Link
               href="/login"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="min-h-[42px] rounded-full flex items-center justify-center px-4 border border-[#C7DDAE] bg-transparent text-foreground font-bold"
+              className="min-h-[44px] rounded-full flex items-center justify-center px-4 border border-[#C7DDAE] bg-transparent text-foreground font-bold"
             >
               Teacher Sign In
             </Link>
@@ -332,12 +347,12 @@ function PublicLandingPageContent() {
           </div>
 
           {/* MAGAZINE COVER HERO STAGE */}
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-8 min-h-[520px] sm:min-h-[720px] lg:min-h-[800px] flex flex-col justify-between overflow-hidden">
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-8 flex flex-col justify-between overflow-hidden pt-4 pb-8 md:py-0 md:min-h-[720px] lg:min-h-[800px]">
 
-            {/* LAYER 1 (z-10): GIGANTIC EDITORIAL HEADLINE BEHIND THE CUTOUT */}
-            <div className="absolute inset-0 z-10 flex flex-col justify-center items-center pointer-events-none select-none px-2 sm:px-6">
+            {/* LAYER 1: EDITORIAL HEADLINE */}
+            <div className="relative md:absolute md:inset-0 md:z-10 flex flex-col justify-center items-center pointer-events-none select-none px-2 sm:px-6 mb-4 md:mb-0">
               <div className="w-full text-center">
-                <h1 className="font-heading uppercase tracking-tight text-foreground leading-[0.88] text-[clamp(2.1rem,9.5vw,10.5rem)] m-0">
+                <h1 className="font-heading uppercase tracking-tight text-foreground leading-[0.92] md:leading-[0.88] text-[clamp(1.9rem,7.5vw,10rem)] m-0">
                   <span className="block break-words sm:whitespace-nowrap">
                     <LuminousType text="WHAT EACH student" italicIndices={[2]} />
                   </span>
@@ -345,7 +360,7 @@ function PublicLandingPageContent() {
                     <LuminousType text="NEEDS TO learn NEXT" italicIndices={[2]} />
                   </span>
                 </h1>
-                <div className="mt-3 text-xs sm:text-sm font-sans font-bold tracking-widest uppercase text-muted-foreground flex items-center justify-center gap-2">
+                <div className="mt-2.5 sm:mt-3 text-[12px] sm:text-sm font-sans font-bold tracking-widest uppercase text-muted-foreground flex items-center justify-center gap-2">
                   <WarmSparkle size={14} />
                   <span>SHIKSHAGAP AI AGENT &bull; ADAPTIVE DIAGNOSTIC FOR PRIMARY MATH</span>
                   <WarmSparkle size={14} />
@@ -357,8 +372,8 @@ function PublicLandingPageContent() {
             <MathFloatingShapes />
 
             {/* LAYER 2 (z-20): 2D CARTOON OWL MASCOT ("GAPPU") */}
-            <div className="absolute inset-x-0 bottom-0 z-20 flex justify-center pointer-events-auto">
-              <div className="relative w-[260px] sm:w-[400px] lg:w-[480px] flex items-end justify-center pb-2">
+            <div className="relative md:absolute md:inset-x-0 md:bottom-0 z-20 flex justify-center pointer-events-auto my-3 md:my-0">
+              <div className="relative w-[210px] sm:w-[280px] md:w-[400px] lg:w-[480px] flex items-end justify-center pb-2">
                 <MascotHero
                   width={460}
                   height={540}
@@ -372,7 +387,7 @@ function PublicLandingPageContent() {
               
               {/* Upper Section: Primary Agent Action Card */}
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pointer-events-auto">
-                <div className="md:col-span-5 bg-[#FFF7E6]/95 dark:bg-[#1C2817]/95 p-5 sm:p-7 border-2 border-[#C7DDAE] dark:border-[#3B5428] backdrop-blur-md max-w-md rounded-[28px] shadow-card relative overflow-hidden">
+                <div className="md:col-span-5 bg-[#FFF7E6]/95 dark:bg-[#1C2817]/95 p-5 sm:p-7 border-2 border-[#C7DDAE] dark:border-[#3B5428] backdrop-blur-md max-w-md mx-auto md:mx-0 rounded-[28px] shadow-card relative overflow-hidden">
                   
                   {/* Decorative corner blossom */}
                   <div className="absolute -top-3 -right-3 opacity-20 pointer-events-none">
@@ -389,18 +404,18 @@ function PublicLandingPageContent() {
                   </h2>
 
                   {/* Copy describing the agent */}
-                  <div className="space-y-1.5 mb-3 sm:mb-5 text-sm font-sans text-foreground/85 border-t border-b border-[#C7DDAE]/60 dark:border-[#3B5428] py-2 sm:py-3">
+                  <div className="space-y-1.5 mb-4 sm:mb-5 text-sm font-sans text-foreground/85 border-t border-b border-[#C7DDAE]/60 dark:border-[#3B5428] py-2.5 sm:py-3">
                     <div className="flex items-start gap-2">
                       <span className="font-bold text-primary w-20 shrink-0 text-xs uppercase">Assesses:</span>
                       <span className="text-xs sm:text-sm">Foundational Math across Primary classes (place value, regrouping, tables, fractions)</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-primary w-20 shrink-0 text-xs uppercase">Time:</span>
-                      <span className="flex items-center gap-1 text-xs sm:text-sm"><Clock size={13} className="text-accent" /> 6 to 8 minutes per child</span>
+                      <span className="flex items-center gap-1 text-xs sm:text-sm"><Clock size={14} className="text-accent" /> 6 to 8 minutes per child</span>
                     </div>
                     <div className="flex items-start gap-2">
                       <span className="font-bold text-primary w-20 shrink-0 text-xs uppercase">Output:</span>
-                      <span className="flex items-center gap-1 text-xs sm:text-sm"><FileText size={13} className="text-primary" /> Root gap report &amp; 5-day classroom plan</span>
+                      <span className="flex items-center gap-1 text-xs sm:text-sm"><FileText size={14} className="text-primary" /> Root gap report &amp; 5-day classroom plan</span>
                     </div>
                   </div>
 
@@ -414,7 +429,7 @@ function PublicLandingPageContent() {
                     >
                       <Link
                         href="/assessment"
-                        className="rounded-full bg-accent text-accent-foreground px-6 py-3.5 min-h-[50px] inline-flex items-center justify-center gap-2 text-sm font-sans font-bold hover:bg-accent/90 focus-visible:outline-2 focus-visible:outline-ring cursor-pointer shadow-warm active:translate-y-[1px] transition-all"
+                        className="w-full sm:w-auto rounded-full bg-accent text-accent-foreground px-6 py-3.5 min-h-[50px] inline-flex items-center justify-center gap-2 text-sm font-sans font-bold hover:bg-accent/90 focus-visible:outline-2 focus-visible:outline-ring cursor-pointer shadow-warm active:translate-y-[1px] transition-all"
                       >
                         <span>Assess Test</span>
                         <ArrowRight size={17} weight="bold" />
@@ -466,8 +481,8 @@ function PublicLandingPageContent() {
                 </div>
               </div>
 
-              {/* Lower Bar: Mascot caption & sticker stamp */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end mt-auto pt-6 pointer-events-auto">
+              {/* Lower Bar: Mascot caption & sticker stamp (Desktop only) */}
+              <div className="hidden md:grid grid-cols-1 md:grid-cols-12 gap-4 items-end mt-auto pt-6 pointer-events-auto">
                 <div className="md:col-span-5 bg-[#FFF7E6]/95 dark:bg-[#1C2817]/95 p-4 border border-[#C7DDAE] dark:border-[#3B5428] rounded-[22px] shadow-warm">
                   <div className="text-xs font-sans uppercase text-primary font-bold flex items-center gap-1.5">
                     <FlowerPetal size={14} />
@@ -745,12 +760,12 @@ function PublicLandingPageContent() {
       </footer>
 
       {/* STICKY MOBILE CTA BAR */}
-      <div className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-[#FFF7E6]/95 dark:bg-[#1A2615]/95 border-t border-[#C7DDAE] px-4 py-2.5 flex items-center justify-between gap-3 shadow-warm backdrop-blur-md">
+      <div className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-[#FFF7E6]/95 dark:bg-[#1A2615]/95 border-t border-[#C7DDAE] px-4 pt-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] flex items-center justify-between gap-3 shadow-warm backdrop-blur-md">
         <div className="flex flex-col">
-          <span className="text-xs font-sans uppercase tracking-wider text-primary font-bold">
+          <span className="text-[12px] font-sans uppercase tracking-wider text-primary font-bold">
             AI Diagnostic
           </span>
-          <span className="text-xs font-sans text-foreground font-bold">
+          <span className="text-[12px] font-sans text-foreground font-bold">
             Class 3 to 5 Math
           </span>
         </div>

@@ -72,7 +72,7 @@ function AssessmentInner() {
   const classConfig = getClassConfig(selectedClassId);
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex flex-col font-sans transition-colors duration-200">
+    <div className="min-h-screen min-h-[100dvh] bg-[var(--background)] text-[var(--foreground)] flex flex-col font-sans transition-colors duration-200">
       {/* Top Navigation Bar */}
       <header className="border-b border-border bg-card px-4 sm:px-6 lg:px-8 py-3 sticky top-0 z-40">
         <div className="w-full max-w-7xl mx-auto flex items-center justify-between gap-4">

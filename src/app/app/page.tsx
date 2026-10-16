@@ -134,7 +134,7 @@ function AuthenticatedApp() {
   };
 
   return (
-    <div className="min-h-screen bg-card dark:bg-muted text-foreground font-sans flex flex-col selection:bg-primary selection:text-primary-foreground">
+    <div className="min-h-screen min-h-[100dvh] bg-card dark:bg-muted text-foreground font-sans flex flex-col selection:bg-primary selection:text-primary-foreground">
       <Header
         currentView={currentView}
         onViewChange={(view) => {
