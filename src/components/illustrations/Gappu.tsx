@@ -46,7 +46,7 @@ export function Gappu({
   const [isBlinking, setIsBlinking] = useState(false);
   const [reactionIndex, setReactionIndex] = useState(0);
   const [isEasterEggSpinning, setIsEasterEggSpinning] = useState(false);
-  const [petalsBurst, setPetalsBurst] = useState<Array<{ id: number; x: number; y: number; r: number; color: string }>>([]);
+  const [petalsBurst, setPetalsBurst] = useState<Array<{ id: number; x: number; y: number; r: number; color: string; targetX: number; targetY: number; targetRotate: number }>>([]);
   const [speechBubbleText, setSpeechBubbleText] = useState<string | null>(null);
 
   // Throttled Eye Tracking: clamped offset in SVG coordinates (-10 to 10)
@@ -147,7 +147,23 @@ export function Gappu({
   // -------------------------------------------------------------
   // 3. Click / Tap Reactions + Easter Egg (5 Quick Clicks = Spin)
   // -------------------------------------------------------------
-  const handleClick = (e?: React.MouseEvent) => {
+  const triggerConfettiBurst = useCallback((count: number) => {
+    const burstColors = ['#6CA24A', '#F4C542', '#F28C38', '#F7B7C4', '#C7DDAE'];
+    const newPetals = Array.from({ length: count }, (_, i) => ({
+      id: Date.now() + i,
+      x: 230 + (Math.random() - 0.5) * 220,
+      y: 240 + (Math.random() - 0.5) * 160,
+      r: 6 + Math.random() * 8,
+      color: burstColors[i % burstColors.length],
+      targetY: (Math.random() - 0.5) * 80 - 40,
+      targetX: (Math.random() - 0.5) * 80,
+      targetRotate: Math.random() * 360,
+    }));
+    setPetalsBurst(newPetals);
+    setTimeout(() => setPetalsBurst([]), 1200);
+  }, []);
+
+  const handleClick = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
     onGappuClick?.();
 
@@ -193,20 +209,7 @@ export function Gappu({
     }, 2200);
 
     contextGappu.triggerReaction();
-  };
-
-  const triggerConfettiBurst = (count: number) => {
-    const burstColors = ['#6CA24A', '#F4C542', '#F28C38', '#F7B7C4', '#C7DDAE'];
-    const newPetals = Array.from({ length: count }, (_, i) => ({
-      id: Date.now() + i,
-      x: 230 + (Math.random() - 0.5) * 220,
-      y: 240 + (Math.random() - 0.5) * 160,
-      r: 6 + Math.random() * 8,
-      color: burstColors[i % burstColors.length],
-    }));
-    setPetalsBurst(newPetals);
-    setTimeout(() => setPetalsBurst([]), 1200);
-  };
+  }, [onGappuClick, enableClickReactions, reactionIndex, triggerConfettiBurst, contextGappu]);
 
   // -------------------------------------------------------------
   // 4. Motion Variants for Gappu States
@@ -399,9 +402,9 @@ export function Gappu({
           animate={{
             opacity: 0,
             scale: 1.2,
-            y: (Math.random() - 0.5) * 80 - 40,
-            x: (Math.random() - 0.5) * 80,
-            rotate: Math.random() * 360,
+            y: p.targetY,
+            x: p.targetX,
+            rotate: p.targetRotate,
           }}
           transition={{ duration: 0.9, ease: 'easeOut' }}
           aria-hidden="true"

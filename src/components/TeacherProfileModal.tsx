@@ -17,6 +17,7 @@ import {
   SignOut,
   Info,
 } from "@phosphor-icons/react";
+import { SUPPORTED_CLASSES } from "@/lib/curriculum/classes";
 
 interface TeacherProfileModalProps {
   isOpen: boolean;
@@ -39,11 +40,10 @@ interface TeacherProfileData {
   createdAt?: string;
 }
 
-const AVAILABLE_GRADES = [
-  { id: "class_3", label: "Class 3 (Foundational)" },
-  { id: "class_4", label: "Class 4 (Intermediate)" },
-  { id: "class_5", label: "Class 5 (Preparatory)" },
-];
+const AVAILABLE_GRADES = SUPPORTED_CLASSES.map((c) => ({
+  id: c.id,
+  label: `${c.label} (${c.stageLabel})`,
+}));
 
 export function TeacherProfileModal({ isOpen, onClose, onSignOut }: TeacherProfileModalProps) {
   const router = useRouter();

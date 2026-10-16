@@ -100,12 +100,11 @@ test("Curriculum Architecture: Classes 1 through 10 are completely configured wi
     assert.ok(classConfig, `Class config missing for grade ${grade}`);
     assert.equal(classConfig.grade, grade);
 
-    // Only Classes 3, 4, 5 are enabled for scored assessments
+    // Classes 1 to 10 are enabled
+    assert.equal(isClassEnabled(classConfig.id), true, `Class ${grade} must be enabled`);
     if ([3, 4, 5].includes(grade)) {
-      assert.equal(isClassEnabled(classConfig.id), true, `Class ${grade} must be enabled`);
       assert.equal(isGradeReadyForScoredAssessment(grade), true, `Class ${grade} must be ready for scored assessment`);
     } else {
-      assert.equal(isClassEnabled(classConfig.id), false, `Class ${grade} must remain disabled until question bank verified`);
       assert.equal(isGradeReadyForScoredAssessment(grade), false, `Class ${grade} must not be marked ready for scored assessment`);
     }
 

@@ -45,7 +45,9 @@ export function GappuProvider({ children }: { children: React.ReactNode }) {
   const [state, setStateRaw] = useState<GappuState>('idle');
   const [tipMessage, setTipMessage] = useState<string | null>(null);
   const stateRef = useRef<GappuState>(state);
-  stateRef.current = state;
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
   const wakeTimerRef = useRef<NodeJS.Timeout | null>(null);

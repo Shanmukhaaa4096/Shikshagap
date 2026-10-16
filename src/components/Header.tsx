@@ -17,7 +17,7 @@ import {
 } from "@phosphor-icons/react";
 import { getClassConfig, DEFAULT_CLASS_ID } from "@/lib/curriculum/classes";
 import { ClassSelector } from "./ClassSelector";
-import { FlowerPetal } from "@/components/illustrations/FloralMotifs";
+// Header styling
 
 interface HeaderProps {
   currentView?: "teacher" | "student";

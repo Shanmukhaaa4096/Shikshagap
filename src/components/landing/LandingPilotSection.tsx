@@ -254,11 +254,11 @@ export function LandingPilotSection() {
                   onChange={(e) => setPilotClassRange(e.target.value)}
                   className="w-full min-h-[46px] px-4 rounded-[14px] border border-[#C7DDAE] bg-white dark:bg-[#162012] text-xs sm:text-sm font-sans"
                 >
-                  <option value="Classes 3 to 5">Classes 3 to 5 (Full support)</option>
-                  <option value="Class 3">Class 3 only</option>
-                  <option value="Class 4">Class 4 only</option>
-                  <option value="Class 5">Class 5 only</option>
-                  <option value="All Primary (Classes 1 to 5)">All Primary (Classes 1 to 5)</option>
+                  <option value="Classes 1 to 10">All Classes (Classes 1 to 10)</option>
+                  <option value="Primary (Classes 1 to 5)">Primary Stage (Classes 1 to 5)</option>
+                  <option value="Middle (Classes 6 to 8)">Middle Stage (Classes 6 to 8)</option>
+                  <option value="Secondary (Classes 9 to 10)">Secondary Stage (Classes 9 to 10)</option>
+                  <option value="Classes 3 to 5">Classes 3 to 5</option>
                 </select>
               </div>
 

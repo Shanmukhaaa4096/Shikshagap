@@ -461,7 +461,7 @@ export interface TopicMemory {
 export interface SessionMemory {
   pseudonymousId: string;   // never the student's name
   language: "en" | "hi" | "te";
-  grade: 3 | 4 | 5;
+  grade: number; // Classes 1 to 10
   topics: TopicMemory[];
   currentTopicIndex: number;
   seenSignatures?: string[];

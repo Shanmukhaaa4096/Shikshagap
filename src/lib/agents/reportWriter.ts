@@ -11,6 +11,7 @@
  */
 
 import type { ResourceRecommendation, SessionMemory } from "../types.ts";
+import { getClassPedagogicalInstructions } from "../curriculum/classes.ts";
 
 export interface ReportWriterInput {
   memory: SessionMemory;
@@ -176,7 +177,10 @@ export async function writeReport(
     const targetLangName =
       memory.language === "hi" ? "Hindi (हिंदी)" : memory.language === "te" ? "Telugu (తెలుగు)" : "English";
 
-    const prompt = `You are an educational assessment report writer for primary school teachers and parents.
+    const pedagogicalInstructions = getClassPedagogicalInstructions(memory.grade);
+
+    const prompt = `You are an educational assessment report writer for Class ${memory.grade} school teachers and parents.
+Grade-level tone guidance: ${pedagogicalInstructions}
 Write a concise 2-4 sentence summary of the following student assessment data strictly in ${targetLangName}.
 
 CRITICAL RULES:

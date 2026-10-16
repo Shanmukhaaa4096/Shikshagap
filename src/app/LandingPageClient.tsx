@@ -627,13 +627,13 @@ function PublicLandingPageContent() {
 
             <div className="rounded-[20px] bg-[#C7DDAE]/20 p-5 border border-[#C7DDAE]/50">
               <div className="font-heading text-5xl sm:text-6xl font-bold text-foreground leading-none">
-                03
+                10
               </div>
               <div className="text-xs font-sans uppercase tracking-wider text-foreground mt-2 font-bold">
-                Classes Enabled (3, 4, 5)
+                Classes Enabled (1 to 10)
               </div>
               <div className="text-xs text-muted-foreground mt-0.5">
-                Aligned to Class 3 to 5 topics
+                Aligned to Class 1 to 10 topics
               </div>
             </div>
 
@@ -766,7 +766,7 @@ function PublicLandingPageContent() {
             AI Diagnostic
           </span>
           <span className="text-[12px] font-sans text-foreground font-bold">
-            Class 3 to 5 Math
+            Class 1 to 10 Math
           </span>
         </div>
         <Link

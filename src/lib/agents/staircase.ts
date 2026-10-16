@@ -35,17 +35,21 @@ export const DEFAULT_TOPICS: TopicId[] = [
 ];
 
 /**
- * Returns the primary target concept for a given topic and grade.
+ * Returns the primary target concept for a given topic and grade (Classes 1 to 10).
  */
-export function getConceptForTopic(topicId: TopicId, grade: 3 | 4 | 5): ConceptId {
+export function getConceptForTopic(topicId: TopicId, grade: number): ConceptId {
   switch (topicId) {
     case "number_ops":
+      if (grade <= 2) return "number_sense";
       return grade === 3 ? "number_sense" : "place_value";
     case "multiplication":
-      return grade === 3 ? "mult_concept" : "mult_facts";
+      if (grade <= 2) return "number_sense";
+      return grade === 3 ? "mult_concept" : grade <= 5 ? "mult_facts" : "multi_digit_mult";
     case "division":
+      if (grade <= 2) return "addition";
       return grade === 3 || grade === 4 ? "division_concept" : "division_facts";
     case "fractions":
+      if (grade <= 3) return "addition";
       return grade === 4 ? "fraction_basics" : "equivalent_fractions";
     default:
       return "number_sense";
@@ -66,7 +70,7 @@ export function generateFreshSessionSeed(): number {
  */
 export function createSessionMemory(
   pseudonymousId: string,
-  grade: 3 | 4 | 5 = 5,
+  grade: number = 5,
   language: "en" | "hi" | "te" = "en",
   topics: TopicId[] = DEFAULT_TOPICS,
   sessionSeed?: number

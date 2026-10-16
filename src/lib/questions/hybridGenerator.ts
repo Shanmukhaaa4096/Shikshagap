@@ -18,6 +18,7 @@ import type { ConceptId, Difficulty, Lang, Question } from "../types.ts";
 import { getSkillEntry, getSkillRange } from "../../data/skillSheet.ts";
 import { retrieveQuestionMemory, saveValidatedQuestion } from "../db/questionMemory.ts";
 import { validateQuestionIntegrity } from "./integrity.ts";
+import { getClassPedagogicalInstructions } from "../curriculum/classes.ts";
 
 // ---------------------------------------------------------------------------
 // 1. Zod Schema for Structured Output
@@ -38,9 +39,12 @@ export const BlindSolverResponseSchema = z.object({
 export type WordingResponse = z.infer<typeof WordingResponseSchema>;
 
 export function getReadingLevelWordCap(grade: number): number {
-  if (grade <= 3) return 30;
+  if (grade <= 2) return 20;
+  if (grade === 3) return 30;
   if (grade === 4) return 40;
-  return 45;
+  if (grade <= 6) return 45;
+  if (grade <= 8) return 55;
+  return 65;
 }
 
 export function countWords(text: string): number {
@@ -570,8 +574,9 @@ export async function enhanceQuestionWithHybridWording(
       5: "L5 Challenge/HOTS",
     };
     const diffTag = diffNames[baseQuestion.difficulty] || "L2 Understanding";
-
+    const pedagogicalInstructions = getClassPedagogicalInstructions(grade);
     const systemInstruction = `You are an educational mathematics item writer for Class ${grade} in India.
+Grade-Level Tone Guidance: ${pedagogicalInstructions}
 Concept: ${baseQuestion.conceptId} (Difficulty: ${diffTag}).
 Pedagogical Source Style: ${styleGuideline}
 Learning Outcome: "${skillOutcome}".

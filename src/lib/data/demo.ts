@@ -156,7 +156,47 @@ const RAW_STUDENTS_CLASS_3 = [
 function getRawCohort(classId: string) {
   if (classId === "class_3") return RAW_STUDENTS_CLASS_3;
   if (classId === "class_4") return RAW_STUDENTS_CLASS_4;
-  return RAW_STUDENTS_CLASS_5;
+  if (classId === "class_5") return RAW_STUDENTS_CLASS_5;
+
+  // Cohort generator for classes 1, 2, 6, 7, 8, 9, 10
+  const conf = getClassConfig(classId);
+  const count = conf.defaultStudentCount || 30;
+  const names = [
+    "Aarav Sharma", "Aditi Rao", "Ananya Reddy", "Arjun Patel", "Bhavya Sri",
+    "Charan Raj", "Deepa Rao", "Divya Teja", "Harish Chandra", "Ishaan Reddy",
+    "Kavya Madhavan", "Krishna Chaitanya", "Lakshmi Bai", "Manish Kumar", "Meera Bai",
+    "Mohammed Imran", "Murali Krishna", "Naveen Kumar", "Nikhil Siddhartha", "Pavani Latha",
+    "Pooja Hegde", "Priya Nair", "Rahul Sharma", "Rakesh Roshan", "Ravi Kumar",
+    "Rohit Varma", "Sai Praneeth", "Samantha Ruth", "Sandhya Rani", "Sita Devi",
+    "Sunita Goud", "Suresh Raina", "Tanvi Rao", "Tarun Tej", "Vaishnavi Devi",
+    "Varun Sandesh", "Vikram Singh", "Zoya Fatima", "Karthik Varma", "Manoj Yadav",
+    "Kavita Meena", "Ganesh Naik", "Aditya Das"
+  ];
+
+  const primaryRoot = (conf.targetConcepts && conf.targetConcepts[0] ? String(conf.targetConcepts[0]) : "number_sense");
+  const secondaryRoot = (conf.targetConcepts && conf.targetConcepts[1] ? String(conf.targetConcepts[1]) : "place_value");
+
+  const cohort = [];
+  for (let r = 1; r <= count; r++) {
+    const name = names[(r - 1) % names.length];
+    let status = "on_track";
+    let rootId: string | null = null;
+    let symptoms: string[] = [];
+
+    if (r % 5 === 1) {
+      status = "critical";
+      rootId = primaryRoot;
+      symptoms = [secondaryRoot];
+    } else if (r % 4 === 2) {
+      status = "need_practice";
+      rootId = secondaryRoot;
+      symptoms = [primaryRoot];
+    }
+
+    cohort.push({ roll: r, name, status, rootId, symptoms });
+  }
+
+  return cohort;
 }
 
 function buildConceptsMap(

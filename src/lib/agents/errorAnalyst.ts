@@ -10,6 +10,7 @@
 
 import { GoogleGenAI } from "@google/genai";
 import type { Attempt, ConceptId, TopicId } from "../types";
+import { getClassPedagogicalInstructions } from "../curriculum/classes.ts";
 
 export const CONCEPT_MISCONCEPTIONS: Record<string, string[]> = {
   number_sense: ["slip", "place_value", "order_reversal", "magnitude_confusion", "unclassified"],
@@ -126,7 +127,9 @@ export async function analyzeErrors(
       existingClassification: a.errorType || "none",
     }));
 
+    const pedagogicalInstructions = getClassPedagogicalInstructions(grade);
     const systemInstruction = `You are the ShikshaGap Error Analyst for Class ${grade} Mathematics.
+Grade Adaptivity: ${pedagogicalInstructions}
 Analyze the student's incorrect attempts for topic "${topicId}".
 Allowed misconception labels MUST come strictly from this list: [${allowedListStr}].
 Return ONLY valid JSON matching this schema:

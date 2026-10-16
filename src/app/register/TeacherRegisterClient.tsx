@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   CheckCircle,
 } from "@phosphor-icons/react";
+import { SUPPORTED_CLASSES } from "@/lib/curriculum/classes";
 
 type TeacherDesignation =
   | "teacher"
@@ -45,11 +46,10 @@ export default function TeacherRegisterClient() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const availableGrades = [
-    { id: "class_3", label: "Class 3 (Primary)" },
-    { id: "class_4", label: "Class 4 (Primary)" },
-    { id: "class_5", label: "Class 5 (Upper Primary Prep)" },
-  ];
+  const availableGrades = SUPPORTED_CLASSES.map((c) => ({
+    id: c.id,
+    label: `${c.label} (${c.stageLabel})`,
+  }));
 
   const standardSubjects = [
     "Mathematics",

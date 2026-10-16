@@ -34,7 +34,7 @@ const AssessmentAgentSchema = z.object({
         (id) => !/\b(rajesh|kumar|sharma|patel|singh|devi|priya|ananya|rahul|amit|pooja|sneha|mohan)\b/i.test(id),
         "Real student names are strictly forbidden; use pseudonymous identifier only"
       ),
-    grade: z.union([z.literal(3), z.literal(4), z.literal(5)]),
+    grade: z.number().int().min(1).max(10),
     language: z.enum(["en", "hi", "te"]),
     currentTopicIndex: z.number().int().min(0),
     topics: z.array(z.any()).min(1),
@@ -89,10 +89,11 @@ export async function POST(req: NextRequest) {
     const memory = rawBody.memory as SessionMemory;
     const lastAttempt = rawBody.lastAttempt as Attempt | undefined;
 
-    // Explicit validation check: Allowed grades whitelist [3, 4, 5]
-    if (memory.grade && ![3, 4, 5].includes(memory.grade)) {
+    // Allowed grades whitelist: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] (expanded from [3, 4, 5])
+    const ALLOWED_GRADES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    if (memory.grade && !ALLOWED_GRADES.includes(memory.grade)) {
       return NextResponse.json(
-        { error: "Invalid grade. Only grades 3, 4, and 5 are currently enabled." },
+        { error: "Invalid grade. Only grades 1 to 10 are currently enabled." },
         { status: 400 }
       );
     }

@@ -28,6 +28,7 @@ import type {
   ConceptId,
   SessionMemory,
 } from "../types";
+import { getClassPedagogicalInstructions } from "../curriculum/classes.ts";
 
 export const EXAMINER_TOOLS: FunctionDeclaration[] = [
   {
@@ -151,7 +152,10 @@ export async function runExaminerStep(
         : null,
     };
 
+    const pedagogicalInstructions = getClassPedagogicalInstructions(memory.grade);
+
     const systemInstruction = `You are the ShikshaGap AI Examiner administering a calm, adaptive Class ${memory.grade} Mathematics learning check.
+Grade Adaptivity: ${pedagogicalInstructions}
 You must use function calling to select the next action.
 Rules:
 1. Every topic starts at Level 2.

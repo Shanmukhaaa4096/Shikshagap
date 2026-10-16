@@ -28,9 +28,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (memory.grade && ![3, 4, 5].includes(memory.grade)) {
+    // Allowed grades whitelist: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] (expanded from [3, 4, 5])
+    const ALLOWED_GRADES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    if (memory.grade && !ALLOWED_GRADES.includes(memory.grade)) {
       return NextResponse.json(
-        { error: "Invalid grade. Only grades 3, 4, and 5 are currently enabled." },
+        { error: "Invalid grade. Only grades 1 to 10 are currently enabled." },
         { status: 400 }
       );
     }

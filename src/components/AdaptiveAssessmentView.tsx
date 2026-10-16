@@ -30,7 +30,7 @@ import {
   Sparkle,
 } from "@phosphor-icons/react";
 import { MascotHero } from "@/components/illustrations/MascotHero";
-import { FlowerPetal, BotanicalLeaf, WarmSparkle, GiftBoxMotif } from "@/components/illustrations/FloralMotifs";
+// Visual styling handled in component classes
 import { WorksheetModal } from "@/components/WorksheetModal";
 import {
   CURRICULUM_TOPICS,
@@ -398,9 +398,9 @@ export function AdaptiveAssessmentView({
 
     // Use strictly pseudonymous ID (DPDP compliance)
     const pseudonymousId = "anon_" + (activeStudent.student.id ? activeStudent.student.id.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8) : "learner");
-    const gradeVal = (classConfig.grade === 3 || classConfig.grade === 4 || classConfig.grade === 5)
-      ? (classConfig.grade as 3 | 4 | 5)
-      : 5;
+    const gradeVal = classConfig.grade; // Classes 1 to 10
+
+
 
     const initialMemory = createSessionMemory(
       pseudonymousId,
@@ -800,14 +800,14 @@ export function AdaptiveAssessmentView({
             <div className="space-y-2">
               <div className="flex items-center justify-between flex-wrap gap-1">
                 <span className="editorial-meta text-foreground">SELECT CLASS (CLASSES 1 TO 10)</span>
-                <span className="text-xs font-mono text-muted-foreground">Classes 3–5 ready; 1, 2, 6–10 in review</span>
+                <span className="text-xs font-mono text-muted-foreground">Classes 1–10 ready</span>
               </div>
               <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5">
                 {SUPPORTED_CLASSES.map((c) => (
                   <button
                     key={c.id}
                     type="button"
-                    disabled={!c.enabled}
+
                     onClick={() => {
                       if (c.enabled) {
                         clearSavedSession();
@@ -828,7 +828,9 @@ export function AdaptiveAssessmentView({
                     }`}
                   >
                     <span>{c.label}</span>
-                    {!c.enabled && <span className="text-xs font-normal opacity-75">Soon</span>}
+                    <span className="text-[12px] font-normal opacity-85 leading-none">
+                      {c.stage === "foundational" ? "Found" : c.stage === "preparatory" ? "Primary" : c.stage === "middle" ? "Middle" : "High"}
+                    </span>
                   </button>
                 ))}
               </div>
