@@ -16,13 +16,10 @@ import { makeRng } from "../src/lib/rng.ts";
 import {
   generateQuestion,
   generateQuestionWithVariety,
-  generateUnique,
   applyQuestionFormat,
 } from "../src/lib/questions/generator.ts";
 import {
   validateQuestionIntegrity,
-  recomputeGroundTruthAnswer,
-  areAnswersEquivalent,
 } from "../src/lib/questions/integrity.ts";
 import {
   extractQuestionOperands,

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { LanguageProvider } from '@/lib/i18n/context';
 import { Header } from '@/components/Header';
 import { TeacherDashboard } from '@/components/TeacherDashboard';
@@ -14,6 +15,7 @@ import { loadStudents, saveStudents, resetDemoData, type DemoStudentData } from 
 import { DEFAULT_CLASS_ID } from '@/lib/curriculum/classes';
 
 function AuthenticatedApp() {
+  const router = useRouter();
   const [selectedClassId, setSelectedClassId] = useState<string>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -128,7 +130,7 @@ function AuthenticatedApp() {
     } catch {
       // ignore
     }
-    window.location.href = '/login';
+    router.push('/login');
   };
 
   return (

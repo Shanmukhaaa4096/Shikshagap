@@ -8,14 +8,20 @@ import {
   Envelope,
   Phone,
   Buildings,
-  Lock,
   Eye,
   EyeSlash,
   WarningCircle,
-  GraduationCap,
   ShieldCheck,
   CheckCircle,
 } from "@phosphor-icons/react";
+
+type TeacherDesignation =
+  | "teacher"
+  | "senior_teacher"
+  | "headmaster"
+  | "principal"
+  | "coordinator"
+  | "other";
 
 export default function TeacherRegisterClient() {
   const router = useRouter();
@@ -26,13 +32,7 @@ export default function TeacherRegisterClient() {
     gradesTaught: ["class_3", "class_4", "class_5"] as string[],
     subjectsTaught: ["Mathematics"] as string[],
     otherSubject: "",
-    designation: "teacher" as
-      | "teacher"
-      | "senior_teacher"
-      | "headmaster"
-      | "principal"
-      | "coordinator"
-      | "other",
+    designation: "teacher" as TeacherDesignation,
     countryCode: "+91",
     phone: "",
     email: "",
@@ -333,7 +333,7 @@ export default function TeacherRegisterClient() {
                 <select
                   id="designation"
                   value={formData.designation}
-                  onChange={(e) => setFormData({ ...formData, designation: e.target.value as any })}
+                  onChange={(e) => setFormData({ ...formData, designation: e.target.value as TeacherDesignation })}
                   className="w-full min-h-[44px] bg-card border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary rounded-[2px]"
                 >
                   {designations.map((d) => (

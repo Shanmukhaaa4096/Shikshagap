@@ -10,7 +10,7 @@
  * 5. Rejection of broken AI wordings that contradict underlying math or lack valid answers.
  */
 
-import type { Question, Option } from "../types.ts";
+import type { Question } from "../types.ts";
 import { normalizeAnswer } from "./hybridGenerator.ts";
 import { gcd } from "../rng.ts";
 

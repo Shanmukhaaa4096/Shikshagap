@@ -392,3 +392,36 @@ test('10. Account Deletion: Purges Teacher Profile, Data and Revokes Access', as
   const loginAttempt = await verifyCredentials(email, password);
   assert.equal(loginAttempt, null, 'Deleted teacher cannot authenticate');
 });
+
+test('11. Profile Update: Updates Teacher metadata safely', async () => {
+  const email = `profile.${Date.now()}@school.edu.in`;
+  const phone = `9812${(Date.now() % 1000000).toString().padStart(6, '0')}`;
+  const password = 'UpdateMePass@2026';
+
+  const reg = await createTeacherAccount(
+    {
+      email,
+      phone,
+      countryCode: '+91',
+      fullName: 'Teacher Initial',
+      institutionName: 'Initial School',
+      gradesTaught: ['class_3'],
+    },
+    await bcrypt.hash(password, 10)
+  );
+  assert.equal(reg.success, true);
+  const teacherId = reg.account.id;
+
+  const updated = await updateTeacherProfile(teacherId, {
+    fullName: 'Teacher Updated',
+    institutionName: 'Updated School',
+    gradesTaught: ['class_3', 'class_4'],
+    designation: 'headmaster',
+  });
+  assert.ok(updated);
+  assert.equal(updated.fullName, 'Teacher Updated');
+  assert.equal(updated.institutionName, 'Updated School');
+  assert.deepEqual(updated.gradesTaught, ['class_3', 'class_4']);
+  assert.equal(updated.designation, 'headmaster');
+});
+

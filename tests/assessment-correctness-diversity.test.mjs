@@ -11,7 +11,6 @@ import assert from "node:assert/strict";
 import { makeRng } from "../src/lib/rng.ts";
 import {
   generateQuestion,
-  generateQuestionWithVariety,
   generateUnique,
   applyQuestionFormat,
   questionSignature,

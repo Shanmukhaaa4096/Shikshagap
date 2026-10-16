@@ -24,7 +24,6 @@ import { makeRng } from "../src/lib/rng.ts";
 import { getClassConfig } from "../src/lib/curriculum/classes.ts";
 import { getSkillRange } from "../src/data/skillSheet.ts";
 import {
-  generateQuestionWithVariety,
   generateUnique,
   canonicalQuestionFingerprint,
 } from "../src/lib/questions/generator.ts";

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   User,
   Buildings,
@@ -45,6 +46,7 @@ const AVAILABLE_GRADES = [
 ];
 
 export function TeacherProfileModal({ isOpen, onClose, onSignOut }: TeacherProfileModalProps) {
+  const router = useRouter();
   const [profile, setProfile] = useState<TeacherProfileData | null>(null);
   const [fullName, setFullName] = useState("");
   const [institutionName, setInstitutionName] = useState("");
@@ -66,9 +68,12 @@ export function TeacherProfileModal({ isOpen, onClose, onSignOut }: TeacherProfi
   useEffect(() => {
     if (!isOpen) return;
 
-    setLoading(true);
-    setErrorMessage(null);
-    setSaveSuccess(false);
+    let isMounted = true;
+    queueMicrotask(() => {
+      setLoading(true);
+      setErrorMessage(null);
+      setSaveSuccess(false);
+    });
 
     fetch("/api/auth/profile")
       .then((res) => {
@@ -76,6 +81,7 @@ export function TeacherProfileModal({ isOpen, onClose, onSignOut }: TeacherProfi
         return res.json();
       })
       .then((data) => {
+        if (!isMounted) return;
         if (data.user) {
           setProfile(data.user);
           setFullName(data.user.fullName || data.user.name || "");
@@ -85,11 +91,16 @@ export function TeacherProfileModal({ isOpen, onClose, onSignOut }: TeacherProfi
         }
       })
       .catch((err) => {
+        if (!isMounted) return;
         setErrorMessage(err.message || "Failed to fetch profile information.");
       })
       .finally(() => {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       });
+
+    return () => {
+      isMounted = false;
+    };
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -160,7 +171,7 @@ export function TeacherProfileModal({ isOpen, onClose, onSignOut }: TeacherProfi
         } catch {
           // ignore
         }
-        window.location.href = "/?message=account_deleted";
+        router.push("/?message=account_deleted");
       }
     } catch {
       setDeleteError("Network error. Please try again.");

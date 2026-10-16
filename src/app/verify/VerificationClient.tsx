@@ -1,16 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Phone,
   Envelope,
   CheckCircle,
-  WarningCircle,
   Clock,
   ArrowRight,
-  ShieldCheck,
 } from "@phosphor-icons/react";
 
 export default function VerificationClient() {
@@ -36,43 +34,7 @@ export default function VerificationClient() {
   const [phoneCooldown, setPhoneCooldown] = useState(0);
   const [emailCooldown, setEmailCooldown] = useState(0);
 
-  // Initialize from URL params if present
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const paramEmail = params.get("email");
-      const paramPhone = params.get("phone");
-      const paramToken = params.get("token");
-
-      if (paramEmail) setEmail(paramEmail);
-      if (paramPhone) setPhone(paramPhone);
-
-      // If token provided directly in URL (from email link), auto-verify
-      if (paramToken && paramEmail) {
-        setEmailCode(paramToken);
-        verifyEmailDirectly(paramEmail, paramToken);
-      }
-    }
-  }, []);
-
-  // Cooldown timers
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (phoneCooldown > 0) {
-      timer = setTimeout(() => setPhoneCooldown(phoneCooldown - 1), 1000);
-    }
-    return () => clearTimeout(timer);
-  }, [phoneCooldown]);
-
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (emailCooldown > 0) {
-      timer = setTimeout(() => setEmailCooldown(emailCooldown - 1), 1000);
-    }
-    return () => clearTimeout(timer);
-  }, [emailCooldown]);
-
-  const verifyEmailDirectly = async (targetEmail: string, token: string) => {
+  const verifyEmailDirectly = useCallback(async (targetEmail: string, token: string) => {
     setEmailLoading(true);
     setEmailError(null);
     try {
@@ -99,7 +61,45 @@ export default function VerificationClient() {
     } finally {
       setEmailLoading(false);
     }
-  };
+  }, [router]);
+
+  // Initialize from URL params if present
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const paramEmail = params.get("email");
+      const paramPhone = params.get("phone");
+      const paramToken = params.get("token");
+
+      queueMicrotask(() => {
+        if (paramEmail) setEmail(paramEmail);
+        if (paramPhone) setPhone(paramPhone);
+
+        // If token provided directly in URL (from email link), auto-verify
+        if (paramToken && paramEmail) {
+          setEmailCode(paramToken);
+          void verifyEmailDirectly(paramEmail, paramToken);
+        }
+      });
+    }
+  }, [verifyEmailDirectly]);
+
+  // Cooldown timers
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (phoneCooldown > 0) {
+      timer = setTimeout(() => setPhoneCooldown(phoneCooldown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [phoneCooldown]);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (emailCooldown > 0) {
+      timer = setTimeout(() => setEmailCooldown(emailCooldown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [emailCooldown]);
 
   const handleVerifyPhone = async (e: React.FormEvent) => {
     e.preventDefault();

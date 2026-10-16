@@ -9,7 +9,6 @@ import { z } from "zod";
 import {
   verifyToken,
   updateTeacherVerification,
-  findTeacherById,
   normalizePhone,
 } from "@/lib/auth/accountStore.ts";
 import { setSessionCookie } from "@/lib/auth/session.ts";
