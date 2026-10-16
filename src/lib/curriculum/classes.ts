@@ -11,6 +11,8 @@ export interface ClassConfig {
   topics: TopicId[];
   targetConcepts: ConceptId[];
   defaultStudentCount: number;
+  board?: string;
+  textbookTitle?: string;
   description: {
     en: string;
     hi: string;
@@ -170,6 +172,40 @@ export const SUPPORTED_CLASSES: ClassConfig[] = [
       en: "Exponents, squares, and algebraic identities (Coming soon)",
       hi: "घातांक, वर्ग और सर्वसमिकाएं (शीघ्र उपलब्ध)",
       te: "ఘాతాంకాలు, వర్గాలు మరియు బీజగణిత సూత్రాలు (త్వరలో అందుబాటులో ఉంటుంది)",
+    },
+  },
+  {
+    id: "class_9",
+    label: "Class 9",
+    shortLabel: "9",
+    grade: 9,
+    section: "A",
+    enabled: false,
+    subjects: ["math"],
+    topics: [],
+    targetConcepts: [],
+    defaultStudentCount: 42,
+    description: {
+      en: "Number systems, polynomials, and coordinate geometry (Curriculum configured, verification in progress)",
+      hi: "संख्या पद्धति, बहुपद और निर्देशांक ज्यामिति (पाठ्यक्रम विन्यास पूर्ण, सत्यापन प्रगति पर)",
+      te: "సంఖ్యా వ్యవస్థలు, బహుపదులు మరియు నిరూపక రేఖాగణితం (సిలబస్ సిద్ధంగా ఉంది, ధృవీకరణ జరుగుతోంది)",
+    },
+  },
+  {
+    id: "class_10",
+    label: "Class 10",
+    shortLabel: "10",
+    grade: 10,
+    section: "A",
+    enabled: false,
+    subjects: ["math"],
+    topics: [],
+    targetConcepts: [],
+    defaultStudentCount: 42,
+    description: {
+      en: "Real numbers, quadratic equations, and trigonometry (Curriculum configured, verification in progress)",
+      hi: "वास्तविक संख्याएं, द्विघात समीकरण और त्रिकोणमिति (पाठ्यक्रम विन्यास पूर्ण, सत्यापन प्रगति पर)",
+      te: "వాస్తవ సంఖ్యలు, వర్గ సమీకరణాలు మరియు త్రికోణమితి (సిలబస్ సిద్ధంగా ఉంది, ధృవీకరణ జరుగుతోంది)",
     },
   },
 ];

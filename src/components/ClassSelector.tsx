@@ -31,7 +31,7 @@ export function ClassSelector({
                 key={conf.id}
                 type="button"
                 onClick={() => onSelectClass(conf.id)}
-                className={`min-h-[36px] px-2.5 py-1 text-sm font-mono font-bold rounded-[2px] border transition-none shrink-0 ${
+                className={`min-h-[44px] min-w-[44px] px-3 py-1.5 text-sm font-mono font-bold rounded-[2px] border transition-none shrink-0 ${
                   isSelected
                     ? 'border-[var(--foreground)] bg-[var(--foreground)] text-[var(--background)]'
                     : 'border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] hover:bg-[var(--muted)]'
@@ -45,16 +45,16 @@ export function ClassSelector({
           <button
             type="button"
             onClick={() => setShowUpcoming(!showUpcoming)}
-            className="text-sm font-mono text-[var(--muted-foreground)] hover:underline shrink-0 px-2 py-1"
+            className="min-h-[44px] text-sm font-mono text-[var(--muted-foreground)] hover:underline shrink-0 px-2.5 py-1.5 flex items-center"
           >
             {showUpcoming ? 'Hide other classes' : 'More classes coming soon'}
           </button>
         </div>
         {showUpcoming && (
-          <div className="flex flex-wrap items-center gap-1 text-sm font-mono text-[var(--muted-foreground)] bg-[var(--muted)]/50 p-1.5 rounded-[2px]">
+          <div className="flex flex-wrap items-center gap-1.5 text-sm font-mono text-[var(--muted-foreground)] bg-[var(--muted)]/50 p-2 rounded-[2px]">
             <span>Coming soon:</span>
             {upcomingClasses.map((c) => (
-              <span key={c.id} className="px-1.5 py-0.5 border border-[var(--border)] bg-[var(--card)] opacity-60">
+              <span key={c.id} className="px-2 py-1 border border-[var(--border)] bg-[var(--card)] opacity-60">
                 {c.label}
               </span>
             ))}
@@ -63,6 +63,8 @@ export function ClassSelector({
       </div>
     );
   }
+
+  const upcomingListText = upcomingClasses.map((c) => c.shortLabel).join(', ');
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
@@ -94,9 +96,9 @@ export function ClassSelector({
         <button
           type="button"
           onClick={() => setShowUpcoming(!showUpcoming)}
-          className="text-sm font-mono text-muted-foreground dark:text-muted-foreground hover:underline flex items-center gap-1.5 cursor-pointer"
+          className="min-h-[44px] text-sm font-mono text-muted-foreground dark:text-muted-foreground hover:underline flex items-center gap-1.5 cursor-pointer"
         >
-          <span>{showUpcoming ? 'Hide upcoming classes' : 'More classes coming soon (Classes 1, 2, 6, 7, 8)'}</span>
+          <span>{showUpcoming ? 'Hide upcoming classes' : `More classes coming soon (Classes ${upcomingListText})`}</span>
         </button>
 
         {showUpcoming && (

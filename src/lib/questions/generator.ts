@@ -367,7 +367,7 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
 
       return {
         format: "mcq",
-        prompt: T("q.mc.repeated"),
+        prompt: T("q.mc.repeated", { a: v, times: n }),
         expression: expr,
         answerKind: "choice",
         answer: correctVal,
@@ -383,7 +383,7 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
     addBug(bugs, g + e, "wrong_operation", ans);
     return {
       format: "word_problem",
-      prompt: T("q.mc.groups", { g, e }),
+      prompt: T("q.mc.groups", { groups: g, each: e }),
       answerKind: "int",
       answer: String(ans),
       meta: { a: g, b: e, op: "x", bugs },
@@ -487,7 +487,7 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
     if (d === 1) {
       return {
         format: "short_answer",
-        prompt: T("q.dc.share", { total, n }),
+        prompt: T("q.dc.share", { total, people: n }),
         answerKind: "int",
         answer: String(each),
         visual: { kind: "groups", groups: n, each, total },
@@ -498,7 +498,7 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
     if (d === 2) {
       return {
         format: "word_problem",
-        prompt: T("q.dc.groups", { total, n }),
+        prompt: T("q.dc.groups", { total, each }),
         answerKind: "int",
         answer: String(each),
         meta: { a: total, b: n, op: "/", bugs },
@@ -665,7 +665,7 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
       addBug(bugs, num + den, "unclassified", den);
       return {
         format: "mcq",
-        prompt: T("q.fb.denominator", { f: frac(num, den) }),
+        prompt: T("q.fb.denominator", { num, den }),
         answerKind: "choice",
         answer: String(den),
         options: numericOptions(rng, den, bugs),
@@ -683,7 +683,7 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
     addBug(bugs, total * den, "wrong_operation", ans);
     return {
       format: "word_problem",
-      prompt: T("q.fb.of", { d: den, total }),
+      prompt: T("q.fb.of", { fraction: frac(1, den), total }),
       answerKind: "int",
       answer: String(ans),
       meta: { a: total, b: den, op: "/", bugs },
@@ -705,7 +705,7 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
       ]);
       return {
         format: "mcq",
-        prompt: T("q.ef.which", { f: frac(num, den) }),
+        prompt: T("q.ef.which", { a: num, b: den }),
         answerKind: "choice",
         answer: frac(num * k, den * k),
         options,
@@ -777,7 +777,7 @@ const gen: Record<ConceptId, (d: Difficulty, rng: Rng, ctx: GenContext, grade: n
     ];
     return {
       format: "mcq",
-      prompt: T("q.cf.bigger"),
+      prompt: T("q.cf.bigger", { a: frac(...a), b: frac(...b) }),
       expression: `${frac(...a)} vs ${frac(...b)}`,
       answerKind: "choice",
       answer: frac(...big),

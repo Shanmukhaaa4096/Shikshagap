@@ -56,12 +56,25 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         str = str.replaceAll(`{${k}}`, String(v));
       }
     }
+    // Strict safety invariant: remove unresolved template variables like {each}, {num}
+    if (/\{[a-zA-Z0-9_]+\}/.test(str)) {
+      if (process.env.NODE_ENV !== "production") {
+        console.warn(`[i18n] Unresolved placeholder detected for key "${key}": "${str}"`);
+      }
+      str = str.replace(/\{[a-zA-Z0-9_]+\}/g, "");
+    }
     return str;
   };
 
   const formatTxt = (txt?: Txt): string => {
     if (!txt) return "";
-    if ("raw" in txt) return txt.raw;
+    if ("raw" in txt) {
+      const rawText = txt.raw;
+      if (/\{[a-zA-Z0-9_]+\}/.test(rawText)) {
+        return rawText.replace(/\{[a-zA-Z0-9_]+\}/g, "");
+      }
+      return rawText;
+    }
     return t(txt.key, txt.params);
   };
 

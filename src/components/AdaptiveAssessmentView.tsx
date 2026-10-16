@@ -31,12 +31,10 @@ import {
 } from "@phosphor-icons/react";
 import { MascotHero } from "@/components/illustrations/MascotHero";
 import { WorksheetModal } from "@/components/WorksheetModal";
-import { getSkillEntry } from "@/data/skillSheet";
 import {
   CURRICULUM_TOPICS,
   TOPIC_DISPLAY_NAMES,
 } from "@/lib/engine/diagnostic";
-import { TOPICS } from "@/lib/concepts/graph";
 import {
   createSessionMemory,
   getNextStaircaseAction,
@@ -46,9 +44,8 @@ import { generateUnique } from "@/lib/questions/generator";
 import { normalizeAnswer } from "@/lib/questions/hybridGenerator";
 import { areAnswersEquivalent } from "@/lib/questions/integrity";
 import { makeRng } from "@/lib/rng";
-import { getClassConfig, DEFAULT_CLASS_ID, ENABLED_CLASSES } from "@/lib/curriculum/classes";
-import { generateRemediationPlan } from "@/lib/engine/remediation";
-import type { RootCause } from "@/lib/types";
+import { getClassConfig, DEFAULT_CLASS_ID, SUPPORTED_CLASSES } from "@/lib/curriculum/classes";
+import { getVerifiedTextbookQuestion } from "@/lib/questions/textbookBank";
 
 function generateClientSessionId(): string {
   const ts = typeof Date !== "undefined" ? Date.now() : 0;
@@ -78,7 +75,7 @@ export function AdaptiveAssessmentView({
   onAssessmentCompleted,
   onCancel,
 }: Props) {
-  const { lang, setLang, dict, t, formatTxt } = useI18n();
+  const { lang, setLang, dict, formatTxt } = useI18n();
   const router = useRouter();
   const classConfig = getClassConfig(selectedClassId);
 
@@ -197,7 +194,7 @@ export function AdaptiveAssessmentView({
     }
   };
 
-  // Track evaluating duration for calm loading message after 3s without calling setState synchronously in effect body
+  // Track evaluating duration for calm loading message after 3s
   useEffect(() => {
     if (!isEvaluating) return;
     const startTime = Date.now();
@@ -440,7 +437,20 @@ export function AdaptiveAssessmentView({
         const action = getNextStaircaseAction(initialMemory);
         if (action.type === "ask") {
           const seen = new Set<string>();
-          const q = generateUnique(action.conceptId, action.level, fallbackRng, seen, classConfig.grade);
+          let q = getVerifiedTextbookQuestion(
+            {
+              class: classConfig.grade,
+              conceptId: action.conceptId,
+              difficulty: action.level,
+              language: lang as Lang,
+              onlyVerified: true,
+            },
+            lang as Lang
+          );
+          if (!q) {
+            q = generateUnique(action.conceptId, action.level, fallbackRng, seen, classConfig.grade);
+          }
+          seen.add(q.id);
           setSessionMemory({
             ...initialMemory,
             seenSignatures: Array.from(seen),
@@ -559,15 +569,29 @@ export function AdaptiveAssessmentView({
             const sessionSeed = advanced.memory.sessionSeed ?? 10007;
             const step = advanced.memory.stepCount ?? sessionMemory.topics.reduce((acc, t) => acc + t.attempts.length, 0);
             const stepSeed = ((sessionSeed + step * 7919) >>> 0);
-            const nextQ = generateUnique(
-              advanced.action.conceptId,
-              advanced.action.level,
-              makeRng(stepSeed),
-              seen,
-              sessionMemory.grade,
-              {},
-              { avoidFormat: lastFormat }
+            let nextQ = getVerifiedTextbookQuestion(
+              {
+                class: sessionMemory.grade,
+                conceptId: advanced.action.conceptId,
+                difficulty: advanced.action.level,
+                language: lang as Lang,
+                excludeIds: Array.from(seen),
+                onlyVerified: true,
+              },
+              lang as Lang
             );
+            if (!nextQ) {
+              nextQ = generateUnique(
+                advanced.action.conceptId,
+                advanced.action.level,
+                makeRng(stepSeed),
+                seen,
+                sessionMemory.grade,
+                {},
+                { avoidFormat: lastFormat }
+              );
+            }
+            seen.add(nextQ.id);
             setSessionMemory({
               ...advanced.memory,
               seenSignatures: Array.from(seen),
@@ -658,102 +682,51 @@ export function AdaptiveAssessmentView({
   const totalQuestionsAnswered = sessionMemory?.topics.reduce((acc, t) => acc + t.attempts.length, 0) || 0;
 
   return (
-    <div className="w-full max-w-5xl xl:max-w-6xl mx-auto space-y-6">
+    <div className="w-full max-w-4xl xl:max-w-5xl mx-auto space-y-4 sm:space-y-6">
       {/* ============================================================== */}
       {/* SCREEN 1: PRE-ASSESSMENT SETUP SCREEN                          */}
       {/* ============================================================== */}
       {!isStarted ? (
-        <div className="neo-panel p-6 sm:p-8 space-y-6 rounded-[2px] border border-border bg-[var(--surface)]">
-          <div className="border-b border-border pb-5">
-            <span className="editorial-meta text-foreground/80">START LEARNING CHECK</span>
-            <h1 className="editorial-title text-2xl sm:text-3xl text-foreground mt-1 font-serif font-black">
-              Class {classConfig.grade} Maths Check
-            </h1>
-            <p className="text-sm sm:text-sm text-foreground/80 mt-1 leading-relaxed max-w-2xl">
-              A calm check across curriculum maths topics using the difficulty staircase.
-              Each topic starts at medium difficulty (level 2) and adjusts based on the student&apos;s answer.
-            </p>
+        <div className="neo-panel p-5 sm:p-8 space-y-5 rounded-[2px] border border-border bg-[var(--surface)]">
+          {/* Header */}
+          <div className="border-b border-border pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-16 sm:w-16 sm:h-20 shrink-0 flex items-center justify-center">
+                <MascotHero width={56} height={68} className="scale-95" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="editorial-meta text-primary font-bold">MATHEMATICS ASSESSMENT</span>
+                  <span className="text-muted-foreground text-xs">•</span>
+                  <span className="text-xs font-mono font-bold text-foreground">NCERT / CBSE (2024–25)</span>
+                </div>
+                <h1 className="editorial-title text-2xl sm:text-3xl text-foreground mt-1 font-serif font-black">
+                  {classConfig.label} Maths Check
+                </h1>
+                <p className="text-sm text-foreground/80 mt-1 leading-relaxed max-w-2xl">
+                  {lang === "hi"
+                    ? "गणित के कौशल की एक सरल और शांत जांच। आराम से सोचकर उत्तर दें।"
+                    : lang === "te"
+                    ? "మీ గణిత నైపుణ్యాలను పరిశీలించే సరళమైన పరీక్ష. నిదానంగా ఆలోచించి సమాధానం ఇవ్వండి."
+                    : "A calm, child-friendly check of foundational maths skills. Take your time and choose the best answer."}
+                </p>
+              </div>
+            </div>
+            {isGuest && (
+              <span className="self-start sm:self-auto text-xs font-mono font-bold bg-[var(--status-good-bg)] text-foreground px-3 py-1.5 rounded-[2px] border border-[var(--status-good-border)] shrink-0">
+                Trial Mode • No Sign-in Required
+              </span>
+            )}
           </div>
 
-          {/* Student Selector or Personal Learner Banner */}
-          {isGuest ? (
-            <div className="space-y-4">
-              <div className="p-4 bg-card border border-[var(--status-good-border)] rounded-[2px] flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[var(--status-good)] animate-pulse" />
-                  <div>
-                    <span className="editorial-meta text-[var(--status-good)] font-bold">TRIAL ASSESSMENT</span>
-                    <div className="font-serif font-bold text-lg text-foreground">
-                      Guest Learner • {classConfig.label}
-                    </div>
-                  </div>
-                </div>
-                <span className="text-xs font-mono font-bold bg-[var(--status-good-bg)] text-foreground px-2.5 py-1 rounded-[2px] border border-[var(--status-good-border)]">
-                  No Sign-in Required
-                </span>
-              </div>
-
-              {/* Class & Language Pickers for Guest */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <label className="editorial-meta text-foreground">SELECT CLASS GRADE</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {ENABLED_CLASSES.map((c) => (
-                      <button
-                        key={c.id}
-                        type="button"
-                        onClick={() => {
-                          clearSavedSession();
-                          onClassChange?.(c.id);
-                        }}
-                        className={`min-h-[44px] px-3 py-2 text-sm font-bold font-mono rounded-[2px] border transition-colors ${
-                          selectedClassId === c.id
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "bg-card text-foreground border-border hover:bg-muted"
-                        }`}
-                      >
-                        {c.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="editorial-meta text-foreground">ASSESSMENT LANGUAGE</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {(["en", "hi", "te"] as Lang[]).map((l) => (
-                      <button
-                        key={l}
-                        type="button"
-                        onClick={() => setLang(l)}
-                        className={`min-h-[44px] px-3 py-2 text-sm font-bold font-mono rounded-[2px] border transition-colors ${
-                          lang === l
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "bg-card text-foreground border-border hover:bg-muted"
-                        }`}
-                      >
-                        {l === "en" ? "English" : l === "hi" ? "हिन्दी" : "తెలుగు"}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : isStudentView ? (
-            <div className="p-3 bg-card border border-border rounded-[2px] flex items-center justify-between">
-              <div>
-                <span className="editorial-meta text-muted-foreground">LEARNER</span>
-                <div className="font-serif font-bold text-lg text-foreground">{activeStudent?.student.name}</div>
-              </div>
-              <span className="font-mono text-sm font-bold text-muted-foreground dark:text-muted-foreground">Roll #{activeStudent?.student.rollNo}</span>
-            </div>
-          ) : (
+          {/* Student Picker (for Teacher) */}
+          {!isGuest && !isStudentView ? (
             <div className="space-y-2">
               <label className="editorial-meta text-foreground">SELECT STUDENT TO ASSESS</label>
               <select
                 value={selectedStudentId}
                 onChange={(e) => setSelectedStudentId(e.target.value)}
-                className="w-full h-11 px-3 text-sm font-semibold bg-card border border-border rounded-[2px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full min-h-[44px] px-3 text-sm font-semibold bg-card border border-border rounded-[2px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 {effectiveStudents.map((s) => (
                   <option key={s.student.id} value={s.student.id}>
@@ -762,37 +735,96 @@ export function AdaptiveAssessmentView({
                 ))}
               </select>
             </div>
-          )}
-
-          {/* Curriculum Scope Overview */}
-          <div className="space-y-2.5">
-            <span className="editorial-meta text-foreground">{classConfig.label.toUpperCase()} ASSESSMENT SCOPE</span>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              {(classConfig.topics || CURRICULUM_TOPICS).map((tId: TopicId, idx: number) => (
-                <div
-                  key={tId}
-                  className="p-3 bg-card border border-border rounded-[2px] text-left"
-                >
-                  <div className="text-sm font-mono font-bold text-muted-foreground uppercase">
-                    STAGE 0{idx + 1}
-                  </div>
-                  <div className="text-sm font-bold text-foreground mt-0.5">
-                    {TOPIC_DISPLAY_NAMES[tId]?.en || tId}
-                  </div>
-                  <div className="text-sm text-muted-foreground mt-1 truncate">
-                    {TOPICS[tId]?.targets.map((c: ConceptId) => t(`c_${c}`) || c).join(", ")}
-                  </div>
-                </div>
-              ))}
+          ) : !isGuest && isStudentView ? (
+            <div className="p-3 bg-card border border-border rounded-[2px] flex items-center justify-between">
+              <div>
+                <span className="editorial-meta text-muted-foreground">LEARNER</span>
+                <div className="font-serif font-bold text-lg text-foreground">{activeStudent?.student.name}</div>
+              </div>
+              <span className="font-mono text-sm font-bold text-muted-foreground">Roll #{activeStudent?.student.rollNo}</span>
             </div>
-            <p className="text-sm text-foreground/80 pt-1">
-              The check moves topic by topic. At most 2 questions per topic, starting at Level 2.
-            </p>
+          ) : null}
+
+          {/* Class Grade (Classes 1 - 10) & Language */}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between flex-wrap gap-1">
+                <span className="editorial-meta text-foreground">SELECT CLASS (CLASSES 1 TO 10)</span>
+                <span className="text-xs font-mono text-muted-foreground">Classes 3–5 ready; 1, 2, 6–10 in review</span>
+              </div>
+              <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5">
+                {SUPPORTED_CLASSES.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    disabled={!c.enabled}
+                    onClick={() => {
+                      if (c.enabled) {
+                        clearSavedSession();
+                        onClassChange?.(c.id);
+                      }
+                    }}
+                    title={
+                      c.enabled
+                        ? `Select ${c.label} for scored NCERT assessment`
+                        : `${c.label}: NCERT curriculum mapped. Official verification in progress.`
+                    }
+                    className={`min-h-[44px] px-2 py-2 text-xs font-bold font-mono rounded-[2px] border flex flex-col items-center justify-center cursor-pointer ${
+                      selectedClassId === c.id
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : c.enabled
+                        ? "bg-card text-foreground border-border hover:bg-muted"
+                        : "bg-muted/30 text-muted-foreground/60 border-border/50 cursor-not-allowed"
+                    }`}
+                  >
+                    <span>{c.label}</span>
+                    {!c.enabled && <span className="text-xs font-normal opacity-75">Soon</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Assessment Language Selector */}
+            <div className="space-y-2">
+              <span className="editorial-meta text-foreground">ASSESSMENT LANGUAGE</span>
+              <div className="grid grid-cols-3 gap-2 max-w-sm">
+                {(["en", "hi", "te"] as Lang[]).map((l) => (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => setLang(l)}
+                    className={`min-h-[44px] px-3 py-2 text-xs font-bold font-mono rounded-[2px] border cursor-pointer ${
+                      lang === l
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-card text-foreground border-border hover:bg-muted"
+                    }`}
+                  >
+                    {l === "en" ? "English" : l === "hi" ? "हिन्दी" : "తెలుగు"}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
-          {/* Start CTA */}
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border">
+          {/* Topics Covered */}
+          <div className="space-y-2 pt-2 border-t border-border">
+            <span className="editorial-meta text-foreground">TOPICS IN THIS CHECK</span>
+            <div className="flex flex-wrap gap-2">
+              {(classConfig.topics || CURRICULUM_TOPICS).map((tId: TopicId) => (
+                <span
+                  key={tId}
+                  className="px-3 py-1.5 bg-card border border-border text-xs font-mono font-bold text-foreground rounded-[2px]"
+                >
+                  {TOPIC_DISPLAY_NAMES[tId]?.en || tId}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Start Actions */}
+          <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border">
             <button
+              type="button"
               onClick={() => {
                 if (onCancel) {
                   onCancel();
@@ -800,414 +832,203 @@ export function AdaptiveAssessmentView({
                   router.push("/");
                 }
               }}
-              className="neo-btn neo-btn-secondary px-5 py-2.5 min-h-[44px] text-sm font-bold w-full sm:w-auto rounded-[2px]"
+              className="neo-btn neo-btn-secondary px-5 py-2.5 min-h-[48px] text-sm font-bold w-full sm:w-auto rounded-[2px] cursor-pointer"
             >
               {isGuest ? "Back to Home" : "Back to Dashboard"}
             </button>
             <button
+              type="button"
               onClick={handleStart}
-              className="neo-btn neo-btn-primary px-6 py-3 text-sm font-bold flex items-center justify-center gap-2 w-full sm:w-auto rounded-[2px]"
+              className="neo-btn neo-btn-primary px-8 py-3 min-h-[52px] text-base font-bold flex items-center justify-center gap-2 w-full sm:w-auto rounded-[2px] cursor-pointer"
             >
-              <Brain className="w-4 h-4 text-primary-foreground" />
-              <span>START TEST</span>
-              <ArrowRight className="w-4 h-4" />
+              <Brain className="w-5 h-5 text-primary-foreground" />
+              <span>{dict.startPractice || "START ASSESSMENT"}</span>
+              <ArrowRight className="w-5 h-5" />
             </button>
           </div>
         </div>
       ) : isFinished ? (
         /* ============================================================== */
-        /* SCREEN 3: ASSESSMENT COMPLETE SCREEN (DIAGNOSTIC REPORT)       */
-        /* SPEC.md: lists gap topics first, then developing, then mastered*/
+        /* SCREEN 3: ASSESSMENT COMPLETE SCREEN (STUDENT-FIRST RESULTS)   */
         /* ============================================================== */
-        <div className="neo-panel overflow-hidden space-y-6 p-6 sm:p-8 rounded-[2px] border border-border bg-[var(--surface)]">
-          {/* Editorial Header */}
+        <div className="neo-panel overflow-hidden space-y-6 p-5 sm:p-8 rounded-[2px] border border-border bg-[var(--surface)]">
+          {/* Friendly Celebratory Header */}
           <div className="border-b border-border pb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="editorial-meta text-foreground font-bold">TEST COMPLETE</span>
-                <span className="text-muted-foreground text-sm">•</span>
-                <span className="text-sm font-mono font-bold text-foreground">
-                  {activeStudent?.student.name} • CLASS {classConfig.grade}
-                </span>
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-16 sm:w-16 sm:h-20 shrink-0 flex items-center justify-center">
+                <MascotHero width={56} height={68} className="scale-95" />
               </div>
-              <h2 className="editorial-title text-2xl sm:text-3xl text-foreground mt-1">
-                Assessment Results
-              </h2>
-              <p className="text-sm sm:text-sm text-foreground/80 mt-0.5">
-                Staircase check completed. Topics are grouped below by mastery status.
-              </p>
+              <div>
+                <span className="editorial-meta text-primary font-bold">ASSESSMENT COMPLETE</span>
+                <h2 className="editorial-title text-2xl sm:text-3xl text-foreground font-black mt-0.5">
+                  Well done, {activeStudent?.student.name || "Learner"}!
+                </h2>
+                <p className="text-sm text-foreground/80 mt-0.5">
+                  You completed the Class {classConfig.grade} Maths Check ({totalQuestionsAnswered} questions answered).
+                </p>
+              </div>
             </div>
 
-            {/* Quick Metrics */}
-            <div className="flex items-center gap-4 bg-card p-3 rounded-[2px] border border-border">
-              <div className="text-right">
-                <div className="editorial-meta text-muted-foreground">TOPICS ASSESSED</div>
-                <div className="font-serif text-3xl font-black text-foreground">
-                  {sessionMemory?.topics.length || 0}
-                </div>
-              </div>
-              <div className="w-[1px] h-8 bg-muted" />
-              <div className="text-right">
-                <div className="editorial-meta text-muted-foreground">QUESTIONS ASKED</div>
-                <div className="font-mono text-xl font-bold text-foreground">
-                  {totalQuestionsAnswered}
-                </div>
-              </div>
+            {/* Quick Summary Pill */}
+            <div className="flex items-center gap-2 bg-card p-2.5 rounded-[2px] border border-border shrink-0 self-start sm:self-center">
+              <span className="text-xs font-mono font-bold text-foreground">
+                {masteredTopics.length} Mastered • {gapTopics.length + devTopics.length} To Practise
+              </span>
             </div>
           </div>
 
-          {/* Clean 3-Metric Summary Line with friendly child-level wording */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="p-3 bg-card rounded-[2px] border border-primary/40 text-center">
-              <div className="editorial-meta text-primary flex items-center justify-center gap-1">
-                <WarningCircle className="w-3.5 h-3.5" />
-                <span>NEEDS PRACTICE</span>
+          {/* Simple, Non-Overwhelming Results Breakdown (2 clear blocks) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* 1. What You Understand Well */}
+            <div className="p-4 sm:p-5 bg-card border border-[var(--status-good-border)] rounded-[2px] space-y-3">
+              <div className="flex items-center gap-2 text-foreground font-bold text-base">
+                <CheckCircle className="w-5 h-5 text-[var(--status-good)] shrink-0" weight="bold" />
+                <span>What You Know Well</span>
               </div>
-              <div className="font-serif text-2xl font-bold text-primary mt-1">
-                {gapTopics.length}
-              </div>
-            </div>
-            <div className="p-3 bg-card rounded-[2px] border border-[var(--status-warn-border)] text-center">
-              <div className="editorial-meta text-foreground font-bold flex items-center justify-center gap-1">
-                <Sparkle className="w-3.5 h-3.5 text-[var(--status-warn)]" />
-                <span>GETTING THERE</span>
-              </div>
-              <div className="font-serif text-2xl font-bold text-foreground mt-1">
-                {devTopics.length}
-              </div>
-            </div>
-            <div className="p-3 bg-card rounded-[2px] border border-[var(--status-good-border)] text-center">
-              <div className="editorial-meta text-foreground font-bold flex items-center justify-center gap-1">
-                <CheckCircle className="w-3.5 h-3.5 text-[var(--status-good)]" />
-                <span>STRONG</span>
-              </div>
-              <div className="font-serif text-2xl font-bold text-foreground mt-1">
-                {masteredTopics.length}
-              </div>
-            </div>
-          </div>
-
-          {/* 1. TOPICS TO PRACTISE FIRST (GAP TOPICS) */}
-          {gapTopics.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="editorial-meta text-primary font-bold">
-                  TOPICS TO PRACTISE FIRST
-                </span>
-                <span className="text-sm text-muted-foreground font-mono">
-                  {gapTopics.length} {gapTopics.length === 1 ? "topic" : "topics"}
-                </span>
-              </div>
-              <div className="grid grid-cols-1 gap-2.5">
-                {gapTopics.map((topicMem) => {
-                  const targetConcept = TOPICS[topicMem.topicId]?.targets[0];
-                  const skill = targetConcept ? getSkillEntry(targetConcept, classConfig.grade) : undefined;
-                  const outcomeText = skill?.outcome || "Foundational skills in this topic need extra practice before moving on.";
-
-                  return (
-                    <div
+              {masteredTopics.length > 0 ? (
+                <ul className="space-y-2">
+                  {masteredTopics.map((topicMem) => (
+                    <li
                       key={topicMem.topicId}
-                      className="p-4 bg-[var(--surface)] border border-primary/40 rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                      className="p-2.5 bg-[var(--surface)] border border-border rounded-[2px] flex items-center justify-between text-sm font-bold text-foreground"
                     >
-                      <div className="space-y-1">
-                        <div className="font-serif font-bold text-lg text-foreground">
-                          {TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}
-                        </div>
-                        <p className="text-base text-foreground/80 leading-relaxed max-w-xl">
-                          {outcomeText}
-                        </p>
-                      </div>
-                      <span className="inline-flex items-center gap-1.5 bg-card border border-primary text-primary font-bold text-sm px-3 py-1 rounded-[2px] shrink-0 self-start sm:self-center">
-                        <WarningCircle className="w-4 h-4 text-primary" weight="bold" />
-                        <span>Needs Practice</span>
+                      <span>{TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}</span>
+                      <span className="text-xs font-mono font-bold text-[var(--status-good)] px-2 py-0.5 bg-[var(--status-good-bg)] rounded-[2px]">
+                        Solid
                       </span>
-                    </div>
-                  );
-                })}
-              </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-foreground/80">
+                  You are building foundational skills across these topics. Keep practising!
+                </p>
+              )}
             </div>
-          )}
 
-          {/* 2. DEVELOPING TOPICS (GETTING THERE) */}
-          {devTopics.length > 0 && (
-            <div className="space-y-3">
-              <span className="editorial-meta text-foreground font-bold">
-                NEXT STEPS TO PRACTISE
-              </span>
-              <div className="grid grid-cols-1 gap-2.5">
-                {devTopics.map((topicMem) => {
-                  const targetConcept = TOPICS[topicMem.topicId]?.targets[0];
-                  const skill = targetConcept ? getSkillEntry(targetConcept, classConfig.grade) : undefined;
-                  const outcomeText = skill?.outcome || "Good foundation established; a few more exercises will build full confidence.";
-
-                  return (
-                    <div
-                      key={topicMem.topicId}
-                      className="p-4 bg-[var(--surface)] border border-[var(--status-warn-border)] rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                    >
-                      <div className="space-y-1">
-                        <div className="font-serif font-bold text-lg text-foreground">
-                          {TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}
-                        </div>
-                        <p className="text-base text-foreground/80 leading-relaxed max-w-xl">
-                          {outcomeText}
-                        </p>
-                      </div>
-                      <span className="inline-flex items-center gap-1.5 bg-[var(--status-warn)] text-foreground font-bold text-sm px-3 py-1 rounded-[2px] border border-[var(--status-warn-border)] shrink-0 self-start sm:self-center">
-                        <Sparkle className="w-4 h-4 text-foreground" weight="fill" />
-                        <span>Getting There</span>
-                      </span>
-                    </div>
-                  );
-                })}
+            {/* 2. What to Practise Next */}
+            <div className="p-4 sm:p-5 bg-card border border-primary/40 rounded-[2px] space-y-3">
+              <div className="flex items-center gap-2 text-primary font-bold text-base">
+                <Sparkle className="w-5 h-5 text-primary shrink-0" weight="fill" />
+                <span>Next Topics to Practise</span>
               </div>
-            </div>
-          )}
-
-          {/* 3. MASTERED TOPICS (STRONG) */}
-          {masteredTopics.length > 0 && (
-            <div className="space-y-3">
-              <span className="editorial-meta text-foreground font-bold">
-                CONCEPTS COMPLETED
-              </span>
-              <div className="grid grid-cols-1 gap-2.5">
-                {masteredTopics.map((topicMem) => {
-                  const targetConcept = TOPICS[topicMem.topicId]?.targets[0];
-                  const skill = targetConcept ? getSkillEntry(targetConcept, classConfig.grade) : undefined;
-                  const outcomeText = skill?.outcome || "Learner demonstrates solid understanding across target curriculum concepts.";
-
-                  return (
-                    <div
-                      key={topicMem.topicId}
-                      className="p-4 bg-[var(--surface)] border border-[var(--status-good-border)] rounded-[2px] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                    >
-                      <div className="space-y-1">
-                        <div className="font-serif font-bold text-lg text-foreground">
-                          {TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}
-                        </div>
-                        <p className="text-base text-foreground/80 leading-relaxed max-w-xl">
-                          {outcomeText}
-                        </p>
-                      </div>
-                      <span className="inline-flex items-center gap-1.5 bg-[var(--status-good)] text-foreground font-bold text-sm px-3 py-1 rounded-[2px] border border-[var(--status-good-border)] shrink-0 self-start sm:self-center">
-                        <CheckCircle className="w-4 h-4 text-foreground" weight="bold" />
-                        <span>Strong</span>
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* 5-DAY TARGETED CLASSROOM IMPROVEMENT PLAN */}
-          {gapTopics.length > 0 && (
-            <div className="space-y-4 pt-2">
-              <div className="flex items-center gap-2 border-b border-border pb-2">
-                <Sparkle className="w-4 h-4 text-primary" weight="fill" />
-                <span className="editorial-meta text-primary font-bold">
-                  RECOMMENDED 5-DAY TARGETED CLASSROOM PLAN
-                </span>
-              </div>
-              <div className="space-y-4">
-                {gapTopics.map((topicMem) => {
-                  const targetConcept = TOPICS[topicMem.topicId]?.targets[0] || (topicMem.topicId as ConceptId);
-                  const rootCause: RootCause = {
-                    rootId: targetConcept,
-                    symptomIds: TOPICS[topicMem.topicId]?.targets.filter((c) => c !== targetConcept) || [],
-                    chain: [targetConcept],
-                    severity: "high",
-                    confidence: 0.8,
-                    rootMastery: 0.3,
-                    uncheckedPrereqs: [],
-                    isSelfRoot: true,
-                    evidence: [],
-                    misconceptions: [],
-                    priority: 1,
-                  };
-                  const plan = generateRemediationPlan(activeStudent?.student.id || "guest", rootCause);
-                  return (
-                    <div
-                      key={topicMem.topicId}
-                      className="p-4 sm:p-5 bg-card border border-primary/40 rounded-[2px] space-y-3"
-                    >
-                      <div>
-                        <span className="text-xs font-mono uppercase tracking-wider text-primary font-bold">
-                          TARGET ROOT GAP: {t(`c_${targetConcept}`) || targetConcept}
+              {gapTopics.length > 0 || devTopics.length > 0 ? (
+                <ul className="space-y-2">
+                  {[...gapTopics, ...devTopics].map((topicMem) => {
+                    const isGap = topicMem.status === "gap";
+                    return (
+                      <li
+                        key={topicMem.topicId}
+                        className="p-2.5 bg-[var(--surface)] border border-border rounded-[2px] flex items-center justify-between text-sm font-bold text-foreground"
+                      >
+                        <span>{TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}</span>
+                        <span
+                          className={`text-xs font-mono font-bold px-2 py-0.5 rounded-[2px] ${
+                            isGap
+                              ? "bg-primary/10 text-primary border border-primary/30"
+                              : "bg-[var(--status-warn-bg)] text-foreground border border-[var(--status-warn-border)]"
+                          }`}
+                        >
+                          {isGap ? "Needs Practice" : "Getting There"}
                         </span>
-                        <h4 className="font-serif text-lg font-bold text-foreground mt-0.5">
-                          5-Day Concrete Remediation Activity Plan
-                        </h4>
-                        <p className="text-sm text-foreground/80 mt-1 leading-relaxed">
-                          {plan.aiNote}
-                        </p>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-5 gap-2.5 pt-2">
-                        {plan.days.map((d) => (
-                          <div
-                            key={d.day}
-                            className="p-2.5 bg-[var(--surface)] border border-border rounded-[2px] flex flex-col justify-between"
-                          >
-                            <div>
-                              <div className="flex items-center justify-between text-xs font-mono font-bold text-primary">
-                                <span>DAY {d.day}</span>
-                                <span>{d.minutes}m</span>
-                              </div>
-                              <div className="font-bold text-xs text-foreground mt-1 leading-snug">
-                                {formatTxt(d.title)}
-                              </div>
-                              <p className="text-xs text-muted-foreground mt-1 line-clamp-3">
-                                {formatTxt(d.activity)}
-                              </p>
-                            </div>
-                            <div className="mt-2 pt-1 border-t border-border text-xs font-mono text-muted-foreground uppercase">
-                              Focus: {d.focus}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <p className="text-sm text-foreground/80">
+                  Great job! You demonstrated strong mastery on all topics assessed today.
+                </p>
+              )}
             </div>
-          )}
-
-          {/* Prominent Large Print Worksheet Button */}
-          <div className="p-4 sm:p-6 bg-card border border-border rounded-[2px] flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="space-y-1 text-center sm:text-left">
-              <h3 className="font-serif text-lg font-bold text-foreground">
-                Print Practice Worksheet
-              </h3>
-              <p className="text-base text-foreground/80">
-                Generate a ready-to-print practice sheet matched to this student&apos;s exact needs.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsWorksheetOpen(true)}
-              className="neo-btn neo-btn-primary min-h-[52px] px-8 text-base font-bold flex items-center justify-center gap-2.5 w-full sm:w-auto shrink-0 rounded-[2px]"
-            >
-              <Printer className="w-5 h-5 text-primary-foreground" />
-              <span>Print Worksheet</span>
-            </button>
           </div>
 
-          {/* 4. RECOMMENDED RESOURCES WITH REASONS */}
-          {isLoadingFinish ? (
-            <div className="p-6 bg-card border border-border rounded-[2px] text-center space-y-2">
-              <div className="inline-block animate-spin w-5 h-5 border-2 border-border border-t-transparent rounded-full" />
-              <p className="text-sm font-mono font-bold text-foreground/80">
-                Finding targeted study materials and generating assessment summary...
-              </p>
-            </div>
-          ) : recommendations.length > 0 ? (
-            <div className="space-y-3">
+          {/* Direct Verified NCERT Textbook Chapter Recommendations (Zero Jargon) */}
+          {recommendations.length > 0 && (
+            <div className="space-y-2.5 pt-1">
               <div className="flex items-center gap-2">
                 <BookOpen className="w-4 h-4 text-foreground" />
                 <span className="editorial-meta text-foreground">
-                  RECOMMENDED STUDY MATERIALS (VERIFIED RAG ADVISOR)
+                  RECOMMENDED TEXTBOOK READING (NCERT RATIONALISED 2024–25)
                 </span>
               </div>
-              <div className="grid grid-cols-1 gap-3">
-                {recommendations.map((recGroup) => (
-                  <div
-                    key={recGroup.topicId}
-                    className="p-4 bg-[var(--surface)] border border-border rounded-[2px] space-y-3"
-                  >
-                    <div className="border-b border-border pb-2">
-                      <span className="text-sm font-mono font-bold text-muted-foreground uppercase">
-                        RESOURCES FOR
-                      </span>
-                      <h4 className="font-serif font-bold text-base text-foreground">
-                        {TOPIC_DISPLAY_NAMES[recGroup.topicId]?.en || recGroup.topicId}
-                      </h4>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      {recGroup.resources.map((item) => (
-                        <div
-                          key={item.id}
-                          className="p-3 bg-card border border-border rounded-[2px] flex flex-col justify-between"
-                        >
-                          <div>
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="text-sm font-mono font-bold uppercase px-1.5 py-0.5 bg-muted text-foreground rounded-[2px]">
-                                {item.source} • {item.type}
-                              </span>
-                            </div>
-                            <h5 className="font-bold text-sm text-foreground mt-1.5 leading-snug">
-                              {item.title}
-                            </h5>
-                            <p className="text-sm text-foreground/80 mt-1 italic">
-                              &ldquo;{item.reason}&rdquo;
-                            </p>
-                          </div>
-
-                          <div className="pt-2 mt-2 border-t border-border flex justify-end">
-                            <a
-                              href={item.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-sm font-bold text-foreground hover:underline"
-                            >
-                              <span>Open Resource</span>
-                              <ArrowSquareOut className="w-3.5 h-3.5" />
-                            </a>
-                          </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {recommendations.flatMap((recGroup) =>
+                  recGroup.resources.map((item) => (
+                    <div
+                      key={item.id}
+                      className="p-3 bg-card border border-border rounded-[2px] flex items-center justify-between gap-3"
+                    >
+                      <div>
+                        <div className="text-xs font-mono uppercase text-primary font-bold">
+                          {item.source} • {item.type}
                         </div>
-                      ))}
+                        <div className="font-bold text-sm text-foreground mt-0.5">
+                          {item.title}
+                        </div>
+                      </div>
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-mono font-bold text-foreground hover:underline px-2.5 py-1.5 border border-border rounded-[2px] bg-[var(--surface)] shrink-0"
+                      >
+                        <span>Open</span>
+                        <ArrowSquareOut className="w-3.5 h-3.5" />
+                      </a>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
-            </div>
-          ) : null}
-
-          {/* 5. ASSESSMENT SUMMARY */}
-          {reportSummary && (
-            <div className="p-4 sm:p-5 bg-card border border-border rounded-[2px] space-y-2">
-              <span className="editorial-meta text-foreground">
-                ASSESSMENT SUMMARY ({sessionMemory?.language.toUpperCase()})
-              </span>
-              <p className="font-serif text-base text-foreground leading-relaxed">
-                {reportSummary}
-              </p>
             </div>
           )}
 
-          {/* Actions */}
+          {/* Action Buttons */}
           <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border">
-            <button
-              type="button"
-              onClick={() => {
-                clearSavedSession();
-                setIsStarted(false);
-                setIsFinished(false);
-                setSessionMemory(null);
-                setCurrentQuestion(null);
-                setFeedback(null);
-              }}
-              className="neo-btn neo-btn-secondary min-h-[48px] px-6 text-base font-bold flex items-center justify-center gap-2 rounded-[2px] w-full sm:w-auto"
-            >
-              <ArrowCounterClockwise className="w-4 h-4" />
-              <span>{isGuest ? "Take Another Trial Check" : "Check Another Student"}</span>
-            </button>
+            <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() => {
+                  clearSavedSession();
+                  setIsStarted(false);
+                  setIsFinished(false);
+                  setSessionMemory(null);
+                  setCurrentQuestion(null);
+                  setFeedback(null);
+                }}
+                className="neo-btn neo-btn-secondary min-h-[48px] px-5 text-sm font-bold flex items-center justify-center gap-2 rounded-[2px] w-full sm:w-auto cursor-pointer"
+              >
+                <ArrowCounterClockwise className="w-4 h-4" />
+                <span>{isGuest ? "Try Another Check" : "Check Another Student"}</span>
+              </button>
+              {activeStudent && (
+                <button
+                  type="button"
+                  onClick={() => setIsWorksheetOpen(true)}
+                  className="neo-btn neo-btn-secondary min-h-[48px] px-5 text-sm font-bold flex items-center justify-center gap-2 rounded-[2px] w-full sm:w-auto cursor-pointer"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>Print Practice Worksheet</span>
+                </button>
+              )}
+            </div>
+
             {isGuest ? (
               <a
                 href="/login?redirect=/app"
-                className="neo-btn neo-btn-primary min-h-[48px] px-8 text-base font-bold flex items-center justify-center gap-2 rounded-[2px] w-full sm:w-auto text-center"
+                className="neo-btn neo-btn-primary min-h-[48px] px-6 text-sm font-bold flex items-center justify-center gap-2 rounded-[2px] w-full sm:w-auto text-center cursor-pointer"
               >
-                <span>TEACHER SIGN IN TO SAVE RESULTS</span>
+                <span>Teacher Sign In to Save</span>
                 <ArrowRight className="w-4 h-4" />
               </a>
             ) : (
               <button
                 type="button"
                 onClick={handleSaveAndFinish}
-                className="neo-btn neo-btn-primary min-h-[48px] px-8 text-base font-bold flex items-center justify-center gap-2 rounded-[2px] w-full sm:w-auto"
+                disabled={isLoadingFinish}
+                className="neo-btn neo-btn-primary min-h-[48px] px-6 text-sm font-bold flex items-center justify-center gap-2 rounded-[2px] w-full sm:w-auto cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span>SAVE &amp; RETURN TO DASHBOARD</span>
+                <span>{isLoadingFinish ? "Saving Assessment..." : "Save & Return to Dashboard"}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             )}
@@ -1226,61 +1047,89 @@ export function AdaptiveAssessmentView({
         /* ============================================================== */
         /* SCREEN 2: ACTIVE ADAPTIVE ASSESSMENT (CHILD-FRIENDLY ONE THING AT A TIME) */
         /* ============================================================== */
-        <div className="space-y-6 w-full max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto">
-          {/* Top Bar: Progress and Language Switcher */}
-          <div className="bg-[var(--surface)] border border-border rounded-[2px] p-4 sm:p-6 lg:p-7 space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <span className="editorial-meta text-foreground/80">
-                  {classConfig.label.toUpperCase()} MATHS
+        <div className="space-y-4 sm:space-y-6 w-full max-w-4xl xl:max-w-5xl mx-auto">
+          {/* Top Bar: Progress & Language Switcher & Report */}
+          <div className="bg-[var(--surface)] border border-border rounded-[2px] p-4 sm:p-5 space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono uppercase font-bold text-muted-foreground">
+                  {classConfig.label.toUpperCase()}
                 </span>
-                <div className="font-serif font-bold text-xl sm:text-2xl text-foreground">
-                  {activeStudent?.student.name}
-                </div>
-              </div>
-
-              {/* Accessible Language Switcher directly reachable on screen */}
-              <div
-                className="flex items-center gap-1 border border-border rounded-[2px] p-1 bg-card"
-                role="group"
-                aria-label="Language selection"
-              >
-                {(["en", "hi", "te"] as Lang[]).map((l) => (
-                  <button
-                    key={l}
-                    type="button"
-                    onClick={() => setLang(l)}
-                    className={`min-h-[44px] min-w-[44px] px-3 rounded-[2px] font-bold text-sm font-mono ${
-                      lang === l
-                        ? "bg-primary text-primary-foreground"
-                        : "text-foreground hover:bg-muted"
-                    }`}
-                    aria-label={
-                      l === "en"
-                        ? "Switch language to English"
-                        : l === "hi"
-                        ? "Switch language to Hindi"
-                        : "Switch language to Telugu"
-                    }
-                    aria-pressed={lang === l}
-                  >
-                    {l === "en" ? "EN" : l === "hi" ? "हिन्दी" : "తెలుగు"}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Simple Progress Bar: e.g. "Question 3 of 8" with no jargon */}
-            <div className="space-y-2 pt-2 border-t border-border">
-              <div className="flex items-center justify-between text-base sm:text-lg font-bold text-foreground">
-                <span>
-                  {dict.questionLabel || "Question"} {totalQuestionsAnswered + (currentQuestion ? 1 : 0)} of {Math.max(totalQuestionsAnswered + (currentQuestion ? 1 : 0), (sessionMemory?.topics.length || 4) * 2)}
-                </span>
-                <span className="text-sm sm:text-base font-mono text-muted-foreground">
+                <span className="text-xs text-muted-foreground">•</span>
+                <span className="text-xs font-mono font-bold text-primary">
                   {currentTopicName}
                 </span>
               </div>
-              <div className="w-full bg-muted h-3.5 sm:h-4 rounded-[2px] overflow-hidden">
+
+              {/* Compact Language Selector + Report Button */}
+              <div className="flex items-center gap-2">
+                <div
+                  className="flex items-center gap-1 border border-border rounded-[2px] p-0.5 bg-card"
+                  role="group"
+                  aria-label="Language selection"
+                >
+                  {(["en", "hi", "te"] as Lang[]).map((l) => (
+                    <button
+                      key={l}
+                      type="button"
+                      onClick={() => setLang(l)}
+                      className={`min-h-[36px] min-w-[36px] px-2 rounded-[2px] font-bold text-xs font-mono cursor-pointer ${
+                        lang === l
+                          ? "bg-primary text-primary-foreground"
+                          : "text-foreground hover:bg-muted"
+                      }`}
+                      aria-label={
+                        l === "en"
+                          ? "Switch language to English"
+                          : l === "hi"
+                          ? "Switch language to Hindi"
+                          : "Switch language to Telugu"
+                      }
+                      aria-pressed={lang === l}
+                    >
+                      {l === "en" ? "EN" : l === "hi" ? "हि" : "తె"}
+                    </button>
+                  ))}
+                </div>
+
+                {currentQuestion && (
+                  <button
+                    type="button"
+                    onClick={handleReportQuestion}
+                    disabled={reportedQuestionId === (currentQuestion.id || `${currentQuestion.conceptId}_${currentQuestion.difficulty}`)}
+                    data-testid="report-question-btn"
+                    className="inline-flex items-center gap-1 min-h-[36px] px-2.5 text-xs text-muted-foreground hover:text-primary rounded border border-border hover:border-primary/40 cursor-pointer"
+                    title="Report question for teacher review"
+                  >
+                    <Flag className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">
+                      {reportedQuestionId === (currentQuestion.id || `${currentQuestion.conceptId}_${currentQuestion.difficulty}`)
+                        ? "Reported"
+                        : "Report"}
+                    </span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Simple Progress: e.g. "Question 3 of 8" */}
+            <div className="space-y-1.5 pt-1 border-t border-border">
+              <div className="flex items-center justify-between text-sm sm:text-base font-bold text-foreground">
+                <span>
+                  {dict.questionLabel || "Question"} {totalQuestionsAnswered + (currentQuestion ? 1 : 0)} of {Math.max(totalQuestionsAnswered + (currentQuestion ? 1 : 0), (sessionMemory?.topics.length || 4) * 2)}
+                </span>
+                <span className="text-xs font-mono text-muted-foreground">
+                  {Math.min(
+                    100,
+                    Math.round(
+                      ((totalQuestionsAnswered + (currentQuestion ? 1 : 0)) /
+                        Math.max(1, (sessionMemory?.topics.length || 4) * 2)) *
+                        100
+                    )
+                  )}%
+                </span>
+              </div>
+              <div className="w-full bg-muted h-2.5 sm:h-3 rounded-[2px] overflow-hidden">
                 <div
                   className="bg-[var(--status-good)] h-full rounded-[2px] transition-all duration-300"
                   style={{
@@ -1298,21 +1147,7 @@ export function AdaptiveAssessmentView({
             </div>
           </div>
 
-          {/* Friendly Mascot Gappu placed unobtrusively beside header, never blocking question */}
-          <div className="flex items-center gap-3.5 p-3.5 sm:p-4.5 bg-card border border-border rounded-[2px]">
-            <div className="w-12 h-14 sm:w-14 sm:h-16 shrink-0 overflow-hidden flex items-center justify-center">
-              <MascotHero width={52} height={62} className="scale-90" />
-            </div>
-            <div className="text-sm sm:text-base font-medium text-foreground leading-relaxed">
-              {lang === "hi"
-                ? "गप्पू आपके साथ सीख रहा है! आराम से उत्तर दें।"
-                : lang === "te"
-                ? "గప్పు మీతో పాటు నేర్చుకుంటున్నాడు! నిదానంగా ఆలోచించి సమాధానం ఇవ్వండి."
-                : "Gappu is learning with you! Take your time and choose the best answer."}
-            </div>
-          </div>
-
-          {/* Calm Loading State: skeleton with reassuring message */}
+          {/* Calm Loading State */}
           {isEvaluating ? (
             <div className="bg-[var(--surface)] border border-border rounded-[2px] p-8 sm:p-12 space-y-6 text-center">
               <div className="space-y-4 max-w-md mx-auto">
@@ -1366,7 +1201,7 @@ export function AdaptiveAssessmentView({
                     setHasError(false);
                     handleNextStep();
                   }}
-                  className="neo-btn neo-btn-primary min-h-[48px] px-8 text-base font-bold rounded-[2px]"
+                  className="neo-btn neo-btn-primary min-h-[48px] px-8 text-base font-bold rounded-[2px] cursor-pointer"
                 >
                   {lang === "hi" ? "फिर से कोशिश करें (Retry)" : lang === "te" ? "మళ్ళీ ప్రయత్నించండి" : "Try Again"}
                 </button>
@@ -1374,51 +1209,39 @@ export function AdaptiveAssessmentView({
             </div>
           ) : currentQuestion ? (
             /* Active Question Card */
-            <div className="bg-[var(--surface)] border border-border rounded-[2px] p-6 sm:p-8 lg:p-10 space-y-6 sm:space-y-8">
-              {/* Question Eyebrow */}
-              <div className="flex items-center justify-between border-b border-border pb-3.5">
+            <div className="bg-[var(--surface)] border border-border rounded-[2px] p-5 sm:p-8 lg:p-10 space-y-6">
+              {/* Question Eyebrow & Provenance */}
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
                 <div className="flex items-center gap-2">
                   <span className="editorial-meta text-muted-foreground">
                     {dict.questionLabel || "Question"} {totalQuestionsAnswered + 1}
                   </span>
-                  <span className="text-sm text-muted-foreground">•</span>
-                  <span className="text-sm font-semibold text-foreground">{currentTopicName}</span>
                   {isBackupQuestion && (
                     <span
                       data-testid="backup-question-note"
-                      className="ml-2 inline-flex items-center text-sm px-2 py-0.5 rounded font-medium bg-amber-50 text-amber-800 border border-amber-200"
+                      className="inline-flex items-center text-xs px-2 py-0.5 rounded font-medium bg-amber-50 text-amber-800 border border-amber-200"
                     >
-                      Using backup question
+                      Backup Question
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handleReportQuestion}
-                    disabled={reportedQuestionId === (currentQuestion.id || `${currentQuestion.conceptId}_${currentQuestion.difficulty}`)}
-                    data-testid="report-question-btn"
-                    className="inline-flex items-center gap-1 min-h-[44px] text-sm text-muted-foreground hover:text-primary px-2 py-0.5 rounded border border-border hover:border-primary/40 transition-colors"
-                    title="Report question for teacher review"
-                  >
-                    <Flag className="w-3.5 h-3.5" />
-                    <span>
-                      {reportedQuestionId === (currentQuestion.id || `${currentQuestion.conceptId}_${currentQuestion.difficulty}`)
-                        ? "Reported"
-                        : "Report this question"}
-                    </span>
-                  </button>
-                </div>
+
+                {currentQuestion.provenanceLabel && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-muted/60 text-muted-foreground border border-border text-xs font-mono">
+                    <BookOpen className="w-3.5 h-3.5 text-primary" />
+                    <span>{currentQuestion.provenanceLabel}</span>
+                  </span>
+                )}
               </div>
 
               {/* Large Question Text */}
               <div className="space-y-4">
-                <h3 className="font-serif font-bold text-[22px] sm:text-3xl lg:text-4xl text-foreground leading-relaxed">
+                <h2 className="font-serif font-bold text-[22px] sm:text-3xl lg:text-4xl text-foreground leading-relaxed">
                   {formatTxt(currentQuestion.prompt)}
-                </h3>
+                </h2>
 
                 {currentQuestion.expression && (
-                  <div className="py-6 sm:py-8 text-center bg-card rounded-[2px] border border-border">
+                  <div className="py-4 sm:py-6 text-center bg-card rounded-[2px] border border-border">
                     <span className="font-mono text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground tracking-wider">
                       {currentQuestion.expression}
                     </span>
@@ -1426,62 +1249,66 @@ export function AdaptiveAssessmentView({
                 )}
               </div>
 
-              {/* Answer Options: responsive 2-column grid on desktop, 1-col on mobile */}
+              {/* Answer Choices */}
               {!feedback ? (
                 <div className="space-y-4 pt-2">
                   {currentQuestion.options && currentQuestion.options.length > 0 ? (
-                    <div className={currentQuestion.options.length <= 2 ? "grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4" : "grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4"}>
-                      {currentQuestion.options.map((opt) => (
-                        <button
-                          key={opt.id}
-                          type="button"
-                          onClick={() => handleSubmit(opt.value)}
-                          disabled={isEvaluating || Boolean(feedback)}
-                          className="w-full neo-btn neo-btn-secondary min-h-[64px] sm:min-h-[72px] p-4 sm:p-5 text-left text-[18px] sm:text-xl lg:text-2xl font-bold flex items-center justify-between rounded-[2px] group leading-relaxed"
-                        >
-                          <span className="font-mono">{formatTxt(opt.label)}</span>
-                          <span className="text-sm font-mono text-muted-foreground group-hover:text-foreground">
-                            [Select]
-                          </span>
-                        </button>
-                      ))}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                      {currentQuestion.options.map((opt, optIdx) => {
+                        const optLetter = String.fromCharCode(65 + optIdx);
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => handleSubmit(opt.value)}
+                            disabled={isEvaluating || Boolean(feedback)}
+                            className="w-full neo-btn neo-btn-secondary min-h-[56px] sm:min-h-[64px] p-4 text-left text-[18px] sm:text-xl font-bold flex items-center gap-3.5 rounded-[2px] group leading-relaxed cursor-pointer"
+                          >
+                            <span className="w-8 h-8 rounded-[2px] bg-muted/80 text-foreground text-sm font-mono font-bold flex items-center justify-center shrink-0 border border-border">
+                              {optLetter}
+                            </span>
+                            <span className="font-mono flex-1">{formatTxt(opt.label)}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   ) : (
                     <div className="flex flex-col sm:flex-row gap-2.5 w-full">
                       <Input
-                        placeholder={dict.enterAnswer}
+                        placeholder={dict.enterAnswer || "Enter your answer"}
                         value={userAnswer}
+                        inputMode="decimal"
                         onChange={(e) => setUserAnswer(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSubmit(userAnswer)}
                         disabled={isEvaluating || Boolean(feedback)}
-                        className="h-16 font-mono text-xl sm:text-2xl bg-card border border-border rounded-[2px] text-foreground w-full px-4"
+                        className="min-h-[52px] font-mono text-xl sm:text-2xl bg-card border border-border rounded-[2px] text-foreground w-full px-4"
                       />
                       <button
                         type="button"
                         onClick={() => handleSubmit(userAnswer)}
                         disabled={isEvaluating || Boolean(feedback)}
-                        className="neo-btn neo-btn-primary px-8 sm:px-10 min-h-[64px] text-lg sm:text-xl font-bold shrink-0 rounded-[2px]"
+                        className="neo-btn neo-btn-primary px-8 min-h-[52px] text-base sm:text-lg font-bold shrink-0 rounded-[2px] cursor-pointer"
                       >
-                        {dict.submitAnswer}
+                        {dict.submitAnswer || "Submit"}
                       </button>
                     </div>
                   )}
 
-                  {/* Student Visible Hint Button where hints exist */}
+                  {/* Student Hint */}
                   {currentQuestion.hint && (
-                    <div className="pt-3">
+                    <div className="pt-2">
                       {!showHint ? (
                         <button
                           type="button"
                           onClick={() => setShowHint(true)}
-                          className="min-h-[44px] px-3 py-2 text-base text-foreground font-bold flex items-center gap-1.5 hover:underline border border-border rounded-[2px] bg-card"
+                          className="min-h-[44px] px-3 py-1.5 text-sm text-foreground font-semibold flex items-center gap-1.5 hover:underline border border-border rounded-[2px] bg-card cursor-pointer"
                         >
-                          <QuestionIcon className="w-5 h-5 text-primary" />
+                          <QuestionIcon className="w-4 h-4 text-primary" />
                           <span>{dict.showHint || "Need a hint?"}</span>
                         </button>
                       ) : (
-                        <div className="bg-card border border-[var(--status-warn-border)] p-4 rounded-[2px] text-base text-foreground leading-relaxed">
-                          <strong className="text-foreground bg-[var(--status-warn)] px-1.5 py-0.5 rounded-[2px] mr-1">
+                        <div className="bg-card border border-[var(--status-warn-border)] p-3.5 rounded-[2px] text-sm text-foreground leading-relaxed">
+                          <strong className="text-foreground bg-[var(--status-warn)] px-1.5 py-0.5 rounded-[2px] mr-1 font-mono text-xs">
                             {dict.hintLabel || "Hint"}:
                           </strong>{" "}
                           {formatTxt(currentQuestion.hint)}
@@ -1491,10 +1318,10 @@ export function AdaptiveAssessmentView({
                   )}
                 </div>
               ) : (
-                /* Post-Submission Calm Feedback and one clear Next Button */
+                /* Post-Submission Feedback and prominent Next Button */
                 <div className="space-y-4 pt-2">
                   <div
-                    className={`p-5 rounded-[2px] border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                    className={`p-4 sm:p-5 rounded-[2px] border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                       feedback.isCorrect
                         ? "bg-[var(--status-good-bg)] border-[var(--status-good-border)] text-foreground"
                         : "bg-card border-[var(--status-warn-border)] text-foreground"
@@ -1504,7 +1331,7 @@ export function AdaptiveAssessmentView({
                       {feedback.isCorrect ? (
                         <CheckCircle className="w-6 h-6 shrink-0 text-[var(--status-good)]" />
                       ) : (
-                        <CheckCircle className="w-6 h-6 shrink-0 text-[var(--status-warn)]" />
+                        <WarningCircle className="w-6 h-6 shrink-0 text-[var(--status-warn)]" />
                       )}
                       <span className="text-base sm:text-lg font-bold text-foreground">
                         {feedback.message}
@@ -1515,9 +1342,9 @@ export function AdaptiveAssessmentView({
                       type="button"
                       onClick={handleNextStep}
                       disabled={isEvaluating}
-                      className="neo-btn neo-btn-primary min-h-[48px] px-8 text-base font-bold flex items-center justify-center gap-2 shrink-0 rounded-[2px]"
+                      className="neo-btn neo-btn-primary min-h-[52px] px-8 text-base font-bold flex items-center justify-center gap-2 shrink-0 rounded-[2px] cursor-pointer"
                     >
-                      <span>{dict.nextQuestion || "Next"}</span>
+                      <span>{dict.nextQuestion || "Next Question"}</span>
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateQuestion, generateUnique } from "@/lib/questions/generator";
 import { enhanceQuestionWithHybridWording } from "@/lib/questions/hybridGenerator";
-import { validateQuestionIntegrity } from "@/lib/questions/integrity";
+import { getVerifiedTextbookQuestion } from "@/lib/questions/textbookBank";
+import { validateQuestionStrict } from "@/lib/questions/validator";
 import { makeRng } from "@/lib/rng";
 import {
   getNextStaircaseAction,
@@ -12,6 +13,7 @@ import { runExaminerStep } from "@/lib/agents/examiner";
 import { analyzeErrors } from "@/lib/agents/errorAnalyst";
 import type {
   Attempt,
+  Question,
   SessionMemory,
 } from "@/lib/types";
 
@@ -158,42 +160,103 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 4. Generate unique question with Step 12 format diversification:
-    // Never use same format twice in a row, and diversify across assessment
+    // 4. Primary Source: Retrieve verified textbook question from official NCERT question bank
     const seen = new Set<string>(currentMemory.seenSignatures || []);
     const usedFormats = currentMemory.usedFormats || [];
     const lastFormat = usedFormats.length > 0 ? usedFormats[usedFormats.length - 1] : undefined;
 
-    const baseQuestion = generateUnique(
-      nextAction.conceptId,
-      nextAction.level,
-      rng,
-      seen,
-      currentMemory.grade,
-      {},
-      { avoidFormat: lastFormat }
+    let nextQuestion: Question | null = null;
+
+    const textbookCandidate = getVerifiedTextbookQuestion(
+      {
+        class: currentMemory.grade,
+        conceptId: nextAction.conceptId,
+        difficulty: nextAction.level,
+        language: currentMemory.language,
+        excludeIds: Array.from(seen),
+        onlyVerified: true,
+      },
+      currentMemory.language
     );
 
-    // 5. Enhance wording with Gemini hybrid generator (validated against operands, script, and safety)
-    let nextQuestion = await enhanceQuestionWithHybridWording(
-      baseQuestion,
-      currentMemory.language,
-      currentMemory.grade,
-      seen,
-      { ip }
-    );
-
-    // Strict mathematical validation boundary before returning to student
-    let integrity = validateQuestionIntegrity(nextQuestion);
-    if (!integrity.valid) {
-      console.warn(`[AgentRoute] Integrity validation failed: ${integrity.reason}. Falling back to base question.`);
-      nextQuestion = baseQuestion;
-      integrity = validateQuestionIntegrity(nextQuestion);
-      if (!integrity.valid) {
-        nextQuestion = generateQuestion(nextAction.conceptId, nextAction.level, rng, currentMemory.grade);
+    if (textbookCandidate) {
+      const valResult = validateQuestionStrict(textbookCandidate, {
+        targetLang: currentMemory.language,
+        requireTextbookProvenance: true,
+      });
+      if (valResult.valid) {
+        nextQuestion = textbookCandidate;
+      } else {
+        console.warn(`[AgentRoute] Textbook question ${textbookCandidate.id} failed strict validation:`, valResult.errors);
       }
     }
 
+    // 5. Fallback if no verified textbook question is available for this specific concept
+    if (!nextQuestion) {
+      const baseQuestion = generateUnique(
+        nextAction.conceptId,
+        nextAction.level,
+        rng,
+        seen,
+        currentMemory.grade,
+        {},
+        { avoidFormat: lastFormat }
+      );
+
+      // Enhance wording with Gemini hybrid generator (validated against operands, script, and safety)
+      let enhanced = await enhanceQuestionWithHybridWording(
+        baseQuestion,
+        currentMemory.language,
+        currentMemory.grade,
+        seen,
+        { ip }
+      );
+
+      // Strict question validation
+      let strictCheck = validateQuestionStrict(enhanced, {
+        targetLang: currentMemory.language,
+        requireTextbookProvenance: false,
+      });
+
+      if (!strictCheck.valid) {
+        console.warn(`[AgentRoute] Enhanced question failed validation: ${strictCheck.errors.join(", ")}. Falling back to base.`);
+        enhanced = baseQuestion;
+        strictCheck = validateQuestionStrict(enhanced, {
+          targetLang: currentMemory.language,
+          requireTextbookProvenance: false,
+        });
+        if (!strictCheck.valid) {
+          enhanced = generateQuestion(nextAction.conceptId, nextAction.level, rng, currentMemory.grade);
+        }
+      }
+
+      nextQuestion = enhanced;
+    }
+
+    // Final strict validation check before returning to student
+    const finalCheck = validateQuestionStrict(nextQuestion, {
+      targetLang: currentMemory.language,
+      requireTextbookProvenance: false,
+    });
+
+    if (!finalCheck.valid) {
+      console.error(`[AgentRoute] CRITICAL: Question failed final validation:`, finalCheck.errors);
+      // Attempt to retrieve any eligible verified textbook question for this grade
+      const emergencyQ = getVerifiedTextbookQuestion(
+        {
+          class: currentMemory.grade,
+          language: currentMemory.language,
+          excludeIds: Array.from(seen),
+          onlyVerified: true,
+        },
+        currentMemory.language
+      );
+      if (emergencyQ) {
+        nextQuestion = emergencyQ;
+      }
+    }
+
+    seen.add(nextQuestion.id);
     currentMemory.seenSignatures = Array.from(seen);
     currentMemory.usedFormats = [...usedFormats, nextQuestion.format];
     currentMemory.stepCount = currentStep + 1;

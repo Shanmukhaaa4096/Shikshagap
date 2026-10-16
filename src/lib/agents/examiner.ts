@@ -160,6 +160,7 @@ Rules:
 4. Each topic has at most 2 questions. After 2 questions on a topic, call next_topic().
 5. When all curriculum topics are complete, call finish().
 6. You can call update_memory(note) to record an observational note about the student's thinking.
+7. Scored assessment questions are retrieved exclusively from the verified NCERT textbook question bank. You select the pedagogical step (concept and difficulty level) and must never invent or reword textbook mathematics.
 Your actions are checked by a strict code gate; illegal actions will be rejected.`;
 
     const generatePromise = ai.models.generateContent({

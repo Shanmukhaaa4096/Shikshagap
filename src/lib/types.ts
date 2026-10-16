@@ -121,6 +121,27 @@ export interface Question {
   source: "bank" | "ai";
   /** Present when this question was asked to test a prerequisite of a failed concept */
   linkedFrom?: ConceptId;
+  /** Full textbook provenance metadata when question originates from official textbook */
+  textbookSource?: {
+    board: "NCERT" | "CBSE" | "SCERT_TELANGANA" | "SCERT_AP" | "STATE_BOARD";
+    class: number;
+    subject: string;
+    language: Lang;
+    textbookTitle: string;
+    textbookEdition: string;
+    chapterNumber: number;
+    chapterTitle: string;
+    exerciseNumber?: string;
+    pageNumber?: number;
+    questionNumber?: number;
+    sourceUrl?: string;
+    verifiedSolution: string;
+    provenanceLabel: string;
+  };
+  /** Indicates whether question is certified from official textbook source */
+  isTextbookVerified?: boolean;
+  /** Short provenance label shown to students/teachers (e.g. 'NCERT Math-Magic Class 4') */
+  provenanceLabel?: string;
 }
 
 export type Classification = "correct" | ErrorType;
