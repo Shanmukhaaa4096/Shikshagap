@@ -13,7 +13,7 @@
     "test": "node --test tests/adaptive-difficulty.test.mjs tests/student-ux-audit.test.mjs tests/broken-template-regression.test.mjs tests/textbook-provenance-integration.test.mjs tests/security.test.mjs tests/product-audit.test.mjs tests/multi-class.test.mjs tests/staircase.test.mjs tests/examiner-analyst.test.mjs tests/resource-advisor.test.mjs tests/orchestrator.test.mjs tests/hybrid-generator.test.mjs tests/skill-sheet.test.mjs tests/class-numbers-range.test.mjs tests/class3-concepts.test.mjs tests/hybrid-all-concepts.test.mjs tests/blind-solver.test.mjs tests/question-memory.test.mjs tests/question-formats.test.mjs tests/readable-text.test.mjs tests/auth-sync-security.test.mjs tests/ip-spoofing.test.mjs tests/guard.test.mjs tests/question-diversity-fingerprint.test.mjs tests/mathematical-correctness.test.mjs tests/assessment-correctness-diversity.test.mjs tests/teacher-account-auth.test.mjs"
   },
   "dependencies": {
-    "@google/genai": "^2.27.0",
+    "@google/genai": "^2.29.0",
     "@phosphor-icons/react": "^2.1.10",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
