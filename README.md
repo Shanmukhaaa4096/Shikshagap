@@ -81,7 +81,39 @@ A scheduled maintenance worker (`/api/cron/memory-upkeep`) runs daily via `verce
 
 ---
 
-## 5. Question Engine Quality Evaluation Script
+## 5. Adaptive Difficulty Engine & Multi-Board Question Sources
+
+ShikshaGap features a 5-level adaptive difficulty engine and multi-board curriculum question rotation:
+
+### 5-Level Adaptive Difficulty Ladder
+- **L1 Recall**: Definitions, direct facts, single-step operations.
+- **L2 Understanding**: Explain in own words, simple numericals, foundational concepts (default starting level).
+- **L3 Application**: Multi-step problems, real-life Indian word problem scenarios.
+- **L4 Analysis**: Compare, reason, "why/what if", data and diagram interpretation.
+- **L5 Challenge**: HOTS (Higher Order Thinking Skills), Olympiad-style multi-concept integration.
+
+### Adaptation Rules
+- **Correct**: $+1$ difficulty level. Two consecutive correct answers jump $+1$ level up to L5.
+- **Partially Correct**: Stays at the same level, presenting a question targeting the missing part.
+- **Wrong / "I don't know yet"**: $-1$ difficulty level with an immediate concise hint.
+- **Two Wrong in a Row**: $-2$ difficulty levels and automatic prerequisite concept backtracking via DAG.
+- **Floor Guard & Teaching Mode**: Never drops below L1; if wrong at L1, switches to teaching mode with confidence-building explanations.
+- **Stopping Rules**: Minimum 2, maximum 6 questions per topic. Stops early on 2 correct at L5 (mastered) or 2 wrong at L1 with no improvement (learning gap).
+- **Bayesian Mastery**: High-difficulty successes (L4/L5) provide stronger evidence of solid mastery; low-difficulty misses (L1) provide stronger evidence of foundational gaps.
+
+### Multi-Book, Multi-Board Question Sources
+Supports 5 authentic book families across Indian primary curricula:
+1. `ncert`: NCERT Math-Magic (Classes 3–5) with conversational Indian storytelling context.
+2. `exemplar`: NCERT Exemplar with deep conceptual problems.
+3. `cbse_reference`: CBSE Reference problems (R.D. Sharma / R.S. Aggarwal style) focusing on procedural fluency.
+4. `icse_selina`: ICSE Selina / Concise Mathematics with formal wording and explicit units.
+5. `icse_foundation`: ICSE Foundation (Frank / ML Aggarwal style) with structured mathematical reasoning.
+
+Teachers and students can select their preferred curriculum focus on the assessment start screen: **CBSE** (70% CBSE / 30% ICSE), **ICSE** (70% ICSE / 30% CBSE), or **Both** (balanced alternation). Source styles are automatically rotated so that no two consecutive questions share the same style, and at least two distinct styles are experienced every five questions.
+
+---
+
+## 6. Question Engine Quality Evaluation Script
 
 Run the automated quality evaluation script to verify mathematical accuracy, range compliance, blind-solver agreement, and format variety:
 
@@ -94,12 +126,12 @@ Review the resulting analysis at [`docs/QUALITY_REPORT.md`](file:///c:/Users/pba
 
 ---
 
-## 6. Run Tests
+## 7. Run Tests
 
-The test suite covers curriculum consistency, security invariants, privacy boundaries, agent orchestrator states, question formats, and persistent memory:
+The test suite covers curriculum consistency, security invariants, privacy boundaries, agent orchestrator states, question formats, adaptive difficulty transitions, and multi-board rotation:
 
 ```bash
-# Run full automated test suite (135 tests)
+# Run full automated test suite (221 tests)
 npm test
 
 # Run static type checks
@@ -114,7 +146,7 @@ npm run build
 
 ---
 
-## 7. Getting Started Locally
+## 8. Getting Started Locally
 
 ```bash
 # Clone the repository

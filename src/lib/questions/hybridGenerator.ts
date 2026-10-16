@@ -414,6 +414,8 @@ export function extractQuestionOperands(q: Question): ExtractedQuestionOperands 
 // 7. Core Enhancement Function
 // ---------------------------------------------------------------------------
 
+import type { SourceStyle } from "../agents/adaptiveEngine.ts";
+
 export interface EnhanceOptions {
   ip?: string;
   apiKey?: string;
@@ -422,6 +424,8 @@ export interface EnhanceOptions {
   skipBlindSolver?: boolean;
   maxAttempts?: number;
   totalTimeBudgetMs?: number;
+  sourceStyle?: SourceStyle;
+  targetLevel?: Difficulty;
 }
 
 /**
@@ -545,8 +549,31 @@ export async function enhanceQuestionWithHybridWording(
         ? `\nQuestions already asked in this session (do NOT repeat their stories, sentence structures, or phrasing):\n${sessionHistory.map((s, idx) => `${idx + 1}. ${s}`).join("\n")}`
         : "";
 
+    let styleGuideline = "Everyday Indian context (bangles, sweets, autos, pocket money), conversational and clear.";
+    if (options.sourceStyle === "icse_selina") {
+      styleGuideline = `Generate this question in the style of ICSE Class ${grade} Selina / Concise Mathematics: formal wording, include explicit units, step-by-step reasoning required.`;
+    } else if (options.sourceStyle === "icse_foundation") {
+      styleGuideline = `Generate this question in the style of ICSE Class ${grade} Frank / ML Aggarwal Mathematics: strong structural foundation, word problems with units.`;
+    } else if (options.sourceStyle === "exemplar") {
+      styleGuideline = `Generate this question in the style of NCERT Exemplar Class ${grade}: in-depth analytical reasoning, multi-step problem solving.`;
+    } else if (options.sourceStyle === "cbse_reference") {
+      styleGuideline = `Generate this question in the style of CBSE Reference Books (R.D. Sharma / R.S. Aggarwal) Class ${grade}: procedural clarity, graded application, precise numbers.`;
+    } else {
+      styleGuideline = `Generate this question in the style of NCERT Math-Magic Class ${grade}: story-based, everyday Indian context (bangles, sweets, autos), conversational and engaging.`;
+    }
+
+    const diffNames: Record<number, string> = {
+      1: "L1 Recall",
+      2: "L2 Understanding",
+      3: "L3 Application",
+      4: "L4 Analysis",
+      5: "L5 Challenge/HOTS",
+    };
+    const diffTag = diffNames[baseQuestion.difficulty] || "L2 Understanding";
+
     const systemInstruction = `You are an educational mathematics item writer for Class ${grade} in India.
-Concept: ${baseQuestion.conceptId} (Difficulty Level ${baseQuestion.difficulty}).
+Concept: ${baseQuestion.conceptId} (Difficulty: ${diffTag}).
+Pedagogical Source Style: ${styleGuideline}
 Learning Outcome: "${skillOutcome}".
 Target Number Range: min ${skillRange.min}, max ${skillRange.max}.
 Theme: ${runtimeTheme}.
@@ -835,6 +862,7 @@ STRICT MANDATORY RULES:
         const candidateQuestion: Question = {
           ...baseQuestion,
           prompt: { raw: generatedText },
+          sourceStyle: options.sourceStyle || baseQuestion.sourceStyle,
         };
         const integrity = validateQuestionIntegrity(candidateQuestion);
         if (!integrity.valid) {

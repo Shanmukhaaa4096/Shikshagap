@@ -8,6 +8,8 @@
  * - Explicit flag `needsTeacherCheck` where curriculum scope requires teacher verification.
  */
 
+import type { Difficulty } from "@/lib/types";
+
 export interface NumberRange {
   /** Primary operand or overall target number minimum */
   min: number;
@@ -466,15 +468,28 @@ export function getSkillEntry(conceptId: string, grade: number): SkillEntry | un
 export function getSkillRange(
   conceptId: string,
   grade: number,
-  difficulty: 1 | 2 | 3
+  difficulty: Difficulty
 ): NumberRange {
   const skill = getSkillEntry(conceptId, grade);
-  if (skill && skill.ranges[difficulty]) {
-    return skill.ranges[difficulty];
+  const clamped = (Math.min(3, Math.max(1, difficulty)) as 1 | 2 | 3);
+  if (skill && skill.ranges[clamped]) {
+    const base = skill.ranges[clamped];
+    if (difficulty >= 4) {
+      const scale = difficulty === 4 ? 1.5 : 2.5;
+      return {
+        min: Math.round(base.min * scale),
+        max: Math.round(base.max * scale),
+        operandBMin: base.operandBMin ? Math.round(base.operandBMin * (difficulty === 4 ? 1.2 : 1.5)) : undefined,
+        operandBMax: base.operandBMax ? Math.round(base.operandBMax * (difficulty === 4 ? 1.2 : 1.5)) : undefined,
+      };
+    }
+    return base;
   }
 
   // Safe fallback default if concept range is unspecified
   if (difficulty === 1) return { min: 5, max: 20 };
   if (difficulty === 2) return { min: 15, max: 60 };
-  return { min: 30, max: 150 };
+  if (difficulty === 3) return { min: 30, max: 150 };
+  if (difficulty === 4) return { min: 50, max: 300 };
+  return { min: 100, max: 600 };
 }

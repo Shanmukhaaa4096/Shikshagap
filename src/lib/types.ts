@@ -53,7 +53,16 @@ export interface Topic {
 /** Text that is either a translation key with params or a literal (math) string. */
 export type Txt = { key: TKey; params?: Record<string, string | number> } | { raw: string };
 
-export type Difficulty = 1 | 2 | 3;
+export type Difficulty = 1 | 2 | 3 | 4 | 5;
+
+export type SourceStyle =
+  | "ncert"
+  | "exemplar"
+  | "cbse_reference"
+  | "icse_selina"
+  | "icse_foundation";
+
+export type BoardPreference = "CBSE" | "ICSE" | "BOTH";
 export type QuestionFormat =
   | "mcq"
   | "fill_blank"
@@ -142,6 +151,8 @@ export interface Question {
   isTextbookVerified?: boolean;
   /** Short provenance label shown to students/teachers (e.g. 'NCERT Math-Magic Class 4') */
   provenanceLabel?: string;
+  /** Multi-book pedagogical source style */
+  sourceStyle?: SourceStyle;
 }
 
 export type Classification = "correct" | ErrorType;
@@ -421,13 +432,15 @@ export type TopicStatus = "pending" | "mastered" | "developing" | "gap";
 
 export interface Attempt {
   conceptId: ConceptId;
-  level: 1 | 2 | 3;
+  level: Difficulty;
   questionId: string;
   studentAnswer: string;
   correct: boolean;
   errorType?: string;      // from the existing error classification
   questionSignature?: string;
   format?: QuestionFormat;
+  sourceStyle?: SourceStyle;
+  missingPart?: string;
 }
 
 export interface TopicMemory {
@@ -436,6 +449,9 @@ export interface TopicMemory {
   attempts: Attempt[];
   notes: string[];          // short notes written by the Examiner
   misconceptions?: string[]; // written later by the Error analyst
+  difficultyPath?: Difficulty[];
+  highestLevelReached?: Difficulty;
+  sourceStyles?: SourceStyle[];
 }
 
 export interface SessionMemory {
@@ -450,6 +466,8 @@ export interface SessionMemory {
   sessionSeed?: number;
   /** Counter of questions/attempts within this assessment session to advance RNG state */
   stepCount?: number;
+  /** Chosen board preference (CBSE, ICSE, or BOTH) */
+  boardPreference?: BoardPreference;
 }
 
 export interface EducationalResource {

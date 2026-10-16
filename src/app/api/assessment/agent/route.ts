@@ -17,6 +17,8 @@ import type {
   SessionMemory,
 } from "@/lib/types";
 
+import { getMultiBoardQuestion } from "@/lib/questions/multiBoardBank";
+import { rotateSourceStyle, type SourceStyle, type DifficultyLevel } from "@/lib/agents/adaptiveEngine";
 import { z } from "zod";
 import { guardRequest, createGuardResponse } from "@/lib/server/guard";
 import { getClientIp } from "@/lib/server/security";
@@ -40,15 +42,18 @@ const AssessmentAgentSchema = z.object({
     usedFormats: z.array(z.string()).optional(),
     sessionSeed: z.number().int().optional(),
     stepCount: z.number().int().optional(),
+    boardPreference: z.enum(["CBSE", "ICSE", "BOTH"]).optional(),
   }),
   lastAttempt: z
     .object({
       conceptId: z.string(),
-      level: z.union([z.literal(1), z.literal(2), z.literal(3)]),
+      level: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]),
       questionId: z.string(),
       studentAnswer: z.string(),
       correct: z.boolean(),
       errorType: z.string().optional(),
+      sourceStyle: z.enum(["ncert", "exemplar", "cbse_reference", "icse_selina", "icse_foundation"]).optional(),
+      missingPart: z.string().optional(),
     })
     .optional(),
 });
@@ -160,38 +165,74 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 4. Primary Source: Retrieve verified textbook question from official NCERT question bank
+    // 4. Source rotation & multi-board selection
     const seen = new Set<string>(currentMemory.seenSignatures || []);
     const usedFormats = currentMemory.usedFormats || [];
     const lastFormat = usedFormats.length > 0 ? usedFormats[usedFormats.length - 1] : undefined;
 
+    const historyOfStyles = currentMemory.topics.flatMap((t) =>
+      t.attempts.map((a) => a.sourceStyle).filter((s): s is SourceStyle => Boolean(s))
+    );
+    const targetSourceStyle = rotateSourceStyle(
+      historyOfStyles,
+      currentMemory.boardPreference || "BOTH",
+      rng()
+    );
+
     let nextQuestion: Question | null = null;
 
-    const textbookCandidate = getVerifiedTextbookQuestion(
+    // 4a. Primary: Retrieve matching multi-board question (NCERT, Exemplar, CBSE Ref, ICSE Selina/Foundation)
+    const multiBoardCandidate = getMultiBoardQuestion(
       {
         class: currentMemory.grade,
         conceptId: nextAction.conceptId,
-        difficulty: nextAction.level,
-        language: currentMemory.language,
+        difficulty: nextAction.level as DifficultyLevel,
+        sourceStyle: targetSourceStyle,
+        board: currentMemory.boardPreference === "ICSE" ? "ICSE" : undefined,
         excludeIds: Array.from(seen),
-        onlyVerified: true,
       },
       currentMemory.language
     );
 
-    if (textbookCandidate) {
-      const valResult = validateQuestionStrict(textbookCandidate, {
+    if (multiBoardCandidate) {
+      const valResult = validateQuestionStrict(multiBoardCandidate, {
         targetLang: currentMemory.language,
-        requireTextbookProvenance: true,
+        requireTextbookProvenance: false,
       });
       if (valResult.valid) {
-        nextQuestion = textbookCandidate;
-      } else {
-        console.warn(`[AgentRoute] Textbook question ${textbookCandidate.id} failed strict validation:`, valResult.errors);
+        nextQuestion = multiBoardCandidate;
       }
     }
 
-    // 5. Fallback if no verified textbook question is available for this specific concept
+    // 4b. Secondary: Retrieve verified textbook question from official NCERT question bank
+    if (!nextQuestion) {
+      const textbookCandidate = getVerifiedTextbookQuestion(
+        {
+          class: currentMemory.grade,
+          conceptId: nextAction.conceptId,
+          difficulty: nextAction.level,
+          language: currentMemory.language,
+          excludeIds: Array.from(seen),
+          onlyVerified: true,
+        },
+        currentMemory.language
+      );
+
+      if (textbookCandidate) {
+        const valResult = validateQuestionStrict(textbookCandidate, {
+          targetLang: currentMemory.language,
+          requireTextbookProvenance: true,
+        });
+        if (valResult.valid) {
+          nextQuestion = {
+            ...textbookCandidate,
+            sourceStyle: targetSourceStyle,
+          };
+        }
+      }
+    }
+
+    // 5. Fallback: generate and enhance with Gemini hybrid generator in the requested sourceStyle
     if (!nextQuestion) {
       const baseQuestion = generateUnique(
         nextAction.conceptId,
@@ -209,7 +250,7 @@ export async function POST(req: NextRequest) {
         currentMemory.language,
         currentMemory.grade,
         seen,
-        { ip }
+        { ip, sourceStyle: targetSourceStyle }
       );
 
       // Strict question validation
@@ -230,7 +271,10 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      nextQuestion = enhanced;
+      nextQuestion = {
+        ...enhanced,
+        sourceStyle: targetSourceStyle,
+      };
     }
 
     // Final strict validation check before returning to student
@@ -241,7 +285,6 @@ export async function POST(req: NextRequest) {
 
     if (!finalCheck.valid) {
       console.error(`[AgentRoute] CRITICAL: Question failed final validation:`, finalCheck.errors);
-      // Attempt to retrieve any eligible verified textbook question for this grade
       const emergencyQ = getVerifiedTextbookQuestion(
         {
           class: currentMemory.grade,
@@ -252,8 +295,15 @@ export async function POST(req: NextRequest) {
         currentMemory.language
       );
       if (emergencyQ) {
-        nextQuestion = emergencyQ;
+        nextQuestion = {
+          ...emergencyQ,
+          sourceStyle: targetSourceStyle,
+        };
       }
+    }
+
+    if (nextQuestion) {
+      nextQuestion.sourceStyle = nextQuestion.sourceStyle || targetSourceStyle;
     }
 
     seen.add(nextQuestion.id);
@@ -271,6 +321,7 @@ export async function POST(req: NextRequest) {
         topicId: nextAction.topicId,
         level: nextAction.level,
         conceptId: nextAction.conceptId,
+        sourceStyle: nextQuestion.sourceStyle || targetSourceStyle,
       },
     });
   } catch (error) {

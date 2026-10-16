@@ -60,13 +60,34 @@ export function estimateMastery(
   let beta = 1;
   let correctCount = 0;
 
+  const correctMultiplierMap: Record<1 | 2 | 3 | 4 | 5, number> = {
+    1: 0.7,
+    2: 0.85,
+    3: 1.0,
+    4: 1.25,
+    5: 1.5,
+  };
+  const wrongMultiplierMap: Record<1 | 2 | 3 | 4 | 5, number> = {
+    1: 1.5,
+    2: 1.25,
+    3: 1.0,
+    4: 0.85,
+    5: 0.7,
+  };
+
   items.forEach((r, idx) => {
-    // Weight later responses slightly more
-    const weight = 0.8 + 0.4 * ((idx + 1) / attempts);
+    // Weight later responses slightly more for recency
+    const baseWeight = 0.8 + 0.4 * ((idx + 1) / attempts);
+    const d = (r.difficulty >= 1 && r.difficulty <= 5 ? r.difficulty : 2) as 1 | 2 | 3 | 4 | 5;
+
     if (r.correct) {
+      // Answering higher difficulty (L4/L5) provides more mastery evidence
+      const weight = baseWeight * correctMultiplierMap[d];
       alpha += weight;
       correctCount++;
     } else {
+      // Failing lower difficulty (L1/L2) provides stronger evidence of a foundational gap
+      const weight = baseWeight * wrongMultiplierMap[d];
       beta += weight;
     }
   });

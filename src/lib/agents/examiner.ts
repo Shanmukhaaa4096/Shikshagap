@@ -42,7 +42,7 @@ export const EXAMINER_TOOLS: FunctionDeclaration[] = [
         },
         level: {
           type: Type.NUMBER,
-          description: "Difficulty level (1: easy, 2: medium, 3: hard)",
+          description: "Difficulty level (1: recall, 2: understanding, 3: application, 4: analysis, 5: challenge)",
         },
       },
       required: ["conceptId", "level"],

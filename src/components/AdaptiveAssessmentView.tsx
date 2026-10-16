@@ -46,6 +46,13 @@ import { areAnswersEquivalent } from "@/lib/questions/integrity";
 import { makeRng } from "@/lib/rng";
 import { getClassConfig, DEFAULT_CLASS_ID, SUPPORTED_CLASSES } from "@/lib/curriculum/classes";
 import { getVerifiedTextbookQuestion } from "@/lib/questions/textbookBank";
+import {
+  SOURCE_STYLE_METADATA,
+  DIFFICULTY_DESCRIPTIONS,
+  type BoardPreference,
+  type SourceStyle,
+  type DifficultyLevel,
+} from "@/lib/agents/adaptiveEngine";
 
 function generateClientSessionId(): string {
   const ts = typeof Date !== "undefined" ? Date.now() : 0;
@@ -127,6 +134,7 @@ export function AdaptiveAssessmentView({
   const [isBackupQuestion, setIsBackupQuestion] = useState(false);
   const [reportedQuestionId, setReportedQuestionId] = useState<string | null>(null);
   const [isWorksheetOpen, setIsWorksheetOpen] = useState(false);
+  const [boardPreference, setBoardPreference] = useState<BoardPreference>("BOTH");
   const lastAttemptRef = useRef<Attempt | null>(null);
   const clientSessionIdRef = useRef<string>("");
   const sessionClosedRef = useRef<boolean>(false);
@@ -150,6 +158,9 @@ export function AdaptiveAssessmentView({
             setIsFinished(Boolean(parsed.isFinished));
             setRecommendations(parsed.recommendations || []);
             setReportSummary(parsed.reportSummary || "");
+            if (parsed.boardPreference) {
+              setBoardPreference(parsed.boardPreference);
+            }
             if (parsed.clientSessionId) {
               clientSessionIdRef.current = parsed.clientSessionId;
             }
@@ -177,6 +188,7 @@ export function AdaptiveAssessmentView({
             feedback,
             recommendations,
             reportSummary,
+            boardPreference,
             clientSessionId: clientSessionIdRef.current,
           })
         );
@@ -184,7 +196,7 @@ export function AdaptiveAssessmentView({
     } catch {
       // Graceful fallback
     }
-  }, [sessionStorageKey, isStarted, isFinished, sessionMemory, currentQuestion, userAnswer, feedback, recommendations, reportSummary]);
+  }, [sessionStorageKey, isStarted, isFinished, sessionMemory, currentQuestion, userAnswer, feedback, recommendations, reportSummary, boardPreference]);
 
   const clearSavedSession = () => {
     try {
@@ -395,6 +407,7 @@ export function AdaptiveAssessmentView({
       lang as "en" | "hi" | "te",
       (classConfig.topics && classConfig.topics.length > 0 ? classConfig.topics : CURRICULUM_TOPICS) as TopicId[]
     );
+    initialMemory.boardPreference = boardPreference;
 
     setIsStarted(true);
     setIsFinished(false);
@@ -497,6 +510,7 @@ export function AdaptiveAssessmentView({
       studentAnswer: trimmed,
       correct: isCorrect,
       errorType: !isCorrect ? errorType : undefined,
+      sourceStyle: currentQuestion.sourceStyle,
     };
 
     setFeedback({
@@ -506,6 +520,35 @@ export function AdaptiveAssessmentView({
         : dict.incorrectFeedback || "Needs practice with this step.",
     });
 
+    lastAttemptRef.current = newAttempt;
+  };
+
+  // Student selects "I don't know yet"
+  const handleDontKnow = () => {
+    if (!currentQuestion || !sessionMemory || isEvaluating || Boolean(feedback)) return;
+
+    const newAttempt: Attempt = {
+      conceptId: currentQuestion.conceptId,
+      level: currentQuestion.difficulty,
+      questionId: currentQuestion.id,
+      studentAnswer: "dont_know",
+      correct: false,
+      errorType: "dont_know",
+      sourceStyle: currentQuestion.sourceStyle,
+    };
+
+    const hintMsg =
+      (typeof currentQuestion.hint === "object" && "raw" in currentQuestion.hint
+        ? currentQuestion.hint.raw
+        : "") ||
+      dict.incorrectFeedback ||
+      "That is completely fine! We will try a simpler question next.";
+
+    setFeedback({
+      isCorrect: false,
+      message: hintMsg,
+    });
+    setShowHint(true);
     lastAttemptRef.current = newAttempt;
   };
 
@@ -804,6 +847,37 @@ export function AdaptiveAssessmentView({
                 ))}
               </div>
             </div>
+
+            {/* Curriculum Board & Question Sources */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between flex-wrap gap-1">
+                <span className="editorial-meta text-foreground">CURRICULUM BOARD & QUESTION SOURCES</span>
+                <span className="text-xs font-mono text-muted-foreground">CBSE, ICSE or Balanced Mix</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 max-w-md">
+                {(["CBSE", "ICSE", "BOTH"] as const).map((b) => (
+                  <button
+                    key={b}
+                    type="button"
+                    onClick={() => setBoardPreference(b)}
+                    className={`min-h-[44px] px-3 py-2 text-xs font-bold font-mono rounded-[2px] border cursor-pointer ${
+                      boardPreference === b
+                        ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                        : "bg-card text-foreground border-border hover:bg-muted"
+                    }`}
+                  >
+                    <span>{b === "BOTH" ? "Both (Balanced)" : b}</span>
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {boardPreference === "CBSE"
+                  ? "Focuses on NCERT Math-Magic & Exemplar with CBSE reference problems (R.D. Sharma / R.S. Aggarwal)."
+                  : boardPreference === "ICSE"
+                  ? "Focuses on ICSE Selina / Concise Mathematics & ML Aggarwal with formal step-by-step reasoning."
+                  : "Balanced alternation between NCERT conceptual clarity and ICSE step-by-step mathematical rigour."}
+              </p>
+            </div>
           </div>
 
           {/* Topics Covered */}
@@ -983,6 +1057,113 @@ export function AdaptiveAssessmentView({
             </div>
           )}
 
+          {/* Adaptive Learning Path & Multi-Board Sources Breakdown */}
+          {sessionMemory?.topics && sessionMemory.topics.length > 0 && (
+            <div className="space-y-3 pt-2 border-t border-border">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <span className="editorial-meta text-foreground">
+                  ADAPTIVE DIFFICULTY PATH & CURRICULUM SOURCES
+                </span>
+                <span className="text-xs font-mono text-muted-foreground">
+                  5-Level Adaptive Trajectory
+                </span>
+              </div>
+
+              <div className="space-y-2.5">
+                {sessionMemory.topics.map((tMem) => {
+                  const attempts: Attempt[] = tMem.attempts || [];
+                  const path: DifficultyLevel[] =
+                    tMem.difficultyPath && tMem.difficultyPath.length > 0
+                      ? (tMem.difficultyPath as DifficultyLevel[])
+                      : attempts.map((a: Attempt) => a.level as DifficultyLevel);
+                  
+                  const peakLevel: DifficultyLevel =
+                    (tMem.highestLevelReached as DifficultyLevel) ||
+                    (path.length > 0 ? (Math.max(...path) as DifficultyLevel) : 2);
+                  
+                  const sourcesEncountered = Array.from(
+                    new Set(attempts.map((a: Attempt) => a.sourceStyle).filter(Boolean))
+                  ) as SourceStyle[];
+
+                  return (
+                    <div
+                      key={tMem.topicId}
+                      className="p-3.5 bg-card border border-border rounded-[2px] space-y-2"
+                      data-testid={`topic-adaptive-card-${tMem.topicId}`}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-sm text-foreground">
+                            {TOPIC_DISPLAY_NAMES[tMem.topicId]?.en || tMem.topicId}
+                          </span>
+                          <span
+                            className={`text-xs font-mono font-bold px-2 py-0.5 rounded-[2px] ${
+                              tMem.status === "mastered"
+                                ? "bg-[var(--status-good-bg)] text-[var(--status-good)] border border-[var(--status-good-border)]"
+                                : tMem.status === "gap"
+                                ? "bg-primary/10 text-primary border border-primary/30"
+                                : "bg-[var(--status-warn-bg)] text-foreground border border-[var(--status-warn-border)]"
+                            }`}
+                          >
+                            {tMem.status === "mastered"
+                              ? "Mastered"
+                              : tMem.status === "gap"
+                              ? "Needs Support"
+                              : "Developing"}
+                          </span>
+                        </div>
+
+                        <span className="text-xs font-mono text-muted-foreground">
+                          Peak: Level {peakLevel} ({DIFFICULTY_DESCRIPTIONS[peakLevel]?.name || `L${peakLevel}`})
+                        </span>
+                      </div>
+
+                      {/* Difficulty Trajectory */}
+                      {path.length > 0 && (
+                        <div className="flex items-center gap-1.5 flex-wrap text-xs font-mono">
+                          <span className="text-muted-foreground font-semibold">Path:</span>
+                          {path.map((lvl: DifficultyLevel, idx: number) => (
+                            <span key={idx} className="flex items-center gap-1.5">
+                              <span
+                                className={`px-1.5 py-0.5 rounded border ${
+                                  lvl >= 4
+                                    ? "bg-primary/10 border-primary/30 text-primary font-bold"
+                                    : "bg-muted border-border text-foreground"
+                                }`}
+                                title={DIFFICULTY_DESCRIPTIONS[lvl]?.description}
+                              >
+                                L{lvl}
+                              </span>
+                              {idx < path.length - 1 && (
+                                <span className="text-muted-foreground">→</span>
+                              )}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Source Styles Encountered */}
+                      {sourcesEncountered.length > 0 && (
+                        <div className="flex items-center gap-1.5 flex-wrap text-xs font-mono pt-1">
+                          <span className="text-muted-foreground">Sources:</span>
+                          {sourcesEncountered.map((s) => (
+                            <span
+                              key={s}
+                              className="px-2 py-0.5 rounded bg-muted/70 border border-border text-foreground"
+                              title={SOURCE_STYLE_METADATA[s]?.description}
+                            >
+                              {SOURCE_STYLE_METADATA[s]?.label || s}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Action Buttons */}
           <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border">
             <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
@@ -1051,7 +1232,7 @@ export function AdaptiveAssessmentView({
           {/* Top Bar: Progress & Language Switcher & Report */}
           <div className="bg-[var(--surface)] border border-border rounded-[2px] p-4 sm:p-5 space-y-3">
             <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs font-mono uppercase font-bold text-muted-foreground">
                   {classConfig.label.toUpperCase()}
                 </span>
@@ -1059,6 +1240,18 @@ export function AdaptiveAssessmentView({
                 <span className="text-xs font-mono font-bold text-primary">
                   {currentTopicName}
                 </span>
+                {currentQuestion && (
+                  <>
+                    <span className="text-xs text-muted-foreground">•</span>
+                    <span
+                      data-testid="difficulty-indicator"
+                      className="text-xs font-mono font-bold bg-muted px-2 py-0.5 rounded text-foreground border border-border"
+                      title={DIFFICULTY_DESCRIPTIONS[currentQuestion.difficulty]?.description}
+                    >
+                      Level {currentQuestion.difficulty} of 5
+                    </span>
+                  </>
+                )}
               </div>
 
               {/* Compact Language Selector + Report Button */}
@@ -1226,12 +1419,21 @@ export function AdaptiveAssessmentView({
                   )}
                 </div>
 
-                {currentQuestion.provenanceLabel && (
+                {currentQuestion.sourceStyle ? (
+                  <span
+                    data-testid="source-style-badge"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-muted/60 text-muted-foreground border border-border text-xs font-mono"
+                    title={SOURCE_STYLE_METADATA[currentQuestion.sourceStyle]?.description}
+                  >
+                    <BookOpen className="w-3.5 h-3.5 text-primary" />
+                    <span>{currentQuestion.provenanceLabel || SOURCE_STYLE_METADATA[currentQuestion.sourceStyle]?.label}</span>
+                  </span>
+                ) : currentQuestion.provenanceLabel ? (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-muted/60 text-muted-foreground border border-border text-xs font-mono">
                     <BookOpen className="w-3.5 h-3.5 text-primary" />
                     <span>{currentQuestion.provenanceLabel}</span>
                   </span>
-                )}
+                ) : null}
               </div>
 
               {/* Large Question Text */}
@@ -1294,28 +1496,40 @@ export function AdaptiveAssessmentView({
                     </div>
                   )}
 
-                  {/* Student Hint */}
-                  {currentQuestion.hint && (
-                    <div className="pt-2">
-                      {!showHint ? (
-                        <button
-                          type="button"
-                          onClick={() => setShowHint(true)}
-                          className="min-h-[44px] px-3 py-1.5 text-sm text-foreground font-semibold flex items-center gap-1.5 hover:underline border border-border rounded-[2px] bg-card cursor-pointer"
-                        >
-                          <QuestionIcon className="w-4 h-4 text-primary" />
-                          <span>{dict.showHint || "Need a hint?"}</span>
-                        </button>
-                      ) : (
-                        <div className="bg-card border border-[var(--status-warn-border)] p-3.5 rounded-[2px] text-sm text-foreground leading-relaxed">
-                          <strong className="text-foreground bg-[var(--status-warn)] px-1.5 py-0.5 rounded-[2px] mr-1 font-mono text-xs">
-                            {dict.hintLabel || "Hint"}:
-                          </strong>{" "}
-                          {formatTxt(currentQuestion.hint)}
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  {/* Student Hint & "I don't know yet" option */}
+                  <div className="pt-2 flex flex-wrap items-center justify-between gap-2">
+                    {currentQuestion.hint ? (
+                      <div>
+                        {!showHint ? (
+                          <button
+                            type="button"
+                            onClick={() => setShowHint(true)}
+                            className="min-h-[44px] px-3 py-1.5 text-sm text-foreground font-semibold flex items-center gap-1.5 hover:underline border border-border rounded-[2px] bg-card cursor-pointer"
+                          >
+                            <QuestionIcon className="w-4 h-4 text-primary" />
+                            <span>{dict.showHint || "Need a hint?"}</span>
+                          </button>
+                        ) : (
+                          <div className="bg-card border border-[var(--status-warn-border)] p-3.5 rounded-[2px] text-sm text-foreground leading-relaxed">
+                            <strong className="text-foreground bg-[var(--status-warn)] px-1.5 py-0.5 rounded-[2px] mr-1 font-mono text-xs">
+                              {dict.hintLabel || "Hint"}:
+                            </strong>{" "}
+                            {formatTxt(currentQuestion.hint)}
+                          </div>
+                        )}
+                      </div>
+                    ) : <div />}
+
+                    <button
+                      type="button"
+                      onClick={handleDontKnow}
+                      disabled={isEvaluating || Boolean(feedback)}
+                      data-testid="dont-know-btn"
+                      className="min-h-[44px] px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground font-mono flex items-center gap-1.5 border border-dashed border-border hover:border-foreground/40 rounded-[2px] bg-transparent cursor-pointer ml-auto"
+                    >
+                      <span>I don&apos;t know yet</span>
+                    </button>
+                  </div>
                 </div>
               ) : (
                 /* Post-Submission Feedback and prominent Next Button */

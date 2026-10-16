@@ -119,3 +119,36 @@ This document tracks all relocations and design hierarchy changes made to make S
   * Confirmed all fonts are self-hosted via `next/font` with zero external requests to `fonts.googleapis.com` or third-party CDNs.
   * Confirmed 0 third-party tracking scripts, 0 advertising beacons, and 0 external CDNs are loaded by client bundles.
 
+---
+
+## 7. Adaptive Difficulty Engine & Multi-Book, Multi-Board Question Sources
+* **5-Level Adaptive Difficulty Ladder (`src/lib/agents/adaptiveEngine.ts`)**:
+  * L1 Recall: definitions, direct facts, single-step operations.
+  * L2 Understanding: explain in own words, simple numericals, foundational concepts (default start level).
+  * L3 Application: multi-step problems, real-life Indian word problem scenarios.
+  * L4 Analysis: compare, reason, "why/what if", data and diagram interpretation.
+  * L5 Challenge: HOTS (Higher Order Thinking Skills), Olympiad-style multi-concept integration.
+* **Pure State Machine Transition Rules**:
+  * Correct: increase difficulty by +1 level. Two correct in a row jumps +1 level up to L5.
+  * Partially correct: stay at the same level, ask a similar question targeting the missing part.
+  * Wrong / "I don't know yet": reduce difficulty by -1 level and display a short hint.
+  * 2 wrong in a row: reduce difficulty by -2 levels and backtrack to prerequisite concept via DAG.
+  * Floor guard: never drops below L1. If wrong at L1, switches to teaching mode with simple explanation and confidence builder.
+  * Stopping rules: min 2, max 6 questions per topic. Stop early if: 2 correct at L5 (mastered) OR 2 wrong at L1 with no improvement (needs teacher support).
+  * Repetition guard: strictly prevents duplicate question signatures within a session.
+* **Bayesian Mastery Scaling (`src/lib/engine/diagnostic.ts`)**:
+  * Mastery update weights scaled by difficulty level: L4/L5 successes provide stronger evidence of solid mastery; misses at L1 provide stronger evidence of foundational gaps than misses at L5.
+* **Multi-Book, Multi-Board Question Sources (`src/lib/questions/multiBoardBank.ts`)**:
+  * 5 source styles: `ncert` (Math-Magic), `exemplar`, `cbse_reference` (R.D. Sharma / R.S. Aggarwal), `icse_selina` (Concise Mathematics), `icse_foundation` (Frank / ML Aggarwal).
+  * Board Preference Selector on Assessment start screen: CBSE (70% CBSE / 30% ICSE), ICSE (70% ICSE / 30% CBSE), or Both (balanced alternation).
+  * Rotation logic: no 2 consecutive questions share source style; at least 2 distinct styles in every 5 questions.
+  * Curated, verified trilingual question bank (English, Hindi, Telugu) for Classes 3 to 5.
+* **Student UI & Diagnostic Report Updates (`src/components/AdaptiveAssessmentView.tsx`)**:
+  * Screen 1: Added Board Preference Selector (CBSE, ICSE, Both).
+  * Screen 2: Calm "Level X of 5" indicator in top bar, source style badge on question card header, and "I don't know yet" action.
+  * Screen 3: "Adaptive Difficulty Path & Curriculum Sources" card showing complete trajectory (e.g. `L2 → L3 → L4 → L3`), peak level reached, and all source styles encountered.
+* **Test Suite Verification**:
+  * 18 unit tests in `tests/adaptive-difficulty.test.mjs` verifying all transition rules, source rotation, board weighting, and Bayesian scaling.
+  * 221 total unit and regression tests passing. Zero lint errors. Next.js production build passing.
+
+
