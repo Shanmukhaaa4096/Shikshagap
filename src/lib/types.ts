@@ -28,9 +28,10 @@ export type ConceptId =
   | "addition_3digit"
   | "subtraction_3digit"
   | "division_sharing"
-  | "money_math";
+  | "money_math"
+  | (string & {});
 
-export type Strand = "number" | "muldiv" | "fractions" | "measurement";
+export type Strand = "number" | "muldiv" | "fractions" | "measurement" | "algebra" | "geometry" | "commercial_math" | "statistics";
 
 export interface Concept {
   id: ConceptId;
@@ -43,7 +44,42 @@ export interface Concept {
   needsTeacherCheck?: boolean;
 }
 
-export type TopicId = "division" | "multiplication" | "fractions" | "number_ops";
+export type TopicId =
+  | "division"
+  | "multiplication"
+  | "fractions"
+  | "number_ops"
+  | "counting"
+  | "shapes_spatial"
+  | "add_sub"
+  | "money"
+  | "two_digit_numbers"
+  | "addition_subtraction"
+  | "measurement"
+  | "patterns"
+  | "number_sense"
+  | "area_perimeter"
+  | "integers"
+  | "fractions_decimals"
+  | "algebra_intro"
+  | "ratio_proportion"
+  | "rational_numbers"
+  | "linear_equations"
+  | "algebraic_expressions"
+  | "comparing_quantities"
+  | "rational_powers"
+  | "linear_equations_one_var"
+  | "algebraic_identities"
+  | "mensuration"
+  | "number_systems"
+  | "polynomials"
+  | "coordinate_geometry"
+  | "linear_equations_two_vars"
+  | "real_numbers"
+  | "quadratic_equations"
+  | "arithmetic_progressions"
+  | "trigonometry"
+  | (string & {});
 
 export interface Topic {
   id: TopicId;
@@ -55,7 +91,38 @@ export interface Topic {
 /** Text that is either a translation key with params or a literal (math) string. */
 export type Txt = { key: TKey; params?: Record<string, string | number> } | { raw: string };
 
+/** 4 primary calibrated tiers: 1=Recall, 2=Application (on-grade medium start), 3=Multi-step, 4=Challenge (HOTS) */
+export type DifficultyTier = "recall" | "application" | "multistep" | "challenge";
+
 export type Difficulty = 1 | 2 | 3 | 4 | 5;
+
+export function difficultyToTier(level: Difficulty): DifficultyTier {
+  switch (level) {
+    case 1:
+      return "recall";
+    case 2:
+      return "application";
+    case 3:
+      return "multistep";
+    case 4:
+    case 5:
+    default:
+      return "challenge";
+  }
+}
+
+export function tierToDifficulty(tier: DifficultyTier): Difficulty {
+  switch (tier) {
+    case "recall":
+      return 1;
+    case "application":
+      return 2;
+    case "multistep":
+      return 3;
+    case "challenge":
+      return 4;
+  }
+}
 
 export type SourceStyle =
   | "ncert"

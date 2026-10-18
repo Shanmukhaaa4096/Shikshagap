@@ -29,7 +29,7 @@ export const CONCEPTS: Record<ConceptId, Concept> = {
 
 export const CONCEPT_IDS = Object.keys(CONCEPTS) as ConceptId[];
 
-export const TOPICS: Record<TopicId, Topic> = {
+export const TOPICS: Partial<Record<TopicId, Topic>> = {
   division: { id: "division", subjectId: "math", grade: 5, targets: ["division_facts", "long_division", "division_word"] },
   multiplication: { id: "multiplication", subjectId: "math", grade: 5, targets: ["mult_facts", "multi_digit_mult"] },
   fractions: { id: "fractions", subjectId: "math", grade: 5, targets: ["equivalent_fractions", "comparing_fractions", "fraction_addition"] },

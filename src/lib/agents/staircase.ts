@@ -27,6 +27,8 @@ export type StaircaseAction =
   | { type: "close_topic"; topicId: TopicId; status: TopicStatus }
   | { type: "finish" };
 
+import { allConceptsMap } from "../../data/curriculum/index.ts";
+
 export const DEFAULT_TOPICS: TopicId[] = [
   "number_ops",
   "multiplication",
@@ -35,25 +37,110 @@ export const DEFAULT_TOPICS: TopicId[] = [
 ];
 
 /**
- * Returns the primary target concept for a given topic and grade (Classes 1 to 10).
+ * Returns the primary target concept for a given topic, grade (Classes 1 to 10),
+ * and board preference (CBSE / ICSE).
  */
-export function getConceptForTopic(topicId: TopicId, grade: number): ConceptId {
-  switch (topicId) {
-    case "number_ops":
-      if (grade <= 2) return "number_sense";
-      return grade === 3 ? "number_sense" : "place_value";
-    case "multiplication":
-      if (grade <= 2) return "number_sense";
-      return grade === 3 ? "mult_concept" : grade <= 5 ? "mult_facts" : "multi_digit_mult";
-    case "division":
-      if (grade <= 2) return "addition";
-      return grade === 3 || grade === 4 ? "division_concept" : "division_facts";
-    case "fractions":
-      if (grade <= 3) return "addition";
-      return grade === 4 ? "fraction_basics" : "equivalent_fractions";
-    default:
-      return "number_sense";
+export function getConceptForTopic(
+  topicId: TopicId,
+  grade: number,
+  boardPreference?: "CBSE" | "ICSE" | "BOTH"
+): ConceptId {
+  const isIcse = boardPreference === "ICSE";
+
+  // Class 1
+  if (grade === 1) {
+    if (topicId === "counting") return isIcse ? "icse-1-m02" : "cbse-1-m02";
+    if (topicId === "shapes_spatial") return isIcse ? "icse-1-m04" : "cbse-1-m01";
+    if (topicId === "add_sub") return isIcse ? "icse-1-m03" : "cbse-1-m03";
+    if (topicId === "money") return isIcse ? "icse-1-m05" : "cbse-1-m12";
+    return isIcse ? "icse-1-m02" : "cbse-1-m02";
   }
+
+  // Class 2
+  if (grade === 2) {
+    if (topicId === "two_digit_numbers") return isIcse ? "icse-2-m01" : "cbse-2-m02";
+    if (topicId === "addition_subtraction") return isIcse ? "icse-2-m02" : "cbse-2-m08";
+    if (topicId === "measurement") return isIcse ? "icse-2-m04" : "cbse-2-m07";
+    if (topicId === "patterns") return isIcse ? "icse-2-m05" : "cbse-2-m01";
+    return isIcse ? "icse-2-m01" : "cbse-2-m02";
+  }
+
+  // Class 3
+  if (grade === 3) {
+    if (topicId === "number_sense") return "number_sense";
+    if (topicId === "multiplication") return "mult_concept";
+    if (topicId === "division") return "division_sharing";
+    if (topicId === "fractions") return "shapes_designs";
+    if (topicId === "number_ops") return "number_sense";
+    return "number_sense";
+  }
+
+  // Class 4
+  if (grade === 4) {
+    if (topicId === "number_ops") return "place_value";
+    if (topicId === "multiplication") return "mult_facts";
+    if (topicId === "division") return "division_concept";
+    if (topicId === "fractions") return "fraction_basics";
+    return "place_value";
+  }
+
+  // Class 5
+  if (grade === 5) {
+    if (topicId === "multiplication") return "multi_digit_mult";
+    if (topicId === "division") return "division_facts";
+    if (topicId === "fractions") return "equivalent_fractions";
+    if (topicId === "area_perimeter") return "cbse-5-m02";
+    if (topicId === "number_ops") return "place_value";
+    return "multi_digit_mult";
+  }
+
+  // Class 6
+  if (grade === 6) {
+    if (topicId === "integers") return isIcse ? "icse-6-m02" : "cbse-6-m03";
+    if (topicId === "fractions_decimals" || topicId === "fractions") return isIcse ? "icse-6-m03" : "cbse-6-m04";
+    if (topicId === "algebra_intro") return isIcse ? "icse-6-m06" : "cbse-6-m07";
+    if (topicId === "ratio_proportion" || topicId === "multiplication" || topicId === "division") return isIcse ? "icse-6-m04" : "cbse-6-m08";
+    if (topicId === "number_ops") return isIcse ? "icse-6-m02" : "cbse-6-m03";
+    return isIcse ? "icse-6-m02" : "cbse-6-m03";
+  }
+
+  // Class 7
+  if (grade === 7) {
+    if (topicId === "rational_numbers" || topicId === "number_ops") return isIcse ? "icse-7-m02" : "cbse-7-m08";
+    if (topicId === "linear_equations") return isIcse ? "icse-7-m05" : "cbse-7-m04";
+    if (topicId === "algebraic_expressions") return isIcse ? "icse-7-m04" : "cbse-7-m10";
+    if (topicId === "comparing_quantities" || topicId === "multiplication" || topicId === "division" || topicId === "fractions") return isIcse ? "icse-7-m03" : "cbse-7-m07";
+    return isIcse ? "icse-7-m02" : "cbse-7-m08";
+  }
+
+  // Class 8
+  if (grade === 8) {
+    if (topicId === "rational_powers" || topicId === "number_ops") return isIcse ? "icse-8-m01" : "cbse-8-m01";
+    if (topicId === "linear_equations_one_var") return isIcse ? "icse-8-m04" : "cbse-8-m02";
+    if (topicId === "algebraic_identities" || topicId === "multiplication" || topicId === "division") return isIcse ? "icse-8-m03" : "cbse-8-m08";
+    if (topicId === "mensuration" || topicId === "fractions") return isIcse ? "icse-8-m06" : "cbse-8-m09";
+    return isIcse ? "icse-8-m01" : "cbse-8-m01";
+  }
+
+  // Class 9
+  if (grade === 9) {
+    if (topicId === "number_systems" || topicId === "number_ops") return isIcse ? "icse-9-m01" : "cbse-9-m01";
+    if (topicId === "polynomials" || topicId === "multiplication" || topicId === "division") return isIcse ? "icse-9-m04" : "cbse-9-m02";
+    if (topicId === "coordinate_geometry") return isIcse ? "icse-9-m07" : "cbse-9-m03";
+    if (topicId === "linear_equations_two_vars" || topicId === "fractions") return isIcse ? "icse-9-m05" : "cbse-9-m04";
+    return isIcse ? "icse-9-m01" : "cbse-9-m01";
+  }
+
+  // Class 10
+  if (grade === 10) {
+    if (topicId === "real_numbers" || topicId === "number_ops") return isIcse ? "icse-10-m01" : "cbse-10-m01";
+    if (topicId === "quadratic_equations" || topicId === "multiplication" || topicId === "division") return isIcse ? "icse-10-m03" : "cbse-10-m04";
+    if (topicId === "arithmetic_progressions") return isIcse ? "icse-10-m06" : "cbse-10-m05";
+    if (topicId === "trigonometry" || topicId === "fractions") return isIcse ? "icse-10-m08" : "cbse-10-m08";
+    return isIcse ? "icse-10-m01" : "cbse-10-m01";
+  }
+
+  return "number_sense";
 }
 
 export function generateFreshSessionSeed(): number {
@@ -99,16 +186,21 @@ export function createSessionMemory(
 
 /**
  * Maps a concept to its foundational prerequisite for diagnostic probing.
- * Grounded directly in the curriculum dependency DAG (CONCEPTS).
+ * Supports cross-class prerequisite backtracking across Classes 1 to 10
+ * via the unified curriculum dependency graph.
  */
 export function getPrerequisiteForConcept(
   conceptId: ConceptId,
   errorType?: string
 ): ConceptId {
+  // 1. Specific error-type diagnostic routing for foundational arithmetic
   if (conceptId === "division_facts" || conceptId === "long_division") {
-    // If error indicates sharing concept confusion, probe division_concept;
-    // if table slip / factor error / default, probe mult_facts
-    if (errorType === "wrong_operation" || errorType === "sharing_error" || errorType === "sharing" || errorType?.includes("sharing")) {
+    if (
+      errorType === "wrong_operation" ||
+      errorType === "sharing_error" ||
+      errorType === "sharing" ||
+      errorType?.includes("sharing")
+    ) {
       return "division_concept";
     }
     return "mult_facts";
@@ -116,7 +208,11 @@ export function getPrerequisiteForConcept(
   if (conceptId === "division_concept") {
     return "mult_concept";
   }
-  if (conceptId === "equivalent_fractions" || conceptId === "comparing_fractions" || conceptId === "fraction_addition") {
+  if (
+    conceptId === "equivalent_fractions" ||
+    conceptId === "comparing_fractions" ||
+    conceptId === "fraction_addition"
+  ) {
     return "fraction_basics";
   }
   if (conceptId === "multi_digit_mult") {
@@ -137,6 +233,13 @@ export function getPrerequisiteForConcept(
   if (conceptId === "subtraction_3digit" || conceptId === "subtraction") {
     return "place_value";
   }
+
+  // 2. Check unified curriculum graph (Classes 1 to 10 cross-class backtracking)
+  const curriculumNode = allConceptsMap.get(conceptId);
+  if (curriculumNode && curriculumNode.prerequisites && curriculumNode.prerequisites.length > 0) {
+    return curriculumNode.prerequisites[0];
+  }
+
   return conceptId;
 }
 
@@ -168,7 +271,7 @@ export function getNextStaircaseAction(
     return {
       type: "ask",
       topicId: nextTopic.topicId,
-      conceptId: getConceptForTopic(nextTopic.topicId, memory.grade),
+      conceptId: getConceptForTopic(nextTopic.topicId, memory.grade, memory.boardPreference),
       level: 2,
     };
   }
@@ -187,7 +290,7 @@ export function getNextStaircaseAction(
     return {
       type: "ask",
       topicId: currentTopic.topicId,
-      conceptId: getConceptForTopic(currentTopic.topicId, memory.grade),
+      conceptId: getConceptForTopic(currentTopic.topicId, memory.grade, memory.boardPreference),
       level: 2,
     };
   }

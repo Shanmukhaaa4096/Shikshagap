@@ -32,7 +32,19 @@ test("Curriculum Graph: full integrity validation (DAG, no missing IDs, trilingu
     `Concepts with missing en/hi/te translations: ${result.invalidTranslations.join(", ")}`
   );
 
-  // 5. Total concepts and edges check
+  // 5. 0 missing syllabus sources and learning outcomes
+  assert.equal(
+    result.missingSources.length,
+    0,
+    `Concepts with missing syllabus source citations: ${result.missingSources.join(", ")}`
+  );
+  assert.equal(
+    result.missingOutcomes.length,
+    0,
+    `Concepts with missing learning outcomes: ${result.missingOutcomes.join(", ")}`
+  );
+
+  // 6. Total concepts and edges check
   assert.ok(result.totalConcepts >= 180, `Expected at least 180 concepts across Classes 1-10, got ${result.totalConcepts}`);
   assert.ok(result.totalPrerequisiteEdges >= 200, `Expected at least 200 prerequisite edges, got ${result.totalPrerequisiteEdges}`);
 });

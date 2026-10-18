@@ -2,6 +2,23 @@
 
 This document tracks all relocations and design hierarchy changes made to make ShikshaGap simple and immediately understandable for **Teachers** and **Students** (passing the 5-second test), while ensuring **zero features or data were deleted**.
 
+## Classes 1 to 10 Multi-Board Curriculum & Question Engine (Classes 1–10 Upgrade)
+* **Full Classes 1 to 10 Coverage**:
+  * Added complete curriculum models for Classes 1 to 10 across both CBSE (NCERT NCF-SE 2023 / NCF-FS) and ICSE (CISCE 2024-26) frameworks.
+  * Verified 180+ concepts with exact textbook/syllabus chapter citations (`SYLLABUS_SOURCES.md`, `src/data/curriculum/syllabusMap.ts`).
+  * Enriched graph with trilingual translations (English, Hindi, Telugu), official learning outcomes, and validated difficulty tiers (1 to 4).
+* **Strict Board Isolation**:
+  * Selecting ICSE strictly excludes CBSE-only and NCERT-only questions.
+  * Selecting CBSE strictly excludes ICSE-only questions.
+  * Unit tested in `tests/board-filtering-isolation.test.mjs`.
+* **Cross-Grade Prerequisite Backtracking**:
+  * Enabled directed acyclic graph (DAG) backtracking from secondary grades (e.g., Class 10 Quadratic Equations) through middle school (Polynomials, Factorisation, Algebraic Expressions) down to primary foundations.
+  * Unit tested in `tests/curriculum-dag-backtracking.test.mjs`.
+* **Grade-Calibrated 4-Tier Assessment**:
+  * Starts dynamically at Tier 2 (on-grade medium application) to avoid trivial questions.
+  * Adapts to Tier 3 (multi-step reasoning) on success or drops to Tier 1 (foundational recall/prerequisite) on struggle.
+  * Server-side deterministic validation guarantees all math is recomputed in code with distinct pedagogically-tuned distractors.
+
 ---
 
 ## 1. Summary of Architecture Changes

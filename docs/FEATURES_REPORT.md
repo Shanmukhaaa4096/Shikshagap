@@ -22,6 +22,7 @@ All nine architectural features and required security, mobile-first, and regulat
 | **Feature 7: Accuracy & Method Page** | Completed | Public `/how-it-works` explaining prerequisite concept mapping, empirical boundaries, AI non-claims, and problem report form. |
 | **Feature 8: Data Export** | Completed | Authenticated CSV/JSON export requiring 10-minute recent re-auth, formula injection protection (`=`, `+`, `-`, `@`), UTF-8 BOM (`\uFEFF`) for Hindi/Telugu in Excel. |
 | **Feature 9: Admin Audit Log** | Completed | Append-only audit trail at `/app/audit-log` for school admins with action/date filters, self-logging, responsive desktop table and stacked mobile cards. |
+| **Feature 10: Classes 1 to 10 Multi-Board Curriculum & Question Engine** | Completed | Full NCERT (NCF-SE 2023 / NCF-FS) and ICSE (CISCE) curriculum models for Classes 1 to 10; 180+ concepts with verified provenance citations; 4-tier difficulty calibration starting at Tier 2; strict board isolation; cross-grade DAG prerequisite backtracking. |
 
 ---
 

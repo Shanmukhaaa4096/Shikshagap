@@ -125,7 +125,7 @@ export function StudentDiagnosticModal({
     );
   };
 
-  const topicMasteryMap: Record<TopicId, number> = {
+  const topicMasteryMap: Partial<Record<TopicId, number>> = {
     number_ops: 0.88,
     multiplication: 0.64,
     division: 0.42,
@@ -436,7 +436,7 @@ export function StudentDiagnosticModal({
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {CURRICULUM_TOPICS.map((tId: TopicId) => {
-                        const masteryVal = topicMasteryMap[tId];
+                        const masteryVal = topicMasteryMap[tId] ?? 0.7;
                         const pct = Math.round(masteryVal * 100);
                         let barColor = "bg-[var(--status-good)]";
                         let statusLabel = "Mastered";

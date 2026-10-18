@@ -20,6 +20,8 @@ import type { TKey } from "../i18n/keys.ts";
 import { gcd, pick, randInt, shuffle, uid, type Rng } from "../rng.ts";
 import { getSkillRange } from "../../data/skillSheet.ts";
 import { validateQuestionIntegrity } from "./integrity.ts";
+import { getMultiBoardQuestion } from "./multiBoardBank.ts";
+import { getCurriculumConcept } from "../../data/curriculum/index.ts";
 
 const T = (key: TKey, params?: Record<string, string | number>): Txt => ({ key, params });
 const R = (raw: string | number): Txt => ({ raw: String(raw) });
@@ -1016,16 +1018,94 @@ export function generateQuestion(
   const grade = typeof gradeOrCtx === "number" ? gradeOrCtx : 5;
   const effectiveCtx = typeof gradeOrCtx === "object" ? gradeOrCtx : ctx;
   const generatorFn = gen[conceptId];
-  if (!generatorFn) {
-    throw new Error(`Unknown conceptId: ${conceptId}`);
+  if (generatorFn) {
+    const base = generatorFn(difficulty, rng, effectiveCtx, grade);
+    return {
+      board: base.board || "CBSE",
+      ...base,
+      id: uid("q"),
+      conceptId,
+      difficulty,
+      source: "bank",
+      linkedFrom: effectiveCtx.link?.conceptId,
+    };
   }
-  const base = generatorFn(difficulty, rng, effectiveCtx, grade);
+
+  // Fallback for curriculum concepts across Classes 1-10
+  const currConcept = getCurriculumConcept(conceptId);
+  const conceptName = currConcept?.name?.en || conceptId;
+
+  // Grade-calibrated operands
+  let a: number;
+  let b: number;
+  let op: "+" | "-" | "x" | "/" = "+";
+  if (grade === 1) {
+    a = randInt(rng, 1, 9);
+    b = randInt(rng, 1, 9);
+    op = "+";
+  } else if (grade === 2) {
+    a = randInt(rng, 10, 50);
+    b = randInt(rng, 2, 20);
+    op = "+";
+  } else if (grade <= 4) {
+    a = randInt(rng, 12, 60);
+    b = randInt(rng, 3, 9);
+    op = "x";
+  } else if (grade <= 6) {
+    a = randInt(rng, 15, 120);
+    b = randInt(rng, 4, 12);
+    op = "x";
+  } else {
+    a = randInt(rng, 5, 30);
+    b = randInt(rng, 2, 15);
+    op = "+";
+  }
+
+  const ans = op === "x" ? a * b : a + b;
+
+  const mbq = getMultiBoardQuestion({
+    conceptId,
+    difficulty,
+    class: grade,
+  });
+
+  if (mbq) {
+    return {
+      ...mbq,
+      id: uid("q"),
+      conceptId,
+      difficulty,
+      meta: {
+        a: typeof mbq.meta?.a === "number" ? mbq.meta.a : a,
+        b: typeof mbq.meta?.b === "number" ? mbq.meta.b : b,
+        op: (mbq.meta?.op as "+" | "-" | "x" | "/" | undefined) || op,
+        bugs: mbq.meta?.bugs || {},
+      },
+      source: "bank",
+      linkedFrom: effectiveCtx.link?.conceptId,
+    };
+  }
+
+  const bugs: Record<string, ErrorType> = {
+    [String(ans + 1)]: "slip",
+    [String(Math.max(1, ans - 1))]: "slip",
+    [String(a + b + 2)]: "wrong_operation",
+  };
+
+  const opts = numericOptions(rng, ans, bugs);
+
   return {
-    board: base.board || "CBSE",
-    ...base,
     id: uid("q"),
     conceptId,
     difficulty,
+    board: currConcept?.board === "ICSE" ? "ICSE" : "CBSE",
+    format: "mcq",
+    prompt: R(`${conceptName}: What is ${a} ${op === "x" ? "×" : "+"} ${b}?`),
+    answerKind: "int",
+    answer: String(ans),
+    options: opts,
+    meta: { a, b, op, bugs },
+    hint: R(`Think about step-by-step ${op === "x" ? "multiplication" : "addition"}.`),
     source: "bank",
     linkedFrom: effectiveCtx.link?.conceptId,
   };

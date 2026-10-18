@@ -247,7 +247,7 @@ export const CURRICULUM_TOPICS: TopicId[] = [
   "fractions",
 ];
 
-export const TOPIC_DISPLAY_NAMES: Record<TopicId, { en: string; hi: string; te: string }> = {
+export const TOPIC_DISPLAY_NAMES: Record<string, { en: string; hi: string; te: string }> = {
   number_ops: {
     en: "Number Operations",
     hi: "संख्या संक्रियाएं (Number Operations)",
@@ -267,6 +267,156 @@ export const TOPIC_DISPLAY_NAMES: Record<TopicId, { en: string; hi: string; te: 
     en: "Fractions",
     hi: "भिन्न (Fractions)",
     te: "భిన్నాలు (Fractions)",
+  },
+  counting: {
+    en: "Counting & Numbers to 20",
+    hi: "गिनती और 20 तक संख्याएं",
+    te: "లెక్కింపు మరియు 20 వరకు సంఖ్యలు",
+  },
+  shapes_spatial: {
+    en: "Shapes & Spatial Understanding",
+    hi: "आकार और स्थानिक समझ",
+    te: "ఆకారాలు మరియు ప్రాదేశిక భావన",
+  },
+  add_sub: {
+    en: "Addition & Subtraction within 9",
+    hi: "9 तक जोड़ और घटाव",
+    te: "9 లోపు సంకలనం & వ్యవకలనం",
+  },
+  money: {
+    en: "Money & Daily Purchases",
+    hi: "मुद्रा और दैनिक लेन-देन",
+    te: "డబ్బు మరియు రోజువారీ ఖర్చులు",
+  },
+  two_digit_numbers: {
+    en: "Numbers to 100 & Place Value",
+    hi: "100 तक संख्याएं और स्थानीय मान",
+    te: "100 వరకు సంఖ్యలు & స్థాన విలువ",
+  },
+  addition_subtraction: {
+    en: "2-Digit Addition & Subtraction",
+    hi: "2-अंकीय जोड़ और घटाव",
+    te: "2-అంకెల సంకలనం & వ్యవకలనం",
+  },
+  measurement: {
+    en: "Measurement & Capacity",
+    hi: "मापन और धारिता",
+    te: "కొలతలు & సామర్థ్యం",
+  },
+  patterns: {
+    en: "Patterns & Shapes",
+    hi: "पैटर्न और आकृतियां",
+    te: "నమూనాలు & ఆకారాలు",
+  },
+  number_sense: {
+    en: "Number Sense & Place Value",
+    hi: "संख्या बोध और स्थानीय मान",
+    te: "సంఖ్యా భావన & స్థాన విలువ",
+  },
+  area_perimeter: {
+    en: "Area & Perimeter",
+    hi: "क्षेत्रफल और परिमाप",
+    te: "వైశాల్యం & చుట్టుకొలత",
+  },
+  integers: {
+    en: "Integers & Number Line",
+    hi: "पूर्णांक और संख्या रेखा",
+    te: "పూర్ణాంకాలు & సంఖ్యా రేఖ",
+  },
+  fractions_decimals: {
+    en: "Fractions & Decimals",
+    hi: "भिन्न और दशमलव",
+    te: "భిన్నాలు & దశాంశాలు",
+  },
+  algebra_intro: {
+    en: "Introduction to Algebra",
+    hi: "बीजगणित का परिचय",
+    te: "బీజగణిత పరిచయం",
+  },
+  ratio_proportion: {
+    en: "Ratio & Proportion",
+    hi: "अनुपात एवं समानुपात",
+    te: "నిష్పత్తి & అనుపాతం",
+  },
+  rational_numbers: {
+    en: "Rational Numbers & Properties",
+    hi: "परिमेय संख्याएं और गुणधर्म",
+    te: "అకరణీయ సంఖ్యలు & ధర్మాలు",
+  },
+  linear_equations: {
+    en: "Simple Linear Equations",
+    hi: "सरल रैखिक समीकरण",
+    te: "సరళ సమీకరణాలు",
+  },
+  algebraic_expressions: {
+    en: "Algebraic Expressions",
+    hi: "बीजीय व्यंजक",
+    te: "బీజగణిత సమాసాలు",
+  },
+  comparing_quantities: {
+    en: "Comparing Quantities & Percentages",
+    hi: "राशियों की तुलना और प्रतिशत",
+    te: "పరిమాణాల పోలిక & శాతాలు",
+  },
+  rational_powers: {
+    en: "Rational Powers & Exponents",
+    hi: "घातांक और घात",
+    te: "ఘాతాలు & ఘాతాంకాలు",
+  },
+  linear_equations_one_var: {
+    en: "Linear Equations in One Variable",
+    hi: "एक चर वाले रैखिक समीकरण",
+    te: "ఒకే చరరాశిలో సరళ సమీకరణాలు",
+  },
+  algebraic_identities: {
+    en: "Algebraic Identities & Factorisation",
+    hi: "बीजीय सर्वसमिकाएं और गुणनखंड",
+    te: "బీజగణిత నిత్యసమీకరణాలు & కారణాంకాలు",
+  },
+  mensuration: {
+    en: "Mensuration & Solid Shapes",
+    hi: "क्षेत्रमिति और ठोस आकार",
+    te: "క్షేత్రమితి & ఘన ఆకారాలు",
+  },
+  number_systems: {
+    en: "Number Systems & Irrationals",
+    hi: "संख्या पद्धति और अपरिमेय संख्याएं",
+    te: "సంఖ్యా వ్యవస్థలు & కరణీయ సంఖ్యలు",
+  },
+  polynomials: {
+    en: "Polynomials & Factorisation",
+    hi: "बहुपद और गुणनखंड",
+    te: "బహుపదులు & కారణాంకాలు",
+  },
+  coordinate_geometry: {
+    en: "Coordinate Geometry",
+    hi: "निर्देशांक ज्यामिति",
+    te: "నిరూపక రేఖాగణితం",
+  },
+  linear_equations_two_vars: {
+    en: "Linear Equations in Two Variables",
+    hi: "दो चरों वाले रैखिक समीकरण",
+    te: "రెండు చరరాశులలో సరళ సమీకరణాలు",
+  },
+  real_numbers: {
+    en: "Real Numbers & Fundamental Theorem",
+    hi: "वास्तविक संख्याएं और अंकगणित की आधारभूत प्रमेय",
+    te: "వాస్తవ సంఖ్యలు & ప్రాథమిక సిద్ధాంతం",
+  },
+  quadratic_equations: {
+    en: "Quadratic Equations",
+    hi: "द्विघात समीकरण",
+    te: "వర్గ సమీకరణాలు",
+  },
+  arithmetic_progressions: {
+    en: "Arithmetic Progressions",
+    hi: "समांतर श्रेढियाँ (AP)",
+    te: "అంక శ్రేఢులు (AP)",
+  },
+  trigonometry: {
+    en: "Trigonometry & Applications",
+    hi: "त्रिकोणमिति और अनुप्रयोग",
+    te: "త్రికోణమితి & అనువర్తనాలు",
   },
 };
 

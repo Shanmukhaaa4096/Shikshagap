@@ -16,13 +16,14 @@
 
 import type { ConceptId, Difficulty, ErrorType, Lang, Question, QuestionFormat } from "../types.ts";
 import type { SourceStyle } from "../agents/adaptiveEngine.ts";
+import { EXTENDED_MULTI_BOARD_QUESTIONS } from "./multiBoardBankExtended.ts";
 
 export interface MultiBoardQuestionEntry {
   id: string;
   sourceStyle: SourceStyle;
-  board: "CBSE" | "ICSE" | "NCERT";
+  board: "CBSE" | "ICSE" | "NCERT" | "BOTH";
   bookFamily: string;
-  class: 3 | 4 | 5;
+  class: number;
   conceptIds: ConceptId[];
   difficulty: Difficulty; // 1 to 5
   format: QuestionFormat;
@@ -851,10 +852,13 @@ export const MULTI_BOARD_QUESTION_BANK: MultiBoardQuestionEntry[] = [
     },
     provenanceLabel: "ICSE ML Aggarwal Primary Maths Class 5",
   },
+  ...EXTENDED_MULTI_BOARD_QUESTIONS,
 ];
 
 /**
  * Retrieves a multi-board verified question matching requested criteria.
+ * Strict board isolation: ICSE never returns NCERT-only questions and vice-versa.
+ * Strict class isolation: Questions never leak from different classes.
  */
 export function getMultiBoardQuestion(
   filter: {
@@ -871,8 +875,8 @@ export function getMultiBoardQuestion(
 
   const boardMatches = (q: MultiBoardQuestionEntry) => {
     if (!filter.board) return true;
-    if (filter.board === "ICSE") return q.board === "ICSE";
-    if (filter.board === "CBSE") return q.board === "CBSE" || q.board === "NCERT";
+    if (filter.board === "ICSE") return q.board === "ICSE" || q.board === "BOTH";
+    if (filter.board === "CBSE") return q.board === "CBSE" || q.board === "NCERT" || q.board === "BOTH";
     return true;
   };
 
@@ -899,28 +903,29 @@ export function getMultiBoardQuestion(
     });
   }
 
-  // 3. Fallback match: matching concept and board
-  if (candidates.length === 0) {
-    candidates = MULTI_BOARD_QUESTION_BANK.filter((q) => {
-      if (excludeSet.has(q.id)) return false;
-      if (!boardMatches(q)) return false;
-      if (filter.conceptId && !q.conceptIds.includes(filter.conceptId)) return false;
-      return true;
-    });
-  }
-
-  // 4. Any question matching class and board
+  // 3. Fallback match: matching class, concept, and board (strictly same class if specified)
   if (candidates.length === 0) {
     candidates = MULTI_BOARD_QUESTION_BANK.filter((q) => {
       if (excludeSet.has(q.id)) return false;
       if (!boardMatches(q)) return false;
       if (filter.class && q.class !== filter.class) return false;
+      if (filter.conceptId && !q.conceptIds.includes(filter.conceptId)) return false;
       return true;
     });
   }
 
-  // 5. Any question matching board
-  if (candidates.length === 0) {
+  // 4. Any question matching class and board (strictly same class)
+  if (candidates.length === 0 && filter.class) {
+    candidates = MULTI_BOARD_QUESTION_BANK.filter((q) => {
+      if (excludeSet.has(q.id)) return false;
+      if (!boardMatches(q)) return false;
+      if (q.class !== filter.class) return false;
+      return true;
+    });
+  }
+
+  // 5. Only if filter.class is NOT specified, allow any question matching board
+  if (candidates.length === 0 && !filter.class) {
     candidates = MULTI_BOARD_QUESTION_BANK.filter((q) => {
       if (excludeSet.has(q.id)) return false;
       if (!boardMatches(q)) return false;

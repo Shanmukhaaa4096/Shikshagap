@@ -1,0 +1,1576 @@
+/**
+ * ShikshaGap Structured Syllabus Map
+ *
+ * Official per-class, per-board chapter and topic definitions for Classes 1 to 10 Mathematics.
+ * Every entry cites its official public syllabus source (NCERT ncert.nic.in / CISCE cisce.org).
+ * Sourced on: October 18, 2026.
+ */
+
+import type { Board } from "@/lib/types";
+
+export interface ChapterTopicEntry {
+  chapterNumber: number;
+  chapterName: string;
+  topics: string[];
+  learningOutcomes: string[];
+  source: string;
+}
+
+export interface ClassBoardSyllabus {
+  class: number;
+  board: Board;
+  textbookTitle: string;
+  edition: string;
+  sourceUrl: string;
+  chapters: ChapterTopicEntry[];
+}
+
+export const SYLLABUS_MAP: ClassBoardSyllabus[] = [
+  // =========================================================================
+  // CLASS 1
+  // =========================================================================
+  {
+    class: 1,
+    board: "CBSE",
+    textbookTitle: "Joyful Mathematics Class 1",
+    edition: "NCERT NCF-FS 2023 / 2024-25 Edition",
+    sourceUrl: "https://ncert.nic.in/textbook.php?aejm1=0-13",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "Finding the Furry Cat",
+        topics: ["Spatial understanding", "Inside/Outside", "Above/Below", "Near/Far"],
+        learningOutcomes: ["Identifies relative positions of objects in immediate environment."],
+        source: "NCERT Joyful Mathematics Class 1, Chapter 1 (2024-25)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "What is Long, What is Round?",
+        topics: ["2D shapes", "3D objects", "Rolling and sliding"],
+        learningOutcomes: ["Differentiates between round objects that roll and flat objects that slide."],
+        source: "NCERT Joyful Mathematics Class 1, Chapter 2 (2024-25)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "Mangoes Round and Round",
+        topics: ["Counting 1 to 9", "One-to-one correspondence", "Number names"],
+        learningOutcomes: ["Counts collections of objects up to 9 using concrete representations."],
+        source: "NCERT Joyful Mathematics Class 1, Chapter 3 (2024-25)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Make Ten",
+        topics: ["Combinations of 10", "Number bonds", "Ten frames"],
+        learningOutcomes: ["Composes and decomposes the number 10 using pairs of numbers."],
+        source: "NCERT Joyful Mathematics Class 1, Chapter 4 (2024-25)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "How Many?",
+        topics: ["Single-digit addition", "Single-digit subtraction", "Story sums"],
+        learningOutcomes: ["Solves intuitive addition and subtraction situations within 10."],
+        source: "NCERT Joyful Mathematics Class 1, Chapter 5 (2024-25)",
+      },
+      {
+        chapterNumber: 6,
+        chapterName: "Vegetable Farm",
+        topics: ["Numbers 10 to 20", "Place value intuition (ten and ones)"],
+        learningOutcomes: ["Reads and writes numbers 11 to 20 as one ten and additional ones."],
+        source: "NCERT Joyful Mathematics Class 1, Chapter 6 (2024-25)",
+      },
+      {
+        chapterNumber: 7,
+        chapterName: "Measurement",
+        topics: ["Non-standard units", "Handspan", "Paces", "Comparing lengths"],
+        learningOutcomes: ["Estimates and compares lengths using non-standard body units."],
+        source: "NCERT Joyful Mathematics Class 1, Chapter 7 (2024-25)",
+      },
+      {
+        chapterNumber: 8,
+        chapterName: "Fun with Numbers",
+        topics: ["Counting up to 50", "Forward and backward counting"],
+        learningOutcomes: ["Sequences numbers up to 50 and finds missing numbers in patterns."],
+        source: "NCERT Joyful Mathematics Class 1, Chapter 8 (2024-25)",
+      },
+      {
+        chapterNumber: 9,
+        chapterName: "Utsav",
+        topics: ["Repeating patterns", "Shape and colour patterns"],
+        learningOutcomes: ["Extends simple repeating visual and numerical patterns."],
+        source: "NCERT Joyful Mathematics Class 1, Chapter 9 (2024-25)",
+      },
+      {
+        chapterNumber: 10,
+        chapterName: "How do I Spend My Day?",
+        topics: ["Daily routines", "Sequencing events in time", "Morning/Afternoon/Night"],
+        learningOutcomes: ["Orders daily activities chronologically."],
+        source: "NCERT Joyful Mathematics Class 1, Chapter 10 (2024-25)",
+      },
+      {
+        chapterNumber: 11,
+        chapterName: "How Many Times?",
+        topics: ["Counting in groups of 2, 5, and 10", "Early repeated addition"],
+        learningOutcomes: ["Groups items equally and counts in steps of 2 and 5."],
+        source: "NCERT Joyful Mathematics Class 1, Chapter 11 (2024-25)",
+      },
+      {
+        chapterNumber: 12,
+        chapterName: "How Much Can We Spend?",
+        topics: ["Indian currency coins and notes", "1, 2, 5, 10, 20 rupee denominations"],
+        learningOutcomes: ["Identifies common Indian currency coins and combines them for small purchases."],
+        source: "NCERT Joyful Mathematics Class 1, Chapter 12 (2024-25)",
+      },
+      {
+        chapterNumber: 13,
+        chapterName: "So Many Toys",
+        topics: ["Data handling", "Sorting objects", "Picture tables"],
+        learningOutcomes: ["Sorts objects by category and answers simple count questions."],
+        source: "NCERT Joyful Mathematics Class 1, Chapter 13 (2024-25)",
+      },
+    ],
+  },
+  {
+    class: 1,
+    board: "ICSE",
+    textbookTitle: "CISCE Mathematics Curriculum (Class 1)",
+    edition: "CISCE Preschool to Class VIII Curriculum Framework",
+    sourceUrl: "https://cisce.org",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "Pre-Number Concepts",
+        topics: ["Comparison of size", "Length", "Weight", "Positions"],
+        learningOutcomes: ["Uses comparison vocabulary: bigger/smaller, taller/shorter, heavier/lighter."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 1 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "Numbers up to 99",
+        topics: ["Reading and writing numbers 1 to 99", "Tens and ones", "Number names"],
+        learningOutcomes: ["Represents 2-digit numbers as groups of tens and ones."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 1 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "Addition and Subtraction (up to 20)",
+        topics: ["Single and double digit operations without regrouping", "Vertical and horizontal form"],
+        learningOutcomes: ["Performs single-digit addition and subtraction using number strips."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 1 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Geometry and Space",
+        topics: ["Basic 2D shapes: square, rectangle, triangle, circle", "Straight and curved lines"],
+        learningOutcomes: ["Identifies and traces basic plane shapes and line types."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 1 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "Money",
+        topics: ["Identification of coins and currency notes up to Rs 50", "Simple shopping problems"],
+        learningOutcomes: ["Calculates total cost of 2 small items in rupees."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 1 (CISCE-aligned)",
+      },
+    ],
+  },
+
+  // =========================================================================
+  // CLASS 2
+  // =========================================================================
+  {
+    class: 2,
+    board: "CBSE",
+    textbookTitle: "Joyful Mathematics Class 2",
+    edition: "NCERT NCF-FS 2023 / 2024-25 Edition",
+    sourceUrl: "https://ncert.nic.in/textbook.php?bejm1=0-11",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "A Day at the Beach",
+        topics: ["Counting in tens", "Group counting", "Estimating quantities"],
+        learningOutcomes: ["Counts large collections efficiently by bundling tens."],
+        source: "NCERT Joyful Mathematics Class 2, Chapter 1 (2024-25)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "Shapes Around Us",
+        topics: ["2D and 3D shapes", "Edges, corners, surfaces", "Footprints"],
+        learningOutcomes: ["Classifies objects based on flat and curved surfaces."],
+        source: "NCERT Joyful Mathematics Class 2, Chapter 2 (2024-25)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "Fun with Numbers",
+        topics: ["Place value up to 99", "Ginladi bead string", "Comparing 2-digit numbers"],
+        learningOutcomes: ["Compares two 2-digit numbers using place value reasoning."],
+        source: "NCERT Joyful Mathematics Class 2, Chapter 3 (2024-25)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Shadow Story",
+        topics: ["Symmetry", "Mirror halves", "Shadow shapes"],
+        learningOutcomes: ["Observes lines of symmetry in everyday shapes."],
+        source: "NCERT Joyful Mathematics Class 2, Chapter 4 (2024-25)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "Playing with Lines",
+        topics: ["Standing lines", "Slanting lines", "Sleeping lines", "Curved lines"],
+        learningOutcomes: ["Draws geometric lines to construct basic letters and shapes."],
+        source: "NCERT Joyful Mathematics Class 2, Chapter 5 (2024-25)",
+      },
+      {
+        chapterNumber: 6,
+        chapterName: "Decoration for Festival",
+        topics: ["2-digit addition with carryover", "2-digit subtraction with borrowing"],
+        learningOutcomes: ["Adds and subtracts 2-digit numbers in festive Indian context."],
+        source: "NCERT Joyful Mathematics Class 2, Chapter 6 (2024-25)",
+      },
+      {
+        chapterNumber: 7,
+        chapterName: "Rani's Gift",
+        topics: ["Measurement of capacity", "Jugs and glasses", "Comparing volume"],
+        learningOutcomes: ["Measures and compares capacity using uniform non-standard containers."],
+        source: "NCERT Joyful Mathematics Class 2, Chapter 7 (2024-25)",
+      },
+      {
+        chapterNumber: 8,
+        chapterName: "Grouping and Sharing",
+        topics: ["Equal sharing", "Repeated subtraction", "Equal groups (early multiplication)"],
+        learningOutcomes: ["Distributes items equally into groups and records shares."],
+        source: "NCERT Joyful Mathematics Class 2, Chapter 8 (2024-25)",
+      },
+      {
+        chapterNumber: 9,
+        chapterName: "Which Season is It?",
+        topics: ["Days of week", "Months of year", "Indian seasons (Ritus)"],
+        learningOutcomes: ["Reads calendar schedules and sequences days and months."],
+        source: "NCERT Joyful Mathematics Class 2, Chapter 9 (2024-25)",
+      },
+      {
+        chapterNumber: 10,
+        chapterName: "Fun at the Fair",
+        topics: ["Money math", "Adding denominations", "Making exact change up to Rs 100"],
+        learningOutcomes: ["Calculates total cost and change received at a fair or kirana shop."],
+        source: "NCERT Joyful Mathematics Class 2, Chapter 10 (2024-25)",
+      },
+      {
+        chapterNumber: 11,
+        chapterName: "Data Handling",
+        topics: ["Pictographs", "Counting tally marks", "Classroom surveys"],
+        learningOutcomes: ["Represents collected survey information on simple picture charts."],
+        source: "NCERT Joyful Mathematics Class 2, Chapter 11 (2024-25)",
+      },
+    ],
+  },
+  {
+    class: 2,
+    board: "ICSE",
+    textbookTitle: "CISCE Mathematics Curriculum (Class 2)",
+    edition: "CISCE Preschool to Class VIII Curriculum Framework",
+    sourceUrl: "https://cisce.org",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "Numbers up to 999",
+        topics: ["3-digit numbers", "Place value (hundreds, tens, units)", "Expanded notation"],
+        learningOutcomes: ["Reads, writes, and expands 3-digit whole numbers up to 999."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 2 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "Addition and Subtraction with Regrouping",
+        topics: ["2-digit and 3-digit addition with carry", "Subtraction with borrowing"],
+        learningOutcomes: ["Solves 2-digit column addition and subtraction requiring regrouping."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 2 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "Multiplication and Division Readiness",
+        topics: ["Multiplication as repeated addition", "Division as repeated subtraction / sharing"],
+        learningOutcomes: ["Applies multiplication facts of 2, 3, 5, and 10 to real-life problems."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 2 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Measurement: Length, Weight, Capacity",
+        topics: ["Standard units: centimetre, metre, gram, kilogram, litre"],
+        learningOutcomes: ["Chooses appropriate metric units for everyday measuring tasks."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 2 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "Money & Time",
+        topics: ["Rupees and paise", "Reading clock to hour and half-hour"],
+        learningOutcomes: ["Reads clock times and solves simple word problems with money."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 2 (CISCE-aligned)",
+      },
+    ],
+  },
+
+  // =========================================================================
+  // CLASS 3
+  // =========================================================================
+  {
+    class: 3,
+    board: "CBSE",
+    textbookTitle: "Maths Mela Class 3",
+    edition: "NCERT NCF-SE 2023 / 2024-25 Edition",
+    sourceUrl: "https://ncert.nic.in/textbook.php?cejm1=0-14",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "What's in a Name?",
+        topics: ["Counting letters and objects", "Data organization", "Number names"],
+        learningOutcomes: ["Collects and organizes frequency data from names and words."],
+        source: "NCERT Maths Mela Class 3, Chapter 1 (2024-25)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "Toy Joy",
+        topics: ["Addition and subtraction within 100", "Money transactions", "Toy shop pricing"],
+        learningOutcomes: ["Calculates totals and change during play purchases."],
+        source: "NCERT Maths Mela Class 3, Chapter 2 (2024-25)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "Double Century",
+        topics: ["3-digit numbers up to 200", "Place value", "Cricket scores and centuries"],
+        learningOutcomes: ["Compares scores and calculates runs needed for centuries."],
+        source: "NCERT Maths Mela Class 3, Chapter 3 (2024-25)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Vacation with My Nani Maa",
+        topics: ["Calendar", "Time intervals", "Travel planning", "Distance basics"],
+        learningOutcomes: ["Calculates duration of trips and visits using a calendar."],
+        source: "NCERT Maths Mela Class 3, Chapter 4 (2024-25)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "Fun with Shapes",
+        topics: ["Tiling patterns", "Tangrams", "2D geometric shapes"],
+        learningOutcomes: ["Identifies shapes that tile a plane without gaps."],
+        source: "NCERT Maths Mela Class 3, Chapter 5 (2024-25)",
+      },
+      {
+        chapterNumber: 6,
+        chapterName: "House of Hundreds – I",
+        topics: ["Numbers from 100 to 500", "Expanded notation", "Number line jumps"],
+        learningOutcomes: ["Represents 3-digit numbers on an open number line."],
+        source: "NCERT Maths Mela Class 3, Chapter 6 (2024-25)",
+      },
+      {
+        chapterNumber: 7,
+        chapterName: "Raksha",
+        topics: ["Measurement of length", "Metres and centimetres", "Ribbons and thread"],
+        learningOutcomes: ["Converts simple metres to centimetres and measures lengths."],
+        source: "NCERT Maths Mela Class 3, Chapter 7 (2024-25)",
+      },
+      {
+        chapterNumber: 8,
+        chapterName: "Fair Share",
+        topics: ["Sharing division", "Equal groups", "Remainder intuition"],
+        learningOutcomes: ["Partitions collections into equal shares and notes leftovers."],
+        source: "NCERT Maths Mela Class 3, Chapter 8 (2024-25)",
+      },
+      {
+        chapterNumber: 9,
+        chapterName: "House of Hundreds – II",
+        topics: ["Numbers from 500 to 1000", "Place value magnitude", "Rounding to nearest 10"],
+        learningOutcomes: ["Orders 3-digit numbers up to 1000 and estimates sums."],
+        source: "NCERT Maths Mela Class 3, Chapter 9 (2024-25)",
+      },
+      {
+        chapterNumber: 10,
+        chapterName: "Fun at Class Party!",
+        topics: ["Multiplication facts (2 to 9)", "Arrays", "Repeated addition in party planning"],
+        learningOutcomes: ["Applies multiplication facts to calculate catering and party supplies."],
+        source: "NCERT Maths Mela Class 3, Chapter 10 (2024-25)",
+      },
+      {
+        chapterNumber: 11,
+        chapterName: "Filling and Lifting",
+        topics: ["Weight (kg, g)", "Capacity (L, mL)", "Pan balance"],
+        learningOutcomes: ["Estimates and compares weights using standard weights."],
+        source: "NCERT Maths Mela Class 3, Chapter 11 (2024-25)",
+      },
+      {
+        chapterNumber: 12,
+        chapterName: "Give and Take",
+        topics: ["3-digit addition and subtraction with regrouping", "Mental math strategies"],
+        learningOutcomes: ["Executes 3-digit addition and subtraction with borrowing."],
+        source: "NCERT Maths Mela Class 3, Chapter 12 (2024-25)",
+      },
+      {
+        chapterNumber: 13,
+        chapterName: "Time Goes On",
+        topics: ["Telling time to 5 minutes", "AM and PM", "Timeline of daily life"],
+        learningOutcomes: ["Reads analogue and digital clocks to 5-minute precision."],
+        source: "NCERT Maths Mela Class 3, Chapter 13 (2024-25)",
+      },
+      {
+        chapterNumber: 14,
+        chapterName: "The Surajkund Fair",
+        topics: ["Comprehensive multi-step operations", "Money", "Handicrafts pricing"],
+        learningOutcomes: ["Solves multi-step real-world problems involving shopping and travel."],
+        source: "NCERT Maths Mela Class 3, Chapter 14 (2024-25)",
+      },
+    ],
+  },
+  {
+    class: 3,
+    board: "ICSE",
+    textbookTitle: "CISCE Mathematics Curriculum (Class 3)",
+    edition: "CISCE Preschool to Class VIII Curriculum Framework",
+    sourceUrl: "https://cisce.org",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "Numbers up to 9999",
+        topics: ["4-digit numbers", "Place value and face value", "Successor and predecessor"],
+        learningOutcomes: ["Composes and decomposes 4-digit numbers with thousands place."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 3 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "Addition and Subtraction of 4-Digit Numbers",
+        topics: ["Column addition and subtraction with multiple regroupings", "Estimating answers"],
+        learningOutcomes: ["Adds and subtracts numbers up to 4 digits with regrouping."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 3 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "Multiplication (up to 3-digit by 1-digit)",
+        topics: ["Multiplication tables up to 12", "Properties of multiplication", "Word problems"],
+        learningOutcomes: ["Multiplies 2-digit and 3-digit numbers by 1-digit multipliers."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 3 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Division Basics",
+        topics: ["Division as inverse of multiplication", "Quotient and remainder", "Long division intro"],
+        learningOutcomes: ["Divides a 2-digit number by a 1-digit number with quotient and remainder."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 3 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "Fractions Introduction",
+        topics: ["Halves, thirds, quarters", "Numerator and denominator", "Fraction of a collection"],
+        learningOutcomes: ["Identifies fractional parts of wholes and collections."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 3 (CISCE-aligned)",
+      },
+    ],
+  },
+
+  // =========================================================================
+  // CLASS 4
+  // =========================================================================
+  {
+    class: 4,
+    board: "CBSE",
+    textbookTitle: "Math-Magic 4",
+    edition: "NCERT Rationalised Edition 2023-24 / 2024-25",
+    sourceUrl: "https://ncert.nic.in/textbook.php?demh1=0-14",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "Building with Bricks",
+        topics: ["Floor and brick patterns", "Arch patterns", "Drawing 3D shapes"],
+        learningOutcomes: ["Visualises architectural patterns and draws isometric projections of bricks."],
+        source: "NCERT Math-Magic 4, Chapter 1 (2024-25)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "Long and Short",
+        topics: ["Measurement of length", "Kilometres, metres, centimetres", "Marathon running"],
+        learningOutcomes: ["Converts between metric length units and solves marathon word problems."],
+        source: "NCERT Math-Magic 4, Chapter 2 (2024-25)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "A Trip to Bhopal",
+        topics: ["Multi-step estimation", "Bus seat allocation", "Diesel costs", "Bhimbetka caves time"],
+        learningOutcomes: ["Applies arithmetic operations to complex travel budgeting scenarios."],
+        source: "NCERT Math-Magic 4, Chapter 3 (2024-25)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Tick-Tick-Tick",
+        topics: ["Clock reading", "24-hour clock", "Railway timetables", "Expiry dates"],
+        learningOutcomes: ["Converts between 12-hour and 24-hour time and calculates manufacturing age."],
+        source: "NCERT Math-Magic 4, Chapter 4 (2024-25)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "The Way the World Looks",
+        topics: ["Aerial view", "Top, side, and front views", "Map routes"],
+        learningOutcomes: ["Interprets perspective views and traces navigational paths on maps."],
+        source: "NCERT Math-Magic 4, Chapter 5 (2024-25)",
+      },
+      {
+        chapterNumber: 6,
+        chapterName: "The Junk Seller",
+        topics: ["Multiplication with money", "Loan calculations", "Rate lists", "Mental arithmetic"],
+        learningOutcomes: ["Multiplies 2-digit numbers by splitting tens and calculates profit."],
+        source: "NCERT Math-Magic 4, Chapter 6 (2024-25)",
+      },
+      {
+        chapterNumber: 7,
+        chapterName: "Jugs and Mugs",
+        topics: ["Capacity in litres and millilitres", "Medicine dosages", "Water consumption"],
+        learningOutcomes: ["Adds and subtracts liquid measurements in millilitres and litres."],
+        source: "NCERT Math-Magic 4, Chapter 7 (2024-25)",
+      },
+      {
+        chapterNumber: 8,
+        chapterName: "Carts and Wheels",
+        topics: ["Circles", "Radius and diameter", "Compass drawing", "Centre of circular shapes"],
+        learningOutcomes: ["Draws circles with a compass and identifies radius and diameter."],
+        source: "NCERT Math-Magic 4, Chapter 8 (2024-25)",
+      },
+      {
+        chapterNumber: 9,
+        chapterName: "Halves and Quarters",
+        topics: ["Unit fractions (1/2, 1/4, 3/4)", "Fraction of a metre and litre", "Equal division"],
+        learningOutcomes: ["Calculates fractional portions of quantities (e.g. 1/4 of 1 metre = 25 cm)."],
+        source: "NCERT Math-Magic 4, Chapter 9 (2024-25)",
+      },
+      {
+        chapterNumber: 10,
+        chapterName: "Play with Patterns",
+        topics: ["Number patterns", "Magic squares", "Alphabet secret codes"],
+        learningOutcomes: ["Identifies repeating and growing geometric and algebraic rules."],
+        source: "NCERT Math-Magic 4, Chapter 10 (2024-25)",
+      },
+      {
+        chapterNumber: 11,
+        chapterName: "Tables and Shares",
+        topics: ["Multiplication tables up to 15", "Division using repeated subtraction and sharing"],
+        learningOutcomes: ["Solves division problems with 1-digit divisors and remainders."],
+        source: "NCERT Math-Magic 4, Chapter 11 (2024-25)",
+      },
+      {
+        chapterNumber: 12,
+        chapterName: "How Heavy? How Light?",
+        topics: ["Kilograms and grams", "Balance scales", "Postal weights and parcel charges"],
+        learningOutcomes: ["Converts between kg and g and calculates postage tariffs."],
+        source: "NCERT Math-Magic 4, Chapter 12 (2024-25)",
+      },
+      {
+        chapterNumber: 13,
+        chapterName: "Fields and Fences",
+        topics: ["Perimeter of polygons", "Boundary measurement", "Square grids"],
+        learningOutcomes: ["Calculates perimeter of irregular and regular polygons by summing sides."],
+        source: "NCERT Math-Magic 4, Chapter 13 (2024-25)",
+      },
+      {
+        chapterNumber: 14,
+        chapterName: "Smart Charts",
+        topics: ["Bar charts", "Chapati charts (pie charts intro)", "Frequency tables"],
+        learningOutcomes: ["Reads bar charts and extracts comparative insights."],
+        source: "NCERT Math-Magic 4, Chapter 14 (2024-25)",
+      },
+    ],
+  },
+  {
+    class: 4,
+    board: "ICSE",
+    textbookTitle: "CISCE Mathematics Curriculum (Class 4)",
+    edition: "CISCE Preschool to Class VIII Curriculum Framework",
+    sourceUrl: "https://cisce.org",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "Numbers up to 1,00,000 (Lakhs)",
+        topics: ["5-digit and 6-digit numbers", "Indian place value chart", "Rounding to nearest 10, 100, 1000"],
+        learningOutcomes: ["Writes and reads numbers up to five digits with period commas."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 4 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "Multiplication and Division Fluency",
+        topics: ["3-digit by 2-digit multiplication", "Division by 2-digit numbers", "Word problems"],
+        learningOutcomes: ["Executes long division with 2-digit divisors and checks answer with formula."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 4 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "Factors and Multiples",
+        topics: ["Prime and composite numbers", "Tests of divisibility (2, 3, 5, 10)", "HCF and LCM intro"],
+        learningOutcomes: ["Determines all factors of a number and finds common multiples."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 4 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Fractions Operations",
+        topics: ["Equivalent fractions", "Proper, improper, mixed fractions", "Addition and subtraction with like denominators"],
+        learningOutcomes: ["Simplifies fractions and performs addition of like fractions."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 4 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "Decimals Introduction",
+        topics: ["Tenths and hundredths", "Decimal point notation", "Rupees and paise decimal conversion"],
+        learningOutcomes: ["Expresses fractions with denominators 10 and 100 as decimals."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 4 (CISCE-aligned)",
+      },
+    ],
+  },
+
+  // =========================================================================
+  // CLASS 5
+  // =========================================================================
+  {
+    class: 5,
+    board: "CBSE",
+    textbookTitle: "Math-Magic 5",
+    edition: "NCERT Rationalised Edition 2023-24 / 2024-25",
+    sourceUrl: "https://ncert.nic.in/textbook.php?eemh1=0-14",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "The Fish Tale",
+        topics: ["Large numbers (Lakhs and Crores)", "Boat speed, distance and time", "Fisherwomen bank loans"],
+        learningOutcomes: ["Processes numbers up to crores in commercial fishery contexts."],
+        source: "NCERT Math-Magic 5, Chapter 1 (2024-25)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "Shapes and Angles",
+        topics: ["Right angles", "Acute and obtuse angles", "Angle tester", "Angles in names and yoga postures"],
+        learningOutcomes: ["Classifies angles and measures opening of scissors and clocks."],
+        source: "NCERT Math-Magic 5, Chapter 2 (2024-25)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "How Many Squares?",
+        topics: ["Area of rectangles and triangles", "Square grid units", "Postage stamp areas"],
+        learningOutcomes: ["Calculates area using square centimeter grids and decomposes composite figures."],
+        source: "NCERT Math-Magic 5, Chapter 3 (2024-25)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Parts and Wholes",
+        topics: ["Fraction representations", "Equivalent fractions", "National flags fractions", "Chocolate shares"],
+        learningOutcomes: ["Finds equivalent fractions and performs addition with like denominators."],
+        source: "NCERT Math-Magic 5, Chapter 4 (2024-25)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "Does It Look the Same?",
+        topics: ["Rotational symmetry", "Half turn (1/2)", "Quarter turn (1/4)", "Mirror symmetry"],
+        learningOutcomes: ["Determines whether figures look identical after 1/2 or 1/4 rotations."],
+        source: "NCERT Math-Magic 5, Chapter 5 (2024-25)",
+      },
+      {
+        chapterNumber: 6,
+        chapterName: "Be My Multiple, I'll Be Your Factor",
+        topics: ["Factors and multiples", "Common multiples", "Venn diagrams for factors", "Bangles and seeds"],
+        learningOutcomes: ["Identifies common factors and the lowest common multiple."],
+        source: "NCERT Math-Magic 5, Chapter 6 (2024-25)",
+      },
+      {
+        chapterNumber: 7,
+        chapterName: "Can You See the Pattern?",
+        topics: ["Turns and patterns", "Magic hexagons", "Calendar patterns", "Number palindromes"],
+        learningOutcomes: ["Discovers transformation rules involving 45, 90, and 180 degree shifts."],
+        source: "NCERT Math-Magic 5, Chapter 7 (2024-25)",
+      },
+      {
+        chapterNumber: 8,
+        chapterName: "Mapping Your Way",
+        topics: ["Maps of India and New Delhi (Rajpath / Kartavya Path)", "Scale representation", "Angles on maps"],
+        learningOutcomes: ["Uses distance scales (e.g. 1 cm = 200 km) to compute real-world distances."],
+        source: "NCERT Math-Magic 5, Chapter 8 (2024-25)",
+      },
+      {
+        chapterNumber: 9,
+        chapterName: "Boxes and Sketches",
+        topics: ["3D nets of cubes and open boxes", "Deep drawings", "Floor maps"],
+        learningOutcomes: ["Folds 2D paper nets mentally to determine valid 3D cubes."],
+        source: "NCERT Math-Magic 5, Chapter 9 (2024-25)",
+      },
+      {
+        chapterNumber: 10,
+        chapterName: "Tenths and Hundredths",
+        topics: ["Decimals in metric measures", "Rupees and paise decimals", "Frog jumps length comparison"],
+        learningOutcomes: ["Reads and writes decimals up to hundredths and compares measurement records."],
+        source: "NCERT Math-Magic 5, Chapter 10 (2024-25)",
+      },
+      {
+        chapterNumber: 11,
+        chapterName: "Area and its Boundary",
+        topics: ["Perimeter vs area formulas", "Belt around table", "Comparing rectangles of equal area"],
+        learningOutcomes: ["Applies length × breadth for rectangular areas and perimeter summation."],
+        source: "NCERT Math-Magic 5, Chapter 11 (2024-25)",
+      },
+      {
+        chapterNumber: 12,
+        chapterName: "Smart Charts",
+        topics: ["Tally marks table", "Family trees", "Growth charts of plants", "Bar graphs"],
+        learningOutcomes: ["Interprets plant growth line graphs and compiles multi-category tally tables."],
+        source: "NCERT Math-Magic 5, Chapter 12 (2024-25)",
+      },
+      {
+        chapterNumber: 13,
+        chapterName: "Ways to Multiply and Divide",
+        topics: ["Bela's method (standard multiplication)", "Farmer Karunya land salary", "Long division algorithm"],
+        learningOutcomes: ["Multiplies 3-digit by 2-digit numbers and divides by 2-digit numbers."],
+        source: "NCERT Math-Magic 5, Chapter 13 (2024-25)",
+      },
+      {
+        chapterNumber: 14,
+        chapterName: "How Big? How Heavy?",
+        topics: ["Volume of solids", "Packing cubes", "Measuring displacement in water", "Weights of coins"],
+        learningOutcomes: ["Calculates volume of cuboids in cubic centimetres and uses water displacement."],
+        source: "NCERT Math-Magic 5, Chapter 14 (2024-25)",
+      },
+    ],
+  },
+  {
+    class: 5,
+    board: "ICSE",
+    textbookTitle: "CISCE Mathematics Curriculum (Class 5)",
+    edition: "CISCE Preschool to Class VIII Curriculum Framework",
+    sourceUrl: "https://cisce.org",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "Numbers up to Crores and International System",
+        topics: ["7-digit and 8-digit numbers", "Indian vs International place value (Millions)", "Rounding large numbers"],
+        learningOutcomes: ["Compares Indian Lakhs/Crores with International Millions/Billions system."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 5 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "Four Fundamental Operations & BODMAS",
+        topics: ["Multi-digit multiplication", "Division by 3-digit numbers", "Order of operations (BODMAS)"],
+        learningOutcomes: ["Solves expressions with brackets and multiple arithmetic operators strictly using BODMAS."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 5 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "Fractions & Decimals Fluency",
+        topics: ["Addition and subtraction of unlike fractions", "Multiplication and division of fractions", "Decimal arithmetic"],
+        learningOutcomes: ["Performs all 4 operations on fractional and decimal numbers."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 5 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Percentage and Unitary Method",
+        topics: ["Concept of percentage (out of 100)", "Unitary method in cost, time, and work"],
+        learningOutcomes: ["Calculates percentages of quantities and solves unitary direct proportion word problems."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 5 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "Geometry & Mensuration: Triangles, Circles, Perimeter, Area",
+        topics: ["Classification of triangles", "Circle chord, arc, circumference", "Area of rectangular surfaces"],
+        learningOutcomes: ["Calculates perimeter and area of compound rectangular shapes with formal units."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 5 (CISCE-aligned)",
+      },
+    ],
+  },
+
+  // =========================================================================
+  // CLASS 6
+  // =========================================================================
+  {
+    class: 6,
+    board: "CBSE",
+    textbookTitle: "Ganita Prakash Class 6",
+    edition: "NCERT NCF-SE 2023 / 2024-25 Edition",
+    sourceUrl: "https://ncert.nic.in/textbook.php?fegp1=0-10",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "Patterns in Mathematics",
+        topics: ["Number sequences", "Visual patterns", "Introduction to variables"],
+        learningOutcomes: ["Generalises numerical and geometric patterns into symbolic rules."],
+        source: "NCERT Ganita Prakash Class 6, Chapter 1 (2024-25)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "Lines and Angles",
+        topics: ["Point, ray, segment", "Intersecting and parallel lines", "Measuring angles with protractor"],
+        learningOutcomes: ["Classifies pairs of lines and constructs acute, obtuse, and reflex angles."],
+        source: "NCERT Ganita Prakash Class 6, Chapter 2 (2024-25)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "Number Play",
+        topics: ["Large numbers", "Place value", "Estimation and rounding", "Roman numerals"],
+        learningOutcomes: ["Estimates products and sums of 6-digit numbers in realistic situations."],
+        source: "NCERT Ganita Prakash Class 6, Chapter 3 (2024-25)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Data Handling and Presentation",
+        topics: ["Organisation of data", "Tally charts", "Bar graphs with scaled axes"],
+        learningOutcomes: ["Constructs and interprets double and single bar graphs."],
+        source: "NCERT Ganita Prakash Class 6, Chapter 4 (2024-25)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "Prime Time",
+        topics: ["Prime factorisation", "Highest Common Factor (HCF)", "Lowest Common Multiple (LCM)", "Divisibility tests"],
+        learningOutcomes: ["Determines prime factor trees, HCF, and LCM of 2 and 3 numbers."],
+        source: "NCERT Ganita Prakash Class 6, Chapter 5 (2024-25)",
+      },
+      {
+        chapterNumber: 6,
+        chapterName: "Perimeter and Area",
+        topics: ["Perimeter of regular polygons", "Area of rectangle and square", "Formula derivation"],
+        learningOutcomes: ["Calculates perimeter and area using standard algebraic formulas."],
+        source: "NCERT Ganita Prakash Class 6, Chapter 6 (2024-25)",
+      },
+      {
+        chapterNumber: 7,
+        chapterName: "Fractions",
+        topics: ["Fractions on number line", "Proper, improper, mixed", "Equivalent fractions", "Comparing unlike fractions"],
+        learningOutcomes: ["Places fractions on number line and performs addition/subtraction of unlike fractions."],
+        source: "NCERT Ganita Prakash Class 6, Chapter 7 (2024-25)",
+      },
+      {
+        chapterNumber: 8,
+        chapterName: "Playing with Constructions",
+        topics: ["Compass and ruler constructions", "Perpendicular bisector", "Angle bisector"],
+        learningOutcomes: ["Constructs perpendicular bisectors and standard 60, 90, 120 degree angles."],
+        source: "NCERT Ganita Prakash Class 6, Chapter 8 (2024-25)",
+      },
+      {
+        chapterNumber: 9,
+        chapterName: "Symmetry",
+        topics: ["Line symmetry", "Multiple lines of symmetry in regular polygons", "Reflection"],
+        learningOutcomes: ["Identifies axes of symmetry in letters, shapes, and natural figures."],
+        source: "NCERT Ganita Prakash Class 6, Chapter 9 (2024-25)",
+      },
+      {
+        chapterNumber: 10,
+        chapterName: "The Other Side of Zero",
+        topics: ["Negative numbers", "Integers on number line", "Addition and subtraction of integers"],
+        learningOutcomes: ["Orders integers and performs operations on directed positive and negative values."],
+        source: "NCERT Ganita Prakash Class 6, Chapter 10 (2024-25)",
+      },
+    ],
+  },
+  {
+    class: 6,
+    board: "ICSE",
+    textbookTitle: "CISCE Mathematics Curriculum (Class 6)",
+    edition: "CISCE Preschool to Class VIII Curriculum Framework",
+    sourceUrl: "https://cisce.org",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "Integers & Number Line",
+        topics: ["Positive and negative integers", "Absolute value", "Addition and subtraction rules"],
+        learningOutcomes: ["Performs multi-step integer arithmetic and evaluates absolute value."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 6 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "Fractions and Decimals",
+        topics: ["Operations on fractions", "Terminating decimals", "Conversion between fractions and decimals"],
+        learningOutcomes: ["Solves complex multi-operator fractional word problems."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 6 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "Ratio, Proportion and Unitary Method",
+        topics: ["Concept of ratio in simplest form", "Proportion extremes and means", "Unitary method"],
+        learningOutcomes: ["Verifies proportionality using cross product rule."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 6 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Algebra: Expressions and Simple Equations",
+        topics: ["Variables, constants, coefficients", "Like and unlike terms", "Linear equations in one variable"],
+        learningOutcomes: ["Solves basic one-step and two-step linear equations algebraically."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 6 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "Geometry: Lines, Angles and Triangles",
+        topics: ["Complementary and supplementary angles", "Angle sum property of triangle"],
+        learningOutcomes: ["Calculates unknown angles using supplementary and triangle angle sum theorems."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 6 (CISCE-aligned)",
+      },
+    ],
+  },
+
+  // =========================================================================
+  // CLASS 7
+  // =========================================================================
+  {
+    class: 7,
+    board: "CBSE",
+    textbookTitle: "Mathematics Class 7",
+    edition: "NCERT Rationalised Edition 2023-24 / 2024-25",
+    sourceUrl: "https://ncert.nic.in/textbook.php?gemh1=0-13",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "Integers",
+        topics: ["Properties of addition and subtraction of integers", "Multiplication and division of integers"],
+        learningOutcomes: ["Applies commutative, associative, and distributive properties to signed integers."],
+        source: "NCERT Mathematics Class 7, Chapter 1 (2024-25)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "Fractions and Decimals",
+        topics: ["Multiplication and division of fractions", "Multiplication and division of decimal numbers"],
+        learningOutcomes: ["Solves real-life scenarios requiring division of fractions and decimal scaling."],
+        source: "NCERT Mathematics Class 7, Chapter 2 (2024-25)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "Data Handling",
+        topics: ["Arithmetic mean, median, mode", "Range", "Bar graphs", "Probability basics"],
+        learningOutcomes: ["Computes measures of central tendency for discrete data."],
+        source: "NCERT Mathematics Class 7, Chapter 3 (2024-25)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Simple Equations",
+        topics: ["Setting up equations", "Solving equations by balancing and transposition", "Applications"],
+        learningOutcomes: ["Translates word statements into algebraic equations and solves for the unknown."],
+        source: "NCERT Mathematics Class 7, Chapter 4 (2024-25)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "Lines and Angles",
+        topics: ["Complementary and supplementary angles", "Adjacent and vertically opposite angles", "Transversals"],
+        learningOutcomes: ["Identifies alternate interior and corresponding angles formed by parallel lines."],
+        source: "NCERT Mathematics Class 7, Chapter 5 (2024-25)",
+      },
+      {
+        chapterNumber: 6,
+        chapterName: "The Triangle and its Properties",
+        topics: ["Medians and altitudes", "Exterior angle property", "Angle sum property", "Pythagoras property"],
+        learningOutcomes: ["Calculates sides of right-angled triangles using the Pythagorean theorem."],
+        source: "NCERT Mathematics Class 7, Chapter 6 (2024-25)",
+      },
+      {
+        chapterNumber: 7,
+        chapterName: "Comparing Quantities",
+        topics: ["Percentage", "Profit and loss percentage", "Simple interest calculation"],
+        learningOutcomes: ["Calculates simple interest on loans and percentage gains/losses."],
+        source: "NCERT Mathematics Class 7, Chapter 7 (2024-25)",
+      },
+      {
+        chapterNumber: 8,
+        chapterName: "Rational Numbers",
+        topics: ["Positive and negative rational numbers", "Standard form", "Operations on rational numbers"],
+        learningOutcomes: ["Executes addition, subtraction, multiplication, and division on rational p/q numbers."],
+        source: "NCERT Mathematics Class 7, Chapter 8 (2024-25)",
+      },
+      {
+        chapterNumber: 9,
+        chapterName: "Perimeter and Area",
+        topics: ["Area of parallelogram and triangle", "Circumference and area of circle"],
+        learningOutcomes: ["Computes circular circumference and area using pi = 22/7."],
+        source: "NCERT Mathematics Class 7, Chapter 9 (2024-25)",
+      },
+      {
+        chapterNumber: 10,
+        chapterName: "Algebraic Expressions",
+        topics: ["Terms, factors, coefficients", "Monomials, binomials, polynomials", "Addition and subtraction of expressions"],
+        learningOutcomes: ["Simplifies algebraic expressions by combining like terms and finds value for given variable."],
+        source: "NCERT Mathematics Class 7, Chapter 10 (2024-25)",
+      },
+      {
+        chapterNumber: 11,
+        chapterName: "Exponents and Powers",
+        topics: ["Laws of exponents", "Decimal number system in scientific notation"],
+        learningOutcomes: ["Applies index laws (a^m × a^n = a^(m+n)) and writes numbers in standard exponential form."],
+        source: "NCERT Mathematics Class 7, Chapter 11 (2024-25)",
+      },
+      {
+        chapterNumber: 12,
+        chapterName: "Symmetry",
+        topics: ["Rotational symmetry", "Order of rotational symmetry", "Point symmetry"],
+        learningOutcomes: ["Finds angle of rotation and order of symmetry for regular polygons."],
+        source: "NCERT Mathematics Class 7, Chapter 12 (2024-25)",
+      },
+      {
+        chapterNumber: 13,
+        chapterName: "Visualising Solid Shapes",
+        topics: ["Faces, edges, vertices", "Euler's formula for polyhedra", "Cross sections of solids"],
+        learningOutcomes: ["Verifies F + V - E = 2 for 3D polyhedra."],
+        source: "NCERT Mathematics Class 7, Chapter 13 (2024-25)",
+      },
+    ],
+  },
+  {
+    class: 7,
+    board: "ICSE",
+    textbookTitle: "CISCE Mathematics Curriculum (Class 7)",
+    edition: "CISCE Preschool to Class VIII Curriculum Framework",
+    sourceUrl: "https://cisce.org",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "Rational Numbers & Exponents",
+        topics: ["Rational numbers representation", "Positive and negative exponents", "Laws of indices"],
+        learningOutcomes: ["Simplifies exponential expressions containing negative indices."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 7 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "Algebraic Expressions & Linear Equations",
+        topics: ["Multiplication of polynomials", "Linear equations with fractional coefficients", "Word problems"],
+        learningOutcomes: ["Solves linear equations involving brackets and fractional terms."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 7 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "Commercial Arithmetic: Percentage, Profit, Loss, Simple Interest",
+        topics: ["Cost price, selling price, profit/loss percentage", "Discount and sales tax", "Simple interest formula"],
+        learningOutcomes: ["Calculates net selling price after discount and computes interest on term deposits."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 7 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Geometry: Congruency of Triangles & Constructions",
+        topics: ["Congruence conditions: SSS, SAS, ASA, RHS", "Ruler and compass constructions"],
+        learningOutcomes: ["Proves congruency of triangles using formal geometric justifications."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 7 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "Mensuration: Perimeter and Area of Plane Figures",
+        topics: ["Triangles, parallelograms, rhombuses, trapeziums, circles", "Path area problems"],
+        learningOutcomes: ["Finds area of running tracks and borders around rectangular fields."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 7 (CISCE-aligned)",
+      },
+    ],
+  },
+
+  // =========================================================================
+  // CLASS 8
+  // =========================================================================
+  {
+    class: 8,
+    board: "CBSE",
+    textbookTitle: "Mathematics Class 8",
+    edition: "NCERT Rationalised Edition 2023-24 / 2024-25",
+    sourceUrl: "https://ncert.nic.in/textbook.php?hemh1=0-13",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "Rational Numbers",
+        topics: ["Properties of rational numbers", "Representation on number line", "Finding rational numbers between two numbers"],
+        learningOutcomes: ["Applies closure, commutativity, and associativity to rational operations."],
+        source: "NCERT Mathematics Class 8, Chapter 1 (2024-25)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "Linear Equations in One Variable",
+        topics: ["Solving equations with variables on both sides", "Equations reducible to simpler linear form", "Word problems"],
+        learningOutcomes: ["Solves complex linear equations and models age/digit word problems."],
+        source: "NCERT Mathematics Class 8, Chapter 2 (2024-25)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "Understanding Quadrilaterals",
+        topics: ["Angle sum of polygons", "Properties of parallelogram, rhombus, rectangle, square, kite"],
+        learningOutcomes: ["Uses interior angle sum formula (n-2)×180 and exterior angle sum = 360."],
+        source: "NCERT Mathematics Class 8, Chapter 3 (2024-25)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Data Handling",
+        topics: ["Bar graphs", "Histograms", "Pie charts (circle graphs)", "Probability of events"],
+        learningOutcomes: ["Constructs pie charts from percentage data and computes theoretical probability."],
+        source: "NCERT Mathematics Class 8, Chapter 4 (2024-25)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "Squares and Square Roots",
+        topics: ["Properties of square numbers", "Finding square roots by prime factorisation and long division method"],
+        learningOutcomes: ["Computes square roots of large integers and decimals via long division."],
+        source: "NCERT Mathematics Class 8, Chapter 5 (2024-25)",
+      },
+      {
+        chapterNumber: 6,
+        chapterName: "Cubes and Cube Roots",
+        topics: ["Cubes of numbers", "Cube roots by prime factorisation"],
+        learningOutcomes: ["Determines whether a number is a perfect cube and extracts cube root."],
+        source: "NCERT Mathematics Class 8, Chapter 6 (2024-25)",
+      },
+      {
+        chapterNumber: 7,
+        chapterName: "Comparing Quantities",
+        topics: ["Compound interest formula A = P(1 + R/100)^n", "Compounded annually and half-yearly", "Depreciation"],
+        learningOutcomes: ["Calculates compound interest and population growth using exponential formula."],
+        source: "NCERT Mathematics Class 8, Chapter 7 (2024-25)",
+      },
+      {
+        chapterNumber: 8,
+        chapterName: "Algebraic Expressions and Identities",
+        topics: ["Multiplication of polynomials", "Standard identities (a+b)^2, (a-b)^2, a^2 - b^2, (x+a)(x+b)"],
+        learningOutcomes: ["Applies standard algebraic identities to expand products and evaluate numbers quickly."],
+        source: "NCERT Mathematics Class 8, Chapter 8 (2024-25)",
+      },
+      {
+        chapterNumber: 9,
+        chapterName: "Mensuration",
+        topics: ["Area of trapezium and general quadrilateral", "Surface area and volume of cube, cuboid, cylinder"],
+        learningOutcomes: ["Calculates total and lateral surface area and volume of cylinders and cuboids."],
+        source: "NCERT Mathematics Class 8, Chapter 9 (2024-25)",
+      },
+      {
+        chapterNumber: 10,
+        chapterName: "Exponents and Powers",
+        topics: ["Negative powers", "Laws of exponents", "Standard form for microscopic numbers"],
+        learningOutcomes: ["Expresses very small and very large scientific measurements in standard index form."],
+        source: "NCERT Mathematics Class 8, Chapter 10 (2024-25)",
+      },
+      {
+        chapterNumber: 11,
+        chapterName: "Direct and Inverse Proportions",
+        topics: ["Direct variation (x/y = k)", "Inverse variation (xy = k)", "Time and work, speed and time"],
+        learningOutcomes: ["Distinguishes direct vs inverse variations and solves multi-step proportional situations."],
+        source: "NCERT Mathematics Class 8, Chapter 11 (2024-25)",
+      },
+      {
+        chapterNumber: 12,
+        chapterName: "Factorisation",
+        topics: ["Common factors", "Factorisation by regrouping", "Factorisation using identities", "Division of algebraic polynomials"],
+        learningOutcomes: ["Factorises quadratic expressions and divides polynomials by monomials/binomials."],
+        source: "NCERT Mathematics Class 8, Chapter 12 (2024-25)",
+      },
+      {
+        chapterNumber: 13,
+        chapterName: "Introduction to Graphs",
+        topics: ["Cartesian coordinate plane", "Plotting points (x, y)", "Linear graphs", "Distance-time graphs"],
+        learningOutcomes: ["Plots coordinates on grid and reads rates of change from linear graphs."],
+        source: "NCERT Mathematics Class 8, Chapter 13 (2024-25)",
+      },
+    ],
+  },
+  {
+    class: 8,
+    board: "ICSE",
+    textbookTitle: "CISCE Mathematics Curriculum (Class 8)",
+    edition: "CISCE Preschool to Class VIII Curriculum Framework",
+    sourceUrl: "https://cisce.org",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "Rational Numbers & Real Exponents",
+        topics: ["Density property of rational numbers", "Scientific notation", "Fractional powers"],
+        learningOutcomes: ["Inserts rational numbers between fractions and applies laws of rational exponents."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 8 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "Algebra: Identities and Factorisation",
+        topics: ["Expansions of (a±b±c)^2", "Factorisation of trinomials by splitting middle term", "Division of polynomials"],
+        learningOutcomes: ["Splits middle terms to factorise quadratic trinomials ax^2 + bx + c."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 8 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "Simultaneous Linear Equations in Two Variables",
+        topics: ["Method of substitution", "Method of elimination by equating coefficients", "Word problems"],
+        learningOutcomes: ["Solves pairs of linear equations in two variables algebraically."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 8 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Commercial Mathematics: Compound Interest",
+        topics: ["Compound interest calculation using formula", "Inverse rate and time problems"],
+        learningOutcomes: ["Calculates compound interest and principal sums under different compounding periods."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 8 (CISCE-aligned)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "Mensuration: Area and Volume of 3D Solids",
+        topics: ["Cylinder, hollow cylinder, prism, cone basics", "Capacity and density word problems"],
+        learningOutcomes: ["Derives volume and curved surface area of hollow cylindrical pipes."],
+        source: "CISCE Curriculum for Preschool to Class VIII: Mathematics Class 8 (CISCE-aligned)",
+      },
+    ],
+  },
+
+  // =========================================================================
+  // CLASS 9
+  // =========================================================================
+  {
+    class: 9,
+    board: "CBSE",
+    textbookTitle: "Mathematics Class 9",
+    edition: "NCERT Rationalised Edition 2023-24 / 2024-25",
+    sourceUrl: "https://ncert.nic.in/textbook.php?iemh1=0-12",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "Number Systems",
+        topics: ["Irrational numbers", "Real numbers on number line", "Laws of exponents for real numbers", "Rationalising denominators"],
+        learningOutcomes: ["Rationalises surds with binomial denominators and locates square roots on number line."],
+        source: "NCERT Mathematics Class 9, Chapter 1 (2024-25)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "Polynomials",
+        topics: ["Degree of polynomial", "Zeros of polynomial", "Remainder Theorem and Factor Theorem", "Algebraic identities"],
+        learningOutcomes: ["Uses Factor Theorem to factorise cubic polynomials and applies cubic algebraic identities."],
+        source: "NCERT Mathematics Class 9, Chapter 2 (2024-25)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "Coordinate Geometry",
+        topics: ["Cartesian plane", "Coordinates of a point", "Quadrants and axes"],
+        learningOutcomes: ["Locates and plots points in four quadrants of Cartesian coordinate system."],
+        source: "NCERT Mathematics Class 9, Chapter 3 (2024-25)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Linear Equations in Two Variables",
+        topics: ["General form ax + by + c = 0", "Graph of linear equation in two variables", "Equations parallel to axes"],
+        learningOutcomes: ["Plots graphs of linear equations in two variables and identifies solutions."],
+        source: "NCERT Mathematics Class 9, Chapter 4 (2024-25)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "Introduction to Euclid's Geometry",
+        topics: ["Euclid's definitions, axioms, postulates", "Equivalent versions of fifth postulate"],
+        learningOutcomes: ["Applies axiomatic deductive reasoning in geometry."],
+        source: "NCERT Mathematics Class 9, Chapter 5 (2024-25)",
+      },
+      {
+        chapterNumber: 6,
+        chapterName: "Lines and Angles",
+        topics: ["Intersecting lines and non-intersecting lines", "Parallel lines and transversal", "Angle sum property of triangle"],
+        learningOutcomes: ["Proves theorems regarding vertically opposite, alternate interior, and consecutive interior angles."],
+        source: "NCERT Mathematics Class 9, Chapter 6 (2024-25)",
+      },
+      {
+        chapterNumber: 7,
+        chapterName: "Triangles",
+        topics: ["Congruence of triangles (SAS, ASA, SSS, RHS)", "Properties of an isosceles triangle"],
+        learningOutcomes: ["Constructs formal geometric proofs of triangle congruency and side equality."],
+        source: "NCERT Mathematics Class 9, Chapter 7 (2024-25)",
+      },
+      {
+        chapterNumber: 8,
+        chapterName: "Quadrilaterals",
+        topics: ["Properties of parallelogram", "Mid-point theorem and its converse"],
+        learningOutcomes: ["Proves and applies the Mid-point theorem in geometric deduction."],
+        source: "NCERT Mathematics Class 9, Chapter 8 (2024-25)",
+      },
+      {
+        chapterNumber: 9,
+        chapterName: "Circles",
+        topics: ["Angle subtended by chord at centre", "Perpendicular from centre to chord", "Equal chords and their distances", "Cyclic quadrilaterals"],
+        learningOutcomes: ["Proves that opposite angles of a cyclic quadrilateral sum to 180 degrees."],
+        source: "NCERT Mathematics Class 9, Chapter 9 (2024-25)",
+      },
+      {
+        chapterNumber: 10,
+        chapterName: "Heron's Formula",
+        topics: ["Area of triangle using semi-perimeter s = (a+b+c)/2", "Area = sqrt(s(s-a)(s-b)(s-c))"],
+        learningOutcomes: ["Calculates areas of scalene triangles and composite land plots without altitude."],
+        source: "NCERT Mathematics Class 9, Chapter 10 (2024-25)",
+      },
+      {
+        chapterNumber: 11,
+        chapterName: "Surface Areas and Volumes",
+        topics: ["Surface area and volume of right circular cones", "Surface area and volume of sphere and hemisphere"],
+        learningOutcomes: ["Computes surface area and volume of cones, spheres, and hemispheres."],
+        source: "NCERT Mathematics Class 9, Chapter 11 (2024-25)",
+      },
+      {
+        chapterNumber: 12,
+        chapterName: "Statistics",
+        topics: ["Graphical representation of data", "Histograms with varying widths", "Frequency polygons"],
+        learningOutcomes: ["Constructs frequency polygons and histograms for continuous class intervals."],
+        source: "NCERT Mathematics Class 9, Chapter 12 (2024-25)",
+      },
+    ],
+  },
+  {
+    class: 9,
+    board: "ICSE",
+    textbookTitle: "ICSE Regulations & Syllabuses: Mathematics (Class IX)",
+    edition: "CISCE Examination Syllabus 2024-26",
+    sourceUrl: "https://cisce.org/regulations-and-syllabuses-icse/",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "Pure Arithmetic: Rational & Irrational Numbers",
+        topics: ["Surds, rationalisation of denominators", "Proofs of irrationality", "Significant figures"],
+        learningOutcomes: ["Rationalises complex surds and simplifies radical expressions."],
+        source: "CISCE ICSE Mathematics Class IX Syllabus (2024-26)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "Commercial Mathematics: Compound Interest",
+        topics: ["Compound interest with and without formula", "Depreciation and population change"],
+        learningOutcomes: ["Calculates compound interest year-by-year and using formula with varying annual rates."],
+        source: "CISCE ICSE Mathematics Class IX Syllabus (2024-26)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "Algebra: Expansions, Factorisation, Simultaneous Equations",
+        topics: ["Expansions of (a±b)^3", "Factorisation by grouping and difference of squares", "Simultaneous linear equations"],
+        learningOutcomes: ["Solves pairs of linear equations and expands cubic algebraic expressions."],
+        source: "CISCE ICSE Mathematics Class IX Syllabus (2024-26)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Geometry: Triangles, Mid-Point Theorem, Pythagoras",
+        topics: ["Congruency proofs", "Mid-point theorem", "Pythagoras theorem applications", "Rectilinear figures"],
+        learningOutcomes: ["Provides structured geometric step-by-step proofs with formal Euclidean reasons."],
+        source: "CISCE ICSE Mathematics Class IX Syllabus (2024-26)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "Trigonometry: Ratios of Standard Angles",
+        topics: ["sin, cos, tan, cosec, sec, cot", "Values for 0, 30, 45, 60, 90 degrees", "Simple 2D right triangle problems"],
+        learningOutcomes: ["Evaluates exact values of trigonometric expressions using special triangles."],
+        source: "CISCE ICSE Mathematics Class IX Syllabus (2024-26)",
+      },
+      {
+        chapterNumber: 6,
+        chapterName: "Coordinate Geometry: Cartesian Plane & Straight Lines",
+        topics: ["Plotting points", "Distance formula intro", "Slope intuition of linear graphs"],
+        learningOutcomes: ["Plots graphs and reads intercepts and coordinates from plotted geometric lines."],
+        source: "CISCE ICSE Mathematics Class IX Syllabus (2024-26)",
+      },
+    ],
+  },
+
+  // =========================================================================
+  // CLASS 10
+  // =========================================================================
+  {
+    class: 10,
+    board: "CBSE",
+    textbookTitle: "Mathematics Class 10",
+    edition: "NCERT Rationalised Edition 2023-24 / 2024-25",
+    sourceUrl: "https://ncert.nic.in/textbook.php?jemh1=0-14",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "Real Numbers",
+        topics: ["Fundamental Theorem of Arithmetic", "Proofs of irrationality of sqrt(2), sqrt(3), sqrt(5)"],
+        learningOutcomes: ["Proves irrationality by contradiction and expresses composites as unique prime factor products."],
+        source: "NCERT Mathematics Class 10, Chapter 1 (2024-25)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "Polynomials",
+        topics: ["Geometrical meaning of zeros of quadratic polynomial", "Relationship between zeros and coefficients"],
+        learningOutcomes: ["Verifies alpha + beta = -b/a and alpha × beta = c/a for quadratic polynomials."],
+        source: "NCERT Mathematics Class 10, Chapter 2 (2024-25)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "Pair of Linear Equations in Two Variables",
+        topics: ["Graphical method of solution", "Substitution method", "Elimination method", "Consistency conditions"],
+        learningOutcomes: ["Tests a1/a2 vs b1/b2 vs c1/c2 and solves system algebraically."],
+        source: "NCERT Mathematics Class 10, Chapter 3 (2024-25)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Quadratic Equations",
+        topics: ["Standard form ax^2 + bx + c = 0", "Factorisation method", "Quadratic formula x = (-b ± sqrt(b^2-4ac))/(2a)", "Nature of roots"],
+        learningOutcomes: ["Evaluates discriminant D = b^2 - 4ac and determines real, equal, or no real roots."],
+        source: "NCERT Mathematics Class 10, Chapter 4 (2024-25)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "Arithmetic Progressions",
+        topics: ["nth term of an AP: a_n = a + (n-1)d", "Sum of first n terms: S_n = n/2[2a + (n-1)d]", "Word problems"],
+        learningOutcomes: ["Models sequence patterns and calculates sum of series in practical contexts."],
+        source: "NCERT Mathematics Class 10, Chapter 5 (2024-25)",
+      },
+      {
+        chapterNumber: 6,
+        chapterName: "Triangles",
+        topics: ["Basic Proportionality Theorem (Thales' theorem) and converse", "Criteria for similarity of triangles (AAA, SSS, SAS)"],
+        learningOutcomes: ["Applies similarity criteria to compute heights, shadows, and unknown side ratios."],
+        source: "NCERT Mathematics Class 10, Chapter 6 (2024-25)",
+      },
+      {
+        chapterNumber: 7,
+        chapterName: "Coordinate Geometry",
+        topics: ["Distance formula d = sqrt((x2-x1)^2 + (y2-y1)^2)", "Section formula ((mx2+nx1)/(m+n), (my2+ny1)/(m+n))", "Midpoint formula"],
+        learningOutcomes: ["Calculates distance and internal division coordinates between points on plane."],
+        source: "NCERT Mathematics Class 10, Chapter 7 (2024-25)",
+      },
+      {
+        chapterNumber: 8,
+        chapterName: "Introduction to Trigonometry",
+        topics: ["Trigonometric ratios in right triangle", "Values for standard angles (0, 30, 45, 60, 90)", "Identity sin^2 A + cos^2 A = 1"],
+        learningOutcomes: ["Proves fundamental trigonometric identities and computes ratio values."],
+        source: "NCERT Mathematics Class 10, Chapter 8 (2024-25)",
+      },
+      {
+        chapterNumber: 9,
+        chapterName: "Some Applications of Trigonometry",
+        topics: ["Angle of elevation", "Angle of depression", "Heights and distances word problems (single and double triangles)"],
+        learningOutcomes: ["Solves real-life height and distance problems using tangent and sine ratios."],
+        source: "NCERT Mathematics Class 10, Chapter 9 (2024-25)",
+      },
+      {
+        chapterNumber: 10,
+        chapterName: "Circles",
+        topics: ["Tangent to a circle", "Theorem: Tangent perpendicular to radius at point of contact", "Theorem: Lengths of tangents from external point are equal"],
+        learningOutcomes: ["Proves equality of external tangents and solves circle geometry deductions."],
+        source: "NCERT Mathematics Class 10, Chapter 10 (2024-25)",
+      },
+      {
+        chapterNumber: 11,
+        chapterName: "Areas Related to Circles",
+        topics: ["Sector of a circle", "Segment of a circle", "Area of sector = (theta/360) × pi × r^2", "Length of arc = (theta/360) × 2 × pi × r"],
+        learningOutcomes: ["Calculates area of major and minor sectors and segments."],
+        source: "NCERT Mathematics Class 10, Chapter 11 (2024-25)",
+      },
+      {
+        chapterNumber: 12,
+        chapterName: "Surface Areas and Volumes",
+        topics: ["Surface area of combination of solids (cubes, cones, cylinders, spheres)", "Volume of combinations of solids"],
+        learningOutcomes: ["Computes total surface area and internal volume of combined geometric solids."],
+        source: "NCERT Mathematics Class 10, Chapter 12 (2024-25)",
+      },
+      {
+        chapterNumber: 13,
+        chapterName: "Statistics",
+        topics: ["Mean of grouped data (Direct, Assumed Mean methods)", "Mode of grouped data", "Median of grouped data"],
+        learningOutcomes: ["Calculates mean, median, and mode for grouped frequency distributions."],
+        source: "NCERT Mathematics Class 10, Chapter 13 (2024-25)",
+      },
+      {
+        chapterNumber: 14,
+        chapterName: "Probability",
+        topics: ["Classical definition of probability P(E) = n(E)/n(S)", "Complementary events P(not E) = 1 - P(E)", "Cards, dice, coins"],
+        learningOutcomes: ["Computes exact theoretical probabilities of single and compound events."],
+        source: "NCERT Mathematics Class 10, Chapter 14 (2024-25)",
+      },
+    ],
+  },
+  {
+    class: 10,
+    board: "ICSE",
+    textbookTitle: "ICSE Regulations & Syllabuses: Mathematics (Class X)",
+    edition: "CISCE Examination Syllabus 2024-26",
+    sourceUrl: "https://cisce.org/regulations-and-syllabuses-icse/",
+    chapters: [
+      {
+        chapterNumber: 1,
+        chapterName: "Commercial Mathematics: GST & Banking",
+        topics: ["Goods and Services Tax (Intra-state CGST+SGST, Inter-state IGST)", "Banking: Recurring Deposit accounts I = P×n(n+1)×r/(2×12×100)"],
+        learningOutcomes: ["Calculates tax liability under GST input-output credit and computes recurring deposit maturity."],
+        source: "CISCE ICSE Mathematics Class X Syllabus (2024-26)",
+      },
+      {
+        chapterNumber: 2,
+        chapterName: "Linear Inequations in One Variable",
+        topics: ["Algebraic solutions on Real and Integer number lines", "Representation on number line with open/solid circles"],
+        learningOutcomes: ["Solves linear inequalities and diagrams solution set on real number line."],
+        source: "CISCE ICSE Mathematics Class X Syllabus (2024-26)",
+      },
+      {
+        chapterNumber: 3,
+        chapterName: "Quadratic Equations in One Variable",
+        topics: ["Quadratic formula", "Factorisation method", "Nature of roots", "Real-world speed, time, cost word problems"],
+        learningOutcomes: ["Solves quadratic word problems discarding physically inadmissible negative roots."],
+        source: "CISCE ICSE Mathematics Class X Syllabus (2024-26)",
+      },
+      {
+        chapterNumber: 4,
+        chapterName: "Ratio and Proportion",
+        topics: ["Componendo and Dividendo", "Continued proportion", "Mean proportional"],
+        learningOutcomes: ["Applies componendo, dividendo, and alternendo to simplify algebraic fractional proofs."],
+        source: "CISCE ICSE Mathematics Class X Syllabus (2024-26)",
+      },
+      {
+        chapterNumber: 5,
+        chapterName: "Factorisation of Polynomials",
+        topics: ["Remainder Theorem", "Factor Theorem", "Factorising cubic polynomials f(x)"],
+        learningOutcomes: ["Uses trial values and factor theorem to factorise polynomials completely."],
+        source: "CISCE ICSE Mathematics Class X Syllabus (2024-26)",
+      },
+      {
+        chapterNumber: 6,
+        chapterName: "Matrices",
+        topics: ["Order of matrices", "Row, column, square, zero, identity matrices", "Matrix addition, subtraction, scalar and 2×2 matrix multiplication"],
+        learningOutcomes: ["Performs 2×2 matrix multiplications and solves matrix equations."],
+        source: "CISCE ICSE Mathematics Class X Syllabus (2024-26)",
+      },
+      {
+        chapterNumber: 7,
+        chapterName: "Arithmetic and Geometric Progression",
+        topics: ["AP nth term and sum", "GP nth term a_n = ar^(n-1)", "Applications of AP and GP"],
+        learningOutcomes: ["Determines common ratio, nth term, and sum of arithmetic and geometric sequences."],
+        source: "CISCE ICSE Mathematics Class X Syllabus (2024-26)",
+      },
+      {
+        chapterNumber: 8,
+        chapterName: "Coordinate Geometry: Reflection & Section Formula",
+        topics: ["Reflection across x-axis, y-axis, and origin", "Section formula", "Midpoint formula", "Equation of line: y = mx + c"],
+        learningOutcomes: ["Determines slope, intercepts, and equation of straight lines through given points."],
+        source: "CISCE ICSE Mathematics Class X Syllabus (2024-26)",
+      },
+      {
+        chapterNumber: 9,
+        chapterName: "Geometry: Similarity & Circles",
+        topics: ["Similarity proofs", "Circle chord and tangent theorems", "Alternate segment theorem", "Constructions"],
+        learningOutcomes: ["Proves circle theorems including angle in alternate segment with formal reasoning."],
+        source: "CISCE ICSE Mathematics Class X Syllabus (2024-26)",
+      },
+      {
+        chapterNumber: 10,
+        chapterName: "Mensuration: Cylinder, Cone, Sphere",
+        topics: ["Surface area and volume of right circular cylinders, cones, and spheres", "Melting and recasting solids"],
+        learningOutcomes: ["Calculates conservation of volume when metal spheres/cylinders are melted and recast."],
+        source: "CISCE ICSE Mathematics Class X Syllabus (2024-26)",
+      },
+      {
+        chapterNumber: 11,
+        chapterName: "Trigonometry: Identities & Heights and Distances",
+        topics: ["Identities: sin^2 + cos^2 = 1, 1 + tan^2 = sec^2, 1 + cot^2 = cosec^2", "Heights and distances in 2D"],
+        learningOutcomes: ["Proves complex trigonometric identities and solves observation tower/ship problems."],
+        source: "CISCE ICSE Mathematics Class X Syllabus (2024-26)",
+      },
+      {
+        chapterNumber: 12,
+        chapterName: "Statistics: Measures of Central Tendency & Ogive",
+        topics: ["Mean, Median, Mode", "Cumulative frequency table", "Ogive curve to find median, lower quartile, upper quartile"],
+        learningOutcomes: ["Plots cumulative frequency curves (ogives) to determine median and interquartile range."],
+        source: "CISCE ICSE Mathematics Class X Syllabus (2024-26)",
+      },
+      {
+        chapterNumber: 13,
+        chapterName: "Probability",
+        topics: ["Random experiments", "Sample space", "Event probability calculation"],
+        learningOutcomes: ["Calculates event probabilities from well-shuffled card decks and fair dice."],
+        source: "CISCE ICSE Mathematics Class X Syllabus (2024-26)",
+      },
+    ],
+  },
+];
+
+export function getSyllabusForClassAndBoard(grade: number, board: Board): ClassBoardSyllabus | undefined {
+  return SYLLABUS_MAP.find((s) => s.class === grade && s.board === board);
+}
+
+export function getAllChaptersForClass(grade: number): ChapterTopicEntry[] {
+  const cbse = getSyllabusForClassAndBoard(grade, "CBSE");
+  const icse = getSyllabusForClassAndBoard(grade, "ICSE");
+  const all: ChapterTopicEntry[] = [];
+  if (cbse) all.push(...cbse.chapters);
+  if (icse) {
+    for (const ch of icse.chapters) {
+      if (!all.some((c) => c.chapterName === ch.chapterName)) {
+        all.push(ch);
+      }
+    }
+  }
+  return all;
+}
