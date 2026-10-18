@@ -187,6 +187,7 @@ export function LandingPilotSection() {
                 className="sr-only"
                 tabIndex={-1}
                 autoComplete="off"
+                aria-label="Security check, leave blank"
               />
 
               {/* School Name */}

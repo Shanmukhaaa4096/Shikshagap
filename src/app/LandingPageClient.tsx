@@ -227,7 +227,7 @@ function PublicLandingPageContent() {
                       ? 'bg-primary text-primary-foreground shadow-xs'
                       : 'text-foreground/70 hover:text-foreground hover:bg-[#C7DDAE]/30'
                   }`}
-                  aria-label={`Switch language to ${l === 'en' ? 'English' : l === 'hi' ? 'Hindi' : 'Telugu'}`}
+                  aria-label={`${l === 'en' ? 'EN' : l === 'hi' ? 'हिन्दी' : 'తెలుగు'} - Switch language`}
                   aria-pressed={lang === l}
                 >
                   {l === 'en' ? 'EN' : l === 'hi' ? 'हिन्दी' : 'తెలుగు'}
