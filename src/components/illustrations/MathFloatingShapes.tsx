@@ -119,7 +119,7 @@ export function MathFloatingShapes() {
 
   return (
     <div
-      className="absolute inset-0 pointer-events-none overflow-hidden select-none z-10"
+      className="hidden sm:block absolute inset-0 pointer-events-none overflow-hidden select-none z-10"
       aria-hidden="true"
     >
       {shapes.map((item) => (
@@ -128,9 +128,8 @@ export function MathFloatingShapes() {
           className={`absolute ${item.mobile ? '' : 'hidden md:block'}`}
           style={{ left: item.x, top: item.y }}
           animate={{
-            y: [-12, 14, -12],
-            rotate: [-6, 6, -6],
-            scale: [0.96, 1.04, 0.96],
+            y: [-10, 10, -10],
+            rotate: [-4, 4, -4],
           }}
           transition={{
             duration: item.duration,
