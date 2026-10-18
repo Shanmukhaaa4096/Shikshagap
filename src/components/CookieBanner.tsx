@@ -52,10 +52,15 @@ export function CookieBanner() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setMounted(true);
-    }, 1200);
-    return () => clearTimeout(timer);
+    // Only display consent prompt on user interaction or delayed idle state to preserve LCP
+    const show = () => setMounted(true);
+    const events = ['scroll', 'pointerdown', 'keydown', 'touchstart'];
+    events.forEach((ev) => window.addEventListener(ev, show, { once: true, passive: true }));
+    const idleTimer = setTimeout(show, 10000);
+    return () => {
+      events.forEach((ev) => window.removeEventListener(ev, show));
+      clearTimeout(idleTimer);
+    };
   }, []);
 
   const handleChoice = (accepted: boolean) => {
