@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.siteUrl),
   title: `${siteConfig.siteName} | Find out what each student needs to learn next`,
   description:
-    "ShikshaGap checks a student's understanding, finds the topics that need more practice and helps teachers plan the next lesson in Indian primary schools.",
+    "ShikshaGap detects learning gaps in school maths for Classes 1 to 10 across NCERT and ICSE, giving teachers root-cause insights and targeted practice plans.",
   manifest: "/manifest.json",
   icons: {
     icon: [
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: `${siteConfig.siteName} | Find out what each student needs to learn next`,
     description:
-      "AI agent that assesses students across Classes 3 to 5 and finds their foundational learning gaps.",
+      "ShikshaGap detects learning gaps in school maths for Classes 1 to 10 across NCERT and ICSE, giving teachers root-cause insights and targeted practice plans.",
     url: siteConfig.siteUrl,
     siteName: siteConfig.siteName,
     images: [
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "ShikshaGap - AI Educational Diagnostic Agent",
+        alt: `${siteConfig.siteName} - Mathematics Learning Diagnostic`,
       },
     ],
     locale: "en_IN",
@@ -84,9 +84,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ShikshaGap | Find out what each student needs to learn next",
+    title: `${siteConfig.siteName} | Find out what each student needs to learn next`,
     description:
-      "AI agent that assesses students across Classes 3 to 5 and finds their foundational learning gaps.",
+      "ShikshaGap detects learning gaps in school maths for Classes 1 to 10 across NCERT and ICSE, giving teachers root-cause insights and targeted practice plans.",
     images: ["/og-image.png"],
   },
 };

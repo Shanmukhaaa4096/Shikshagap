@@ -6,13 +6,24 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: `Terms of Service | ${siteConfig.siteName}`,
-  description: "Terms of service and pedagogical guidelines for using the ShikshaGap diagnostic system.",
+  description:
+    "Terms of service, fair educational use policies, and teacher pedagogical guidelines for using the ShikshaGap learning gap diagnostic platform in India.",
   openGraph: {
     title: `Terms of Service | ${siteConfig.siteName}`,
-    description: "Terms of service and pedagogical guidelines for using the ShikshaGap diagnostic system.",
+    description:
+      "Terms of service, fair educational use policies, and teacher pedagogical guidelines for using the ShikshaGap learning gap diagnostic platform in India.",
     url: `${siteConfig.siteUrl}/terms`,
     siteName: siteConfig.siteName,
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: `${siteConfig.siteName} Terms of Service` }],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Terms of Service | ${siteConfig.siteName}`,
+    description:
+      "Terms of service, fair educational use policies, and teacher pedagogical guidelines for using the ShikshaGap learning gap diagnostic platform in India.",
+    images: ["/og-image.png"],
   },
   alternates: {
     canonical: `${siteConfig.siteUrl}/terms`,

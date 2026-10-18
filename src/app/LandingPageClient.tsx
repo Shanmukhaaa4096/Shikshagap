@@ -709,7 +709,7 @@ function PublicLandingPageContent() {
               <span className="text-primary font-bold">Shiksha<span className="text-accent">Gap</span></span>
             </div>
             <p className="text-xs text-muted-foreground mt-2 max-w-md leading-relaxed">
-              AI-powered learning gap detection and personalized remediation for Indian primary schools, Classes 3 to 5.
+              AI-powered learning gap detection and personalized remediation for Indian schools, Classes 1 to 10 across NCERT and ICSE curricula.
             </p>
             <div className="mt-4 text-xs text-muted-foreground flex items-center gap-2">
               <GiftBoxMotif size={15} />
@@ -717,11 +717,19 @@ function PublicLandingPageContent() {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-8 justify-between md:justify-end text-xs uppercase tracking-wider text-muted-foreground">
+          <div className="flex flex-col sm:flex-row gap-6 md:gap-8 justify-between md:justify-end text-xs uppercase tracking-wider text-muted-foreground flex-wrap">
+            <div className="space-y-2 flex flex-col">
+              <span className="font-bold text-foreground">Curriculum &amp; Guides</span>
+              <Link href="/learning-gaps" className="text-primary font-bold hover:underline">Learning Gaps Guide</Link>
+              <Link href="/curriculum/classes-1-3" className="hover:text-primary">Classes 1–3 (Foundational)</Link>
+              <Link href="/curriculum/classes-4-5" className="hover:text-primary">Classes 4–5 (Preparatory)</Link>
+              <Link href="/curriculum/classes-6-8" className="hover:text-primary">Classes 6–8 (Middle)</Link>
+              <Link href="/curriculum/classes-9-10" className="hover:text-primary">Classes 9–10 (Secondary)</Link>
+            </div>
             <div className="space-y-2 flex flex-col">
               <span className="font-bold text-foreground">Diagnostic Actions</span>
               <Link href="/assessment" className="text-primary font-bold hover:underline">Assess Test Now</Link>
-              <a href="#how-agent-works" className="hover:text-primary">How Agent Works</a>
+              <Link href="/how-it-works" className="hover:text-primary">How Agent Works</Link>
               <a href="#demo" className="hover:text-primary">Interactive Demo</a>
               <a href="#pilot" className="hover:text-primary">Request Pilot</a>
               <Link href="/login" className="hover:text-primary">Teacher Sign In</Link>

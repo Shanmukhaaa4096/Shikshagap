@@ -5,13 +5,24 @@ import { siteConfig } from "@/config/site";
 
 export const metadata: Metadata = {
   title: `Cookie Notice | ${siteConfig.siteName}`,
-  description: "Information about strictly necessary cookies and local storage used by ShikshaGap.",
+  description:
+    "Learn about strictly necessary cookies and browser local storage used by ShikshaGap for diagnostic progress without advertising tracking cookies.",
   openGraph: {
     title: `Cookie Notice | ${siteConfig.siteName}`,
-    description: "Information about strictly necessary cookies and local storage used by ShikshaGap.",
+    description:
+      "Learn about strictly necessary cookies and browser local storage used by ShikshaGap for diagnostic progress without advertising tracking cookies.",
     url: `${siteConfig.siteUrl}/cookies`,
     siteName: siteConfig.siteName,
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: `${siteConfig.siteName} Cookie Notice` }],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Cookie Notice | ${siteConfig.siteName}`,
+    description:
+      "Learn about strictly necessary cookies and browser local storage used by ShikshaGap for diagnostic progress without advertising tracking cookies.",
+    images: ["/og-image.png"],
   },
   alternates: {
     canonical: `${siteConfig.siteUrl}/cookies`,

@@ -29,14 +29,15 @@ To connect a custom domain on Vercel:
 
 ## 2. On-Page SEO Architecture
 
-* **Clean Crawlability**:
-  - `sitemap.xml` automatically lists only public pages (`/`, `/login`, `/privacy`, `/terms`, `/cookies`, `/licenses`, `/data-request`).
+* **Clean Crawlability & AI Transparency**:
+  - `sitemap.xml` automatically lists all public pages (`/`, `/assessment`, `/how-it-works`, `/learning-gaps`, `/curriculum/*`, `/privacy`, `/terms`, `/cookies`, `/licenses`, `/data-request`).
   - `robots.txt` explicitly disallows crawling of `/app/`, `/app/*`, and `/api/*` to guarantee that no pupil data or authenticated dashboards are indexed by search engines.
+  - Added `llms.txt` at `/llms.txt` and `ai.txt` at `/ai.txt` for standard AI crawler transparency and training policy declarations.
 * **Structured Data**:
-  - JSON-LD schemas embedded on `/` include `Organization`, `SoftwareApplication` (Mathematics learning check and practice planning for Indian schools, Classes 3 to 5), and `FAQPage`.
+  - JSON-LD schemas embedded on `/` include `EducationalOrganization`, `SoftwareApplication` (Mathematics learning check and practice planning for Indian schools, Classes 1 to 10 across NCERT and ICSE), and `FAQPage`.
 * **Metadata & Canonicalization**:
   - Each public page contains unique titles, meta descriptions, and `canonical` links pointing to the production domain.
-  - Multi-class targeting: Primary Mathematics Classes 3 to 5 (Class 3, Class 4, Class 5 NCERT/SCERT foundational numeracy).
+  - Multi-class targeting: Mathematics Classes 1 to 10 (Foundational Numeracy Classes 1–3, Preparatory Classes 4–5, Middle Stage Classes 6–8, and Secondary Classes 9–10).
   - Pilot onboarding anchor (`#pilot`): Structured for institutional teacher searches ("primary school diagnostic pilot", "free FLN maths practice worksheets").
   - Multi-script support: Hindi and Telugu metadata entries prepared for regional language search queries.
 

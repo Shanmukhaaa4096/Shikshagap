@@ -4,13 +4,24 @@ import { siteConfig } from '@/config/site';
 
 export const metadata: Metadata = {
   title: `Open Source Licenses | ${siteConfig.siteName}`,
-  description: 'Attribution and licensing information for open-source software libraries powering ShikshaGap.',
+  description:
+    "View third-party open source software licenses and legal attributions for libraries powering ShikshaGap's diagnostic learning platform in India.",
   openGraph: {
     title: `Open Source Licenses | ${siteConfig.siteName}`,
-    description: 'Attribution and licensing information for open-source software libraries powering ShikshaGap.',
+    description:
+      "View third-party open source software licenses and legal attributions for libraries powering ShikshaGap's diagnostic learning platform in India.",
     url: `${siteConfig.siteUrl}/licenses`,
     siteName: siteConfig.siteName,
     images: [{ url: '/og-image.png', width: 1200, height: 630, alt: `${siteConfig.siteName} Open Source Licenses` }],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Open Source Licenses | ${siteConfig.siteName}`,
+    description:
+      "View third-party open source software licenses and legal attributions for libraries powering ShikshaGap's diagnostic learning platform in India.",
+    images: ["/og-image.png"],
   },
   alternates: {
     canonical: `${siteConfig.siteUrl}/licenses`,

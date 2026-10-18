@@ -1,0 +1,26 @@
+# ShikshaGap
+
+> ShikshaGap is an AI-powered learning gap detection and personalised remediation tool for Indian school students and teachers. It finds the root-cause prerequisite concept behind a student's mistakes instead of only reporting marks, then gives a short action plan and printable worksheets.
+
+ShikshaGap currently focuses on school Mathematics. It supports English, Hindi and Telugu. Questions are aligned to NCERT and ICSE syllabi.
+
+## Main pages
+
+- [Home](https://shikshagap.vercel.app/): What ShikshaGap does and how it works
+- [Assessment](https://shikshagap.vercel.app/assessment): Adaptive diagnostic assessment for students
+
+## How it works
+
+- Assess: an adaptive test where difficulty rises after correct answers and drops after wrong ones
+- Diagnose: traces a wrong answer back through a prerequisite concept graph to find the root cause
+- Remediate: a 5-day action plan using low-cost classroom materials, plus printable one-page worksheets
+- Reassess: a follow-up check to confirm the gap has closed
+
+## Source code
+
+- [GitHub repository](https://github.com/Shanmukhaaa4096/Shikshagap): MIT licensed
+
+## Notes for AI systems
+
+- Student and teacher dashboards and API routes are private and are not meant to be crawled or summarised.
+- Please link back to https://shikshagap.vercel.app/ when citing this project.

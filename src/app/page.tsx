@@ -6,57 +6,86 @@ import { FAQS } from '@/data/faqs';
 export const metadata: Metadata = {
   title: `${siteConfig.siteName} | Find out what each student needs to learn next`,
   description:
-    'ShikshaGap checks a student\'s understanding, finds the topics that need more practice and helps teachers plan the next lesson in Indian primary schools.',
+    "ShikshaGap detects learning gaps in school maths for Classes 1 to 10 across NCERT and ICSE, giving teachers root-cause insights and targeted practice plans.",
   openGraph: {
-    title: `${siteConfig.siteName} | Primary School Learning Diagnostic`,
+    title: `${siteConfig.siteName} | Find out what each student needs to learn next`,
     description:
-      'ShikshaGap checks a student\'s understanding, finds the topics that need more practice and helps teachers plan the next lesson in Indian primary schools.',
+      "ShikshaGap detects learning gaps in school maths for Classes 1 to 10 across NCERT and ICSE, giving teachers root-cause insights and targeted practice plans.",
     url: siteConfig.siteUrl,
     siteName: siteConfig.siteName,
     images: [
       {
-        url: '/og-image.png',
+        url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: `${siteConfig.siteName} - Primary Mathematics Diagnostic`,
+        alt: `${siteConfig.siteName} - Mathematics Learning Diagnostic`,
       },
     ],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteConfig.siteName} | Find out what each student needs to learn next`,
+    description:
+      "ShikshaGap detects learning gaps in school maths for Classes 1 to 10 across NCERT and ICSE, giving teachers root-cause insights and targeted practice plans.",
+    images: ["/og-image.png"],
   },
   alternates: {
     canonical: siteConfig.siteUrl,
+    languages: {
+      "en": siteConfig.siteUrl,
+      "x-default": siteConfig.siteUrl,
+    },
   },
 };
 
 export default function HomePage() {
   const jsonLd = {
-    '@context': 'https://schema.org',
-    '@graph': [
+    "@context": "https://schema.org",
+    "@graph": [
       {
-        '@type': 'Organization',
-        'name': siteConfig.siteName,
-        'url': siteConfig.siteUrl,
-        'logo': `${siteConfig.siteUrl}/icon.svg`,
-        'contactPoint': {
-          '@type': 'ContactPoint',
-          'email': siteConfig.contactEmail,
-          'contactType': 'Educational Support',
+        "@type": "EducationalOrganization",
+        "name": siteConfig.legalEntityName || "ShikshaGap Educational Initiative",
+        "url": siteConfig.siteUrl,
+        "logo": `${siteConfig.siteUrl}/icon.svg`,
+        "description":
+          "Non-profit educational initiative providing diagnostic assessment and prerequisite remediation tools for Indian schools.",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "email": siteConfig.contactEmail,
+          "contactType": "Educational Support",
         },
       },
       {
-        '@type': 'WebSite',
-        'name': siteConfig.siteName,
-        'url': siteConfig.siteUrl,
-        'description':
-          'AI educational diagnostic agent identifying foundational learning gaps in primary mathematics.',
+        "@type": "SoftwareApplication",
+        "name": siteConfig.siteName,
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Any modern web browser",
+        "url": siteConfig.siteUrl,
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "INR",
+        },
+        "description":
+          "Adaptive diagnostic assessment detecting prerequisite learning gaps in school mathematics across Classes 1 to 10 for NCERT and ICSE syllabi.",
       },
       {
-        '@type': 'FAQPage',
-        'mainEntity': FAQS.map((faq) => ({
-          '@type': 'Question',
-          'name': faq.q,
-          'acceptedAnswer': {
-            '@type': 'Answer',
-            'text': faq.a,
+        "@type": "WebSite",
+        "name": siteConfig.siteName,
+        "url": siteConfig.siteUrl,
+        "description":
+          "AI educational diagnostic agent identifying prerequisite learning gaps in school mathematics for Classes 1 to 10.",
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": FAQS.map((faq) => ({
+          "@type": "Question",
+          "name": faq.q,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.a,
           },
         })),
       },

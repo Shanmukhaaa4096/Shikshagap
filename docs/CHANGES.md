@@ -18,6 +18,8 @@ This document tracks all relocations and design hierarchy changes made to make S
   * Starts dynamically at Tier 2 (on-grade medium application) to avoid trivial questions.
   * Adapts to Tier 3 (multi-step reasoning) on success or drops to Tier 1 (foundational recall/prerequisite) on struggle.
   * Server-side deterministic validation guarantees all math is recomputed in code with distinct pedagogically-tuned distractors.
+* **Static AI, Security, and Crawler Endpoints**:
+  * Added RFC 9116 security.txt at `/.well-known/security.txt`, `llms.txt`, `ai.txt`, `ads.txt`, and `humans.txt` as static discovery endpoints.
 
 ---
 

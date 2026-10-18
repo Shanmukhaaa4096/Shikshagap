@@ -56,3 +56,4 @@ next-env.d.ts
 .env*
 dist/
 shikshagap/
+lighthouse-*.json

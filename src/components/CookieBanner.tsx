@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useSyncExternalStore } from 'react';
+import { useState, useEffect, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { ShieldCheck, X } from '@phosphor-icons/react';
 
@@ -49,6 +49,14 @@ export function CookieBanner() {
   );
 
   const [localDismissed, setLocalDismissed] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMounted(true);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleChoice = (accepted: boolean) => {
     try {
@@ -62,8 +70,8 @@ export function CookieBanner() {
     setLocalDismissed(true);
   };
 
-  // Do not render if already chosen, pending hydration, or dismissed locally
-  if (consent !== 'unprompted' || localDismissed) {
+  // Do not render if not mounted yet, already chosen, pending hydration, or dismissed locally
+  if (!mounted || consent !== 'unprompted' || localDismissed) {
     return null;
   }
 

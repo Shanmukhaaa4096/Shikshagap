@@ -1,0 +1,12 @@
+/* TEAM */
+Developer: Shanmukha
+Site: https://github.com/Shanmukhaaa4096
+
+/* PROJECT */
+Name: ShikshaGap
+URL: https://shikshagap.vercel.app/
+Source: https://github.com/Shanmukhaaa4096/Shikshagap
+Licence: MIT
+
+/* TECHNOLOGY */
+Next.js, React, TypeScript, Tailwind CSS, shadcn/ui, Google Gemini API, Vercel

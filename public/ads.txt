@@ -1,0 +1,2 @@
+# ads.txt for shikshagap.vercel.app
+# This site does not sell advertising and has no authorised digital sellers.

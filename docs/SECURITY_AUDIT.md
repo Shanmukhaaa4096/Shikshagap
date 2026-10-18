@@ -12,7 +12,7 @@
 
 ShikshaGap processes educational diagnostic information for Class 5 students in Indian government schools. Under the **Digital Personal Data Protection Act (DPDP Act) 2023**, children's data requires strict confidentiality, purpose limitation, and tamper-resistant access controls. 
 
-This audit verified multi-tenant isolation, cryptographic share tokens, teacher overrides, audit trail immutability, spreadsheet injection defenses, and mobile security invariants.
+This audit verified multi-tenant isolation, cryptographic share tokens, teacher overrides, audit trail immutability, spreadsheet injection defenses, and mobile security invariants. RFC 9116 security.txt added at `/.well-known/security.txt` for standardized vulnerability reporting.
 
 ---
 

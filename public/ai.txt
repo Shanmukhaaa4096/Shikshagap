@@ -1,0 +1,18 @@
+# ai.txt for shikshagap.vercel.app
+# Policy for AI crawlers and AI training. Keep this consistent with robots.txt.
+
+User-Agent: *
+Allow: /
+Disallow: /api/
+Disallow: /app/
+Disallow: /report/
+Disallow: /login/
+Disallow: /register/
+Disallow: /verify/
+Disallow: /forgot-password/
+Disallow: /reset-password/
+
+# Public marketing and documentation pages may be read and cited by AI search and answer engines.
+# Student data, assessment results and teacher dashboards must never be used for training.
+
+# Contact: https://github.com/Shanmukhaaa4096/Shikshagap/issues

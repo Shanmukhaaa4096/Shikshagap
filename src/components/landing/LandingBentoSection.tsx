@@ -124,6 +124,53 @@ export function LandingBentoSection() {
           </div>
         </div>
       </div>
+
+      {/* Curriculum Guides & Learning Gaps Navigation Strip */}
+      <div className="mt-8 pt-8 border-t border-[#C7DDAE]/60 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="text-xs font-sans uppercase tracking-widest text-primary font-bold">
+            Curriculum Deep-Dives by Stage (NCERT &amp; ICSE Aligned)
+          </div>
+          <a href="/learning-gaps" className="text-xs font-bold text-accent hover:underline flex items-center gap-1">
+            <span>Read: What is a Learning Gap?</span>
+            <ArrowRight size={12} weight="bold" />
+          </a>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-sans">
+          <a
+            href="/curriculum/classes-1-3"
+            className="p-3.5 rounded-[18px] border border-[#C7DDAE] bg-[#FFF7E6] dark:bg-[#1C2817] hover:border-primary transition-all block group"
+          >
+            <span className="font-mono text-xs uppercase font-bold text-primary block">Foundational</span>
+            <strong className="text-foreground group-hover:text-primary block mt-0.5">Classes 1 to 3</strong>
+            <span className="text-muted-foreground text-xs block mt-0.5">Number sense &amp; grouping</span>
+          </a>
+          <a
+            href="/curriculum/classes-4-5"
+            className="p-3.5 rounded-[18px] border border-[#C7DDAE] bg-[#FFF7E6] dark:bg-[#1C2817] hover:border-primary transition-all block group"
+          >
+            <span className="font-mono text-xs uppercase font-bold text-primary block">Preparatory</span>
+            <strong className="text-foreground group-hover:text-primary block mt-0.5">Classes 4 and 5</strong>
+            <span className="text-muted-foreground text-xs block mt-0.5">Multi-digit math &amp; fractions</span>
+          </a>
+          <a
+            href="/curriculum/classes-6-8"
+            className="p-3.5 rounded-[18px] border border-[#C7DDAE] bg-[#FFF7E6] dark:bg-[#1C2817] hover:border-primary transition-all block group"
+          >
+            <span className="font-mono text-xs uppercase font-bold text-primary block">Middle Stage</span>
+            <strong className="text-foreground group-hover:text-primary block mt-0.5">Classes 6 to 8</strong>
+            <span className="text-muted-foreground text-xs block mt-0.5">Integers &amp; pre-algebra</span>
+          </a>
+          <a
+            href="/curriculum/classes-9-10"
+            className="p-3.5 rounded-[18px] border border-[#C7DDAE] bg-[#FFF7E6] dark:bg-[#1C2817] hover:border-primary transition-all block group"
+          >
+            <span className="font-mono text-xs uppercase font-bold text-primary block">Secondary</span>
+            <strong className="text-foreground group-hover:text-primary block mt-0.5">Classes 9 and 10</strong>
+            <span className="text-muted-foreground text-xs block mt-0.5">Quadratics &amp; trigonometry</span>
+          </a>
+        </div>
+      </div>
     </section>
   );
 }
