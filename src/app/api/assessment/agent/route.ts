@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateQuestion, generateUnique } from "@/lib/questions/generator";
+import { generateUnique } from "@/lib/questions/generator";
 import { enhanceQuestionWithHybridWording } from "@/lib/questions/hybridGenerator";
 import { getVerifiedTextbookQuestion } from "@/lib/questions/textbookBank";
 import { validateQuestionStrict } from "@/lib/questions/validator";
@@ -18,6 +18,8 @@ import type {
 } from "@/lib/types";
 
 import { getMultiBoardQuestion } from "@/lib/questions/multiBoardBank";
+import { syncQuestionProvenance } from "@/lib/questions/provenance";
+import { getCurriculumConcept } from "@/data/curriculum";
 import { rotateSourceStyle, type SourceStyle, type DifficultyLevel } from "@/lib/agents/adaptiveEngine";
 import { z } from "zod";
 import { guardRequest, createGuardResponse } from "@/lib/server/guard";
@@ -190,11 +192,13 @@ export async function POST(req: NextRequest) {
         : "CBSE";
 
     let nextQuestion: Question | null = null;
+    const targetConcept = getCurriculumConcept(nextAction.conceptId, targetBoard);
+    const lookupClass = targetConcept?.class || currentMemory.grade;
 
     // 4a. Primary: Retrieve matching multi-board question (NCERT, Exemplar, CBSE Ref, ICSE Selina/Foundation)
     const multiBoardCandidate = getMultiBoardQuestion(
       {
-        class: currentMemory.grade,
+        class: lookupClass,
         conceptId: nextAction.conceptId,
         difficulty: nextAction.level as DifficultyLevel,
         sourceStyle: targetSourceStyle,
@@ -205,12 +209,15 @@ export async function POST(req: NextRequest) {
     );
 
     if (multiBoardCandidate) {
-      const valResult = validateQuestionStrict(multiBoardCandidate, {
+      const synced = syncQuestionProvenance(multiBoardCandidate, targetBoard);
+      const valResult = validateQuestionStrict(synced, {
         targetLang: currentMemory.language,
         requireTextbookProvenance: false,
+        enrolledGrade: lookupClass,
+        expectedBoard: targetBoard,
       });
       if (valResult.valid) {
-        nextQuestion = multiBoardCandidate;
+        nextQuestion = synced;
       }
     }
 
@@ -218,7 +225,7 @@ export async function POST(req: NextRequest) {
     if (!nextQuestion && targetBoard === "CBSE") {
       const textbookCandidate = getVerifiedTextbookQuestion(
         {
-          class: currentMemory.grade,
+          class: lookupClass,
           conceptId: nextAction.conceptId,
           difficulty: nextAction.level,
           language: currentMemory.language,
@@ -229,142 +236,113 @@ export async function POST(req: NextRequest) {
       );
 
       if (textbookCandidate) {
-        const valResult = validateQuestionStrict(textbookCandidate, {
+        const synced = syncQuestionProvenance(textbookCandidate, "CBSE");
+        const valResult = validateQuestionStrict(synced, {
           targetLang: currentMemory.language,
           requireTextbookProvenance: true,
+          enrolledGrade: lookupClass,
+          expectedBoard: "CBSE",
         });
         if (valResult.valid) {
-          nextQuestion = {
-            ...textbookCandidate,
-            sourceStyle: targetSourceStyle,
-            board: "CBSE",
-          };
+          nextQuestion = synced;
         }
       }
     }
 
     // 5. Fallback: generate and enhance with Gemini hybrid generator in the requested sourceStyle & board
     if (!nextQuestion) {
-      const baseQuestion = generateUnique(
-        nextAction.conceptId,
-        nextAction.level,
-        rng,
-        seen,
-        currentMemory.grade,
-        {},
-        { avoidFormat: lastFormat }
-      );
-      baseQuestion.board = targetBoard;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const baseQuestion = generateUnique(
+          nextAction.conceptId,
+          nextAction.level,
+          rng,
+          seen,
+          lookupClass,
+          { board: targetBoard },
+          { avoidFormat: lastFormat }
+        );
+        const synced = syncQuestionProvenance(baseQuestion, targetBoard);
 
-      // Enhance wording with Gemini hybrid generator (validated against operands, script, and safety)
-      let enhanced = await enhanceQuestionWithHybridWording(
-        baseQuestion,
-        currentMemory.language,
-        currentMemory.grade,
-        seen,
-        { ip, sourceStyle: targetSourceStyle }
-      );
-      enhanced.board = targetBoard;
+        // Enhance wording only for elementary grades (grade <= 4)
+        let candidateQ = synced;
+        if (lookupClass <= 4) {
+          candidateQ = await enhanceQuestionWithHybridWording(
+            synced,
+            currentMemory.language,
+            lookupClass,
+            seen,
+            { ip, sourceStyle: targetSourceStyle }
+          );
+          candidateQ = syncQuestionProvenance(candidateQ, targetBoard);
+        }
 
-      // Strict question validation
-      let strictCheck = validateQuestionStrict(enhanced, {
-        targetLang: currentMemory.language,
-        requireTextbookProvenance: false,
-      });
-
-      if (!strictCheck.valid) {
-        console.warn(`[AgentRoute] Enhanced question failed validation: ${strictCheck.errors.join(", ")}. Falling back to base.`);
-        enhanced = baseQuestion;
-        enhanced.board = targetBoard;
-        strictCheck = validateQuestionStrict(enhanced, {
+        const strictCheck = validateQuestionStrict(candidateQ, {
           targetLang: currentMemory.language,
           requireTextbookProvenance: false,
+          enrolledGrade: lookupClass,
+          expectedBoard: targetBoard,
         });
-        if (!strictCheck.valid) {
-          enhanced = generateQuestion(nextAction.conceptId, nextAction.level, rng, currentMemory.grade);
-          enhanced.board = targetBoard;
-        }
-      }
 
-      nextQuestion = {
-        ...enhanced,
-        sourceStyle: targetSourceStyle,
-        board: targetBoard,
-      };
-    }
-
-    // Final strict validation check before returning to student
-    const finalCheck = validateQuestionStrict(nextQuestion, {
-      targetLang: currentMemory.language,
-      requireTextbookProvenance: false,
-    });
-
-    if (!finalCheck.valid) {
-      console.error(`[AgentRoute] CRITICAL: Question failed final validation:`, finalCheck.errors);
-      if (targetBoard === "ICSE") {
-        const emergencyICSE = getMultiBoardQuestion(
-          {
-            class: currentMemory.grade,
-            board: "ICSE",
-            excludeIds: Array.from(seen),
-          },
-          currentMemory.language
-        );
-        if (emergencyICSE) {
-          nextQuestion = emergencyICSE;
-        }
-      } else {
-        const emergencyQ = getVerifiedTextbookQuestion(
-          {
-            class: currentMemory.grade,
-            language: currentMemory.language,
-            excludeIds: Array.from(seen),
-            onlyVerified: true,
-          },
-          currentMemory.language
-        );
-        if (emergencyQ) {
-          nextQuestion = {
-            ...emergencyQ,
-            sourceStyle: targetSourceStyle,
-            board: "CBSE",
-          };
+        if (strictCheck.valid) {
+          nextQuestion = candidateQ;
+          break;
+        } else {
+          // If enhanced failed, try base
+          const baseCheck = validateQuestionStrict(synced, {
+            targetLang: currentMemory.language,
+            requireTextbookProvenance: false,
+            enrolledGrade: lookupClass,
+            expectedBoard: targetBoard,
+          });
+          if (baseCheck.valid) {
+            nextQuestion = synced;
+            break;
+          }
         }
       }
     }
 
-    // Server-Side Strict Board Isolation Guard
-    if (targetBoard === "ICSE" && nextQuestion.board !== "ICSE") {
-      const emergencyICSE = getMultiBoardQuestion(
+    // 6. Emergency Fallback: fall back ONLY to a question from the SAME class, board and concept
+    if (!nextQuestion) {
+      const emergencyCandidate = getMultiBoardQuestion(
         {
-          class: currentMemory.grade,
-          board: "ICSE",
+          class: lookupClass,
+          conceptId: nextAction.conceptId,
+          board: targetBoard,
         },
         currentMemory.language
       );
-      if (emergencyICSE) {
-        nextQuestion = emergencyICSE;
-      } else {
-        nextQuestion.board = "ICSE";
-      }
-    } else if (targetBoard === "CBSE" && nextQuestion.board !== "CBSE") {
-      const emergencyCBSE = getMultiBoardQuestion(
-        {
-          class: currentMemory.grade,
-          board: "CBSE",
-        },
-        currentMemory.language
-      );
-      if (emergencyCBSE) {
-        nextQuestion = emergencyCBSE;
-      } else {
-        nextQuestion.board = "CBSE";
+      if (emergencyCandidate) {
+        const synced = syncQuestionProvenance(emergencyCandidate, targetBoard);
+        const check = validateQuestionStrict(synced, {
+          targetLang: currentMemory.language,
+          requireTextbookProvenance: false,
+          enrolledGrade: lookupClass,
+          expectedBoard: targetBoard,
+        });
+        if (check.valid) {
+          nextQuestion = synced;
+        }
       }
     }
 
-    if (nextQuestion) {
-      nextQuestion.sourceStyle = nextQuestion.sourceStyle || targetSourceStyle;
+    // As a last resort, return error rather than serving an incorrect class or board question
+    if (!nextQuestion) {
+      console.error(
+        `[AgentRoute] CRITICAL: No valid on-grade question found for concept ${nextAction.conceptId}, class ${lookupClass}, board ${targetBoard}`
+      );
+      return NextResponse.json(
+        {
+          error: `Unable to produce a valid Class ${lookupClass} ${targetBoard} question for concept ${nextAction.conceptId}.`,
+        },
+        { status: 500 }
+      );
     }
+
+    // Stamp final synchronization and unique step-scoped instance ID
+    nextQuestion = syncQuestionProvenance(nextQuestion, targetBoard);
+    nextQuestion.sourceStyle = nextQuestion.sourceStyle || targetSourceStyle;
+    nextQuestion.id = `${nextQuestion.id}_s${currentStep + 1}_${Date.now()}`;
 
     seen.add(nextQuestion.id);
     currentMemory.seenSignatures = Array.from(seen);

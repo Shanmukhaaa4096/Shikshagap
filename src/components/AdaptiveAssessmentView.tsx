@@ -47,6 +47,9 @@ import { areAnswersEquivalent } from "@/lib/questions/integrity";
 import { makeRng } from "@/lib/rng";
 import { getClassConfig, DEFAULT_CLASS_ID, SUPPORTED_CLASSES } from "@/lib/curriculum/classes";
 import { getVerifiedTextbookQuestion } from "@/lib/questions/textbookBank";
+import { getMultiBoardQuestion } from "@/lib/questions/multiBoardBank";
+import { syncQuestionProvenance } from "@/lib/questions/provenance";
+import { getCurriculumConcept } from "@/data/curriculum";
 import {
   SOURCE_STYLE_METADATA,
   DIFFICULTY_DESCRIPTIONS,
@@ -451,19 +454,36 @@ export function AdaptiveAssessmentView({
         const action = getNextStaircaseAction(initialMemory);
         if (action.type === "ask") {
           const seen = new Set<string>();
-          let q = getVerifiedTextbookQuestion(
+          const targetBoard: "CBSE" | "ICSE" = boardPreference === "ICSE" ? "ICSE" : "CBSE";
+          const targetConcept = getCurriculumConcept(action.conceptId);
+          const lookupClass = targetConcept?.class || classConfig.grade;
+
+          let q: Question | null = getMultiBoardQuestion(
             {
-              class: classConfig.grade,
+              class: lookupClass,
               conceptId: action.conceptId,
               difficulty: action.level,
-              language: lang as Lang,
-              onlyVerified: true,
+              board: targetBoard,
+              excludeIds: Array.from(seen),
             },
             lang as Lang
           );
-          if (!q) {
-            q = generateUnique(action.conceptId, action.level, fallbackRng, seen, classConfig.grade);
+          if (!q && targetBoard === "CBSE") {
+            q = getVerifiedTextbookQuestion(
+              {
+                class: lookupClass,
+                conceptId: action.conceptId,
+                difficulty: action.level,
+                language: lang as Lang,
+                onlyVerified: true,
+              },
+              lang as Lang
+            );
           }
+          if (!q) {
+            q = generateUnique(action.conceptId, action.level, fallbackRng, seen, lookupClass, { board: targetBoard });
+          }
+          q = syncQuestionProvenance(q, targetBoard);
           seen.add(q.id);
           setSessionMemory({
             ...initialMemory,
@@ -613,28 +633,45 @@ export function AdaptiveAssessmentView({
             const sessionSeed = advanced.memory.sessionSeed ?? 10007;
             const step = advanced.memory.stepCount ?? sessionMemory.topics.reduce((acc, t) => acc + t.attempts.length, 0);
             const stepSeed = ((sessionSeed + step * 7919) >>> 0);
-            let nextQ = getVerifiedTextbookQuestion(
+            const targetBoard: "CBSE" | "ICSE" = boardPreference === "ICSE" ? "ICSE" : "CBSE";
+            const targetConcept = getCurriculumConcept(advanced.action.conceptId);
+            const lookupClass = targetConcept?.class || sessionMemory.grade;
+
+            let nextQ: Question | null = getMultiBoardQuestion(
               {
-                class: sessionMemory.grade,
+                class: lookupClass,
                 conceptId: advanced.action.conceptId,
                 difficulty: advanced.action.level,
-                language: lang as Lang,
+                board: targetBoard,
                 excludeIds: Array.from(seen),
-                onlyVerified: true,
               },
               lang as Lang
             );
+            if (!nextQ && targetBoard === "CBSE") {
+              nextQ = getVerifiedTextbookQuestion(
+                {
+                  class: lookupClass,
+                  conceptId: advanced.action.conceptId,
+                  difficulty: advanced.action.level,
+                  language: lang as Lang,
+                  excludeIds: Array.from(seen),
+                  onlyVerified: true,
+                },
+                lang as Lang
+              );
+            }
             if (!nextQ) {
               nextQ = generateUnique(
                 advanced.action.conceptId,
                 advanced.action.level,
                 makeRng(stepSeed),
                 seen,
-                sessionMemory.grade,
-                {},
+                lookupClass,
+                { board: targetBoard },
                 { avoidFormat: lastFormat }
               );
             }
+            nextQ = syncQuestionProvenance(nextQ, targetBoard);
             seen.add(nextQ.id);
             setSessionMemory({
               ...advanced.memory,

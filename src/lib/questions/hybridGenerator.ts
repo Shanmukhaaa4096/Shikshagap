@@ -411,7 +411,25 @@ export function extractQuestionOperands(q: Question): ExtractedQuestionOperands 
     }
   }
 
-  return null;
+  // Fallback: extract numbers from expression or prompt
+  // Fallback: extract numbers from expression, prompt, answer, or options
+  const optText = (q.options || []).map((o) => o.value).join(" ");
+  const allText = `${q.expression || ""} ${"raw" in q.prompt ? q.prompt.raw : ""} ${q.answer || ""} ${optText}`;
+  const extractedNumbers = (allText.match(/\b\d+\b/g) || []).map(Number).slice(0, 4);
+  if (extractedNumbers.length > 0) {
+    return {
+      operands: extractedNumbers,
+      operation: op || "+",
+      isEligibleForWordProblem: true,
+    };
+  }
+
+  // Secondary algebra/concept fallback
+  return {
+    operands: [1, 2],
+    operation: op || "+",
+    isEligibleForWordProblem: true,
+  };
 }
 
 // ---------------------------------------------------------------------------

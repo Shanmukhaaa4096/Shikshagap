@@ -39,7 +39,7 @@ export const ICSE_CLASS_10_CONCEPTS: CurriculumConcept[] = [
     class: 10,
     board: "ICSE",
     chapterName: "Quadratic Equations",
-    prerequisites: ["icse_9_algebra_expansions", "cbse_10_quadratic_equations"],
+    prerequisites: ["icse_9_algebra_expansions"],
     difficultyLevels: [1, 2, 3, 4, 5],
     questionTypes: ["mcq", "short_answer", "word_problem"],
   },

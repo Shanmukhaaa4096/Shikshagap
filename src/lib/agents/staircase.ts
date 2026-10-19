@@ -49,20 +49,20 @@ export function getConceptForTopic(
 
   // Class 1
   if (grade === 1) {
-    if (topicId === "counting") return isIcse ? "icse-1-m02" : "cbse-1-m02";
-    if (topicId === "shapes_spatial") return isIcse ? "icse-1-m04" : "cbse-1-m01";
-    if (topicId === "add_sub") return isIcse ? "icse-1-m03" : "cbse-1-m03";
-    if (topicId === "money") return isIcse ? "icse-1-m05" : "cbse-1-m12";
-    return isIcse ? "icse-1-m02" : "cbse-1-m02";
+    if (topicId === "counting") return isIcse ? "icse_1_numbers_20" : "cbse_1_counting_1_9";
+    if (topicId === "shapes_spatial") return isIcse ? "icse_1_shapes" : "cbse_1_shapes";
+    if (topicId === "add_sub") return isIcse ? "icse_1_add_sub_20" : "cbse_1_add_sub_9";
+    if (topicId === "money") return isIcse ? "icse_1_time_money" : "cbse_1_money";
+    return isIcse ? "icse_1_numbers_20" : "cbse_1_counting_1_9";
   }
 
   // Class 2
   if (grade === 2) {
-    if (topicId === "two_digit_numbers") return isIcse ? "icse-2-m01" : "cbse-2-m02";
-    if (topicId === "addition_subtraction") return isIcse ? "icse-2-m02" : "cbse-2-m08";
-    if (topicId === "measurement") return isIcse ? "icse-2-m04" : "cbse-2-m07";
-    if (topicId === "patterns") return isIcse ? "icse-2-m05" : "cbse-2-m01";
-    return isIcse ? "icse-2-m01" : "cbse-2-m02";
+    if (topicId === "two_digit_numbers") return isIcse ? "icse_2_numbers_1000" : "cbse_2_pv_100";
+    if (topicId === "addition_subtraction") return isIcse ? "icse_2_add_sub" : "cbse_2_add_2digit";
+    if (topicId === "measurement") return isIcse ? "icse_2_measurement" : "cbse_2_measurement";
+    if (topicId === "patterns") return isIcse ? "icse_2_geometry" : "cbse_2_shapes_2d_3d";
+    return isIcse ? "icse_2_numbers_1000" : "cbse_2_pv_100";
   }
 
   // Class 3
@@ -89,55 +89,55 @@ export function getConceptForTopic(
     if (topicId === "multiplication") return "multi_digit_mult";
     if (topicId === "division") return "division_facts";
     if (topicId === "fractions") return "equivalent_fractions";
-    if (topicId === "area_perimeter") return "cbse-5-m02";
+    if (topicId === "area_perimeter") return "cbse_5_area";
     if (topicId === "number_ops") return "place_value";
     return "multi_digit_mult";
   }
 
   // Class 6
   if (grade === 6) {
-    if (topicId === "integers") return isIcse ? "icse-6-m02" : "cbse-6-m03";
-    if (topicId === "fractions_decimals" || topicId === "fractions") return isIcse ? "icse-6-m03" : "cbse-6-m04";
-    if (topicId === "algebra_intro") return isIcse ? "icse-6-m06" : "cbse-6-m07";
-    if (topicId === "ratio_proportion" || topicId === "multiplication" || topicId === "division") return isIcse ? "icse-6-m04" : "cbse-6-m08";
-    if (topicId === "number_ops") return isIcse ? "icse-6-m02" : "cbse-6-m03";
-    return isIcse ? "icse-6-m02" : "cbse-6-m03";
+    if (topicId === "integers") return isIcse ? "icse_6_integers" : "cbse_6_integers";
+    if (topicId === "fractions_decimals" || topicId === "fractions") return isIcse ? "icse_6_fractions_decimals" : "cbse_6_fractions_decimals";
+    if (topicId === "algebra_intro") return isIcse ? "icse_6_algebra" : "cbse_6_algebra_basics";
+    if (topicId === "ratio_proportion" || topicId === "multiplication" || topicId === "division") return isIcse ? "icse_6_ratio_proportion" : "cbse_6_ratio";
+    if (topicId === "number_ops") return isIcse ? "icse_6_integers" : "cbse_6_integers";
+    return isIcse ? "icse_6_integers" : "cbse_6_integers";
   }
 
   // Class 7
   if (grade === 7) {
-    if (topicId === "rational_numbers" || topicId === "number_ops") return isIcse ? "icse-7-m02" : "cbse-7-m08";
-    if (topicId === "linear_equations") return isIcse ? "icse-7-m05" : "cbse-7-m04";
-    if (topicId === "algebraic_expressions") return isIcse ? "icse-7-m04" : "cbse-7-m10";
-    if (topicId === "comparing_quantities" || topicId === "multiplication" || topicId === "division" || topicId === "fractions") return isIcse ? "icse-7-m03" : "cbse-7-m07";
-    return isIcse ? "icse-7-m02" : "cbse-7-m08";
+    if (topicId === "rational_numbers" || topicId === "number_ops") return isIcse ? "icse_7_integers_rationals" : "cbse_7_rational_numbers";
+    if (topicId === "linear_equations") return isIcse ? "icse_7_algebra_equations" : "cbse_7_simple_equations";
+    if (topicId === "algebraic_expressions") return isIcse ? "icse_7_exponents" : "cbse_7_algebraic_expressions";
+    if (topicId === "comparing_quantities" || topicId === "multiplication" || topicId === "division" || topicId === "fractions") return isIcse ? "icse_7_commercial_math" : "cbse_7_comparing_quantities";
+    return isIcse ? "icse_7_integers_rationals" : "cbse_7_rational_numbers";
   }
 
   // Class 8
   if (grade === 8) {
-    if (topicId === "rational_powers" || topicId === "number_ops") return isIcse ? "icse-8-m01" : "cbse-8-m01";
-    if (topicId === "linear_equations_one_var") return isIcse ? "icse-8-m04" : "cbse-8-m02";
-    if (topicId === "algebraic_identities" || topicId === "multiplication" || topicId === "division") return isIcse ? "icse-8-m03" : "cbse-8-m08";
-    if (topicId === "mensuration" || topicId === "fractions") return isIcse ? "icse-8-m06" : "cbse-8-m09";
-    return isIcse ? "icse-8-m01" : "cbse-8-m01";
+    if (topicId === "rational_powers" || topicId === "number_ops") return isIcse ? "icse_8_exponents_radicals" : "cbse_8_rational_properties";
+    if (topicId === "linear_equations_one_var") return isIcse ? "icse_8_linear_equations" : "cbse_8_linear_equations_1var";
+    if (topicId === "algebraic_identities" || topicId === "multiplication" || topicId === "division") return isIcse ? "icse_8_algebra_factorisation" : "cbse_8_algebraic_identities";
+    if (topicId === "mensuration" || topicId === "fractions") return isIcse ? "icse_8_mensuration" : "cbse_8_mensuration";
+    return isIcse ? "icse_8_exponents_radicals" : "cbse_8_rational_properties";
   }
 
   // Class 9
   if (grade === 9) {
-    if (topicId === "number_systems" || topicId === "number_ops") return isIcse ? "icse-9-m01" : "cbse-9-m01";
-    if (topicId === "polynomials" || topicId === "multiplication" || topicId === "division") return isIcse ? "icse-9-m04" : "cbse-9-m02";
-    if (topicId === "coordinate_geometry") return isIcse ? "icse-9-m07" : "cbse-9-m03";
-    if (topicId === "linear_equations_two_vars" || topicId === "fractions") return isIcse ? "icse-9-m05" : "cbse-9-m04";
-    return isIcse ? "icse-9-m01" : "cbse-9-m01";
+    if (topicId === "number_systems" || topicId === "number_ops") return isIcse ? "icse_9_pure_arithmetic" : "cbse_9_number_systems";
+    if (topicId === "polynomials" || topicId === "multiplication" || topicId === "division") return isIcse ? "icse_9_algebra_expansions" : "cbse_9_polynomials";
+    if (topicId === "coordinate_geometry") return isIcse ? "icse_9_coordinate_geometry" : "cbse_9_coordinate_geometry";
+    if (topicId === "linear_equations_two_vars" || topicId === "fractions") return isIcse ? "icse_9_linear_equations" : "cbse_9_linear_equations_2var";
+    return isIcse ? "icse_9_pure_arithmetic" : "cbse_9_number_systems";
   }
 
   // Class 10
   if (grade === 10) {
-    if (topicId === "real_numbers" || topicId === "number_ops") return isIcse ? "icse-10-m01" : "cbse-10-m01";
-    if (topicId === "quadratic_equations" || topicId === "multiplication" || topicId === "division") return isIcse ? "icse-10-m03" : "cbse-10-m04";
-    if (topicId === "arithmetic_progressions") return isIcse ? "icse-10-m06" : "cbse-10-m05";
-    if (topicId === "trigonometry" || topicId === "fractions") return isIcse ? "icse-10-m08" : "cbse-10-m08";
-    return isIcse ? "icse-10-m01" : "cbse-10-m01";
+    if (topicId === "real_numbers" || topicId === "number_ops") return isIcse ? "icse_10_commercial_math" : "cbse_10_real_numbers";
+    if (topicId === "quadratic_equations" || topicId === "multiplication" || topicId === "division") return isIcse ? "icse_10_quadratic_equations" : "cbse_10_quadratic_equations";
+    if (topicId === "arithmetic_progressions") return isIcse ? "icse_10_arithmetic_progression" : "cbse_10_arithmetic_progressions";
+    if (topicId === "trigonometry" || topicId === "fractions") return isIcse ? "icse_10_trigonometry" : "cbse_10_trigonometry";
+    return isIcse ? "icse_10_commercial_math" : "cbse_10_real_numbers";
   }
 
   return "number_sense";
@@ -356,7 +356,9 @@ export function applyAttemptToMemory(
   // Clone memory deeply enough to mutate safely
   const updatedTopics: TopicMemory[] = memory.topics.map((t, idx) => {
     if (idx !== memory.currentTopicIndex) return t;
-    const existing = t.attempts.some((a) => a.questionId === attempt.questionId);
+    const existing = t.attempts.some(
+      (a) => a.questionId === attempt.questionId && a.studentAnswer === attempt.studentAnswer
+    );
     return {
       ...t,
       attempts: existing ? t.attempts : [...t.attempts, attempt],

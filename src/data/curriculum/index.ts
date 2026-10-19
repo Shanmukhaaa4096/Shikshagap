@@ -90,15 +90,131 @@ const RAW_CONCEPTS_LIST: CurriculumConcept[] = [
 
 export const ALL_CURRICULUM_CONCEPTS_LIST: CurriculumConcept[] = RAW_CONCEPTS_LIST.map(enrichConcept);
 
+export const CONCEPT_ALIASES: Record<string, string> = {
+  // Class 10 aliases
+  "cbse-10-m01": "cbse_10_real_numbers",
+  "cbse-10-m04": "cbse_10_quadratic_equations",
+  "cbse-10-m05": "cbse_10_arithmetic_progressions",
+  "cbse-10-m08": "cbse_10_trigonometry",
+  "icse-10-m01": "icse_10_commercial_math",
+  "icse-10-m02": "icse_10_linear_inequations",
+  "icse-10-m03": "icse_10_quadratic_equations",
+  "icse-10-m04": "icse_10_factorisation_matrices",
+  "icse-10-m05": "icse_10_arithmetic_progression",
+  "icse-10-m06": "icse_10_arithmetic_progression",
+  "icse-10-m08": "icse_10_trigonometry",
+  // Class 9 aliases
+  "cbse-9-m01": "cbse_9_number_systems",
+  "cbse-9-m02": "cbse_9_polynomials",
+  "cbse-9-m03": "cbse_9_coordinate_geometry",
+  "cbse-9-m04": "cbse_9_linear_equations_2var",
+  "icse-9-m01": "icse_9_pure_arithmetic",
+  "icse-9-m04": "icse_9_algebra_expansions",
+  "icse-9-m05": "icse_9_linear_equations",
+  "icse-9-m07": "icse_9_coordinate_geometry",
+  // Class 8 aliases
+  "cbse-8-m01": "cbse_8_rational_properties",
+  "cbse-8-m02": "cbse_8_linear_equations_1var",
+  "cbse-8-m08": "cbse_8_algebraic_identities",
+  "cbse-8-m09": "cbse_8_mensuration",
+  "icse-8-m01": "icse_8_exponents_radicals",
+  "icse-8-m03": "icse_8_algebra_factorisation",
+  "icse-8-m04": "icse_8_linear_equations",
+  "icse-8-m06": "icse_8_mensuration",
+  // Class 7 aliases
+  "cbse-7-m04": "cbse_7_simple_equations",
+  "cbse-7-m07": "cbse_7_comparing_quantities",
+  "cbse-7-m08": "cbse_7_rational_numbers",
+  "cbse-7-m10": "cbse_7_algebraic_expressions",
+  "icse-7-m02": "icse_7_integers_rationals",
+  "icse-7-m03": "icse_7_commercial_math",
+  "icse-7-m04": "icse_7_exponents",
+  "icse-7-m05": "icse_7_algebra_equations",
+  // Class 6 aliases
+  "cbse-6-m03": "cbse_6_integers",
+  "cbse-6-m04": "cbse_6_fractions_decimals",
+  "cbse-6-m07": "cbse_6_algebra_basics",
+  "cbse-6-m08": "cbse_6_ratio",
+  "icse-6-m02": "icse_6_integers",
+  "icse-6-m03": "icse_6_fractions_decimals",
+  "icse-6-m04": "icse_6_ratio_proportion",
+  "icse-6-m06": "icse_6_algebra",
+  // Class 2 aliases
+  "cbse-2-m01": "cbse_2_shapes_2d_3d",
+  "cbse-2-m02": "cbse_2_pv_100",
+  "cbse-2-m07": "cbse_2_measurement",
+  "cbse-2-m08": "cbse_2_add_2digit",
+  "icse-2-m01": "icse_2_numbers_1000",
+  "icse-2-m02": "icse_2_add_sub",
+  "icse-2-m04": "icse_2_measurement",
+  "icse-2-m05": "icse_2_geometry",
+  // Class 1 aliases
+  "cbse-1-m01": "cbse_1_shapes",
+  "cbse-1-m02": "cbse_1_counting_1_9",
+  "cbse-1-m03": "cbse_1_add_sub_9",
+  "cbse-1-m12": "cbse_1_money",
+  "icse-1-m02": "icse_1_numbers_20",
+  "icse-1-m03": "icse_1_add_sub_20",
+  "icse-1-m04": "icse_1_shapes",
+  "icse-1-m05": "icse_1_time_money",
+};
+
 export const CURRICULUM_REGISTRY: Record<string, CurriculumConcept> = Object.fromEntries(
   ALL_CURRICULUM_CONCEPTS_LIST.map((c) => [c.id, c])
 );
 
+// Populate registry with aliases
+for (const [alias, target] of Object.entries(CONCEPT_ALIASES)) {
+  if (CURRICULUM_REGISTRY[target]) {
+    CURRICULUM_REGISTRY[alias] = CURRICULUM_REGISTRY[target];
+  }
+}
+
 export const allConceptsMap: Map<string, CurriculumConcept> = new Map(
-  ALL_CURRICULUM_CONCEPTS_LIST.map((c) => [c.id, c])
+  Object.entries(CURRICULUM_REGISTRY)
 );
 
-export function getCurriculumConcept(id: string): CurriculumConcept | undefined {
+export function getCurriculumConcept(
+  id: string,
+  board?: Board | "BOTH"
+): CurriculumConcept | undefined {
+  if (!id) return undefined;
+  if (CURRICULUM_REGISTRY[id]) {
+    // If board specified, verify match or check if alternate board concept exists
+    if (board && board !== "BOTH") {
+      const direct = CURRICULUM_REGISTRY[id];
+      if (direct.board === board || direct.boards?.includes(board)) {
+        return direct;
+      }
+    } else {
+      return CURRICULUM_REGISTRY[id];
+    }
+  }
+
+  // Topic-name mapping with board preference
+  if (id === "quadratic_equations") {
+    const target = board === "ICSE" ? "icse_10_quadratic_equations" : "cbse_10_quadratic_equations";
+    return CURRICULUM_REGISTRY[target];
+  }
+  if (id === "real_numbers") {
+    const target = board === "ICSE" ? "icse_10_commercial_math" : "cbse_10_real_numbers";
+    return CURRICULUM_REGISTRY[target];
+  }
+  if (id === "arithmetic_progressions") {
+    const target = board === "ICSE" ? "icse_10_arithmetic_progression" : "cbse_10_arithmetic_progressions";
+    return CURRICULUM_REGISTRY[target];
+  }
+  if (id === "trigonometry") {
+    const target = board === "ICSE" ? "icse_10_trigonometry" : "cbse_10_trigonometry";
+    return CURRICULUM_REGISTRY[target];
+  }
+
+  // Check aliases
+  const mapped = CONCEPT_ALIASES[id];
+  if (mapped && CURRICULUM_REGISTRY[mapped]) {
+    return CURRICULUM_REGISTRY[mapped];
+  }
+
   return CURRICULUM_REGISTRY[id];
 }
 

@@ -155,7 +155,8 @@ export type ErrorType =
   | "fraction_inverted"
   | "remainder" // remainder ignored / misread
   | "dont_know"
-  | "unclassified";
+  | "unclassified"
+  | (string & {});
 
 export type Visual =
   | { kind: "array"; rows: number; cols: number }
@@ -179,6 +180,7 @@ export interface QuestionMeta {
   /** known buggy answers → error type (canonical string → error) */
   bugs?: Record<string, ErrorType>;
   focus?: number;
+  class?: number;
 }
 
 export interface Question {

@@ -17,6 +17,7 @@
 import type { ConceptId, Difficulty, ErrorType, Lang, Question, QuestionFormat } from "../types.ts";
 import type { SourceStyle } from "../agents/adaptiveEngine.ts";
 import { EXTENDED_MULTI_BOARD_QUESTIONS } from "./multiBoardBankExtended.ts";
+import { getCurriculumConcept } from "../../data/curriculum/index.ts";
 
 export interface MultiBoardQuestionEntry {
   id: string;
@@ -855,10 +856,14 @@ export const MULTI_BOARD_QUESTION_BANK: MultiBoardQuestionEntry[] = [
   ...EXTENDED_MULTI_BOARD_QUESTIONS,
 ];
 
+import { syncQuestionProvenance } from "./provenance.ts";
+import { CONCEPT_ALIASES } from "../../data/curriculum/index.ts";
+
 /**
  * Retrieves a multi-board verified question matching requested criteria.
  * Strict board isolation: ICSE never returns NCERT-only questions and vice-versa.
  * Strict class isolation: Questions never leak from different classes.
+ * Strict concept isolation: Concept is never dropped when specified.
  */
 export function getMultiBoardQuestion(
   filter: {
@@ -880,12 +885,28 @@ export function getMultiBoardQuestion(
     return true;
   };
 
+  const matchesConcept = (q: MultiBoardQuestionEntry, targetConcept?: ConceptId) => {
+    if (!targetConcept) return true;
+    if (q.conceptIds.includes(targetConcept)) return true;
+    // Check aliases
+    const aliased = CONCEPT_ALIASES[targetConcept];
+    if (aliased && q.conceptIds.includes(aliased)) return true;
+    for (const cid of q.conceptIds) {
+      if (CONCEPT_ALIASES[cid] === targetConcept || CONCEPT_ALIASES[cid] === aliased) return true;
+    }
+    // Generic fallback match (e.g. "quadratic_equations" matches "icse_10_quadratic_equations")
+    for (const cid of q.conceptIds) {
+      if (cid.includes(targetConcept) || targetConcept.includes(cid)) return true;
+    }
+    return false;
+  };
+
   // 1. Strict match: class, concept, difficulty, sourceStyle, and board
   let candidates = MULTI_BOARD_QUESTION_BANK.filter((q) => {
     if (excludeSet.has(q.id)) return false;
     if (!boardMatches(q)) return false;
     if (filter.class && q.class !== filter.class) return false;
-    if (filter.conceptId && !q.conceptIds.includes(filter.conceptId)) return false;
+    if (!matchesConcept(q, filter.conceptId)) return false;
     if (filter.difficulty && q.difficulty !== filter.difficulty) return false;
     if (filter.sourceStyle && q.sourceStyle !== filter.sourceStyle) return false;
     return true;
@@ -897,38 +918,29 @@ export function getMultiBoardQuestion(
       if (excludeSet.has(q.id)) return false;
       if (!boardMatches(q)) return false;
       if (filter.class && q.class !== filter.class) return false;
-      if (filter.conceptId && !q.conceptIds.includes(filter.conceptId)) return false;
+      if (!matchesConcept(q, filter.conceptId)) return false;
       if (filter.difficulty && q.difficulty !== filter.difficulty) return false;
       return true;
     });
   }
 
-  // 3. Fallback match: matching class, concept, and board (strictly same class if specified)
-  if (candidates.length === 0) {
+  // 3. Fallback match: matching class, concept, and board (relaxed difficulty on SAME concept)
+  if (candidates.length === 0 && filter.conceptId) {
     candidates = MULTI_BOARD_QUESTION_BANK.filter((q) => {
       if (excludeSet.has(q.id)) return false;
       if (!boardMatches(q)) return false;
       if (filter.class && q.class !== filter.class) return false;
-      if (filter.conceptId && !q.conceptIds.includes(filter.conceptId)) return false;
+      if (!matchesConcept(q, filter.conceptId)) return false;
       return true;
     });
   }
 
-  // 4. Any question matching class and board (strictly same class)
-  if (candidates.length === 0 && filter.class) {
+  // 4. If conceptId was NOT specified, allow any question matching class and board
+  if (candidates.length === 0 && !filter.conceptId && filter.class) {
     candidates = MULTI_BOARD_QUESTION_BANK.filter((q) => {
       if (excludeSet.has(q.id)) return false;
       if (!boardMatches(q)) return false;
       if (q.class !== filter.class) return false;
-      return true;
-    });
-  }
-
-  // 5. Only if filter.class is NOT specified, allow any question matching board
-  if (candidates.length === 0 && !filter.class) {
-    candidates = MULTI_BOARD_QUESTION_BANK.filter((q) => {
-      if (excludeSet.has(q.id)) return false;
-      if (!boardMatches(q)) return false;
       return true;
     });
   }
@@ -939,12 +951,13 @@ export function getMultiBoardQuestion(
 
   const chosen = candidates[0];
 
-  return convertMultiBoardEntryToAppQuestion(chosen, lang);
+  return convertMultiBoardEntryToAppQuestion(chosen, lang, filter.board);
 }
 
 export function convertMultiBoardEntryToAppQuestion(
   entry: MultiBoardQuestionEntry,
-  lang: Lang
+  lang: Lang,
+  targetBoard?: "CBSE" | "ICSE"
 ): Question {
   const promptText = entry.prompt[lang] || entry.prompt.en;
   const hintText = entry.hint[lang] || entry.hint.en;
@@ -956,7 +969,27 @@ export function convertMultiBoardEntryToAppQuestion(
     errorType: opt.errorType as ErrorType | undefined,
   }));
 
-  return {
+  const effectiveBoard: "CBSE" | "ICSE" =
+    targetBoard || (entry.board === "ICSE" ? "ICSE" : "CBSE");
+
+  const concept = getCurriculumConcept(entry.conceptIds[0], effectiveBoard);
+  const grade = concept?.class || entry.class;
+  const chapterTitle = concept?.chapterName || entry.bookFamily || "Mathematics";
+
+  const textbookSource = {
+    board: effectiveBoard === "ICSE" ? ("STATE_BOARD" as const) : ("NCERT" as const),
+    class: grade,
+    subject: "mathematics",
+    language: lang,
+    textbookTitle: entry.bookFamily || (effectiveBoard === "ICSE" ? `CISCE Class ${grade} Mathematics` : `NCERT Class ${grade} Mathematics`),
+    textbookEdition: "2024-25 Edition",
+    chapterNumber: 1,
+    chapterTitle,
+    verifiedSolution: entry.verifiedSolution[lang] || entry.verifiedSolution.en,
+    provenanceLabel: entry.provenanceLabel,
+  };
+
+  const base: Question = {
     id: entry.id,
     conceptId: entry.conceptIds[0],
     difficulty: entry.difficulty,
@@ -966,12 +999,15 @@ export function convertMultiBoardEntryToAppQuestion(
     answerKind: "choice",
     answer: entry.correctAnswer,
     options: appOptions,
-    meta: {},
+    meta: { class: grade },
     hint: { raw: hintText },
     source: "bank",
     isTextbookVerified: true,
+    textbookSource,
     provenanceLabel: entry.provenanceLabel,
     sourceStyle: entry.sourceStyle,
-    board: entry.board === "ICSE" ? "ICSE" : "CBSE",
+    board: effectiveBoard,
   };
+
+  return syncQuestionProvenance(base, effectiveBoard);
 }

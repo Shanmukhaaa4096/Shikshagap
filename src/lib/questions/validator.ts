@@ -15,6 +15,7 @@ import type { Lang, Question, Txt } from "../types.ts";
 import { DICTS } from "../i18n/dict.ts";
 import { validateQuestionIntegrity, areAnswersEquivalent } from "./integrity.ts";
 import type { ValidationResult } from "./types.ts";
+import { validateQuestionDifficultyFloor } from "./provenance.ts";
 
 /** Regular expression matching unrendered template variables like {each}, {num}, {den} */
 export const UNRESOLVED_TOKEN_REGEX = /\{[a-zA-Z0-9_]+\}/g;
@@ -136,6 +137,10 @@ export interface StrictValidationOptions {
   targetLang?: Lang;
   /** Whether textbook provenance is mandatory (default: true for scored assessments) */
   requireTextbookProvenance?: boolean;
+  /** Enrolled student grade (1 to 10) for difficulty floor validation */
+  enrolledGrade?: number;
+  /** Expected board ("CBSE" or "ICSE") for board isolation enforcement */
+  expectedBoard?: "CBSE" | "ICSE";
 }
 
 /**
@@ -373,6 +378,28 @@ export function validateQuestionStrict(
       errors: [`Mathematical integrity check failed: ${mathIntegrity.reason}`],
       code: "INVALID_ANSWER",
     };
+  }
+
+  // 8. Class Difficulty Floor & Board Consistency Check
+  if (options?.enrolledGrade) {
+    const floorCheck = validateQuestionDifficultyFloor(question, options.enrolledGrade);
+    if (!floorCheck.valid) {
+      return {
+        valid: false,
+        errors: [`Difficulty floor check failed: ${floorCheck.reason}`],
+        code: "BELOW_GRADE_FLOOR",
+      };
+    }
+  }
+
+  if (options?.expectedBoard) {
+    if (question.board !== options.expectedBoard) {
+      return {
+        valid: false,
+        errors: [`Board mismatch: question board '${question.board}' does not match expected '${options.expectedBoard}'`],
+        code: "BOARD_MISMATCH",
+      };
+    }
   }
 
   if (errors.length > 0) {

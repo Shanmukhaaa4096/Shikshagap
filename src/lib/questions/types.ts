@@ -141,5 +141,7 @@ export interface ValidationResult {
     | "ANSWER_NOT_IN_OPTIONS"
     | "MISSING_VISUAL"
     | "UNVERIFIED_SOURCE"
-    | "INVALID_ANSWER";
+    | "INVALID_ANSWER"
+    | "BELOW_GRADE_FLOOR"
+    | "BOARD_MISMATCH";
 }
