@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
 import { siteConfig } from '@/config/site';
 import LoginForm from './LoginForm';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: `Teacher Login | ${siteConfig.siteName}`,
@@ -18,10 +19,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function LoginPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center text-sm font-mono text-muted-foreground">Loading...</div>}>
-      <LoginForm />
-    </Suspense>
-  );
+interface LoginPageProps {
+  searchParams?: Promise<{ error?: string; redirect?: string }> | { error?: string; redirect?: string };
+}
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const resolved = await Promise.resolve(searchParams);
+  const initialError = resolved?.error === 'auth_callback_failed'
+    ? 'Google authentication failed or was cancelled. Please try again.'
+    : null;
+  const initialRedirect = resolved?.redirect || '/app';
+
+  return <LoginForm initialError={initialError} initialRedirect={initialRedirect} />;
 }

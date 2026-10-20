@@ -62,20 +62,29 @@ export async function POST(req: NextRequest) {
       });
 
       // Insert into Supabase shared_reports via service role key
-      await insertSharedReport({
-        token: record.token,
-        report_data: {
-          skillsUnlocked: Array.isArray(skillsUnlocked) ? skillsUnlocked : [],
-          skillsSleeping: Array.isArray(skillsSleeping) ? skillsSleeping : [],
-          prescribedPlan: Array.isArray(prescribedPlan) ? prescribedPlan : undefined,
-          gapTopics: Array.isArray(gapTopics) ? gapTopics : undefined,
-          assessmentSessionId: sessionIdStr,
-        },
-        first_name: cleanFirstName,
-        class: classId,
-        expires_at: new Date(record.expiresAt).toISOString(),
-        revoked: false,
-      });
+      try {
+        await insertSharedReport({
+          token: record.token,
+          report_data: {
+            skillsUnlocked: Array.isArray(skillsUnlocked) ? skillsUnlocked : [],
+            skillsSleeping: Array.isArray(skillsSleeping) ? skillsSleeping : [],
+            prescribedPlan: Array.isArray(prescribedPlan) ? prescribedPlan : undefined,
+            gapTopics: Array.isArray(gapTopics) ? gapTopics : undefined,
+            assessmentSessionId: sessionIdStr,
+          },
+          first_name: cleanFirstName,
+          class: classId,
+          expires_at: new Date(record.expiresAt).toISOString(),
+          revoked: false,
+        });
+      } catch (insertError: unknown) {
+        const errorMsg = insertError instanceof Error ? insertError.message : String(insertError);
+        console.error('[Share API Supabase Insert Error]:', insertError);
+        return NextResponse.json(
+          { error: `Database insert failed: ${errorMsg}` },
+          { status: 500 }
+        );
+      }
 
       logAuditEvent({
         userId: 'student_session',
@@ -87,10 +96,14 @@ export async function POST(req: NextRequest) {
         details: 'Student gap report share link generated (valid 14 days, crypto.randomUUID)',
       });
 
-      const host = req.headers.get('host') || 'shikshagap.vercel.app';
-      const protocol = req.headers.get('x-forwarded-proto') || 'https';
-      const shareUrl = `${protocol}://${host}/r/${record.token}`;
+      const originHeader = req.headers.get('origin');
+      const forwardedHost = req.headers.get('x-forwarded-host');
+      const host = forwardedHost || req.headers.get('host') || 'shikshagap.vercel.app';
+      const forwardedProto = req.headers.get('x-forwarded-proto');
+      const proto = forwardedProto || (host.startsWith('localhost') || host.startsWith('127.0.0.1') ? 'http' : 'https');
+      const realOrigin = originHeader || `${proto}://${host}`;
       const link = `/r/${record.token}`;
+      const shareUrl = `${realOrigin}${link}`;
 
       return NextResponse.json({
         success: true,

@@ -245,11 +245,11 @@ function PublicLandingPageContent() {
               {isDark ? <Sun size={17} weight="bold" className="text-secondary" /> : <Moon size={17} weight="bold" className="text-primary" />}
             </button>
 
-            {/* Teacher login Link (Trilingual: English, Hindi, Telugu) */}
+            {/* Teacher login Link (Trilingual: English, Hindi, Telugu) - Visible on Mobile and Desktop */}
             <Link
               href="/login"
               data-testid="header-teacher-login-btn"
-              className="hidden sm:inline-flex rounded-full border border-[#C7DDAE] dark:border-[#3B5428] bg-transparent text-foreground px-3.5 py-2 min-h-[44px] items-center text-xs font-sans font-bold hover:bg-[#C7DDAE]/30 cursor-pointer transition-colors"
+              className="inline-flex rounded-full border border-[#C7DDAE] dark:border-[#3B5428] bg-transparent text-foreground px-2.5 sm:px-3.5 py-1.5 sm:py-2 min-h-[38px] sm:min-h-[44px] items-center text-xs font-sans font-bold hover:bg-[#C7DDAE]/30 cursor-pointer transition-colors shrink-0"
             >
               {dict.teacherLogin || "Teacher login"}
             </Link>

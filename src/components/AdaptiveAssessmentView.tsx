@@ -1344,10 +1344,13 @@ export function AdaptiveAssessmentView({
         return;
       }
 
+      const clientOrigin = typeof window !== "undefined" ? window.location.origin : "";
+      const exactShareUrl = data.token ? `${clientOrigin}/r/${data.token}` : data.shareUrl;
+
       setShareTokenData({
         token: data.token,
         creatorSecret: data.creatorSecret,
-        shareUrl: data.shareUrl,
+        shareUrl: exactShareUrl,
         expiresAt: data.expiresAt,
       });
       setIsShareLinkRevoked(false);

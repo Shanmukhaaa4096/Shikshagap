@@ -70,6 +70,38 @@ test('Google Sign-In for Teachers via Supabase (@supabase/ssr)', async (t) => {
       'LoginForm must call supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: .../auth/callback } })'
     );
 
+    // Google Sign-In Button Visibility & Styling Specifications:
+    // - White background (#FFFFFF, !bg-white)
+    // - Dark text (#1F1F1F, !text-[#1F1F1F])
+    // - Visible border (#747775, border-[#747775])
+    // - Google "G" icon SVG
+    // - Min-height 48px (min-h-[48px])
+    // - High contrast in both light and dark mode
+    assert.ok(
+      loginFormCode.includes('min-h-[48px]'),
+      'Google sign-in button must have min-h-[48px]'
+    );
+    assert.ok(
+      loginFormCode.includes('#FFFFFF') || loginFormCode.includes('!bg-white'),
+      'Google sign-in button must have white background'
+    );
+    assert.ok(
+      loginFormCode.includes('#1F1F1F') || loginFormCode.includes('!text-[#1F1F1F]'),
+      'Google sign-in button must have dark text for high contrast'
+    );
+    assert.ok(
+      loginFormCode.includes('#747775') || loginFormCode.includes('border-[#747775]'),
+      'Google sign-in button must have a visible border'
+    );
+    assert.ok(
+      loginFormCode.includes('M23.745 12.27'),
+      'Google sign-in button must include official Google G icon SVG'
+    );
+    assert.ok(
+      loginFormCode.includes('data-testid="google-signin-btn"'),
+      'Google sign-in button must have data-testid="google-signin-btn"'
+    );
+
     // Existing demo credentials must be preserved
     assert.ok(
       loginFormCode.includes('fillDemoTeacher') && loginFormCode.includes('fillDemoAdmin'),
@@ -114,11 +146,19 @@ test('Google Sign-In for Teachers via Supabase (@supabase/ssr)', async (t) => {
     );
   });
 
-  await t.test('5. Site Header & Landing Page: "Teacher login" link present; students & demo do not require login', () => {
-    // Header must have Teacher login link
+  await t.test('5. Site Header & Landing Page: "Teacher login" link present on both mobile and desktop; students & demo do not require login', () => {
+    // Header must have Teacher login link visible on mobile and desktop
     assert.ok(
-      landingPageCode.includes('dict.teacherLogin'),
-      'Landing page navigation must feature Teacher login link'
+      landingPageCode.includes('data-testid="header-teacher-login-btn"'),
+      'Landing page header must feature data-testid="header-teacher-login-btn"'
+    );
+    assert.ok(
+      !landingPageCode.includes('hidden sm:inline-flex rounded-full border border-[#C7DDAE]'),
+      'Header Teacher login link must NOT be hidden on mobile'
+    );
+    assert.ok(
+      landingPageCode.includes('inline-flex rounded-full border border-[#C7DDAE]'),
+      'Header Teacher login link must use inline-flex for visibility on both mobile and desktop'
     );
 
     // Students have direct access to assessment without login

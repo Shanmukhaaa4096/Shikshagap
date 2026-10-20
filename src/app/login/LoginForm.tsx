@@ -2,13 +2,16 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { Eye, EyeSlash, Lock, User, WarningCircle, CheckCircle, ShieldCheck } from '@phosphor-icons/react';
 import { createClient } from '@/lib/supabase/client';
 import { DICTS } from '@/lib/i18n/dict';
 
-export default function LoginForm() {
-  const searchParams = useSearchParams();
+interface LoginFormProps {
+  initialError?: string | null;
+  initialRedirect?: string;
+}
+
+export default function LoginForm({ initialError = null, initialRedirect = '/app' }: LoginFormProps) {
   const [lang, setLang] = useState<'en' | 'hi' | 'te'>('en');
   const t = DICTS[lang];
 
@@ -17,13 +20,7 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [googleError, setGoogleError] = useState<string | null>(() => {
-    const err = searchParams.get('error');
-    if (err === 'auth_callback_failed') {
-      return 'Google authentication failed or was cancelled. Please try again.';
-    }
-    return null;
-  });
+  const [googleError, setGoogleError] = useState<string | null>(initialError);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [pendingVerification, setPendingVerification] = useState<{
     email: string;
@@ -61,8 +58,8 @@ export default function LoginForm() {
 
     const redirectUrl =
       typeof window !== 'undefined'
-        ? new URLSearchParams(window.location.search).get('redirect') || '/app'
-        : '/app';
+        ? new URLSearchParams(window.location.search).get('redirect') || initialRedirect || '/app'
+        : initialRedirect || '/app';
 
     try {
       const res = await fetch('/api/auth/login', {
@@ -182,7 +179,13 @@ export default function LoginForm() {
               onClick={handleGoogleSignIn}
               disabled={isGoogleLoading}
               data-testid="google-signin-btn"
-              className="w-full min-h-[48px] px-4 py-2.5 rounded-full border border-border bg-card hover:bg-muted text-foreground text-sm font-bold flex items-center justify-center gap-3 transition-all cursor-pointer shadow-xs disabled:opacity-50"
+              aria-label="Sign in with Google"
+              className="w-full min-h-[48px] px-4 py-3 rounded-full border border-[#747775] dark:border-[#747775] !bg-white hover:!bg-[#F8F9FA] active:!bg-[#F1F3F4] !text-[#1F1F1F] dark:!text-[#1F1F1F] text-sm sm:text-base font-semibold font-sans flex items-center justify-center gap-3 transition-all cursor-pointer shadow-sm hover:shadow-md disabled:opacity-50"
+              style={{
+                backgroundColor: '#FFFFFF',
+                color: '#1F1F1F',
+                borderColor: '#747775',
+              }}
             >
               {/* Google G Logo SVG */}
               <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
@@ -203,7 +206,11 @@ export default function LoginForm() {
                   d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.25 2.58 1.21 6.58l4.11 3.15c.94-2.83 3.58-4.98 6.68-4.98z"
                 />
               </svg>
-              <span>{isGoogleLoading ? 'Connecting to Google...' : t.signInWithGoogle}</span>
+              <span className="font-semibold tracking-normal !text-[#1F1F1F] dark:!text-[#1F1F1F]" style={{ color: '#1F1F1F' }}>
+                {isGoogleLoading
+                  ? (lang === 'hi' ? 'Google से जुड़ रहे हैं...' : lang === 'te' ? 'Googleతో కనెక్ట్ అవుతోంది...' : 'Connecting to Google...')
+                  : (t.signInWithGoogle || 'Sign in with Google')}
+              </span>
             </button>
             <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
               <ShieldCheck size={14} className="text-primary" />

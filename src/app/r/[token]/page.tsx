@@ -1,8 +1,6 @@
-import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getSharedReport, isReportExpired } from '@/lib/server/supabase';
-import { LoadingSkeletonState } from '@/components/StateScreens';
+import { getSharedReport } from '@/lib/server/supabase';
 import SharedReportClient from './SharedReportClient';
 
 // ==============================================================================
@@ -13,6 +11,8 @@ import SharedReportClient from './SharedReportClient';
 // 3. Displays strictly first name, class, and gap results (no surname, school, etc.).
 // 4. Configures robots noindex & nofollow meta tags.
 // ==============================================================================
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Student Learning Gap Report | ShikshaGap',
@@ -26,31 +26,31 @@ export const metadata: Metadata = {
 };
 
 interface PageProps {
-  params: Promise<{ token: string }>;
+  params: Promise<{ token: string }> | { token: string };
 }
 
-async function SharedReportLoader({ params }: PageProps) {
-  const { token } = await params;
+export default async function SharedReportPage({ params }: PageProps) {
+  // In Next.js 15, params is a Promise, so await it (support both Promise and object forms)
+  const resolvedParams = await Promise.resolve(params);
+  const token = resolvedParams?.token;
 
   if (!token || typeof token !== 'string') {
     notFound();
   }
 
-  // Fetch report row server-side
+  // Load the row server-side with the Supabase service role client
   const report = await getSharedReport(token);
 
-  // 1. Missing check
+  // Call notFound() ONLY when the row is genuinely missing, expired or revoked
   if (!report) {
     notFound();
   }
 
-  // 2. Revoked check
   if (report.revoked) {
     notFound();
   }
 
-  // 3. Expired check (14 days)
-  if (Date.now() > new Date(report.expires_at).getTime()) {
+  if (report.expires_at && Date.now() > new Date(report.expires_at).getTime()) {
     notFound();
   }
 
@@ -67,19 +67,5 @@ async function SharedReportLoader({ params }: PageProps) {
       expiresAt={report.expires_at}
       reportData={reportData}
     />
-  );
-}
-
-export default function SharedReportPage({ params }: PageProps) {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-card dark:bg-muted p-4 flex items-center justify-center">
-          <LoadingSkeletonState className="w-full max-w-md" />
-        </div>
-      }
-    >
-      <SharedReportLoader params={params} />
-    </Suspense>
   );
 }

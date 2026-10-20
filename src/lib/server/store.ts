@@ -114,14 +114,24 @@ export interface SharedReportRecord {
   creatorSecret?: string;
 }
 
-const shareTokens = new Map<string, SharedReportRecord>();
+const globalForStore = globalThis as unknown as {
+  __shikshaShareTokens?: Map<string, SharedReportRecord>;
+  __shikshaCompletedSessions?: Map<string, { sessionId: string; grade: number | string; completedAt: number }>;
+};
 
-// Track completed assessment sessions so only the session that completed an assessment can create its share link
-const completedAssessmentSessions = new Map<string, {
+const shareTokens = globalForStore.__shikshaShareTokens || new Map<string, SharedReportRecord>();
+if (!globalForStore.__shikshaShareTokens) {
+  globalForStore.__shikshaShareTokens = shareTokens;
+}
+
+const completedAssessmentSessions = globalForStore.__shikshaCompletedSessions || new Map<string, {
   sessionId: string;
   grade: number | string;
   completedAt: number;
 }>();
+if (!globalForStore.__shikshaCompletedSessions) {
+  globalForStore.__shikshaCompletedSessions = completedAssessmentSessions;
+}
 
 export function recordAssessmentSessionCompletion(sessionId: string, grade: number | string = 5): void {
   if (!sessionId || typeof sessionId !== 'string') return;

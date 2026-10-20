@@ -30,14 +30,17 @@ export interface SharedReportRow {
   expires_at: string;
   revoked: boolean;
   created_at?: string;
+  class_level?: string | number;
 }
 
 let supabaseAdminClient: SupabaseClient | null = null;
 
 export function getSupabaseAdmin(): SupabaseClient | null {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-  // Strictly server-side service role key
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+  // Strictly server-side service role key (bypasses RLS)
+  const serviceRoleKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_SERVICE_KEY;
 
   if (!supabaseUrl || !serviceRoleKey) {
     return null;
@@ -57,8 +60,9 @@ export function getSupabaseAdmin(): SupabaseClient | null {
 
 /**
  * Inserts a shared report row into Supabase `shared_reports` table.
- * If Supabase is not configured (e.g. in test or local environments),
+ * If Supabase is not configured (e.g. in test or offline environments),
  * falls back to the server in-memory store so tests and preview builds run without failure.
+ * When Supabase IS configured, throws an Error if the insert fails so the API can report it.
  */
 export async function insertSharedReport(params: {
   token?: string;
@@ -97,27 +101,36 @@ export async function insertSharedReport(params: {
 
   const supabase = getSupabaseAdmin();
   if (supabase) {
-    try {
-      const { data, error } = await supabase
-        .from('shared_reports')
-        .insert({
-          token: row.token,
-          report_data: row.report_data,
-          first_name: row.first_name,
-          class: String(row.class),
-          expires_at: row.expires_at,
-          revoked: row.revoked,
-        })
-        .select()
-        .single();
+    const insertPayload: Record<string, unknown> = {
+      token: row.token,
+      report_data: row.report_data,
+      first_name: row.first_name,
+      class_level: String(row.class),
+      expires_at: row.expires_at,
+      revoked: row.revoked,
+    };
 
-      if (error) {
-        console.warn('[Supabase] Warning inserting shared_report:', error.message);
-      } else if (data) {
-        return data as SharedReportRow;
-      }
-    } catch (err) {
-      console.warn('[Supabase] Database error during insertSharedReport:', err);
+    const { data, error } = await supabase
+      .from('shared_reports')
+      .insert(insertPayload)
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      console.error('[Supabase Insert Error]:', error);
+      throw new Error(`Database insert failed: ${error.message} (code: ${error.code || 'UNKNOWN'})`);
+    }
+
+    if (data) {
+      return {
+        token: data.token,
+        report_data: data.report_data || row.report_data,
+        first_name: data.first_name || row.first_name,
+        class: data.class_level || data.class || row.class,
+        expires_at: data.expires_at || row.expires_at,
+        revoked: Boolean(data.revoked),
+        created_at: data.created_at || row.created_at,
+      };
     }
   }
 
@@ -140,11 +153,21 @@ export async function getSharedReport(token: string): Promise<SharedReportRow | 
         .eq('token', token)
         .maybeSingle();
 
-      if (!error && data) {
-        return data as SharedReportRow;
+      if (error) {
+        console.error('[Supabase Lookup Error]:', error);
+      } else if (data) {
+        return {
+          token: data.token,
+          report_data: data.report_data || {},
+          first_name: data.first_name || 'Learner',
+          class: data.class_level || data.class || 5,
+          expires_at: data.expires_at,
+          revoked: Boolean(data.revoked),
+          created_at: data.created_at,
+        };
       }
     } catch (err) {
-      console.warn('[Supabase] Database error during getSharedReport:', err);
+      console.error('[Supabase Lookup Exception]:', err);
     }
   }
 

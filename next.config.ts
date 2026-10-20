@@ -33,8 +33,6 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  cacheComponents: true,
-  partialPrefetching: true,
   experimental: {
     optimizePackageImports: ['@phosphor-icons/react', 'motion/react'],
   },
