@@ -873,10 +873,30 @@ export function getMultiBoardQuestion(
     sourceStyle?: SourceStyle;
     board?: "CBSE" | "ICSE";
     excludeIds?: string[];
+    excludeTexts?: string[];
   },
   lang: Lang = "en"
 ): Question | null {
-  const excludeSet = new Set(filter.excludeIds || []);
+  const baseExcludeIds = new Set(
+    (filter.excludeIds || []).flatMap((id) => [id, id.split("_s")[0]])
+  );
+  const normExcludeTexts = new Set(
+    (filter.excludeTexts || []).map((t) => t.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "").trim()).filter(Boolean)
+  );
+
+  const isExcluded = (q: MultiBoardQuestionEntry) => {
+    if (baseExcludeIds.has(q.id)) return true;
+    if (normExcludeTexts.size > 0) {
+      for (const l of ["en", "hi", "te"] as const) {
+        const rawText = q.prompt[l] || q.prompt.en;
+        if (rawText) {
+          const norm = rawText.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "").trim();
+          if (norm && normExcludeTexts.has(norm)) return true;
+        }
+      }
+    }
+    return false;
+  };
 
   const boardMatches = (q: MultiBoardQuestionEntry) => {
     if (!filter.board) return true;
@@ -903,7 +923,7 @@ export function getMultiBoardQuestion(
 
   // 1. Strict match: class, concept, difficulty, sourceStyle, and board
   let candidates = MULTI_BOARD_QUESTION_BANK.filter((q) => {
-    if (excludeSet.has(q.id)) return false;
+    if (isExcluded(q)) return false;
     if (!boardMatches(q)) return false;
     if (filter.class && q.class !== filter.class) return false;
     if (!matchesConcept(q, filter.conceptId)) return false;
@@ -915,7 +935,7 @@ export function getMultiBoardQuestion(
   // 2. Relaxed match: matching class, concept, difficulty, and board
   if (candidates.length === 0) {
     candidates = MULTI_BOARD_QUESTION_BANK.filter((q) => {
-      if (excludeSet.has(q.id)) return false;
+      if (isExcluded(q)) return false;
       if (!boardMatches(q)) return false;
       if (filter.class && q.class !== filter.class) return false;
       if (!matchesConcept(q, filter.conceptId)) return false;
@@ -927,7 +947,7 @@ export function getMultiBoardQuestion(
   // 3. Fallback match: matching class, concept, and board (relaxed difficulty on SAME concept)
   if (candidates.length === 0 && filter.conceptId) {
     candidates = MULTI_BOARD_QUESTION_BANK.filter((q) => {
-      if (excludeSet.has(q.id)) return false;
+      if (isExcluded(q)) return false;
       if (!boardMatches(q)) return false;
       if (filter.class && q.class !== filter.class) return false;
       if (!matchesConcept(q, filter.conceptId)) return false;
@@ -938,7 +958,7 @@ export function getMultiBoardQuestion(
   // 4. If conceptId was NOT specified, allow any question matching class and board
   if (candidates.length === 0 && !filter.conceptId && filter.class) {
     candidates = MULTI_BOARD_QUESTION_BANK.filter((q) => {
-      if (excludeSet.has(q.id)) return false;
+      if (isExcluded(q)) return false;
       if (!boardMatches(q)) return false;
       if (q.class !== filter.class) return false;
       return true;

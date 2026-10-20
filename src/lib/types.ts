@@ -507,6 +507,7 @@ export interface Attempt {
   conceptId: ConceptId;
   level: Difficulty;
   questionId: string;
+  questionText?: string;
   studentAnswer: string;
   correct: boolean;
   errorType?: string;      // from the existing error classification
@@ -541,6 +542,10 @@ export interface SessionMemory {
   stepCount?: number;
   /** Chosen board preference (CBSE, ICSE, or BOTH) */
   boardPreference?: BoardPreference;
+  /** List of asked question IDs in this session to strictly prevent question repetition */
+  askedQuestionIds?: string[];
+  /** List of normalized question texts in this session to safeguard against duplicate prompts */
+  askedQuestionTexts?: string[];
 }
 
 export interface EducationalResource {

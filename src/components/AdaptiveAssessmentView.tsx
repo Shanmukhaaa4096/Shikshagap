@@ -13,7 +13,6 @@ import type {
   ResourceRecommendation,
 } from "@/lib/types";
 import type { DemoStudentData } from "@/lib/data/demo";
-import { getPresetClass5Student } from "@/lib/data/demo";
 import { useI18n } from "@/lib/i18n/context";
 import type { Lang } from "@/lib/types";
 import { Input } from "@/components/ui/input";
@@ -58,6 +57,10 @@ import {
   applyAttemptToMemory,
   getPrerequisiteForConcept,
   getConceptForTopic,
+  advanceToNextTopic,
+  normalizeQuestionText,
+  getQuestionText,
+  type StaircaseAction,
 } from "@/lib/agents/staircase";
 import { generateUnique } from "@/lib/questions/generator";
 import { normalizeAnswer } from "@/lib/questions/hybridGenerator";
@@ -88,8 +91,6 @@ interface Props {
   initialConceptId?: string;
   isStudentView?: boolean;
   isGuest?: boolean;
-  isDemoMode?: boolean;
-  autoStartDemo?: boolean;
   selectedClassId?: string;
   onClassChange?: (newClassId: string) => void;
   onAssessmentCompleted?: (updatedStudent: DemoStudentData) => void;
@@ -101,8 +102,6 @@ export function AdaptiveAssessmentView({
   initialStudentId,
   isStudentView = false,
   isGuest = false,
-  isDemoMode = false,
-  autoStartDemo = false,
   selectedClassId = DEFAULT_CLASS_ID,
   onClassChange,
   onAssessmentCompleted,
@@ -112,23 +111,7 @@ export function AdaptiveAssessmentView({
   const router = useRouter();
   const classConfig = getClassConfig(selectedClassId);
 
-  const [isDemoModeLocal, setIsDemoModeLocal] = useState(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get("demo") === "student" || urlParams.get("mode") === "demo";
-      } catch {
-        return false;
-      }
-    }
-    return false;
-  });
-  const isDemoModeState = isDemoMode || autoStartDemo || isDemoModeLocal;
-  const setIsDemoModeState = (val: boolean) => setIsDemoModeLocal(val);
   const [isDiagnosticModalOpen, setIsDiagnosticModalOpen] = useState(false);
-  const autoStartedRef = useRef(false);
-
-  const presetClass5Student = useMemo(() => getPresetClass5Student(), []);
 
   const fallbackGuestStudent: DemoStudentData = {
     student: {
@@ -156,16 +139,12 @@ export function AdaptiveAssessmentView({
     },
   };
 
-  const effectiveStudents = isDemoModeState
-    ? [presetClass5Student]
-    : students && students.length > 0
+  const effectiveStudents = students && students.length > 0
     ? students
     : [fallbackGuestStudent];
 
   const [selectedStudentId, setSelectedStudentId] = useState<string>(
-    isDemoModeState
-      ? presetClass5Student.student.id
-      : initialStudentId || effectiveStudents[0]?.student.id || "guest_learner"
+    initialStudentId || effectiveStudents[0]?.student.id || "guest_learner"
   );
 
   // Agent Runtime State: SessionMemory managed on client per SPEC.md
@@ -391,9 +370,8 @@ export function AdaptiveAssessmentView({
     }
   };
 
-  const activeStudent = isDemoModeState
-    ? presetClass5Student
-    : effectiveStudents.find((s) => s.student.id === selectedStudentId) || effectiveStudents[0];
+  const activeStudent =
+    effectiveStudents.find((s) => s.student.id === selectedStudentId) || effectiveStudents[0] || fallbackGuestStudent;
 
   // Helper to trigger finish endpoint (Resource Advisor + Report Writer)
   const completeAssessment = async (finalMem: SessionMemory) => {
@@ -542,7 +520,8 @@ export function AdaptiveAssessmentView({
         const fallbackRng = makeRng(sessionSeed);
         const action = getNextStaircaseAction(initialMemory);
         if (action.type === "ask") {
-          const seen = new Set<string>();
+          const askedIds = new Set<string>();
+          const askedTexts = new Set<string>();
           const targetBoard: "CBSE" | "ICSE" = boardPreference === "ICSE" ? "ICSE" : "CBSE";
           const targetConcept = getCurriculumConcept(action.conceptId);
           const lookupClass = targetConcept?.class || classConfig.grade;
@@ -553,7 +532,8 @@ export function AdaptiveAssessmentView({
               conceptId: action.conceptId,
               difficulty: action.level,
               board: targetBoard,
-              excludeIds: Array.from(seen),
+              excludeIds: Array.from(askedIds),
+              excludeTexts: Array.from(askedTexts),
             },
             lang as Lang
           );
@@ -564,19 +544,28 @@ export function AdaptiveAssessmentView({
                 conceptId: action.conceptId,
                 difficulty: action.level,
                 language: lang as Lang,
+                excludeIds: Array.from(askedIds),
+                excludeTexts: Array.from(askedTexts),
                 onlyVerified: true,
               },
               lang as Lang
             );
           }
           if (!q) {
-            q = generateUnique(action.conceptId, action.level, fallbackRng, seen, lookupClass, { board: targetBoard });
+            q = generateUnique(action.conceptId, action.level, fallbackRng, askedIds, lookupClass, { board: targetBoard }, {}, askedTexts);
           }
           q = syncQuestionProvenance(q, targetBoard);
-          seen.add(q.id);
+          const baseId = q.id.split("_s")[0];
+          const normText = normalizeQuestionText(getQuestionText(q, lang as Lang));
+          askedIds.add(baseId);
+          askedIds.add(q.id);
+          if (normText) askedTexts.add(normText);
+
           setSessionMemory({
             ...initialMemory,
-            seenSignatures: Array.from(seen),
+            askedQuestionIds: Array.from(askedIds),
+            askedQuestionTexts: Array.from(askedTexts),
+            seenSignatures: Array.from(askedIds),
             usedFormats: [q.format],
             stepCount: 1,
           });
@@ -617,6 +606,7 @@ export function AdaptiveAssessmentView({
       conceptId: currentQuestion.conceptId,
       level: currentQuestion.difficulty,
       questionId: currentQuestion.id,
+      questionText: getQuestionText(currentQuestion, lang as Lang),
       studentAnswer: trimmed,
       correct: isCorrect,
       errorType: !isCorrect ? errorType : undefined,
@@ -743,59 +733,113 @@ export function AdaptiveAssessmentView({
             setSessionMemory(advanced.memory);
             completeAssessment(advanced.memory);
           } else if (advanced.action.type === "ask") {
-            const seen = new Set<string>(advanced.memory.seenSignatures || []);
+            const askedIds = new Set<string>([
+              ...(advanced.memory.askedQuestionIds || []),
+              ...(advanced.memory.seenSignatures || []),
+            ]);
+            const askedTexts = new Set<string>(
+              (advanced.memory.askedQuestionTexts || []).map((t) => normalizeQuestionText(t)).filter(Boolean)
+            );
             const usedFormats = advanced.memory.usedFormats || [];
             const lastFormat = usedFormats.length > 0 ? usedFormats[usedFormats.length - 1] : undefined;
             const sessionSeed = advanced.memory.sessionSeed ?? 10007;
             const step = advanced.memory.stepCount ?? sessionMemory.topics.reduce((acc, t) => acc + t.attempts.length, 0);
             const stepSeed = ((sessionSeed + step * 7919) >>> 0);
             const targetBoard: "CBSE" | "ICSE" = boardPreference === "ICSE" ? "ICSE" : "CBSE";
-            const targetConcept = getCurriculumConcept(advanced.action.conceptId);
-            const lookupClass = targetConcept?.class || sessionMemory.grade;
 
-            let nextQ: Question | null = getMultiBoardQuestion(
-              {
-                class: lookupClass,
-                conceptId: advanced.action.conceptId,
-                difficulty: advanced.action.level,
-                board: targetBoard,
-                excludeIds: Array.from(seen),
-              },
-              lang as Lang
-            );
-            if (!nextQ && targetBoard === "CBSE") {
-              nextQ = getVerifiedTextbookQuestion(
+            let currentAdvMem = advanced.memory;
+            let currentAdvAction: StaircaseAction = advanced.action;
+            let nextQ: Question | null = null;
+
+            const isCandidateUnasked = (candidate: Question): boolean => {
+              const baseId = candidate.id.split("_s")[0];
+              if (askedIds.has(candidate.id) || askedIds.has(baseId)) return false;
+              const norm = normalizeQuestionText(getQuestionText(candidate, lang as Lang));
+              if (norm && askedTexts.has(norm)) return false;
+              return true;
+            };
+
+            while (currentAdvAction.type === "ask" && !nextQ) {
+              const targetConcept = getCurriculumConcept(currentAdvAction.conceptId);
+              const lookupClass = targetConcept?.class || sessionMemory.grade;
+
+              const mbCandidate = getMultiBoardQuestion(
                 {
                   class: lookupClass,
-                  conceptId: advanced.action.conceptId,
-                  difficulty: advanced.action.level,
-                  language: lang as Lang,
-                  excludeIds: Array.from(seen),
-                  onlyVerified: true,
+                  conceptId: currentAdvAction.conceptId,
+                  difficulty: currentAdvAction.level,
+                  board: targetBoard,
+                  excludeIds: Array.from(askedIds),
+                  excludeTexts: Array.from(askedTexts),
                 },
                 lang as Lang
               );
+              if (mbCandidate && isCandidateUnasked(mbCandidate)) {
+                nextQ = syncQuestionProvenance(mbCandidate, targetBoard);
+              }
+
+              if (!nextQ && targetBoard === "CBSE") {
+                const tbCandidate = getVerifiedTextbookQuestion(
+                  {
+                    class: lookupClass,
+                    conceptId: currentAdvAction.conceptId,
+                    difficulty: currentAdvAction.level,
+                    language: lang as Lang,
+                    excludeIds: Array.from(askedIds),
+                    excludeTexts: Array.from(askedTexts),
+                    onlyVerified: true,
+                  },
+                  lang as Lang
+                );
+                if (tbCandidate && isCandidateUnasked(tbCandidate)) {
+                  nextQ = syncQuestionProvenance(tbCandidate, "CBSE");
+                }
+              }
+
+              if (!nextQ) {
+                const genQ = generateUnique(
+                  currentAdvAction.conceptId,
+                  currentAdvAction.level,
+                  makeRng(stepSeed),
+                  askedIds,
+                  lookupClass,
+                  { board: targetBoard },
+                  { avoidFormat: lastFormat },
+                  askedTexts
+                );
+                if (isCandidateUnasked(genQ)) {
+                  nextQ = syncQuestionProvenance(genQ, targetBoard);
+                }
+              }
+
+              if (!nextQ) {
+                const advNext = advanceToNextTopic(currentAdvMem, `Unasked questions exhausted for ${currentAdvAction.topicId}`);
+                currentAdvMem = advNext.memory;
+                currentAdvAction = advNext.action;
+              }
             }
-            if (!nextQ) {
-              nextQ = generateUnique(
-                advanced.action.conceptId,
-                advanced.action.level,
-                makeRng(stepSeed),
-                seen,
-                lookupClass,
-                { board: targetBoard },
-                { avoidFormat: lastFormat }
-              );
+
+            if (currentAdvAction.type !== "ask" || !nextQ) {
+              setSessionMemory(currentAdvMem);
+              completeAssessment(currentAdvMem);
+            } else {
+              const baseId = nextQ.id.split("_s")[0];
+              const normText = normalizeQuestionText(getQuestionText(nextQ, lang as Lang));
+              askedIds.add(baseId);
+              if (normText) askedTexts.add(normText);
+              nextQ.id = `${baseId}_s${step + 1}_${stepSeed}`;
+              askedIds.add(nextQ.id);
+
+              setSessionMemory({
+                ...currentAdvMem,
+                askedQuestionIds: Array.from(askedIds),
+                askedQuestionTexts: Array.from(askedTexts),
+                seenSignatures: Array.from(askedIds),
+                usedFormats: [...usedFormats, nextQ.format],
+                stepCount: step + 1,
+              });
+              setCurrentQuestion(nextQ);
             }
-            nextQ = syncQuestionProvenance(nextQ, targetBoard);
-            seen.add(nextQ.id);
-            setSessionMemory({
-              ...advanced.memory,
-              seenSignatures: Array.from(seen),
-              usedFormats: [...usedFormats, nextQ.format],
-              stepCount: step + 1,
-            });
-            setCurrentQuestion(nextQ);
           }
         }
       } catch (err) {
@@ -1265,301 +1309,262 @@ export function AdaptiveAssessmentView({
     onClassChangeRef.current = onClassChange;
   });
 
-  // Auto-start immediately in demo mode if requested or if URL contains demo=student
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (autoStartedRef.current) return;
-    const urlParams = new URLSearchParams(window.location.search);
-    const isDemoParam = urlParams.get("demo") === "student" || urlParams.get("mode") === "demo" || autoStartDemo || isDemoMode;
-    if (isDemoParam && !isStarted) {
-      try {
-        const saved = sessionStorage.getItem(sessionStorageKey);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (parsed && parsed.isStarted) return;
-        }
-      } catch {}
-      autoStartedRef.current = true;
-      onClassChangeRef.current?.("class_5");
-      const timer = setTimeout(() => {
-        handleStartRef.current(presetClass5Student, "class_5");
-      }, 0);
-      return () => clearTimeout(timer);
-    }
-  }, [autoStartDemo, isDemoMode, isStarted, presetClass5Student, sessionStorageKey]);
-
   return (
-    <div className="w-full max-w-4xl xl:max-w-5xl mx-auto space-y-4 sm:space-y-6">
+    <div className="w-full max-w-[1200px] mx-auto px-2 sm:px-4 lg:px-6">
       {/* ============================================================== */}
       {/* SCREEN 1: PRE-ASSESSMENT SETUP SCREEN                          */}
       {/* ============================================================== */}
       {!isStarted ? (
-        <div className="neo-panel p-5 sm:p-8 space-y-5 rounded-[24px] border border-border bg-[var(--surface)] shadow-warm">
-          {/* Header */}
-          <div className="border-b border-border pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-16 sm:w-16 sm:h-20 shrink-0 flex items-center justify-center">
-                <MascotHero width={64} height={76} />
-              </div>
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="editorial-meta text-primary font-bold">MATHEMATICS ASSESSMENT</span>
-                  <span className="text-muted-foreground text-xs">•</span>
-                  <span className="text-xs font-mono font-bold text-foreground">
-                    {boardPreference === "ICSE"
-                      ? "ICSE (CISCE syllabus)"
-                      : boardPreference === "BOTH"
-                      ? "CBSE & ICSE (Balanced)"
-                      : "NCERT / CBSE (2024-25)"}
-                  </span>
-                  {isDemoModeState && (
-                    <span
-                      data-testid="screen1-demo-mode-badge"
-                      className="inline-flex items-center gap-1 text-xs font-mono uppercase px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 font-bold"
-                    >
-                      <Sparkle className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" weight="fill" />
-                      <span>{dict.demoModeBadge || "Demo mode"}</span>
+        <div className="w-full pb-28 lg:pb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+            {/* Left Column: Grade, Board, Language, Student */}
+            <div className="lg:col-span-7 xl:col-span-8 space-y-6">
+              <div className="neo-panel p-5 sm:p-7 space-y-5 rounded-[24px] border border-border bg-[var(--surface)] shadow-warm">
+                {/* Header */}
+                <div className="border-b border-border pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-16 sm:w-16 sm:h-20 shrink-0 flex items-center justify-center">
+                      <MascotHero width={64} height={76} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="editorial-meta text-primary font-bold">MATHEMATICS ASSESSMENT</span>
+                        <span className="text-muted-foreground text-xs">•</span>
+                        <span className="text-xs font-mono font-bold text-foreground">
+                          {boardPreference === "ICSE"
+                            ? "ICSE (CISCE syllabus)"
+                            : boardPreference === "BOTH"
+                            ? "CBSE & ICSE (Balanced)"
+                            : "NCERT / CBSE (2024-25)"}
+                        </span>
+                      </div>
+                      <h1 className="editorial-title text-2xl sm:text-3xl text-foreground mt-1 font-serif font-black">
+                        {classConfig.label} Maths Check
+                      </h1>
+                      <p className="text-sm text-foreground/80 mt-1 leading-relaxed max-w-2xl">
+                        {lang === "hi"
+                          ? "गणित के कौशल की एक सरल और शांत जांच। आराम से सोचकर उत्तर दें।"
+                          : lang === "te"
+                          ? "మీ గణిత నైపుణ్యాలను పరిశీలించే సరళమైన పరీక్ష. నిదానంగా ఆలోచించి సమాధానం ఇవ్వండి."
+                          : "A calm, child-friendly check of foundational maths skills. Take your time and choose the best answer."}
+                      </p>
+                    </div>
+                  </div>
+                  {isGuest && (
+                    <span className="self-start sm:self-auto text-xs font-mono font-bold bg-[var(--status-good-bg)] text-foreground px-3 py-1.5 rounded-[16px] border border-[var(--status-good-border)] shrink-0">
+                      Trial Mode • No Sign-in Required
                     </span>
                   )}
                 </div>
-                <h1 className="editorial-title text-2xl sm:text-3xl text-foreground mt-1 font-serif font-black">
-                  {classConfig.label} Maths Check
-                </h1>
-                <p className="text-sm text-foreground/80 mt-1 leading-relaxed max-w-2xl">
-                  {lang === "hi"
-                    ? "गणित के कौशल की एक सरल और शांत जांच। आराम से सोचकर उत्तर दें।"
-                    : lang === "te"
-                    ? "మీ గణిత నైపుణ్యాలను పరిశీలించే సరళమైన పరీక్ష. నిదానంగా ఆలోచించి సమాధానం ఇవ్వండి."
-                    : "A calm, child-friendly check of foundational maths skills. Take your time and choose the best answer."}
-                </p>
+
+                {/* Student Picker (for Teacher) */}
+                {!isGuest && !isStudentView ? (
+                  <div className="space-y-2">
+                    <label className="editorial-meta text-foreground">SELECT STUDENT TO ASSESS</label>
+                    <select
+                      value={selectedStudentId}
+                      onChange={(e) => setSelectedStudentId(e.target.value)}
+                      className="w-full min-h-[44px] px-3 text-sm font-semibold bg-card border border-border rounded-[16px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    >
+                      {effectiveStudents.map((s) => (
+                        <option key={s.student.id} value={s.student.id}>
+                          {s.student.name} (Roll #{s.student.rollNo}) | {s.profile.status.toUpperCase().replace("_", " ")}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ) : !isGuest && isStudentView ? (
+                  <div className="p-3 bg-card border border-border rounded-[16px] flex items-center justify-between">
+                    <div>
+                      <span className="editorial-meta text-muted-foreground">LEARNER</span>
+                      <div className="font-serif font-bold text-lg text-foreground">{activeStudent?.student.name}</div>
+                    </div>
+                    <span className="font-mono text-sm font-bold text-muted-foreground">Roll #{activeStudent?.student.rollNo}</span>
+                  </div>
+                ) : null}
+
+                {/* Class Grade (Classes 1 - 10) & Language */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between flex-wrap gap-1">
+                      <span className="editorial-meta text-foreground">SELECT CLASS (CLASSES 1 TO 10)</span>
+                      <span className="text-xs font-mono text-muted-foreground">Classes 1–10 ready</span>
+                    </div>
+                    <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5">
+                      {SUPPORTED_CLASSES.map((c) => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => {
+                            if (c.enabled) {
+                              clearSavedSession();
+                              onClassChange?.(c.id);
+                            }
+                          }}
+                          title={
+                            c.enabled
+                              ? `Select ${c.label} for scored ${boardPreference === "ICSE" ? "ICSE" : boardPreference === "BOTH" ? "CBSE & ICSE" : "CBSE"} assessment`
+                              : `${c.label}: ${boardPreference === "ICSE" ? "ICSE (CISCE)" : "CBSE (NCERT)"} curriculum mapped. Question engine coming soon.`
+                          }
+                          className={`min-h-[44px] px-2 py-2 text-xs font-bold font-mono rounded-[16px] border flex flex-col items-center justify-center cursor-pointer ${
+                            selectedClassId === c.id
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : c.enabled
+                              ? "bg-card text-foreground border-border hover:bg-muted"
+                              : "bg-muted/30 text-muted-foreground/60 border-border/50 cursor-not-allowed"
+                          }`}
+                        >
+                          <span>{c.label}</span>
+                          <span className="text-[12px] font-normal opacity-85 leading-none">
+                            {c.stage === "foundational" ? "Found" : c.stage === "preparatory" ? "Primary" : c.stage === "middle" ? "Middle" : "High"}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Assessment Language Selector */}
+                  <div className="space-y-2">
+                    <span className="editorial-meta text-foreground">ASSESSMENT LANGUAGE</span>
+                    <div className="grid grid-cols-3 gap-2 max-w-sm">
+                      {(["en", "hi", "te"] as Lang[]).map((l) => (
+                        <button
+                          key={l}
+                          type="button"
+                          onClick={() => setLang(l)}
+                          className={`min-h-[44px] px-3 py-2 text-xs font-bold font-mono rounded-[16px] border cursor-pointer ${
+                            lang === l
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-card text-foreground border-border hover:bg-muted"
+                          }`}
+                        >
+                          {l === "en" ? "English" : l === "hi" ? "हिन्दी" : "తెలుగు"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Curriculum Board & Question Sources */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between flex-wrap gap-1">
+                      <span className="editorial-meta text-foreground">CURRICULUM BOARD & QUESTION SOURCES</span>
+                      <span className="text-xs font-mono text-muted-foreground">CBSE, ICSE or Balanced Mix</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 max-w-md">
+                      {(["CBSE", "ICSE", "BOTH"] as const).map((b) => (
+                        <button
+                          key={b}
+                          type="button"
+                          onClick={() => setBoardPreference(b)}
+                          className={`min-h-[44px] px-3 py-2 text-xs font-bold font-mono rounded-[16px] border cursor-pointer ${
+                            boardPreference === b
+                              ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                              : "bg-card text-foreground border-border hover:bg-muted"
+                          }`}
+                        >
+                          <span>{b === "BOTH" ? "Both (Balanced)" : b}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {boardPreference === "CBSE"
+                        ? "Focuses on NCERT Math-Magic & Exemplar with CBSE reference problems (R.D. Sharma / R.S. Aggarwal)."
+                        : boardPreference === "ICSE"
+                        ? "Focuses on ICSE Selina / Concise Mathematics & ML Aggarwal with formal step-by-step reasoning."
+                        : "Balanced alternation between NCERT conceptual clarity and ICSE step-by-step mathematical rigour."}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-            {isGuest && (
-              <span className="self-start sm:self-auto text-xs font-mono font-bold bg-[var(--status-good-bg)] text-foreground px-3 py-1.5 rounded-[16px] border border-[var(--status-good-border)] shrink-0">
-                Trial Mode • No Sign-in Required
-              </span>
-            )}
+
+            {/* Right Column: Topics in check & Start Assessment Card (Desktop) */}
+            <div className="lg:col-span-5 xl:col-span-4 space-y-6 lg:sticky lg:top-6 self-start">
+              {/* Topics in this check */}
+              <div className="neo-panel p-5 sm:p-6 rounded-[24px] border border-border bg-[var(--surface)] shadow-warm space-y-4">
+                <div className="space-y-1">
+                  <span className="editorial-meta text-foreground font-bold">TOPICS IN THIS CHECK</span>
+                  <p className="text-xs text-muted-foreground">
+                    Comprehensive mapping to {classConfig.label} foundational learning outcomes.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {(classConfig.topics || CURRICULUM_TOPICS).map((tId: TopicId) => (
+                    <span
+                      key={tId}
+                      className="px-3 py-1.5 bg-card border border-border text-xs font-mono font-bold text-foreground rounded-[16px]"
+                    >
+                      {TOPIC_DISPLAY_NAMES[tId]?.en || tId}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Start Assessment Action Card (Desktop) */}
+              <div className="hidden lg:block neo-panel p-6 rounded-[24px] border border-border bg-card shadow-warm space-y-3.5">
+                <button
+                  type="button"
+                  onClick={() => handleStart()}
+                  className="neo-btn neo-btn-primary min-h-[52px] w-full text-base font-bold flex items-center justify-center gap-2 rounded-full cursor-pointer shadow-warm"
+                >
+                  <Brain className="w-5 h-5 text-primary-foreground" />
+                  <span>{dict.startPractice || "START ASSESSMENT"}</span>
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onCancel) {
+                      onCancel();
+                    } else {
+                      router.push("/");
+                    }
+                  }}
+                  className="neo-btn neo-btn-secondary min-h-[44px] w-full text-sm font-bold rounded-full cursor-pointer"
+                >
+                  {isGuest ? "Back to Home" : "Back to Dashboard"}
+                </button>
+              </div>
+            </div>
           </div>
 
-          {/* Quick Action: Try as a student card */}
-          <div className="p-4 bg-primary/5 dark:bg-primary/10 border-2 border-primary/30 rounded-[20px] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="inline-flex items-center gap-1 text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
-                  <Sparkle className="w-3 h-3 text-amber-600 dark:text-amber-400" weight="fill" />
-                  <span>{dict.demoModeBadge || "Demo mode"}</span>
-                </span>
-                <span className="font-bold text-sm text-foreground">
-                  {dict.demoStudentLabel || "Class 5 Student (Ravi Kumar)"}
-                </span>
-              </div>
-              <p className="text-xs text-foreground/80">
-                {lang === "hi"
-                  ? "बिना लॉगिन किए कक्षा 5 के छात्र के रूप में तुरंत मूल्यांकन शुरू करें।"
-                  : lang === "te"
-                  ? "లాగిన్ లేకుండా నేరుగా 5వ తరగతి విద్యార్థిగా పరిశీలన ప్రారంభించండి."
-                  : "Start assessment immediately with no login using preset Class 5 profile."}
-              </p>
-            </div>
+          {/* Mobile Sticky Bottom Action Bar (< 1024px / lg:hidden) */}
+          <nav
+            aria-label="Mobile assessment start bar"
+            className="fixed bottom-0 left-0 right-0 z-30 p-3 bg-background/95 backdrop-blur-md border-t border-border shadow-lg flex items-center gap-2 lg:hidden"
+          >
             <button
               type="button"
               onClick={() => {
-                setIsDemoModeState(true);
-                onClassChange?.("class_5");
-                handleStart(presetClass5Student, "class_5");
+                if (onCancel) {
+                  onCancel();
+                } else {
+                  router.push("/");
+                }
               }}
-              data-testid="screen1-try-as-student-btn"
-              className="neo-btn neo-btn-primary min-h-[48px] px-6 text-sm font-bold flex items-center justify-center gap-2 rounded-full w-full sm:w-auto cursor-pointer shadow-warm"
+              className="neo-btn neo-btn-secondary px-4 py-2.5 min-h-[48px] text-xs font-bold rounded-full cursor-pointer shrink-0"
             >
-              <Sparkle className="w-4 h-4 text-primary-foreground" weight="fill" />
-              <span>{dict.tryAsStudent || "Try as a student"}</span>
-              <ArrowRight className="w-4 h-4" />
+              {isGuest ? "Home" : "Back"}
             </button>
-          </div>
-
-          {/* Student Picker (for Teacher) */}
-          {!isGuest && !isStudentView ? (
-            <div className="space-y-2">
-              <label className="editorial-meta text-foreground">SELECT STUDENT TO ASSESS</label>
-              <select
-                value={selectedStudentId}
-                onChange={(e) => setSelectedStudentId(e.target.value)}
-                className="w-full min-h-[44px] px-3 text-sm font-semibold bg-card border border-border rounded-[16px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-              >
-                {effectiveStudents.map((s) => (
-                  <option key={s.student.id} value={s.student.id}>
-                    {s.student.name} (Roll #{s.student.rollNo}) | {s.profile.status.toUpperCase().replace("_", " ")}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ) : !isGuest && isStudentView ? (
-            <div className="p-3 bg-card border border-border rounded-[16px] flex items-center justify-between">
-              <div>
-                <span className="editorial-meta text-muted-foreground">LEARNER</span>
-                <div className="font-serif font-bold text-lg text-foreground">{activeStudent?.student.name}</div>
-              </div>
-              <span className="font-mono text-sm font-bold text-muted-foreground">Roll #{activeStudent?.student.rollNo}</span>
-            </div>
-          ) : null}
-
-          {/* Class Grade (Classes 1 - 10) & Language */}
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between flex-wrap gap-1">
-                <span className="editorial-meta text-foreground">SELECT CLASS (CLASSES 1 TO 10)</span>
-                <span className="text-xs font-mono text-muted-foreground">Classes 1–10 ready</span>
-              </div>
-              <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5">
-                {SUPPORTED_CLASSES.map((c) => (
-                  <button
-                    key={c.id}
-                    type="button"
-
-                    onClick={() => {
-                      if (c.enabled) {
-                        clearSavedSession();
-                        onClassChange?.(c.id);
-                      }
-                    }}
-                    title={
-                      c.enabled
-                        ? `Select ${c.label} for scored ${boardPreference === "ICSE" ? "ICSE" : boardPreference === "BOTH" ? "CBSE & ICSE" : "CBSE"} assessment`
-                        : `${c.label}: ${boardPreference === "ICSE" ? "ICSE (CISCE)" : "CBSE (NCERT)"} curriculum mapped. Question engine coming soon.`
-                    }
-                    className={`min-h-[44px] px-2 py-2 text-xs font-bold font-mono rounded-[16px] border flex flex-col items-center justify-center cursor-pointer ${
-                      selectedClassId === c.id
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : c.enabled
-                        ? "bg-card text-foreground border-border hover:bg-muted"
-                        : "bg-muted/30 text-muted-foreground/60 border-border/50 cursor-not-allowed"
-                    }`}
-                  >
-                    <span>{c.label}</span>
-                    <span className="text-[12px] font-normal opacity-85 leading-none">
-                      {c.stage === "foundational" ? "Found" : c.stage === "preparatory" ? "Primary" : c.stage === "middle" ? "Middle" : "High"}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Assessment Language Selector */}
-            <div className="space-y-2">
-              <span className="editorial-meta text-foreground">ASSESSMENT LANGUAGE</span>
-              <div className="grid grid-cols-3 gap-2 max-w-sm">
-                {(["en", "hi", "te"] as Lang[]).map((l) => (
-                  <button
-                    key={l}
-                    type="button"
-                    onClick={() => setLang(l)}
-                    className={`min-h-[44px] px-3 py-2 text-xs font-bold font-mono rounded-[16px] border cursor-pointer ${
-                      lang === l
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "bg-card text-foreground border-border hover:bg-muted"
-                    }`}
-                  >
-                    {l === "en" ? "English" : l === "hi" ? "हिन्दी" : "తెలుగు"}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Curriculum Board & Question Sources */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between flex-wrap gap-1">
-                <span className="editorial-meta text-foreground">CURRICULUM BOARD & QUESTION SOURCES</span>
-                <span className="text-xs font-mono text-muted-foreground">CBSE, ICSE or Balanced Mix</span>
-              </div>
-              <div className="grid grid-cols-3 gap-2 max-w-md">
-                {(["CBSE", "ICSE", "BOTH"] as const).map((b) => (
-                  <button
-                    key={b}
-                    type="button"
-                    onClick={() => setBoardPreference(b)}
-                    className={`min-h-[44px] px-3 py-2 text-xs font-bold font-mono rounded-[16px] border cursor-pointer ${
-                      boardPreference === b
-                        ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                        : "bg-card text-foreground border-border hover:bg-muted"
-                    }`}
-                  >
-                    <span>{b === "BOTH" ? "Both (Balanced)" : b}</span>
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {boardPreference === "CBSE"
-                  ? "Focuses on NCERT Math-Magic & Exemplar with CBSE reference problems (R.D. Sharma / R.S. Aggarwal)."
-                  : boardPreference === "ICSE"
-                  ? "Focuses on ICSE Selina / Concise Mathematics & ML Aggarwal with formal step-by-step reasoning."
-                  : "Balanced alternation between NCERT conceptual clarity and ICSE step-by-step mathematical rigour."}
-              </p>
-            </div>
-          </div>
-
-          {/* Topics Covered */}
-          <div className="space-y-2 pt-2 border-t border-border">
-            <span className="editorial-meta text-foreground">TOPICS IN THIS CHECK</span>
-            <div className="flex flex-wrap gap-2">
-              {(classConfig.topics || CURRICULUM_TOPICS).map((tId: TopicId) => (
-                <span
-                  key={tId}
-                  className="px-3 py-1.5 bg-card border border-border text-xs font-mono font-bold text-foreground rounded-[16px]"
-                >
-                  {TOPIC_DISPLAY_NAMES[tId]?.en || tId}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Start Actions */}
-          <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border">
-            <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={() => {
-                  if (onCancel) {
-                    onCancel();
-                  } else {
-                    router.push("/");
-                  }
-                }}
-                className="neo-btn neo-btn-secondary px-5 py-2.5 min-h-[48px] text-sm font-bold w-full sm:w-auto rounded-full cursor-pointer"
-              >
-                {isGuest ? "Back to Home" : "Back to Dashboard"}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsDemoModeState(true);
-                  onClassChange?.("class_5");
-                  handleStart(presetClass5Student, "class_5");
-                }}
-                data-testid="footer-try-as-student-btn"
-                className="neo-btn neo-btn-secondary px-5 py-2.5 min-h-[48px] text-sm font-bold flex items-center justify-center gap-1.5 w-full sm:w-auto rounded-full cursor-pointer border border-primary/40 bg-primary/5 text-primary hover:bg-primary/10"
-              >
-                <Sparkle className="w-4 h-4 text-primary" weight="fill" />
-                <span>{dict.tryAsStudent || "Try as a student"}</span>
-              </button>
-            </div>
             <button
               type="button"
               onClick={() => handleStart()}
-              className="neo-btn neo-btn-primary px-8 py-3 min-h-[52px] text-base font-bold flex items-center justify-center gap-2 w-full sm:w-auto rounded-full cursor-pointer"
+              className="neo-btn neo-btn-primary px-6 py-2.5 min-h-[48px] text-sm sm:text-base font-bold flex items-center justify-center gap-2 flex-1 rounded-full cursor-pointer shadow-warm"
             >
-              <Brain className="w-5 h-5 text-primary-foreground" />
+              <Brain className="w-4 h-4 text-primary-foreground" />
               <span>{dict.startPractice || "START ASSESSMENT"}</span>
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4" />
             </button>
-          </div>
+          </nav>
         </div>
       ) : isFinished ? (
         /* ============================================================== */
         /* SCREEN 3: ASSESSMENT COMPLETE SCREEN (STUDENT-FIRST RESULTS)   */
         /* ============================================================== */
-        <div className="neo-panel overflow-hidden space-y-6 p-5 sm:p-8 rounded-[24px] border border-border bg-[var(--surface)] shadow-warm">
-          {/* Friendly Celebratory Header */}
-          <div className="border-b border-border pb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="w-full max-w-[1200px] mx-auto pb-28 lg:pb-12 overflow-x-hidden space-y-6">
+          {/* Friendly Celebratory Header Card */}
+          <div className="neo-panel overflow-hidden p-5 sm:p-7 rounded-[24px] border border-border bg-[var(--surface)] shadow-warm flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="w-14 h-16 sm:w-16 sm:h-20 shrink-0 flex items-center justify-center">
                 <MascotHero width={64} height={76} state="success" />
@@ -1567,15 +1572,6 @@ export function AdaptiveAssessmentView({
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="editorial-meta text-primary font-bold">ASSESSMENT COMPLETE</span>
-                  {isDemoModeState && (
-                    <span
-                      data-testid="results-demo-mode-badge"
-                      className="inline-flex items-center gap-1 text-xs font-mono uppercase px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 font-bold"
-                    >
-                      <Sparkle className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" weight="fill" />
-                      <span>{dict.demoModeBadge || "Demo mode"}</span>
-                    </span>
-                  )}
                 </div>
                 <h2 className="editorial-title text-2xl sm:text-3xl text-foreground font-black mt-0.5">
                   Well done, {activeStudent?.student.name || "Learner"}!
@@ -1587,7 +1583,7 @@ export function AdaptiveAssessmentView({
             </div>
 
             {/* Quick Summary Pill & Share Report Button */}
-            <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-center flex-wrap">
+            <div className="flex items-center gap-2.5 shrink-0 self-start md:self-center flex-wrap">
               <div className="flex items-center gap-2 bg-card p-2.5 rounded-[16px] border border-border">
                 <span className="text-xs font-mono font-bold text-foreground">
                   {masteredTopics.length} Mastered • {gapTopics.length + devTopics.length} To Practise
@@ -1620,8 +1616,13 @@ export function AdaptiveAssessmentView({
             </div>
           </div>
 
-          {/* View Mode Switcher: Gap Report vs Before & After Growth Screen */}
-          <div className="flex items-center justify-between flex-wrap gap-3 pb-2 border-b border-border">
+          {/* Distinct 2-Column Desktop Layout (Skills on Left, Plan & Actions on Right) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+            {/* Left Column: Summary, Skills Unlocked & Sleeping, Trajectory */}
+            <div className="lg:col-span-7 xl:col-span-8 space-y-6">
+              {/* View Mode Switcher: Gap Report vs Before & After Growth Screen */}
+              <div className="neo-panel p-4 sm:p-5 rounded-[22px] border border-border bg-[var(--surface)] shadow-warm space-y-4">
+                <div className="flex items-center justify-between flex-wrap gap-3 pb-2 border-b border-border">
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 type="button"
@@ -1825,86 +1826,6 @@ export function AdaptiveAssessmentView({
                 </div>
               </div>
 
-              {/* 2. Prescribed Next-Steps Growth Plan */}
-              <div
-                data-testid="prescribed-plan-section"
-                className="p-4 sm:p-6 bg-card border border-border rounded-[22px] space-y-4 shadow-sm"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-border">
-                  <div className="flex items-center gap-2">
-                    <Sparkle className="w-5 h-5 text-primary" weight="fill" />
-                    <h3 className="font-bold text-base sm:text-lg text-foreground">
-                      {dict.prescribedNextSteps || "Prescribed Next-Steps Growth Plan"}
-                    </h3>
-                  </div>
-                  <span className="text-xs font-mono text-muted-foreground">
-                    Positive 3-Step Action Plan
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {/* Step 1 Card */}
-                  <div className="p-4 rounded-[18px] bg-[var(--surface)] border border-border space-y-1.5">
-                    <span className="text-xs font-mono font-bold text-primary uppercase">
-                      01 • Hands-on Practice
-                    </span>
-                    <div className="font-bold text-sm text-foreground">
-                      {dict.step1Awaken || "Step 1: Awaken the Root Skill"}
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {dict.step1AwakenDesc || "Spend 5-10 minutes with physical counters or simple drawings on the sleeping foundation."}
-                    </p>
-                  </div>
-
-                  {/* Step 2 Card */}
-                  <div className="p-4 rounded-[18px] bg-[var(--surface)] border border-border space-y-1.5">
-                    <span className="text-xs font-mono font-bold text-primary uppercase">
-                      02 • Guided Connection
-                    </span>
-                    <div className="font-bold text-sm text-foreground">
-                      {dict.step2Bridge || "Step 2: Connect to Grade-Level Math"}
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {dict.step2BridgeDesc || "Solve 2-3 guided examples connecting the foundation to today's lesson."}
-                    </p>
-                  </div>
-
-                  {/* Step 3 Card */}
-                  <div className="p-4 rounded-[18px] bg-[var(--surface)] border border-border space-y-1.5">
-                    <span className="text-xs font-mono font-bold text-primary uppercase">
-                      03 • Celebrate & Check
-                    </span>
-                    <div className="font-bold text-sm text-foreground">
-                      {dict.step3Retest || "Step 3: Quick Retest & Celebrate Growth"}
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {dict.step3RetestDesc || "Take a gentle 3-question check to see your growth score climb and awaken the skill!"}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Plan Interactive CTA Button */}
-                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
-                  <p className="text-xs text-muted-foreground">
-                    Ready to see your scores rise? Practice sleeping skills and view before/after growth.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={handleCompletePracticeAndRetest}
-                    disabled={isRetesting}
-                    data-testid="complete-practice-retest-btn"
-                    className="neo-btn neo-btn-primary min-h-[48px] px-6 text-sm font-bold flex items-center justify-center gap-2 rounded-full w-full sm:w-auto cursor-pointer shadow-warm"
-                  >
-                    <TrendUp className="w-4 h-4 text-primary-foreground" />
-                    <span>
-                      {isRetesting
-                        ? "Simulating Practice & Retest..."
-                        : (dict.completePracticeAndRetest || "Complete Practice & Retest")}
-                    </span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
             </div>
           ) : (
             /* ============================================================== */
@@ -2041,6 +1962,7 @@ export function AdaptiveAssessmentView({
               </div>
             </div>
           )}
+        </div>
 
           {/* Direct Verified NCERT Textbook Chapter Recommendations (Zero Jargon) */}
           {recommendations.length > 0 && (
@@ -2189,59 +2111,246 @@ export function AdaptiveAssessmentView({
             </div>
           )}
 
-            {/* Action Buttons */}
-          <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border">
-            <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={() => {
-                  clearSavedSession();
-                  setIsStarted(false);
-                  setIsFinished(false);
-                  setSessionMemory(null);
-                  setCurrentQuestion(null);
-                  setFeedback(null);
-                }}
-                className="neo-btn neo-btn-secondary min-h-[48px] px-5 text-sm font-bold flex items-center justify-center gap-2 rounded-full w-full sm:w-auto cursor-pointer"
-              >
-                <ArrowCounterClockwise className="w-4 h-4" />
-                <span>{isGuest ? "Try Another Check" : "Check Another Student"}</span>
-              </button>
-              {activeStudent && (
+            {/* Secondary Navigation Buttons */}
+            <div className="p-4 rounded-[20px] bg-[var(--surface)] border border-border shadow-warm-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
                 <button
                   type="button"
-                  onClick={() => setIsWorksheetOpen(true)}
+                  onClick={() => {
+                    clearSavedSession();
+                    setIsStarted(false);
+                    setIsFinished(false);
+                    setSessionMemory(null);
+                    setCurrentQuestion(null);
+                    setFeedback(null);
+                  }}
                   className="neo-btn neo-btn-secondary min-h-[48px] px-5 text-sm font-bold flex items-center justify-center gap-2 rounded-full w-full sm:w-auto cursor-pointer"
                 >
-                  <Printer className="w-4 h-4" />
-                  <span>Print Practice Worksheet</span>
+                  <ArrowCounterClockwise className="w-4 h-4" />
+                  <span>{isGuest ? "Try Another Check" : "Check Another Student"}</span>
+                </button>
+                {activeStudent && (
+                  <button
+                    type="button"
+                    onClick={() => setIsWorksheetOpen(true)}
+                    className="neo-btn neo-btn-secondary min-h-[48px] px-5 text-sm font-bold flex items-center justify-center gap-2 rounded-full w-full sm:w-auto cursor-pointer"
+                  >
+                    <Printer className="w-4 h-4" />
+                    <span>Print Practice Worksheet</span>
+                  </button>
+                )}
+              </div>
+
+              {isGuest ? (
+                <button
+                  type="button"
+                  onClick={() => setIsDiagnosticModalOpen(true)}
+                  data-testid="view-full-report-btn"
+                  className="neo-btn neo-btn-primary min-h-[48px] px-6 text-sm font-bold flex items-center justify-center gap-2 rounded-full w-full sm:w-auto cursor-pointer bg-primary text-primary-foreground shadow-warm"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  <span>{dict.viewReportBtn || "View Diagnostic Report"}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleSaveAndFinish}
+                  disabled={isLoadingFinish}
+                  className="neo-btn neo-btn-primary min-h-[48px] px-6 text-sm font-bold flex items-center justify-center gap-2 rounded-full w-full sm:w-auto cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span>{isLoadingFinish ? "Saving Assessment..." : "Save & Return to Dashboard"}</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
               )}
             </div>
-
-            {isGuest || isDemoModeState ? (
-              <button
-                type="button"
-                onClick={() => setIsDiagnosticModalOpen(true)}
-                data-testid="view-full-report-btn"
-                className="neo-btn neo-btn-primary min-h-[48px] px-6 text-sm font-bold flex items-center justify-center gap-2 rounded-full w-full sm:w-auto cursor-pointer bg-primary text-primary-foreground shadow-warm"
-              >
-                <BookOpen className="w-4 h-4" />
-                <span>{dict.viewReportBtn || "View Diagnostic Report"}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleSaveAndFinish}
-                disabled={isLoadingFinish}
-                className="neo-btn neo-btn-primary min-h-[48px] px-6 text-sm font-bold flex items-center justify-center gap-2 rounded-full w-full sm:w-auto cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span>{isLoadingFinish ? "Saving Assessment..." : "Save & Return to Dashboard"}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            )}
           </div>
+
+          {/* Right Column: Next Actions & Prescribed Next-Steps Growth Plan (Sticky on Desktop) */}
+          <div className="lg:col-span-5 xl:col-span-4 space-y-6 lg:sticky lg:top-6 self-start">
+            {/* Quick Actions Card */}
+            <div className="neo-panel p-5 sm:p-6 rounded-[22px] border border-border bg-[var(--surface)] shadow-warm space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-border">
+                <ShareNetwork className="w-5 h-5 text-primary" weight="bold" />
+                <h3 className="font-bold text-base sm:text-lg text-foreground">
+                  Next Actions & Share
+                </h3>
+              </div>
+
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsShareModalOpen(true);
+                    if (!shareTokenData && !isShareLinkRevoked) {
+                      handleGenerateShareLink();
+                    }
+                  }}
+                  className="w-full neo-btn neo-btn-primary min-h-[48px] px-4 text-sm font-bold flex items-center justify-center gap-2 rounded-full cursor-pointer shadow-warm"
+                >
+                  <ShareNetwork className="w-4 h-4" weight="bold" />
+                  <span>{dict.shareReportBtn || "Share Report Link"}</span>
+                </button>
+
+                {activeStudent && (
+                  <button
+                    type="button"
+                    onClick={() => setIsWorksheetOpen(true)}
+                    className="w-full neo-btn neo-btn-secondary min-h-[48px] px-4 text-sm font-bold flex items-center justify-center gap-2 rounded-full cursor-pointer"
+                  >
+                    <Printer className="w-4 h-4" />
+                    <span>Print Practice Worksheet</span>
+                  </button>
+                )}
+
+                {isGuest ? (
+                  <button
+                    type="button"
+                    onClick={() => setIsDiagnosticModalOpen(true)}
+                    className="w-full neo-btn neo-btn-secondary min-h-[48px] px-4 text-sm font-bold flex items-center justify-center gap-2 rounded-full cursor-pointer"
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    <span>{dict.viewReportBtn || "View Diagnostic Report"}</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleSaveAndFinish}
+                    disabled={isLoadingFinish}
+                    className="w-full neo-btn neo-btn-secondary min-h-[48px] px-4 text-sm font-bold flex items-center justify-center gap-2 rounded-full cursor-pointer disabled:opacity-50"
+                  >
+                    <span>{isLoadingFinish ? "Saving..." : "Save & Return to Dashboard"}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Prescribed Next-Steps Growth Plan */}
+            <div
+              data-testid="prescribed-plan-section"
+              className="neo-panel p-5 sm:p-6 bg-card border border-border rounded-[22px] space-y-4 shadow-warm"
+            >
+              <div className="flex flex-col gap-1 pb-2 border-b border-border">
+                <div className="flex items-center gap-2">
+                  <Sparkle className="w-5 h-5 text-primary" weight="fill" />
+                  <h3 className="font-bold text-base sm:text-lg text-foreground">
+                    {dict.prescribedNextSteps || "Prescribed Next-Steps Growth Plan"}
+                  </h3>
+                </div>
+                <span className="text-xs font-mono text-muted-foreground">
+                  Positive 3-Step Action Plan
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                {/* Step 1 Card */}
+                <div className="p-3.5 rounded-[18px] bg-[var(--surface)] border border-border space-y-1">
+                  <span className="text-xs font-mono font-bold text-primary uppercase">
+                    01 • Hands-on Practice
+                  </span>
+                  <div className="font-bold text-sm text-foreground">
+                    {dict.step1Awaken || "Step 1: Awaken the Root Skill"}
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {dict.step1AwakenDesc || "Spend 5-10 minutes with physical counters or simple drawings on the sleeping foundation."}
+                  </p>
+                </div>
+
+                {/* Step 2 Card */}
+                <div className="p-3.5 rounded-[18px] bg-[var(--surface)] border border-border space-y-1">
+                  <span className="text-xs font-mono font-bold text-primary uppercase">
+                    02 • Guided Connection
+                  </span>
+                  <div className="font-bold text-sm text-foreground">
+                    {dict.step2Bridge || "Step 2: Connect to Grade-Level Math"}
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {dict.step2BridgeDesc || "Solve 2-3 guided examples connecting the foundation to today's lesson."}
+                  </p>
+                </div>
+
+                {/* Step 3 Card */}
+                <div className="p-3.5 rounded-[18px] bg-[var(--surface)] border border-border space-y-1">
+                  <span className="text-xs font-mono font-bold text-primary uppercase">
+                    03 • Celebrate & Check
+                  </span>
+                  <div className="font-bold text-sm text-foreground">
+                    {dict.step3Retest || "Step 3: Quick Retest & Celebrate Growth"}
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {dict.step3RetestDesc || "Take a gentle 3-question check to see your growth score climb and awaken the skill!"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Plan Interactive CTA Button */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={handleCompletePracticeAndRetest}
+                  disabled={isRetesting}
+                  data-testid="complete-practice-retest-btn"
+                  className="w-full neo-btn neo-btn-primary min-h-[48px] px-5 text-sm font-bold flex items-center justify-center gap-2 rounded-full cursor-pointer shadow-warm"
+                >
+                  <TrendUp className="w-4 h-4 text-primary-foreground" />
+                  <span>
+                    {isRetesting
+                      ? "Simulating Practice & Retest..."
+                      : (dict.completePracticeAndRetest || "Complete Practice & Retest")}
+                  </span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Privacy Notice Card */}
+            <div className="p-4 rounded-[18px] bg-muted/40 border border-border text-xs text-muted-foreground space-y-1">
+              <span className="font-bold text-primary font-mono text-xs">SHIKSHAGAP PRIVACY</span>
+              <p>Private 14-day links show only first name and skills unlocked to protect child identity.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Sticky Bottom Action Bar for Mobile (< 768px / lg:hidden) */}
+        <nav
+          aria-label="Mobile Assessment Results Actions"
+          className="fixed bottom-0 left-0 right-0 z-30 p-3 bg-background/95 backdrop-blur-md border-t border-border shadow-lg flex items-center justify-between gap-2.5 lg:hidden"
+        >
+          <button
+            type="button"
+            onClick={() => {
+              setIsShareModalOpen(true);
+              if (!shareTokenData && !isShareLinkRevoked) {
+                handleGenerateShareLink();
+              }
+            }}
+            data-testid="mobile-sticky-share-btn"
+            className="neo-btn neo-btn-primary flex-1 min-h-[48px] px-4 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 rounded-full cursor-pointer shadow-warm"
+          >
+            <ShareNetwork className="w-4 h-4" weight="bold" />
+            <span>{dict.shareReportBtn || "Share Report"}</span>
+          </button>
+          {activeStudent ? (
+            <button
+              type="button"
+              onClick={() => setIsWorksheetOpen(true)}
+              className="neo-btn neo-btn-secondary flex-1 min-h-[48px] px-4 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 rounded-full cursor-pointer"
+            >
+              <Printer className="w-4 h-4" />
+              <span>Print Worksheet</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleCompletePracticeAndRetest}
+              disabled={isRetesting}
+              className="neo-btn neo-btn-secondary flex-1 min-h-[48px] px-4 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 rounded-full cursor-pointer"
+            >
+              <TrendUp className="w-4 h-4" />
+              <span>{isRetesting ? "Retesting..." : "Retest"}</span>
+            </button>
+          )}
+        </nav>
 
           {/* Modal for Full Student Diagnostic Report */}
           {activeStudent && (
@@ -2402,11 +2511,12 @@ export function AdaptiveAssessmentView({
                         onClick={handleRevokeShareLink}
                         disabled={isRevokingShareLink}
                         data-testid="modal-revoke-link-btn"
+                        data-action="stop-sharing"
                         className="min-h-[44px] px-3.5 py-2 text-xs font-mono text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-full flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
                       >
                         <Trash className="w-3.5 h-3.5" />
                         <span>
-                          {isRevokingShareLink ? "Revoking..." : (dict.revokeLink || "Revoke Link")}
+                          {isRevokingShareLink ? "Revoking..." : (dict.stopSharing || dict.revokeLink || "Stop Sharing")}
                         </span>
                       </button>
                     </div>
@@ -2442,23 +2552,17 @@ export function AdaptiveAssessmentView({
         /* ============================================================== */
         /* SCREEN 2: ACTIVE ADAPTIVE ASSESSMENT (CHILD-FRIENDLY ONE THING AT A TIME) */
         /* ============================================================== */
-        <div className="space-y-4 sm:space-y-6 w-full max-w-4xl xl:max-w-5xl mx-auto">
-          {/* Top Bar: Progress & Language Switcher & Report */}
+        <div className="w-full max-w-[1200px] mx-auto pb-28 lg:pb-8 overflow-x-hidden space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+            {/* Left Column: Progress Bar + Question Area */}
+            <div className="lg:col-span-7 xl:col-span-8 space-y-5">
+              {/* Top Bar: Progress & Language Switcher & Report */}
           <div className="bg-[var(--surface)] border border-border rounded-[22px] shadow-warm-sm p-4 sm:p-5 space-y-3">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs font-mono uppercase font-bold text-muted-foreground">
                   {classConfig.label.toUpperCase()}
                 </span>
-                {isDemoModeState && (
-                  <span
-                    data-testid="active-demo-mode-badge"
-                    className="inline-flex items-center gap-1 text-xs font-mono uppercase px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 font-bold"
-                  >
-                    <Sparkle className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" weight="fill" />
-                    <span>{dict.demoModeBadge || "Demo mode"}</span>
-                  </span>
-                )}
                 <span className="text-xs text-muted-foreground">•</span>
                 <span className="text-xs font-mono font-bold text-primary">
                   {currentTopicName}
@@ -2563,6 +2667,249 @@ export function AdaptiveAssessmentView({
             </div>
           </div>
 
+          {/* Calm Loading State */}
+          {isEvaluating ? (
+            <div className="bg-[var(--surface)] border border-border rounded-[22px] shadow-warm-sm p-8 sm:p-12 space-y-6 text-center">
+              <div className="space-y-4 max-w-md mx-auto">
+                <div className="h-8 bg-muted rounded-[16px] animate-pulse w-3/4 mx-auto" />
+                <div className="h-16 bg-muted rounded-[16px] animate-pulse w-full mx-auto" />
+                <div className="space-y-3 pt-4">
+                  <div className="h-12 bg-muted rounded-[16px] animate-pulse w-full" />
+                  <div className="h-12 bg-muted rounded-[16px] animate-pulse w-full" />
+                </div>
+              </div>
+              <div className="pt-4 border-t border-border">
+                <p className="font-serif text-lg font-bold text-foreground">
+                  {evaluatingSeconds >= 3
+                    ? lang === "hi"
+                      ? "अगला प्रश्न तैयार हो रहा है... कृपया थोड़ा इंतज़ार करें।"
+                      : lang === "te"
+                      ? "తదుపరి ప్రశ్న సిద్ధమవుతోంది... దయచేసి వేచి ఉండండి."
+                      : "Getting your next question ready... Thank you for waiting."
+                    : lang === "hi"
+                    ? "तैयार हो रहा है..."
+                    : lang === "te"
+                    ? "సిద్ధమవుతోంది..."
+                    : "Preparing your next step..."}
+                </p>
+              </div>
+            </div>
+          ) : hasError ? (
+            /* Friendly Error State with Retry Button */
+            <div className="bg-[var(--surface)] border border-primary/40 rounded-[22px] shadow-warm-sm p-6 sm:p-8 space-y-4 text-center">
+              <div className="w-12 h-12 mx-auto rounded-full bg-card border border-primary flex items-center justify-center text-primary">
+                <WarningCircle size={28} weight="bold" />
+              </div>
+              <h3 className="font-serif text-xl font-bold text-foreground">
+                {lang === "hi"
+                  ? "इंटरनेट में थोड़ी रुकावट आई"
+                  : lang === "te"
+                  ? "నెట్‌వర్క్ సమస్య ఎదురైంది"
+                  : "We had trouble loading the next question"}
+              </h3>
+              <p className="text-base text-foreground/80 max-w-md mx-auto">
+                {lang === "hi"
+                  ? "चिंता न करें, आपका काम सुरक्षित है। पुनः प्रयास करने के लिए नीचे बटन दबाएं।"
+                  : lang === "te"
+                  ? "చింతించకండి, మీ సమాధానాలు సురక్షితంగా ఉన్నాయి. మళ్ళీ ప్రయత్నించడానికి కింద బటన్ నొక్కండి."
+                  : "Don't worry, your progress is safe. Tap the button below to try again."}
+              </p>
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setHasError(false);
+                    handleNextStep();
+                  }}
+                  className="neo-btn neo-btn-primary min-h-[48px] px-8 text-base font-bold rounded-full cursor-pointer"
+                >
+                  {lang === "hi" ? "फिर से कोशिश करें (Retry)" : lang === "te" ? "మళ్ళీ ప్రయత్నించండి" : "Try Again"}
+                </button>
+              </div>
+            </div>
+          ) : currentQuestion ? (
+            /* Active Question Card */
+            <div className="bg-[var(--surface)] border border-border rounded-[22px] shadow-warm-sm p-5 sm:p-8 lg:p-10 space-y-6">
+              {/* Question Eyebrow & Provenance */}
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="editorial-meta text-muted-foreground">
+                    {dict.questionLabel || "Question"} {totalQuestionsAnswered + 1}
+                  </span>
+                  <span
+                    data-testid="question-board-badge"
+                    className={`inline-flex items-center text-xs font-mono font-bold px-2 py-0.5 rounded border ${
+                      currentQuestion.board === "ICSE"
+                        ? "bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800"
+                        : "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-200 dark:border-emerald-800"
+                    }`}
+                  >
+                    {currentQuestion.board === "ICSE" ? "ICSE" : "CBSE"}
+                  </span>
+                  <span className="text-xs font-mono text-muted-foreground">
+                    Level {currentQuestion.difficulty} of 5
+                  </span>
+                  {isBackupQuestion && (
+                    <span
+                      data-testid="backup-question-note"
+                      className="inline-flex items-center text-xs px-2 py-0.5 rounded font-medium bg-amber-50 text-amber-800 border border-amber-200"
+                    >
+                      Backup Question
+                    </span>
+                  )}
+                </div>
+
+                {currentQuestion.sourceStyle ? (
+                  <span
+                    data-testid="source-style-badge"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-muted/60 text-muted-foreground border border-border text-xs font-mono"
+                    title={SOURCE_STYLE_METADATA[currentQuestion.sourceStyle]?.description}
+                  >
+                    <BookOpen className="w-3.5 h-3.5 text-primary" />
+                    <span>{currentQuestion.provenanceLabel || SOURCE_STYLE_METADATA[currentQuestion.sourceStyle]?.label}</span>
+                  </span>
+                ) : currentQuestion.provenanceLabel ? (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-muted/60 text-muted-foreground border border-border text-xs font-mono">
+                    <BookOpen className="w-3.5 h-3.5 text-primary" />
+                    <span>{currentQuestion.provenanceLabel}</span>
+                  </span>
+                ) : null}
+              </div>
+
+              {/* Large Question Text */}
+              <div className="space-y-4">
+                <h2 className="font-serif font-bold text-[22px] sm:text-3xl lg:text-4xl text-foreground leading-relaxed">
+                  {formatTxt(currentQuestion.prompt)}
+                </h2>
+
+                {currentQuestion.expression && (
+                  <div className="py-4 sm:py-6 text-center bg-card rounded-[16px] border border-border">
+                    <span className="font-mono text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground tracking-wider">
+                      {currentQuestion.expression}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Answer Choices */}
+              {!feedback ? (
+                <div className="space-y-4 pt-2">
+                  {currentQuestion.options && currentQuestion.options.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                      {currentQuestion.options.map((opt, optIdx) => {
+                        const optLetter = String.fromCharCode(65 + optIdx);
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => handleSubmit(opt.value)}
+                            disabled={isEvaluating || Boolean(feedback)}
+                            className="w-full neo-btn neo-btn-secondary min-h-[56px] sm:min-h-[64px] p-4 text-left text-[18px] sm:text-xl font-bold flex items-center gap-3.5 rounded-[20px] group leading-relaxed shadow-warm-sm hover:shadow-warm transition-all cursor-pointer"
+                          >
+                            <span className="w-8 h-8 rounded-[16px] bg-muted/80 text-foreground text-sm font-mono font-bold flex items-center justify-center shrink-0 border border-border">
+                              {optLetter}
+                            </span>
+                            <span className="font-mono flex-1">{formatTxt(opt.label)}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col sm:flex-row gap-2.5 w-full">
+                      <Input
+                        placeholder={dict.enterAnswer || "Enter your answer"}
+                        value={userAnswer}
+                        inputMode="decimal"
+                        onChange={(e) => setUserAnswer(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleSubmit(userAnswer)}
+                        disabled={isEvaluating || Boolean(feedback)}
+                        className="min-h-[52px] font-mono text-xl sm:text-2xl bg-card border border-border rounded-[16px] text-foreground w-full px-4"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleSubmit(userAnswer)}
+                        disabled={isEvaluating || Boolean(feedback)}
+                        className="neo-btn neo-btn-primary px-8 min-h-[52px] text-base sm:text-lg font-bold shrink-0 rounded-full cursor-pointer"
+                      >
+                        {dict.submitAnswer || "Submit"}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Student Hint & "I don't know yet" option */}
+                  <div className="pt-2 flex flex-wrap items-center justify-between gap-2">
+                    {currentQuestion.hint ? (
+                      <div>
+                        {!showHint ? (
+                          <button
+                            type="button"
+                            onClick={() => setShowHint(true)}
+                            className="min-h-[44px] px-3 py-1.5 text-sm text-foreground font-semibold flex items-center gap-1.5 hover:underline border border-border rounded-[16px] bg-card cursor-pointer"
+                          >
+                            <QuestionIcon className="w-4 h-4 text-primary" />
+                            <span>{dict.showHint || "Need a hint?"}</span>
+                          </button>
+                        ) : (
+                          <div className="bg-card border border-[var(--status-warn-border)] p-3.5 rounded-[16px] text-sm text-foreground leading-relaxed">
+                            <strong className="text-foreground bg-[var(--status-warn)] px-1.5 py-0.5 rounded-[16px] mr-1 font-mono text-xs">
+                              {dict.hintLabel || "Hint"}:
+                            </strong>{" "}
+                            {formatTxt(currentQuestion.hint)}
+                          </div>
+                        )}
+                      </div>
+                    ) : <div />}
+
+                    <button
+                      type="button"
+                      onClick={handleDontKnow}
+                      disabled={isEvaluating || Boolean(feedback)}
+                      data-testid="dont-know-btn"
+                      className="min-h-[44px] px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground font-mono flex items-center gap-1.5 border border-dashed border-border hover:border-foreground/40 rounded-[16px] bg-transparent cursor-pointer ml-auto"
+                    >
+                      <span>I don&apos;t know yet</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* Post-Submission Feedback and prominent Next Button */
+                <div className="space-y-4 pt-2">
+                  <div
+                    className={`p-4 sm:p-5 rounded-[16px] border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                      feedback.isCorrect
+                        ? "bg-[var(--status-good-bg)] border-[var(--status-good-border)] text-foreground"
+                        : "bg-card border-[var(--status-warn-border)] text-foreground"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      {feedback.isCorrect ? (
+                        <CheckCircle className="w-6 h-6 shrink-0 text-[var(--status-good)]" />
+                      ) : (
+                        <Sparkle className="w-6 h-6 shrink-0 text-amber-500 fill-amber-500" weight="fill" />
+                      )}
+                      <span className="text-base sm:text-lg font-bold text-foreground">
+                        {feedback.message}
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleNextStep}
+                      disabled={isEvaluating}
+                      className="neo-btn neo-btn-primary min-h-[52px] px-8 text-base font-bold flex items-center justify-center gap-2 shrink-0 rounded-full cursor-pointer"
+                    >
+                      <span>{dict.nextQuestion || "Next Question"}</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : null}
+            </div>
+
+            {/* Right Column: Mascot Companion & Thinking Panel (Sticky on Desktop) */}
+            <div className="lg:col-span-5 xl:col-span-4 space-y-5 lg:sticky lg:top-6 self-start">
           {/* Gappu Mascot & Consecutive Star Streak Companion */}
           <div
             data-testid="gappu-companion-banner"
@@ -2933,246 +3280,50 @@ export function AdaptiveAssessmentView({
               </div>
             )}
           </div>
-
-          {/* Calm Loading State */}
-          {isEvaluating ? (
-            <div className="bg-[var(--surface)] border border-border rounded-[22px] shadow-warm-sm p-8 sm:p-12 space-y-6 text-center">
-              <div className="space-y-4 max-w-md mx-auto">
-                <div className="h-8 bg-muted rounded-[16px] animate-pulse w-3/4 mx-auto" />
-                <div className="h-16 bg-muted rounded-[16px] animate-pulse w-full mx-auto" />
-                <div className="space-y-3 pt-4">
-                  <div className="h-12 bg-muted rounded-[16px] animate-pulse w-full" />
-                  <div className="h-12 bg-muted rounded-[16px] animate-pulse w-full" />
-                </div>
-              </div>
-              <div className="pt-4 border-t border-border">
-                <p className="font-serif text-lg font-bold text-foreground">
-                  {evaluatingSeconds >= 3
-                    ? lang === "hi"
-                      ? "अगला प्रश्न तैयार हो रहा है... कृपया थोड़ा इंतज़ार करें।"
-                      : lang === "te"
-                      ? "తదుపరి ప్రశ్న సిద్ధమవుతోంది... దయచేసి వేచి ఉండండి."
-                      : "Getting your next question ready... Thank you for waiting."
-                    : lang === "hi"
-                    ? "तैयार हो रहा है..."
-                    : lang === "te"
-                    ? "సిద్ధమవుతోంది..."
-                    : "Preparing your next step..."}
-                </p>
-              </div>
             </div>
-          ) : hasError ? (
-            /* Friendly Error State with Retry Button */
-            <div className="bg-[var(--surface)] border border-primary/40 rounded-[22px] shadow-warm-sm p-6 sm:p-8 space-y-4 text-center">
-              <div className="w-12 h-12 mx-auto rounded-full bg-card border border-primary flex items-center justify-center text-primary">
-                <WarningCircle size={28} weight="bold" />
-              </div>
-              <h3 className="font-serif text-xl font-bold text-foreground">
-                {lang === "hi"
-                  ? "इंटरनेट में थोड़ी रुकावट आई"
-                  : lang === "te"
-                  ? "నెట్‌వర్క్ సమస్య ఎదురైంది"
-                  : "We had trouble loading the next question"}
-              </h3>
-              <p className="text-base text-foreground/80 max-w-md mx-auto">
-                {lang === "hi"
-                  ? "चिंता न करें, आपका काम सुरक्षित है। पुनः प्रयास करने के लिए नीचे बटन दबाएं।"
-                  : lang === "te"
-                  ? "చింతించకండి, మీ సమాధానాలు సురక్షితంగా ఉన్నాయి. మళ్ళీ ప్రయత్నించడానికి కింద బటన్ నొక్కండి."
-                  : "Don't worry, your progress is safe. Tap the button below to try again."}
-              </p>
-              <div className="pt-2">
+          </div>
+
+          {/* Sticky Bottom Action Bar for Mobile (< 768px / lg:hidden) */}
+          <nav
+            aria-label="Mobile Question Navigation"
+            className="fixed bottom-0 left-0 right-0 z-30 p-3 bg-background/95 backdrop-blur-md border-t border-border shadow-lg flex items-center justify-between gap-2.5 lg:hidden"
+          >
+            {feedback ? (
+              <button
+                type="button"
+                onClick={handleNextStep}
+                disabled={isEvaluating}
+                data-testid="mobile-sticky-next-btn"
+                className="w-full neo-btn neo-btn-primary min-h-[52px] px-6 text-base font-bold flex items-center justify-center gap-2 rounded-full cursor-pointer shadow-warm"
+              >
+                <span>{dict.nextQuestion || "Next Question"}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            ) : currentQuestion && (!currentQuestion.options || currentQuestion.options.length === 0) ? (
+              <button
+                type="button"
+                onClick={() => handleSubmit(userAnswer)}
+                disabled={isEvaluating}
+                data-testid="mobile-sticky-submit-btn"
+                className="w-full neo-btn neo-btn-primary min-h-[52px] px-6 text-base font-bold flex items-center justify-center gap-2 rounded-full cursor-pointer shadow-warm"
+              >
+                <span>{dict.submitAnswer || "Submit Answer"}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            ) : (
+              <div className="w-full flex items-center justify-between gap-2">
+                <span className="text-xs font-mono text-muted-foreground">Select an option above</span>
                 <button
                   type="button"
-                  onClick={() => {
-                    setHasError(false);
-                    handleNextStep();
-                  }}
-                  className="neo-btn neo-btn-primary min-h-[48px] px-8 text-base font-bold rounded-full cursor-pointer"
+                  onClick={handleDontKnow}
+                  disabled={isEvaluating || Boolean(feedback)}
+                  className="min-h-[44px] px-3.5 py-1 text-xs text-muted-foreground hover:text-foreground font-mono flex items-center gap-1 border border-dashed border-border rounded-full bg-card cursor-pointer"
                 >
-                  {lang === "hi" ? "फिर से कोशिश करें (Retry)" : lang === "te" ? "మళ్ళీ ప్రయత్నించండి" : "Try Again"}
+                  <span>I don&apos;t know yet</span>
                 </button>
               </div>
-            </div>
-          ) : currentQuestion ? (
-            /* Active Question Card */
-            <div className="bg-[var(--surface)] border border-border rounded-[22px] shadow-warm-sm p-5 sm:p-8 lg:p-10 space-y-6">
-              {/* Question Eyebrow & Provenance */}
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="editorial-meta text-muted-foreground">
-                    {dict.questionLabel || "Question"} {totalQuestionsAnswered + 1}
-                  </span>
-                  <span
-                    data-testid="question-board-badge"
-                    className={`inline-flex items-center text-xs font-mono font-bold px-2 py-0.5 rounded border ${
-                      currentQuestion.board === "ICSE"
-                        ? "bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800"
-                        : "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-200 dark:border-emerald-800"
-                    }`}
-                  >
-                    {currentQuestion.board === "ICSE" ? "ICSE" : "CBSE"}
-                  </span>
-                  <span className="text-xs font-mono text-muted-foreground">
-                    Level {currentQuestion.difficulty} of 5
-                  </span>
-                  {isBackupQuestion && (
-                    <span
-                      data-testid="backup-question-note"
-                      className="inline-flex items-center text-xs px-2 py-0.5 rounded font-medium bg-amber-50 text-amber-800 border border-amber-200"
-                    >
-                      Backup Question
-                    </span>
-                  )}
-                </div>
-
-                {currentQuestion.sourceStyle ? (
-                  <span
-                    data-testid="source-style-badge"
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-muted/60 text-muted-foreground border border-border text-xs font-mono"
-                    title={SOURCE_STYLE_METADATA[currentQuestion.sourceStyle]?.description}
-                  >
-                    <BookOpen className="w-3.5 h-3.5 text-primary" />
-                    <span>{currentQuestion.provenanceLabel || SOURCE_STYLE_METADATA[currentQuestion.sourceStyle]?.label}</span>
-                  </span>
-                ) : currentQuestion.provenanceLabel ? (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-muted/60 text-muted-foreground border border-border text-xs font-mono">
-                    <BookOpen className="w-3.5 h-3.5 text-primary" />
-                    <span>{currentQuestion.provenanceLabel}</span>
-                  </span>
-                ) : null}
-              </div>
-
-              {/* Large Question Text */}
-              <div className="space-y-4">
-                <h2 className="font-serif font-bold text-[22px] sm:text-3xl lg:text-4xl text-foreground leading-relaxed">
-                  {formatTxt(currentQuestion.prompt)}
-                </h2>
-
-                {currentQuestion.expression && (
-                  <div className="py-4 sm:py-6 text-center bg-card rounded-[16px] border border-border">
-                    <span className="font-mono text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground tracking-wider">
-                      {currentQuestion.expression}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Answer Choices */}
-              {!feedback ? (
-                <div className="space-y-4 pt-2">
-                  {currentQuestion.options && currentQuestion.options.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                      {currentQuestion.options.map((opt, optIdx) => {
-                        const optLetter = String.fromCharCode(65 + optIdx);
-                        return (
-                          <button
-                            key={opt.id}
-                            type="button"
-                            onClick={() => handleSubmit(opt.value)}
-                            disabled={isEvaluating || Boolean(feedback)}
-                            className="w-full neo-btn neo-btn-secondary min-h-[56px] sm:min-h-[64px] p-4 text-left text-[18px] sm:text-xl font-bold flex items-center gap-3.5 rounded-[20px] group leading-relaxed shadow-warm-sm hover:shadow-warm transition-all cursor-pointer"
-                          >
-                            <span className="w-8 h-8 rounded-[16px] bg-muted/80 text-foreground text-sm font-mono font-bold flex items-center justify-center shrink-0 border border-border">
-                              {optLetter}
-                            </span>
-                            <span className="font-mono flex-1">{formatTxt(opt.label)}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="flex flex-col sm:flex-row gap-2.5 w-full">
-                      <Input
-                        placeholder={dict.enterAnswer || "Enter your answer"}
-                        value={userAnswer}
-                        inputMode="decimal"
-                        onChange={(e) => setUserAnswer(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleSubmit(userAnswer)}
-                        disabled={isEvaluating || Boolean(feedback)}
-                        className="min-h-[52px] font-mono text-xl sm:text-2xl bg-card border border-border rounded-[16px] text-foreground w-full px-4"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleSubmit(userAnswer)}
-                        disabled={isEvaluating || Boolean(feedback)}
-                        className="neo-btn neo-btn-primary px-8 min-h-[52px] text-base sm:text-lg font-bold shrink-0 rounded-full cursor-pointer"
-                      >
-                        {dict.submitAnswer || "Submit"}
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Student Hint & "I don't know yet" option */}
-                  <div className="pt-2 flex flex-wrap items-center justify-between gap-2">
-                    {currentQuestion.hint ? (
-                      <div>
-                        {!showHint ? (
-                          <button
-                            type="button"
-                            onClick={() => setShowHint(true)}
-                            className="min-h-[44px] px-3 py-1.5 text-sm text-foreground font-semibold flex items-center gap-1.5 hover:underline border border-border rounded-[16px] bg-card cursor-pointer"
-                          >
-                            <QuestionIcon className="w-4 h-4 text-primary" />
-                            <span>{dict.showHint || "Need a hint?"}</span>
-                          </button>
-                        ) : (
-                          <div className="bg-card border border-[var(--status-warn-border)] p-3.5 rounded-[16px] text-sm text-foreground leading-relaxed">
-                            <strong className="text-foreground bg-[var(--status-warn)] px-1.5 py-0.5 rounded-[16px] mr-1 font-mono text-xs">
-                              {dict.hintLabel || "Hint"}:
-                            </strong>{" "}
-                            {formatTxt(currentQuestion.hint)}
-                          </div>
-                        )}
-                      </div>
-                    ) : <div />}
-
-                    <button
-                      type="button"
-                      onClick={handleDontKnow}
-                      disabled={isEvaluating || Boolean(feedback)}
-                      data-testid="dont-know-btn"
-                      className="min-h-[44px] px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground font-mono flex items-center gap-1.5 border border-dashed border-border hover:border-foreground/40 rounded-[16px] bg-transparent cursor-pointer ml-auto"
-                    >
-                      <span>I don&apos;t know yet</span>
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                /* Post-Submission Feedback and prominent Next Button */
-                <div className="space-y-4 pt-2">
-                  <div
-                    className={`p-4 sm:p-5 rounded-[16px] border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                      feedback.isCorrect
-                        ? "bg-[var(--status-good-bg)] border-[var(--status-good-border)] text-foreground"
-                        : "bg-card border-[var(--status-warn-border)] text-foreground"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      {feedback.isCorrect ? (
-                        <CheckCircle className="w-6 h-6 shrink-0 text-[var(--status-good)]" />
-                      ) : (
-                        <Sparkle className="w-6 h-6 shrink-0 text-amber-500 fill-amber-500" weight="fill" />
-                      )}
-                      <span className="text-base sm:text-lg font-bold text-foreground">
-                        {feedback.message}
-                      </span>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={handleNextStep}
-                      disabled={isEvaluating}
-                      className="neo-btn neo-btn-primary min-h-[52px] px-8 text-base font-bold flex items-center justify-center gap-2 shrink-0 rounded-full cursor-pointer"
-                    >
-                      <span>{dict.nextQuestion || "Next Question"}</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : null}
+            )}
+          </nav>
         </div>
       )}
     </div>

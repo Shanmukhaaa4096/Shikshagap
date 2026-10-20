@@ -1775,6 +1775,13 @@ export function generateQuestionWithVariety(
   return applyQuestionFormat(base, targetFormat, rng);
 }
 
+function getPromptNorm(q: Question): string {
+  const p = q.prompt as unknown as Record<string, string | undefined> | string;
+  let text = typeof p === "string" ? p : p?.raw || p?.en || p?.key || "";
+  if (q.expression) text += ` ${q.expression}`;
+  return text.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "").trim();
+}
+
 export function generateUnique(
   conceptId: ConceptId,
   difficulty: Difficulty,
@@ -1782,13 +1789,25 @@ export function generateUnique(
   seen: Set<string>,
   gradeOrCtx: number | GenContext = 5,
   ctx: GenContext = {},
-  options: FormatDiversifyOptions = {}
+  options: FormatDiversifyOptions = {},
+  excludeTexts?: Set<string>
 ): Question {
   const grade = typeof gradeOrCtx === "number" ? gradeOrCtx : 5;
   const effectiveCtx = typeof gradeOrCtx === "object" ? gradeOrCtx : ctx;
   let q = generateQuestionWithVariety(conceptId, difficulty, rng, grade, options, effectiveCtx);
   let attempts = 0;
-  while ((seen.has(questionSignature(q)) || !validateQuestionIntegrity(q).valid) && attempts < 50) {
+
+  const isDuplicate = (candidate: Question) => {
+    if (seen.has(questionSignature(candidate))) return true;
+    if (seen.has(candidate.id)) return true;
+    if (excludeTexts && excludeTexts.size > 0) {
+      const norm = getPromptNorm(candidate);
+      if (norm && excludeTexts.has(norm)) return true;
+    }
+    return false;
+  };
+
+  while ((isDuplicate(q) || !validateQuestionIntegrity(q).valid) && attempts < 50) {
     attempts++;
     q = generateQuestionWithVariety(
       conceptId,
@@ -1801,10 +1820,15 @@ export function generateUnique(
   }
 
   // Fallback to strict base generator if variety failed integrity checks
-  if (!validateQuestionIntegrity(q).valid) {
+  if (!validateQuestionIntegrity(q).valid || isDuplicate(q)) {
     q = generateQuestion(conceptId, difficulty, rng, grade, effectiveCtx);
   }
 
   seen.add(questionSignature(q));
+  seen.add(q.id);
+  if (excludeTexts) {
+    const norm = getPromptNorm(q);
+    if (norm) excludeTexts.add(norm);
+  }
   return q;
 }

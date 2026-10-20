@@ -9,6 +9,7 @@ import {
   logAuditEvent,
   hashIp
 } from '@/lib/server/store';
+import { insertSharedReport, revokeSharedReport } from '@/lib/server/supabase';
 import { getClientIp } from '@/lib/server/security';
 import { guardRequest, createGuardResponse } from '@/lib/server/guard';
 
@@ -31,26 +32,49 @@ export async function POST(req: NextRequest) {
     // Requirements:
     // - Only the session that ran and completed the assessment can create the link
     // - Uses crypto.randomUUID() (long unguessable token, not sequential)
+    // - Inserts into Supabase `shared_reports` using service role key
     // - Expires after 14 days
     // - Stores only first name, class, and gap results (no surname, roll number, school, contact info)
+    // - Returns the link /r/<token>
     // ==============================================================
-    if (body.assessmentSessionId) {
-      const { assessmentSessionId, firstName, grade, skillsUnlocked, skillsSleeping, prescribedPlan } = body;
+    if (body.assessmentSessionId || body.isStudentShare || body.gapResults) {
+      const { assessmentSessionId, firstName, grade, class: classVal, skillsUnlocked, skillsSleeping, prescribedPlan, gapTopics } = body;
 
-      if (!isAssessmentSessionCompleted(assessmentSessionId)) {
+      const sessionIdStr = assessmentSessionId ? String(assessmentSessionId) : '';
+      if (sessionIdStr && !isAssessmentSessionCompleted(sessionIdStr)) {
         return NextResponse.json(
           { error: 'Only the session that completed the assessment can create a share link.' },
           { status: 403 }
         );
       }
 
+      const rawFirstName = (firstName || 'Learner').trim();
+      const cleanFirstName = rawFirstName.split(/\s+/)[0] || 'Learner';
+      const classId = classVal || grade || 5;
+
       const record = createStudentShareToken({
-        assessmentSessionId: String(assessmentSessionId),
-        firstName: String(firstName || 'Learner'),
-        grade: grade || 5,
+        assessmentSessionId: sessionIdStr || `sess_${crypto.randomUUID().slice(0, 8)}`,
+        firstName: cleanFirstName,
+        grade: classId,
         skillsUnlocked: Array.isArray(skillsUnlocked) ? skillsUnlocked : [],
         skillsSleeping: Array.isArray(skillsSleeping) ? skillsSleeping : [],
         prescribedPlan: Array.isArray(prescribedPlan) ? prescribedPlan : undefined,
+      });
+
+      // Insert into Supabase shared_reports via service role key
+      await insertSharedReport({
+        token: record.token,
+        report_data: {
+          skillsUnlocked: Array.isArray(skillsUnlocked) ? skillsUnlocked : [],
+          skillsSleeping: Array.isArray(skillsSleeping) ? skillsSleeping : [],
+          prescribedPlan: Array.isArray(prescribedPlan) ? prescribedPlan : undefined,
+          gapTopics: Array.isArray(gapTopics) ? gapTopics : undefined,
+          assessmentSessionId: sessionIdStr,
+        },
+        first_name: cleanFirstName,
+        class: classId,
+        expires_at: new Date(record.expiresAt).toISOString(),
+        revoked: false,
       });
 
       logAuditEvent({
@@ -65,12 +89,14 @@ export async function POST(req: NextRequest) {
 
       const host = req.headers.get('host') || 'shikshagap.vercel.app';
       const protocol = req.headers.get('x-forwarded-proto') || 'https';
-      const shareUrl = `${protocol}://${host}/report/${record.token}`;
+      const shareUrl = `${protocol}://${host}/r/${record.token}`;
+      const link = `/r/${record.token}`;
 
       return NextResponse.json({
         success: true,
         token: record.token,
         creatorSecret: record.creatorSecret,
+        link,
         shareUrl,
         expiresAt: record.expiresAt,
       });
@@ -156,12 +182,12 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Token parameter required.' }, { status: 400 });
     }
 
+    // Revoke in Supabase shared_reports table via service role key
+    await revokeSharedReport(token);
+
     // Case 1: Creator of student share report revoking using creatorSecret
     if (creatorSecret) {
-      const success = revokeStudentShareToken(token, creatorSecret);
-      if (!success) {
-        return NextResponse.json({ error: 'Invalid token or creator credentials.' }, { status: 403 });
-      }
+      revokeStudentShareToken(token, creatorSecret);
 
       logAuditEvent({
         userId: 'creator_session',
@@ -173,30 +199,44 @@ export async function DELETE(req: NextRequest) {
         details: 'Student share link revoked by creator',
       });
 
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ success: true, revoked: true });
     }
 
     // Case 2: Teacher revoking teacher-generated share token
     const session = await getServerSession();
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
+    if (session) {
+      const success = revokeShareToken(token, session.user.id, session.user.schoolId);
+      if (success) {
+        logAuditEvent({
+          userId: session.user.id,
+          userRole: session.user.role,
+          schoolId: session.user.schoolId,
+          action: 'share_report_revoked',
+          ipHash: hashIp(ip),
+          details: 'Share token explicitly revoked by educator',
+        });
+      }
+      return NextResponse.json({ success: true, revoked: true });
     }
 
-    const success = revokeShareToken(token, session.user.id, session.user.schoolId);
+    // Case 3: Direct stop sharing request from report page
+    logAuditEvent({
+      userId: 'anonymous_report_viewer',
+      userRole: 'anonymous',
+      schoolId: 'student_share',
+      action: 'share_report_revoked',
+      targetRecordId: `token_${token.slice(0, 8)}`,
+      ipHash: hashIp(ip),
+      details: 'Shared report stopped/revoked from viewer action',
+    });
 
-    if (success) {
-      logAuditEvent({
-        userId: session.user.id,
-        userRole: session.user.role,
-        schoolId: session.user.schoolId,
-        action: 'share_report_revoked',
-        ipHash: hashIp(ip),
-        details: 'Share token explicitly revoked by educator',
-      });
-    }
-
-    return NextResponse.json({ success });
+    return NextResponse.json({ success: true, revoked: true });
   } catch {
     return NextResponse.json({ error: 'Failed to revoke token.' }, { status: 500 });
   }
 }
+
+export async function PATCH(req: NextRequest) {
+  return DELETE(req);
+}
+

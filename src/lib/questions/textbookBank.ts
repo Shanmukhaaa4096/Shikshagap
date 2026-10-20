@@ -1376,8 +1376,20 @@ export function getTextbookQuestions(filter?: QuestionBankFilter): TextbookQuest
   }
 
   if (filter.excludeIds && filter.excludeIds.length > 0) {
-    const excludeSet = new Set(filter.excludeIds);
-    questions = questions.filter((q) => !excludeSet.has(q.id));
+    const baseExcludeIds = new Set(
+      filter.excludeIds.flatMap((id) => [id, id.split("_s")[0]])
+    );
+    questions = questions.filter((q) => !baseExcludeIds.has(q.id));
+  }
+
+  if (filter.excludeTexts && filter.excludeTexts.length > 0) {
+    const normExcludeTexts = new Set(
+      filter.excludeTexts.map((t) => t.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "").trim()).filter(Boolean)
+    );
+    questions = questions.filter((q) => {
+      const norm = q.questionText.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "").trim();
+      return !normExcludeTexts.has(norm);
+    });
   }
 
   if (filter.onlyVerified !== false) {
@@ -1486,6 +1498,7 @@ export function getVerifiedTextbookQuestion(
       class: filter.class,
       subject: filter.subject,
       excludeIds: filter.excludeIds,
+      excludeTexts: filter.excludeTexts,
       onlyVerified: true,
     });
   }

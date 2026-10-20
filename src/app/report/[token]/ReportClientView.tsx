@@ -5,7 +5,6 @@ import {
   Printer,
   CheckCircle,
   Warning,
-  Heart,
   LockKeyOpen,
   Moon,
   Sparkle,
@@ -14,6 +13,7 @@ import {
   Copy,
   Check,
   ShieldCheck,
+  Clock,
 } from '@phosphor-icons/react';
 
 interface Props {
@@ -46,7 +46,10 @@ export default function ReportClientView({
   // Clean first name (guarantee strictly first name only, no surname)
   const cleanFirstName = (firstName || 'Learner').trim().split(/\s+/)[0] || 'Learner';
 
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : `https://shikshagap.vercel.app/report/${token}`;
+  const shareUrl =
+    typeof window !== 'undefined'
+      ? window.location.href
+      : `https://shikshagap.vercel.app/report/${token}`;
 
   const handleCopyLink = async () => {
     try {
@@ -70,6 +73,7 @@ export default function ReportClientView({
 
   const content = {
     en: {
+      badge: 'STUDENT LEARNING GAP REPORT',
       docTitle: `${cleanFirstName}'s Mathematics Learning Progress`,
       subtitle: `Class ${grade} | Formative Gap Report for Parents & Guardians`,
       privacyBadge: 'Private Family Document (14-Day Link)',
@@ -98,278 +102,363 @@ export default function ReportClientView({
       legacyStrengthText: 'Shows consistent enthusiasm and effort during arithmetic activities. Confident with single-digit addition, subtraction facts, and basic counting sequences.',
       legacyGapTitle: 'Single Core Learning Goal for This Week',
       legacyGapText: 'Understanding how borrowing works in 3-digit subtraction (for example, taking from the Tens place when subtracting a larger number from a smaller number).',
-      legacyHomeTitle: '3 Easy 10-Minute Activities You Can Do at Home',
-      legacyP1: '1. Bundle Sticks Game: Take 30 broomsticks or matchsticks. Make bundles of 10 with rubber bands. Practice unbundling 1 bundle into 10 single sticks when subtracting.',
-      legacyP2: '2. Currency Notes Practice: Use fake toy notes (ten-rupee notes and one-rupee coins). Ask your child to exchange one 10-rupee note for ten 1-rupee coins to make change.',
-      legacyP3: '3. Encouragement Talk: Ask your child to explain how they solved a problem out loud. Praise the thinking process rather than just the final number.',
+      shareBoxTitle: 'Share & Actions',
     },
     hi: {
-      docTitle: `${cleanFirstName} की प्राथमिक गणित शिक्षण प्रगति रिपोर्ट`,
-      subtitle: `कक्षा ${grade} | अभिभावकों हेतु रचनात्मक सीख रिपोर्ट`,
-      privacyBadge: 'निजी पारिवारिक दस्तावेज (14-दिवसीय लिंक)',
-      skillsUnlockedTitle: 'खुले हुए कौशल',
-      skillsUnlockedSub: 'वे अवधारणाएं जिन्हें विद्यार्थी अच्छी तरह समझता है!',
-      skillsSleepingTitle: 'कौशल जो अभी सो रहे हैं',
-      skillsSleepingSub: 'धीमे और सरल अभ्यास से ये कौशल एक-एक करके जाग जाएंगे!',
+      badge: 'छात्र शिक्षण अंतराल रिपोर्ट',
+      docTitle: `${cleanFirstName} की गणित सीखने की प्रगति`,
+      subtitle: `कक्षा ${grade} | माता-पिता एवं अभिभावकों के लिए रचनात्मक प्रगति रिपोर्ट`,
+      privacyBadge: 'निजी पारिवारिक दस्तावेज़ (14 दिन वैध)',
+      skillsUnlockedTitle: 'अनलॉक किए गए कौशल',
+      skillsUnlockedSub: 'ये अवधारणाएं अच्छी तरह समझी गई हैं और आत्मविश्वास से उपयोग की जाती हैं!',
+      skillsSleepingTitle: 'कौशल जो अभी सोए हुए हैं',
+      skillsSleepingSub: 'सहज अभ्यास से ये कौशल कदम-दर-कदम जाग उठेंगे!',
       readyToAwaken: 'जागने के लिए तैयार',
-      prereqNeeded: 'बुनियादी आवश्यकता',
-      prescribedTitle: 'प्रस्तावित अगले कदम की विकास योजना',
-      step1: 'चरण 1: बुनियादी कौशल को जगाएं',
-      step1Desc: 'चित्रों या वस्तुओं के साथ 5-10 मिनट का सरल बुनियादी अभ्यास करें।',
-      step2: 'चरण 2: कक्षा स्तर के गणित से जोड़ें',
-      step2Desc: '2-3 मार्गदर्शित उदाहरण हल करें और हर छोटे कदम की सराहना करें।',
-      step3: 'चरण 3: त्वरित दोबारा जांच और प्रगति का उत्सव',
-      step3Desc: 'अपनी प्रगति देखने और कौशल को जगाने के लिए 3 प्रश्नों की छोटी जांच करें!',
-      printBtn: 'प्रिंट करें / पीडीएफ सहेजें',
+      prereqNeeded: 'बुनियादी कौशल आवश्यक',
+      prescribedTitle: 'सुझाया गया 3-चरणीय प्रगति प्लान',
+      step1: 'चरण 1: बुनियादी कौशल जगाएं',
+      step1Desc: 'माचिस की तीलियों, सिक्कों या साधारण चित्रों के साथ 5-10 मिनट अभ्यास करें।',
+      step2: 'चरण 2: कक्षा-स्तरीय गणित से जोड़ें',
+      step2Desc: 'बुनियाद को आज के पाठ से जोड़ने वाले 2-3 निर्देशित उदाहरण हल करें।',
+      step3: 'चरण 3: त्वरित री-टेस्ट और सफलता का उत्सव',
+      step3Desc: 'अपनी समझ और स्कोर को बढ़ते देखने के लिए 3 प्रश्नों की सहज जांच लें!',
+      printBtn: 'प्रिंट / PDF के रूप में सहेजें',
       copyBtn: 'लिंक कॉपी करें',
       copiedBtn: 'लिंक कॉपी हो गया!',
-      whatsappBtn: 'व्हाट्सएप पर साझा करें',
-      whatsappText: `यहाँ शिक्षागैप पर ${cleanFirstName} की कक्षा ${grade} की गणित सीख रिपोर्ट है: ${shareUrl}\nघर पर अभ्यास के लिए खुले हुए कौशल और आसान अगले कदम देखें!`,
-      expiryNotice: `यह निजी लिंक ${expiryDate} को समाप्त हो जाएगा (14 दिन)। कोई उपनाम, स्कूल या संपर्क जानकारी साझा नहीं की जाती है।`,
-      teacherNoteTitle: 'कक्षा शिक्षक का संदेश',
-      teacherNote: 'घर पर प्रतिदिन केवल 10 मिनट के प्रत्यक्ष अभ्यास से यह बुनियादी अंतराल 1-2 सप्ताह में आसानी से दूर हो जाएगा। सहयोग के लिए धन्यवाद।',
+      whatsappBtn: 'व्हाट्सएप पर शेयर करें',
+      whatsappText: `यहाँ शिक्षगैप पर ${cleanFirstName} की कक्षा ${grade} गणित सीखने की रिपोर्ट है: ${shareUrl}\nअनलॉक किए गए कौशल और घर पर अभ्यास के आसान चरण देखें!`,
+      expiryNotice: `यह निजी लिंक ${expiryDate} (14 दिन) को समाप्त होगा। कोई उपनाम, स्कूल या संपर्क जानकारी संग्रहीत नहीं है।`,
+      teacherNoteTitle: 'शिक्षक कक्षा अवलोकन',
+      teacherNote: 'घर पर प्रतिदिन 10 मिनट के व्यावहारिक अभ्यास से बुनियादी गणितीय कौशल आत्मविश्वास के साथ जल्दी विकसित होते हैं। बच्चे की सीखने की यात्रा में आपकी सक्रिय भागीदारी के लिए धन्यवाद।',
       legacyStrengthTitle: 'कक्षा में वर्तमान क्षमताएं',
-      legacyStrengthText: 'अंकगणितीय गतिविधियों के दौरान निरंतर उत्साह दिखाता/दिखाती है। एकल अंकों के जोड़, घटाव और बुनियादी गिनती में पूर्ण आत्मविश्वास है।',
-      legacyGapTitle: 'इस सप्ताह का मुख्य सीखने का लक्ष्य',
-      legacyGapText: '3-अंकीय घटाव में उधार (हासिल) लेने की प्रक्रिया को समझना (उदाहरण के लिए, जब इकाई में छोटी संख्या से बड़ी संख्या घटाई जाती है, तो दहाई से 10 लेना)।',
-      legacyHomeTitle: 'घर पर करने योग्य 3 आसान 10-मिनट के खेल',
-      legacyP1: '1. तीलियों का बंडल: माचिस की 30 तीलियां लें। 10-10 के बंडल बनाएं। घटाते समय 1 बंडल को खोलकर 10 खुली तीलियां बनाने का अभ्यास करें।',
-      legacyP2: '2. 10 रुपये के नोट का खेल: एक 10 रुपये के नोट को दस 1-रुपये के सिक्कों में बदलना सिखाएं ताकि स्थानीय मान का भाव स्पष्ट हो सके।',
-      legacyP3: '3. मौखिक बातचीत: बच्चे से कहें कि वह घटाव की प्रक्रिया बोलकर समझाए। केवल सही उत्तर के बजाय सोचने के तरीके की सराहना करें।',
+      legacyStrengthText: 'अंकगणित गतिविधियों के दौरान निरंतर उत्साह दिखाता है। एकल-अंक जोड़, घटाव और बुनियादी गिनती में आश्वस्त है।',
+      legacyGapTitle: 'इस सप्ताह के लिए मुख्य शिक्षण लक्ष्य',
+      legacyGapText: '3-अंकीय घटाव में उधार (हासिल) लेने की प्रक्रिया को समझना (उदाहरण के लिए, दहाई के स्थान से उधार लेना)।',
+      shareBoxTitle: 'शेयर और कार्रवाइयां',
     },
     te: {
-      docTitle: `${cleanFirstName} ప్రాథమిక గణిత అభ్యసన నివేదిక`,
-      subtitle: `${grade}వ తరగతి | తల్లిదండ్రుల కోసం ప్రత్యేక నివేదిక`,
-      privacyBadge: 'గోప్యమైన కుటుంబ పత్రం (14 రోజుల లింక్)',
+      badge: 'విద్యార్థి అభ్యసన లోపాల నివేదిక',
+      docTitle: `${cleanFirstName} యొక్క గణిత అభ్యసన పురోగతి`,
+      subtitle: `${grade}వ తరగతి | తల్లిదండ్రుల కోసం నిర్మాణాత్మక లోపాల నివేదిక`,
+      privacyBadge: 'వ్యక్తిగత కుటుంబ నివేదిక (14 రోజుల లింక్)',
       skillsUnlockedTitle: 'అన్‌లాక్ అయిన నైపుణ్యాలు',
-      skillsUnlockedSub: 'విద్యార్థి బాగా అర్థం చేసుకుని ఆత్మవిశ్వాసంతో సాధించే అంశాలు!',
-      skillsSleepingTitle: 'ఇంకా నిద్రపోతున్న నైపుణ్యాలు',
-      skillsSleepingSub: 'సులువైన సాధనతో ఈ నైపుణ్యాలు ఒక్కొక్కటిగా మేల్కొంటాయి!',
-      readyToAwaken: 'మేల్కొలపడానికి సిద్ధంగా ఉంది',
+      skillsUnlockedSub: 'బాగా అర్థం చేసుకుని ఆత్మవిశ్వాసంతో సాధించిన భావనలు!',
+      skillsSleepingTitle: 'ఇంకా నిద్రిస్తున్న నైపుణ్యాలు',
+      skillsSleepingSub: 'సులభమైన సాధనతో ఈ నైపుణ్యాలు మేల్కొంటాయి!',
+      readyToAwaken: 'మేల్కోవడానికి సిద్ధంగా ఉంది',
       prereqNeeded: 'పునాది అవసరం',
-      prescribedTitle: 'ప్రతిపాదిత తదుపరి ఎదుగుదల ప్రణాళిక',
+      prescribedTitle: 'సూచించిన 3-దశల పురోగతి ప్రణాళిక',
       step1: 'దశ 1: పునాది నైపుణ్యాన్ని మేల్కొలపండి',
-      step1Desc: 'పునాది భావనపై వస్తువులు లేదా చిత్రాలతో 5-10 నిమిషాలు గడపండి.',
+      step1Desc: 'నిద్రిస్తున్న పునాదిపై నాణేలు, పుల్లలు లేదా సాధారణ చిత్రాలతో 5-10 నిమిషాలు సాధన చేయండి.',
       step2: 'దశ 2: తరగతి స్థాయి గణితంతో అనుసంధానించండి',
-      step2Desc: 'పునాదిని పాఠంతో కలిపే 2-3 ఉదాహరణలను సాధించండి.',
-      step3: 'దశ 3: చిన్న పునఃపరిశీలన & ఎదుగుదల సంబరం',
-      step3Desc: 'స్కోరు ఎలా పెరిగిందో మరియు నైపుణ్యం ఎలా మేల్కొందో చూడటానికి 3 ప్రశ్నల చిన్న పరిశీలన చేయండి!',
-      printBtn: 'ప్రింట్ చేయండి / PDF సేవ్‌చేయండి',
+      step2Desc: 'పునాదిని ప్రస్తుత పాఠంతో అనుసంధానించే 2-3 మార్గదర్శక ఉదాహరణలను సాధించండి.',
+      step3: 'దశ 3: చిన్న పునఃపరిశీలన & విజయాన్ని గుర్తించండి',
+      step3Desc: 'మీ పురోగతిని చూడటానికి మరియు నైపుణ్యాన్ని మేల్కొలపడానికి 3-ప్రశ్నల సాధారణ పరీక్ష రాయండి!',
+      printBtn: 'ప్రింట్ / PDF గా భద్రపరచండి',
       copyBtn: 'లింక్ కాపీ చేయండి',
       copiedBtn: 'లింక్ కాపీ చేయబడింది!',
       whatsappBtn: 'వాట్సాప్‌లో షేర్ చేయండి',
-      whatsappText: `ఇక్కడ శిక్షాగ్యాప్‌లో ${cleanFirstName} యొక్క ${grade}వ తరగతి గణిత అభ్యసన నివేదిక ఉంది: ${shareUrl}\nఇంట్లో సాధన చేయడానికి అన్‌లాక్ అయిన నైపుణ్యాలు మరియు సులభమైన తదుపరి దశలను చూడండి!`,
-      expiryNotice: `ఈ గోప్యమైన లింక్ ${expiryDate} తో ముగుస్తుంది (14 రోజులు). ఇంటిపేరు, పాఠశాల లేదా సంప్రదింపు సమాచారం ఉండదు.`,
-      teacherNoteTitle: 'ఉపాధ్యాయుని గమనిక',
-      teacherNote: 'ఇంట్లో రోజుకు 10 నిమిషాలు సాధన చేయించడం ద్వారా ఈ సమస్యను అతి త్వరగా సరిదిద్దవచ్చు. మీ సహకారానికి ధన్యవాదాలు.',
+      whatsappText: `ఇక్కడ శిక్షాగ్యాప్‌లో ${cleanFirstName} యొక్క ${grade}వ తరగతి గణిత అభ్యసన నివేదిక ఉంది: ${shareUrl}\nఅన్‌లాక్ అయిన నైపుణ్యాలు మరియు ఇంట్లో సాధన చేయడానికి సులభమైన తదుపరి దశలను చూడండి!`,
+      expiryNotice: `ఈ వ్యక్తిగత లింక్ ${expiryDate}న (14 రోజులు) ముగుస్తుంది. ఇంటిపేరు లేదా పాఠశాల వివరాలు నిల్వ చేయబడవు.`,
+      teacherNoteTitle: 'తరగతి గది ఉపాధ్యాయ పరిశీలన',
+      teacherNote: 'రోజూ ఇంట్లో 10 నిమిషాల ప్రయోగాత్మక సాధనతో గణిత పునాదులు సులభంగా బలపడతాయి. మీ పిల్లల విద్యా ప్రయాణంలో మీ భాగస్వామ్యానికి ధన్యవాదాలు.',
       legacyStrengthTitle: 'తరగతిలో ప్రస్తుత బలాలు',
-      legacyStrengthText: 'గణిత పాఠాల సమయంలో చురుకుగా పాల్గొంటున్నారు. ఒంటి అంకెల కూడికలు మరియు తీసివేతలలో మంచి పట్టు ఉంది.',
-      legacyGapTitle: 'ఈ వారం సాధించాల్సిన ముఖ్య లక్ష్యం',
-      legacyGapText: '3-అంకెల తీసివేతలో దశాంశ స్థానం నుండి అప్పు తీసుకోవడం (రీగ్రూపింగ్) విధానాన్ని స్పష్టంగా అర్థం చేసుకోవడం.',
-      legacyHomeTitle: 'ఇంట్లో చేయగలిగే 3 సులభమైన 10 నిమిషాల సాధనలు',
-      legacyP1: '1. చీపురు పుల్లల కట్టల ఆట: 30 పుల్లలను తీసుకుని పదేసి చొప్పున కట్టలు కట్టండి. తీసివేసేటప్పుడు ఒక కట్టను విప్పి 10 విడి పుల్లలుగా మార్చడం చూపించండి.',
-      legacyP2: '2. 10 రూపాయల నోట్ల ఆట: ఒక 10 రూపాయల నోటును పది 1 రూపాయి నాణేలుగా మార్చే విధానాన్ని ఆట రూపంలో ప్రాక్టీస్ చేయించండి.',
-      legacyP3: '3. ప్రోత్సాహం: లెక్క చేసేటప్పుడు బిడ్డను ఆలోచనను గట్టిగా వివరించమని అడగండి. కేవలం జవాబు కంటే వారు ఆలోచించిన విధానాన్ని ప్రశంసించండి.',
+      legacyStrengthText: 'గణిత సాధన సమయంలో నిరంతర ఆసక్తిని ప్రదర్శిస్తారు. ఒక అంకె కూడికలు, తీసివేతలు మరియు లెక్కింపులో ఆత్మవిశ్వాసం ఉంది.',
+      legacyGapTitle: 'ఈ వారపు ప్రధాన అభ్యసన లక్ష్యం',
+      legacyGapText: '3 అంకెల తీసివేతలో దశాంశ స్థానం నుండి అప్పు తీసుకోవడం (బారోయింగ్) యొక్క విధానాన్ని స్పష్టంగా అర్థం చేసుకోవడం.',
+      shareBoxTitle: 'షేర్ & చర్యలు',
     },
-  }[lang];
+  };
 
+  const currentContent = content[lang];
   const hasStudentGapData = skillsUnlocked.length > 0 || skillsSleeping.length > 0;
 
   return (
-    <div className="min-h-[100dvh] bg-card dark:bg-muted text-foreground font-sans p-4 sm:p-8 print:p-0 print:bg-white print:text-black">
-      {/* Top Floating Action Bar */}
-      <div className="w-full max-w-4xl lg:max-w-5xl mx-auto mb-6 flex flex-wrap items-center justify-between gap-3 print:hidden">
-        {/* Language Switcher */}
-        <div className="flex gap-1" role="group" aria-label="Select report language">
-          {(['en', 'hi', 'te'] as const).map((l) => (
-            <button
-              key={l}
-              onClick={() => setLang(l)}
-              className={`min-h-[44px] px-3 text-sm font-mono uppercase border cursor-pointer ${
-                lang === l
-                  ? 'bg-primary text-primary-foreground font-bold border-primary'
-                  : 'border-border bg-card hover:bg-muted'
-              }`}
-            >
-              {l === 'en' ? 'English' : l === 'hi' ? 'हिन्दी' : 'తెలుగు'}
-            </button>
-          ))}
-        </div>
-
-        {/* Action Buttons: WhatsApp, Copy, Print */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <a
-            href={`https://wa.me/?text=${encodeURIComponent(content.whatsappText)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            data-testid="whatsapp-share-btn"
-            className="min-h-[44px] px-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 rounded-md border border-emerald-700 transition-colors cursor-pointer"
-          >
-            <WhatsappLogo className="w-4 h-4" weight="fill" />
-            <span>{content.whatsappBtn}</span>
-          </a>
-
-          <button
-            type="button"
-            onClick={handleCopyLink}
-            data-testid="copy-link-btn"
-            className="min-h-[44px] px-3.5 bg-card hover:bg-muted text-foreground text-xs sm:text-sm font-mono border border-border flex items-center gap-1.5 rounded-md transition-colors cursor-pointer"
-          >
-            {copied ? (
-              <>
-                <Check className="w-4 h-4 text-emerald-600" weight="bold" />
-                <span className="font-bold text-emerald-600">{content.copiedBtn}</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-4 h-4" />
-                <span>{content.copyBtn}</span>
-              </>
-            )}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="min-h-[44px] px-3.5 bg-card hover:bg-muted text-foreground text-xs sm:text-sm font-mono uppercase font-bold inline-flex items-center gap-1.5 border border-border rounded-md cursor-pointer"
-          >
-            <Printer size={16} />
-            <span className="hidden sm:inline">{content.printBtn}</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 1-Page Printable Report Sheet */}
-      <article className="w-full max-w-4xl lg:max-w-5xl mx-auto border border-border bg-card dark:bg-card print:bg-white print:border-black print:text-black p-6 sm:p-10 shadow-sm rounded-[24px]">
-        {/* Header */}
-        <div className="border-b-2 border-border print:border-black pb-4 mb-6">
-          <div className="flex items-center justify-between text-xs sm:text-sm font-mono uppercase mb-2 flex-wrap gap-2">
-            <span className="font-bold tracking-wider text-primary">ShikshaGap Educational Support</span>
-            <span className="border border-border px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted text-foreground print:border-black flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-primary" weight="bold" />
-              <span>{content.privacyBadge}</span>
+    <div className="min-h-screen bg-background text-foreground py-6 sm:py-8 px-4 sm:px-6 lg:px-8 pb-28 lg:pb-12 overflow-x-hidden">
+      <div className="w-full max-w-[1200px] mx-auto space-y-6">
+        {/* Top Control Bar: Language Switcher, Expiry, and Print */}
+        <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-border pb-4 print:hidden">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-mono font-bold px-3 py-1.5 rounded-full bg-muted border border-border text-foreground">
+              Class {grade}
+            </span>
+            <span className="text-xs font-mono text-muted-foreground flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card border border-border">
+              <Clock className="w-3.5 h-3.5 text-primary" />
+              <span>{expiryDate}</span>
+            </span>
+            <span className="text-xs font-mono text-[var(--status-good)] hidden sm:flex items-center gap-1 font-bold px-2.5 py-1 rounded-full bg-[var(--status-good-bg)] border border-[var(--status-good-border)]">
+              <ShieldCheck className="w-3.5 h-3.5" weight="bold" />
+              <span>{currentContent.privacyBadge}</span>
             </span>
           </div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-foreground print:text-black">
-            {content.docTitle}
-          </h1>
-          <p className="text-sm text-muted-foreground print:text-gray-700 mt-1">
-            {content.subtitle}
-          </p>
-        </div>
 
-        {hasStudentGapData ? (
-          /* ============================================================== */
-          /* DYNAMIC GAP REPORT: UNLOCKED & SLEEPING SKILL CARDS            */
-          /* ============================================================== */
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              {/* Skills Unlocked Card */}
-              <div
-                data-testid="shared-skills-unlocked"
-                className="p-4 sm:p-5 bg-[var(--surface)] border border-[var(--status-good-border)] rounded-[20px] space-y-3.5"
+          {/* Trilingual Language Selector with 44px min touch targets */}
+          <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-full border border-border self-end sm:self-auto">
+            {(['en', 'hi', 'te'] as const).map((l) => (
+              <button
+                key={l}
+                type="button"
+                onClick={() => setLang(l)}
+                className={`min-h-[44px] px-3.5 text-xs font-bold font-mono rounded-full transition-all cursor-pointer flex items-center justify-center ${
+                  lang === l
+                    ? 'bg-primary text-primary-foreground shadow-xs'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+                aria-pressed={lang === l}
+                aria-label={`Switch language to ${l === 'en' ? 'English' : l === 'hi' ? 'Hindi' : 'Telugu'}`}
               >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-[var(--status-good-bg)] text-[var(--status-good)] flex items-center justify-center shrink-0 border border-[var(--status-good-border)]">
-                    <LockKeyOpen className="w-4 h-4" weight="bold" />
-                  </div>
-                  <div>
-                    <h2 className="text-base font-bold text-foreground">
-                      {content.skillsUnlockedTitle}
-                    </h2>
-                    <p className="text-xs text-muted-foreground">
-                      {content.skillsUnlockedSub}
-                    </p>
-                  </div>
-                </div>
+                {l === 'en' ? 'English' : l === 'hi' ? 'हिन्दी' : 'తెలుగు'}
+              </button>
+            ))}
+          </div>
+        </header>
 
-                <div className="space-y-2.5">
-                  {skillsUnlocked.map((skill) => (
-                    <div
-                      key={skill.id}
-                      className="p-3 bg-card border border-[var(--status-good-border)]/60 rounded-[14px] flex items-center justify-between gap-2"
-                    >
-                      <span className="font-bold text-sm text-foreground">{skill.name}</span>
-                      <span className="text-xs font-mono font-bold text-[var(--status-good)] px-2 py-0.5 bg-[var(--status-good-bg)] border border-[var(--status-good-border)] rounded-full flex items-center gap-1">
-                        <Sparkle className="w-3 h-3 text-[var(--status-good)]" weight="fill" />
-                        <span>Mastered</span>
-                      </span>
-                    </div>
-                  ))}
-                  {skillsUnlocked.length === 0 && (
-                    <p className="text-xs text-muted-foreground p-3 border border-border rounded-[14px]">
-                      Practice starting now will unlock core skills step by step!
-                    </p>
-                  )}
+        {/* ============================================================== */}
+        {/* RESPONSIVE LAYOUT ENGINE:                                       */}
+        {/* Mobile (< 768px): Single column, short cards, sticky bottom bar */}
+        {/* Desktop (>= 1024px): 2-Column Grid (Summary/Skills Left, Plan/Share Right) */}
+        {/* ============================================================== */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+          {/* ============================================================ */}
+          {/* LEFT COLUMN: Main Report Document, Skills Unlocked/Sleeping */}
+          {/* ============================================================ */}
+          <div className="lg:col-span-7 xl:col-span-8 space-y-6">
+            <article className="border border-border bg-card dark:bg-card print:bg-white print:border-black print:text-black p-5 sm:p-8 shadow-sm rounded-[24px] space-y-6">
+              {/* Header */}
+              <div className="border-b-2 border-border print:border-black pb-4">
+                <div className="flex items-center justify-between text-xs sm:text-sm font-mono uppercase mb-2 flex-wrap gap-2">
+                  <span className="font-bold tracking-wider text-primary">ShikshaGap Educational Support</span>
+                  <span className="border border-border px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted text-foreground print:border-black flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-primary" weight="bold" />
+                    <span>{currentContent.privacyBadge}</span>
+                  </span>
                 </div>
+                <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-foreground print:text-black">
+                  {currentContent.docTitle}
+                </h1>
+                <p className="text-sm text-muted-foreground print:text-gray-700 mt-1">
+                  {currentContent.subtitle}
+                </p>
               </div>
 
-              {/* Skills Still Sleeping Card */}
-              <div
-                data-testid="shared-skills-sleeping"
-                className="p-4 sm:p-5 bg-[var(--surface)] border border-amber-300 dark:border-amber-700/80 rounded-[20px] space-y-3.5"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-200 flex items-center justify-center shrink-0 border border-amber-300 dark:border-amber-700">
-                    <Moon className="w-4 h-4" weight="fill" />
-                  </div>
-                  <div>
-                    <h2 className="text-base font-bold text-foreground">
-                      {content.skillsSleepingTitle}
-                    </h2>
-                    <p className="text-xs text-muted-foreground">
-                      {content.skillsSleepingSub}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-2.5">
-                  {skillsSleeping.map((skill) => (
+              {hasStudentGapData ? (
+                /* Dynamic Gap Results */
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                    {/* Skills Unlocked Card */}
                     <div
-                      key={skill.id}
-                      className="p-3 bg-card border border-amber-300/60 dark:border-amber-700/60 rounded-[14px] space-y-1.5"
+                      data-testid="shared-skills-unlocked"
+                      className="p-5 bg-[var(--surface)] border border-[var(--status-good-border)] rounded-[20px] space-y-3.5 shadow-xs"
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-bold text-sm text-foreground">{skill.name}</span>
-                        <span className="text-xs font-mono font-bold text-amber-900 dark:text-amber-200 px-2 py-0.5 bg-amber-100 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-700 rounded-full">
-                          {content.readyToAwaken}
-                        </span>
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-full bg-[var(--status-good-bg)] text-[var(--status-good)] flex items-center justify-center shrink-0 border border-[var(--status-good-border)]">
+                          <LockKeyOpen className="w-4 h-4" weight="bold" />
+                        </div>
+                        <div className="min-w-0">
+                          <h2 className="text-base font-bold text-foreground">
+                            {currentContent.skillsUnlockedTitle}
+                          </h2>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {currentContent.skillsUnlockedSub}
+                          </p>
+                        </div>
                       </div>
-                      {skill.prereqRoot && (
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <span className="font-semibold text-primary">{content.prereqNeeded}:</span>
-                          <span>{skill.prereqRoot}</span>
-                        </p>
-                      )}
+
+                      <div className="space-y-2.5 pt-1">
+                        {skillsUnlocked.map((skill) => (
+                          <div
+                            key={skill.id}
+                            className="p-3 bg-card border border-[var(--status-good-border)]/60 rounded-[14px] flex items-center justify-between gap-2"
+                          >
+                            <span className="font-bold text-sm text-foreground">{skill.name}</span>
+                            <span className="text-xs font-mono font-bold text-[var(--status-good)] px-2 py-0.5 bg-[var(--status-good-bg)] border border-[var(--status-good-border)] rounded-full flex items-center gap-1 shrink-0">
+                              <Sparkle className="w-3 h-3 text-[var(--status-good)]" weight="fill" />
+                              <span>Mastered</span>
+                            </span>
+                          </div>
+                        ))}
+                        {skillsUnlocked.length === 0 && (
+                          <p className="text-xs text-muted-foreground p-3 border border-border rounded-[14px]">
+                            Practice starting now will unlock core skills step by step!
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  ))}
-                  {skillsSleeping.length === 0 && (
-                    <p className="text-xs text-muted-foreground p-3 border border-border rounded-[14px]">
-                      All foundational skills are currently active and awake!
-                    </p>
-                  )}
+
+                    {/* Skills Still Sleeping Card */}
+                    <div
+                      data-testid="shared-skills-sleeping"
+                      className="p-5 bg-[var(--surface)] border border-amber-300 dark:border-amber-700/80 rounded-[20px] space-y-3.5 shadow-xs"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-200 flex items-center justify-center shrink-0 border border-amber-300 dark:border-amber-700">
+                          <Moon className="w-4 h-4" weight="fill" />
+                        </div>
+                        <div className="min-w-0">
+                          <h2 className="text-base font-bold text-foreground">
+                            {currentContent.skillsSleepingTitle}
+                          </h2>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {currentContent.skillsSleepingSub}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2.5 pt-1">
+                        {skillsSleeping.map((skill) => (
+                          <div
+                            key={skill.id}
+                            className="p-3 bg-card border border-amber-300/60 dark:border-amber-700/60 rounded-[14px] space-y-1.5"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-bold text-sm text-foreground">{skill.name}</span>
+                              <span className="text-xs font-mono font-bold text-amber-900 dark:text-amber-200 px-2 py-0.5 bg-amber-100 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-700 rounded-full shrink-0">
+                                {currentContent.readyToAwaken}
+                              </span>
+                            </div>
+                            {skill.prereqRoot && (
+                              <p className="text-xs text-muted-foreground flex flex-wrap items-center gap-1">
+                                <span className="font-semibold text-primary">{currentContent.prereqNeeded}:</span>
+                                <span>{skill.prereqRoot}</span>
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                        {skillsSleeping.length === 0 && (
+                          <p className="text-xs text-muted-foreground p-3 border border-border rounded-[14px]">
+                            All foundational skills are currently active and awake!
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
+              ) : (
+                /* Fallback Teacher Observation Note */
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-foreground print:text-black font-mono mb-1.5">
+                      <CheckCircle size={16} />
+                      <span>{currentContent.legacyStrengthTitle}</span>
+                    </div>
+                    <p className="text-sm text-foreground/80 print:text-black leading-relaxed bg-muted print:bg-gray-50 p-3.5 border border-border print:border-gray-300 rounded-[14px]">
+                      {currentContent.legacyStrengthText}
+                    </p>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-primary print:text-black font-mono mb-1.5">
+                      <Warning size={16} />
+                      <span>{currentContent.legacyGapTitle}</span>
+                    </div>
+                    <p className="text-sm text-foreground/80 print:text-black leading-relaxed bg-primary/10 print:bg-gray-50 p-3.5 border border-primary/40 print:border-gray-300 font-medium rounded-[14px]">
+                      {currentContent.legacyGapText}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Teacher Classroom Observation */}
+              <div className="p-4 sm:p-5 rounded-[18px] bg-muted/40 border border-border space-y-1.5">
+                <span className="editorial-meta text-primary font-bold">
+                  {currentContent.teacherNoteTitle}
+                </span>
+                <p className="text-xs sm:text-sm text-foreground/80 leading-relaxed">
+                  {currentContent.teacherNote}
+                </p>
+              </div>
+
+              {/* Footer Notice */}
+              <footer className="pt-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground flex-wrap gap-2">
+                <span>{currentContent.expiryNotice}</span>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="min-h-[44px] px-3.5 py-1.5 border border-border rounded-full hover:bg-muted font-mono font-bold flex items-center gap-1.5 text-foreground cursor-pointer"
+                >
+                  <Printer size={16} />
+                  <span>{currentContent.printBtn}</span>
+                </button>
+              </footer>
+            </article>
+          </div>
+
+          {/* ============================================================ */}
+          {/* RIGHT COLUMN: Actions (Desktop) & Next-Steps Practice Plan  */}
+          {/* ============================================================ */}
+          <aside className="lg:col-span-5 xl:col-span-4 space-y-6 lg:sticky lg:top-6 self-start">
+            {/* Desktop Action & Sharing Card (hidden on small screens, shown on lg:) */}
+            <div className="hidden lg:block p-6 rounded-[24px] bg-card border border-border space-y-4 shadow-warm">
+              <div className="flex items-center gap-2 pb-2 border-b border-border">
+                <Sparkle className="w-4 h-4 text-primary" weight="fill" />
+                <h2 className="text-sm font-bold font-mono uppercase text-foreground">
+                  {currentContent.shareBoxTitle}
+                </h2>
+              </div>
+
+              <div className="space-y-3">
+                {/* WhatsApp Share Button */}
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(currentContent.whatsappText)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="whatsapp-share-btn"
+                  className="w-full min-h-[48px] px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold flex items-center justify-center gap-2 rounded-full border border-emerald-700 transition-colors cursor-pointer shadow-xs"
+                >
+                  <WhatsappLogo className="w-5 h-5" weight="fill" />
+                  <span>{currentContent.whatsappBtn}</span>
+                </a>
+
+                {/* Copy Link Button */}
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  data-testid="copy-link-btn"
+                  className="w-full min-h-[44px] px-4 bg-card hover:bg-muted text-foreground text-xs sm:text-sm font-mono font-bold border border-border flex items-center justify-center gap-2 rounded-full transition-colors cursor-pointer"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-4 h-4 text-emerald-600" weight="bold" />
+                      <span className="font-bold text-emerald-600">{currentContent.copiedBtn}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      <span>{currentContent.copyBtn}</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Print Button */}
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="w-full min-h-[44px] px-4 bg-card hover:bg-muted text-foreground text-xs sm:text-sm font-mono uppercase font-bold inline-flex items-center justify-center gap-2 border border-border rounded-full cursor-pointer"
+                >
+                  <Printer size={16} />
+                  <span>{currentContent.printBtn}</span>
+                </button>
               </div>
             </div>
 
             {/* Prescribed Next-Steps Growth Plan */}
-            <div className="p-4 sm:p-5 bg-[var(--surface)] border border-border rounded-[20px] space-y-3">
-              <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="p-5 sm:p-6 bg-card border border-border rounded-[24px] space-y-4 shadow-sm">
+              <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-border">
                 <div className="flex items-center gap-2">
                   <TrendUp className="w-4 h-4 text-primary" weight="bold" />
                   <h3 className="font-bold text-sm sm:text-base text-foreground">
-                    {content.prescribedTitle}
+                    {currentContent.prescribedTitle}
                   </h3>
                 </div>
                 <span className="text-xs font-mono text-muted-foreground">
-                  Positive 3-Step Action Plan
+                  Positive 3-Step Plan
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="space-y-3">
                 {prescribedPlan && prescribedPlan.length > 0 ? (
                   prescribedPlan.map((step) => (
-                    <div key={step.step} className="p-3.5 rounded-[16px] bg-card border border-border space-y-1">
+                    <div key={step.step} className="p-4 rounded-[16px] bg-[var(--surface)] border border-border space-y-1">
                       <span className="text-xs font-mono font-bold text-primary uppercase">
                         {String(step.step).padStart(2, '0')} • Action Step
                       </span>
@@ -383,107 +472,105 @@ export default function ReportClientView({
                   ))
                 ) : (
                   <>
-                    <div className="p-3.5 rounded-[16px] bg-card border border-border space-y-1">
+                    <div className="p-4 rounded-[16px] bg-[var(--surface)] border border-border space-y-1">
                       <span className="text-xs font-mono font-bold text-primary uppercase">
                         01 • Hands-on Practice
                       </span>
                       <div className="font-bold text-xs sm:text-sm text-foreground">
-                        {content.step1}
+                        {currentContent.step1}
                       </div>
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        {content.step1Desc}
+                        {currentContent.step1Desc}
                       </p>
                     </div>
 
-                    <div className="p-3.5 rounded-[16px] bg-card border border-border space-y-1">
+                    <div className="p-4 rounded-[16px] bg-[var(--surface)] border border-border space-y-1">
                       <span className="text-xs font-mono font-bold text-primary uppercase">
                         02 • Guided Connection
                       </span>
                       <div className="font-bold text-xs sm:text-sm text-foreground">
-                        {content.step2}
+                        {currentContent.step2}
                       </div>
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        {content.step2Desc}
+                        {currentContent.step2Desc}
                       </p>
                     </div>
 
-                    <div className="p-3.5 rounded-[16px] bg-card border border-border space-y-1">
+                    <div className="p-4 rounded-[16px] bg-[var(--surface)] border border-border space-y-1">
                       <span className="text-xs font-mono font-bold text-primary uppercase">
                         03 • Celebrate & Check
                       </span>
                       <div className="font-bold text-xs sm:text-sm text-foreground">
-                        {content.step3}
+                        {currentContent.step3}
                       </div>
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        {content.step3Desc}
+                        {currentContent.step3Desc}
                       </p>
                     </div>
                   </>
                 )}
               </div>
             </div>
-          </div>
-        ) : (
-          /* ============================================================== */
-          /* FALLBACK: LEGACY TEACHER GUARDIAN NOTE TEMPLATE                */
-          /* ============================================================== */
-          <div className="space-y-6">
-            <div className="mb-6">
-              <div className="flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-foreground print:text-black font-mono mb-1.5">
-                <CheckCircle size={16} />
-                <span>{content.legacyStrengthTitle}</span>
+
+            {/* Privacy Guarantee Card */}
+            <div className="p-5 rounded-[22px] bg-muted/40 border border-border space-y-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5 font-bold text-foreground">
+                <ShieldCheck className="w-4 h-4 text-[var(--status-good)]" weight="bold" />
+                <span>Family Privacy Guarantee</span>
               </div>
-              <p className="text-sm text-foreground/80 print:text-black leading-relaxed bg-muted print:bg-gray-50 p-3.5 border border-border print:border-gray-300 rounded-[14px]">
-                {content.legacyStrengthText}
+              <p className="leading-relaxed">
+                {currentContent.expiryNotice}
               </p>
             </div>
-
-            <div className="mb-6">
-              <div className="flex items-center gap-2 font-bold text-sm uppercase tracking-wider text-primary print:text-black font-mono mb-1.5">
-                <Warning size={16} />
-                <span>{content.legacyGapTitle}</span>
-              </div>
-              <p className="text-sm text-foreground/80 print:text-black leading-relaxed bg-primary/10 print:bg-gray-50 p-3.5 border border-primary/40 print:border-gray-300 font-medium rounded-[14px]">
-                {content.legacyGapText}
-              </p>
-            </div>
-
-            <div className="mb-6">
-              <h2 className="font-serif text-base font-bold mb-3 text-foreground print:text-black">
-                {content.legacyHomeTitle}
-              </h2>
-              <div className="space-y-2.5 text-sm text-foreground/80 print:text-black">
-                <div className="p-3 border border-border print:border-gray-300 bg-card rounded-[14px]">
-                  {content.legacyP1}
-                </div>
-                <div className="p-3 border border-border print:border-gray-300 bg-card rounded-[14px]">
-                  {content.legacyP2}
-                </div>
-                <div className="p-3 border border-border print:border-gray-300 bg-card rounded-[14px]">
-                  {content.legacyP3}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Section: Teacher Observation */}
-        <div className="border-t border-border print:border-black pt-4 mt-6">
-          <div className="flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider font-mono mb-1 text-primary">
-            <Heart size={14} className="text-primary" weight="fill" />
-            <span>{content.teacherNoteTitle}</span>
-          </div>
-          <p className="text-xs sm:text-sm text-foreground/80 print:text-black leading-relaxed italic">
-            &quot;{content.teacherNote}&quot;
-          </p>
+          </aside>
         </div>
+      </div>
 
-        {/* Footer */}
-        <div className="border-t border-dashed border-border print:border-black pt-3 mt-6 flex flex-col sm:flex-row justify-between text-xs font-mono text-muted-foreground print:text-gray-600 gap-1.5">
-          <span>Read-Only Student Gap Report</span>
-          <span>{content.expiryNotice}</span>
-        </div>
-      </article>
+      {/* ============================================================== */}
+      {/* MOBILE STICKY BOTTOM ACTION BAR (< 1024px / lg:hidden)          */}
+      {/* ============================================================== */}
+      <nav
+        aria-label="Mobile report actions"
+        className="fixed bottom-0 left-0 right-0 z-30 p-3 bg-background/95 backdrop-blur-md border-t border-border shadow-lg flex items-center justify-between gap-2 lg:hidden print:hidden"
+      >
+        <a
+          href={`https://wa.me/?text=${encodeURIComponent(currentContent.whatsappText)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="min-h-[44px] flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm rounded-full flex items-center justify-center gap-2 shadow-xs transition-colors shrink-0"
+        >
+          <WhatsappLogo className="w-4 h-4" weight="fill" />
+          <span>{currentContent.whatsappBtn}</span>
+        </a>
+
+        <button
+          type="button"
+          onClick={handleCopyLink}
+          className="min-h-[44px] px-3.5 py-2 rounded-full bg-card border border-border hover:bg-muted font-mono font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shrink-0 text-foreground transition-colors"
+        >
+          {copied ? (
+            <>
+              <Check className="w-4 h-4 text-emerald-600" weight="bold" />
+              <span className="font-bold text-emerald-600">{currentContent.copiedBtn}</span>
+            </>
+          ) : (
+            <>
+              <Copy className="w-4 h-4" />
+              <span>{currentContent.copyBtn}</span>
+            </>
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className="min-h-[44px] px-3.5 py-2 rounded-full bg-card border border-border hover:bg-muted font-mono font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shrink-0 text-foreground transition-colors"
+          title={currentContent.printBtn}
+        >
+          <Printer size={16} />
+          <span className="hidden sm:inline">{currentContent.printBtn}</span>
+        </button>
+      </nav>
     </div>
   );
 }

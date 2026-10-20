@@ -127,6 +127,7 @@ export interface QuestionBankFilter {
   difficulty?: Difficulty;
   language?: Lang;
   excludeIds?: string[];
+  excludeTexts?: string[];
   onlyVerified?: boolean;
 }
 

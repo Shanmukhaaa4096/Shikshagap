@@ -64,6 +64,7 @@ export interface Dict {
   copyLink: string;
   linkCopied: string;
   revokeLink: string;
+  stopSharing: string;
   linkRevoked: string;
   linkRevokedDesc: string;
   linkExpiresNotice: string;
@@ -325,6 +326,7 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     copyLink: "Copy Link",
     linkCopied: "Link Copied!",
     revokeLink: "Revoke Link",
+    stopSharing: "Stop Sharing",
     linkRevoked: "Link Revoked",
     linkRevokedDesc: "This report link is now deactivated and can no longer be viewed.",
     linkExpiresNotice: "Private link expires in 14 days. No surname, school, or contact info is shared.",
@@ -572,6 +574,7 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     copyLink: "लिंक कॉपी करें",
     linkCopied: "लिंक कॉपी हो गया!",
     revokeLink: "लिंक रद्द करें",
+    stopSharing: "साझा करना रोकें",
     linkRevoked: "लिंक रद्द कर दिया गया",
     linkRevokedDesc: "यह रिपोर्ट लिंक अब निष्क्रिय कर दिया गया है और इसे आगे नहीं देखा जा सकता है।",
     linkExpiresNotice: "निजी लिंक 14 दिनों में समाप्त हो जाएगा। कोई उपनाम, स्कूल या संपर्क जानकारी साझा नहीं की जाती है।",
@@ -819,6 +822,7 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     copyLink: "లింక్ కాపీ చేయండి",
     linkCopied: "లింక్ కాపీ చేయబడింది!",
     revokeLink: "లింక్‌ను రద్దు చేయండి",
+    stopSharing: "షేరింగ్ ఆపివేయండి",
     linkRevoked: "లింక్ రద్దు చేయబడింది",
     linkRevokedDesc: "ఈ నివేదిక లింక్ ఇప్పుడు నిష్క్రియం చేయబడింది మరియు ఇకపై చూడలేరు.",
     linkExpiresNotice: "ప్రైవేట్ లింక్ 14 రోజుల్లో ముగుస్తుంది. ఇంటిపేరు, పాఠశాల లేదా సంప్రదింపు సమాచారం భాగస్వామ్యం చేయబడదు.",

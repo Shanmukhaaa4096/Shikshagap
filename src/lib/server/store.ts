@@ -180,8 +180,9 @@ export function createStudentShareToken(params: {
   skillsUnlocked: Array<{ id: string; name: string }>;
   skillsSleeping: Array<{ id: string; name: string; prereqRoot?: string }>;
   prescribedPlan?: Array<{ step: number; title: string; desc: string }>;
+  token?: string;
 }): SharedReportRecord {
-  const token = crypto.randomUUID();
+  const token = params.token || crypto.randomUUID();
   const creatorSecret = crypto.randomUUID();
 
   // Strip all surnames, middle names, or suffixes: ONLY first name is retained

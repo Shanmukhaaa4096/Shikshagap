@@ -16,6 +16,7 @@
 import type {
   Attempt,
   ConceptId,
+  Question,
   SessionMemory,
   TopicId,
   TopicMemory,
@@ -28,6 +29,36 @@ export type StaircaseAction =
   | { type: "finish" };
 
 import { allConceptsMap } from "../../data/curriculum/index.ts";
+
+/**
+ * Normalizes question text for prompt deduplication across languages.
+ * Strips whitespace, punctuation, and lowercases.
+ */
+export function normalizeQuestionText(text: string): string {
+  if (!text) return "";
+  return text
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]/gu, "")
+    .trim();
+}
+
+/**
+ * Extracts normalized prompt string from a Question object.
+ */
+export function getQuestionText(q: Question, lang: string = "en"): string {
+  const p = q.prompt as unknown as Record<string, string | undefined> | string;
+  let text = "";
+  if (typeof p === "string") text = p;
+  else if (p?.raw) text = p.raw;
+  else if (p?.[lang]) text = p[lang] || "";
+  else if (p?.en) text = p.en || "";
+  else if (typeof p?.key === "string") text = p.key;
+
+  if (q.expression) {
+    text += ` ${q.expression}`;
+  }
+  return text.trim();
+}
 
 export const DEFAULT_TOPICS: TopicId[] = [
   "number_ops",
@@ -179,6 +210,8 @@ export function createSessionMemory(
     ),
     seenSignatures: [],
     usedFormats: [],
+    askedQuestionIds: [],
+    askedQuestionTexts: [],
     sessionSeed: sessionSeed ?? generateFreshSessionSeed(),
     stepCount: 0,
   };
@@ -380,12 +413,33 @@ export function applyAttemptToMemory(
     usedFormats.push(attempt.format);
   }
 
+  const askedQuestionIds = memory.askedQuestionIds ? [...memory.askedQuestionIds] : [];
+  if (attempt.questionId) {
+    if (!askedQuestionIds.includes(attempt.questionId)) {
+      askedQuestionIds.push(attempt.questionId);
+    }
+    const baseId = attempt.questionId.split("_s")[0];
+    if (baseId && !askedQuestionIds.includes(baseId)) {
+      askedQuestionIds.push(baseId);
+    }
+  }
+
+  const askedQuestionTexts = memory.askedQuestionTexts ? [...memory.askedQuestionTexts] : [];
+  if (attempt.questionText) {
+    const norm = normalizeQuestionText(attempt.questionText);
+    if (norm && !askedQuestionTexts.includes(norm)) {
+      askedQuestionTexts.push(norm);
+    }
+  }
+
   const memWithAttempt: SessionMemory = {
     ...memory,
     topics: updatedTopics,
     currentTopicIndex: currentIdx,
     seenSignatures,
     usedFormats,
+    askedQuestionIds,
+    askedQuestionTexts,
     stepCount: (memory.stepCount ?? 0) + 1,
   };
 
@@ -436,6 +490,55 @@ export function applyAttemptToMemory(
   return {
     memory: memWithAttempt,
     action,
+  };
+}
+
+/**
+ * Advances to the next topic if the current topic runs out of unasked questions.
+ * Marks the current topic as developing (or preserves status if already evaluated)
+ * and returns the next StaircaseAction without repeating any question.
+ */
+export function advanceToNextTopic(
+  memory: SessionMemory,
+  note: string = "Topic unasked questions exhausted"
+): {
+  memory: SessionMemory;
+  action: StaircaseAction;
+  closedTopic?: { topicId: TopicId; status: TopicStatus };
+} {
+  const currentIdx = memory.currentTopicIndex;
+  if (currentIdx >= memory.topics.length) {
+    return { memory, action: { type: "finish" } };
+  }
+
+  const currentTopic = memory.topics[currentIdx];
+  const finalStatus: TopicStatus = currentTopic.status !== "pending"
+    ? currentTopic.status
+    : currentTopic.attempts.length > 0 && currentTopic.attempts[0].correct
+    ? "developing"
+    : "developing";
+
+  const updatedTopics: TopicMemory[] = memory.topics.map((t, idx) => {
+    if (idx !== currentIdx) return t;
+    return {
+      ...t,
+      status: finalStatus,
+      notes: [...t.notes, note],
+    };
+  });
+
+  const nextIdx = currentIdx + 1;
+  const advancedMem: SessionMemory = {
+    ...memory,
+    topics: updatedTopics,
+    currentTopicIndex: nextIdx,
+  };
+
+  const action = getNextStaircaseAction(advancedMem);
+  return {
+    memory: advancedMem,
+    action,
+    closedTopic: { topicId: currentTopic.topicId, status: finalStatus },
   };
 }
 
