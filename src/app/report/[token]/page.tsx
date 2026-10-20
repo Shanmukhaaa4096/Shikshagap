@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { Metadata } from 'next';
-import { getShareToken, recordTokenView, logAuditEvent } from '@/lib/server/store';
+import { getShareToken, getRawShareToken, recordTokenView, logAuditEvent } from '@/lib/server/store';
 import { ErrorState, LoadingSkeletonState } from '@/components/StateScreens';
 import ReportClientView from './ReportClientView';
 
@@ -10,6 +10,7 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
     noarchive: true,
+    nosnippet: true,
   },
 };
 
@@ -22,10 +23,17 @@ async function ReportLoader({ params }: PageProps) {
   const record = getShareToken(token);
 
   if (!record) {
+    const raw = getRawShareToken(token);
+    let errorMsg = "This report link is invalid, has expired, or was revoked.";
+    if (raw?.revoked) {
+      errorMsg = "This report link was revoked by the creator.";
+    } else if (raw && Date.now() > raw.expiresAt) {
+      errorMsg = "This report link has expired (links expire after 14 days).";
+    }
     return (
       <div className="min-h-[100dvh] bg-card dark:bg-muted flex items-center justify-center p-4">
         <ErrorState
-          errorMessage="This parent report link is invalid, has expired (after 7 days), or was revoked by the classroom teacher."
+          errorMessage={errorMsg}
           referenceId="LINK-EXPIRED-404"
         />
       </div>
@@ -41,7 +49,7 @@ async function ReportLoader({ params }: PageProps) {
     action: 'share_report_accessed',
     targetRecordId: `token_${token.substring(0, 8)}`,
     ipHash: 'parent_viewer',
-    details: 'Parent accessed secure 7-day progress note',
+    details: 'Parent accessed secure read-only progress report',
   });
 
   return (
@@ -50,6 +58,11 @@ async function ReportLoader({ params }: PageProps) {
       schoolId={record.schoolId}
       token={record.token}
       expiresAt={record.expiresAt}
+      firstName={record.firstName}
+      grade={record.grade}
+      skillsUnlocked={record.skillsUnlocked}
+      skillsSleeping={record.skillsSleeping}
+      prescribedPlan={record.prescribedPlan}
     />
   );
 }

@@ -92,21 +92,50 @@ export function getAuditLogs(
 // SECURE REPORT SHARE TOKENS (128-BIT ENTROPY)
 // ==========================================
 export interface SharedReportRecord {
-  token: string; // 128-bit hex string
+  token: string; // Unguessable token (hex or crypto.randomUUID)
   studentId: string;
   schoolId: string;
   classId: string;
   createdById: string;
   createdAt: number;
-  expiresAt: number; // 7 days standard
+  expiresAt: number; // 7 days (teacher) or 14 days (student)
   revoked: boolean;
   revokedBy?: string;
   viewsCount: number;
   maxViews: number;
   confirmedNotice: boolean; // Teacher confirmation recording
+  // Student read-only gap report metadata (NO surname, roll number, school, or contact info)
+  firstName?: string;
+  grade?: number | string;
+  skillsUnlocked?: Array<{ id: string; name: string }>;
+  skillsSleeping?: Array<{ id: string; name: string; prereqRoot?: string }>;
+  prescribedPlan?: Array<{ step: number; title: string; desc: string }>;
+  assessmentSessionId?: string;
+  creatorSecret?: string;
 }
 
 const shareTokens = new Map<string, SharedReportRecord>();
+
+// Track completed assessment sessions so only the session that completed an assessment can create its share link
+const completedAssessmentSessions = new Map<string, {
+  sessionId: string;
+  grade: number | string;
+  completedAt: number;
+}>();
+
+export function recordAssessmentSessionCompletion(sessionId: string, grade: number | string = 5): void {
+  if (!sessionId || typeof sessionId !== 'string') return;
+  completedAssessmentSessions.set(sessionId, {
+    sessionId,
+    grade,
+    completedAt: Date.now(),
+  });
+}
+
+export function isAssessmentSessionCompleted(sessionId: string): boolean {
+  if (!sessionId || typeof sessionId !== 'string') return false;
+  return completedAssessmentSessions.has(sessionId);
+}
 
 export function createShareToken(params: {
   studentId: string;
@@ -136,6 +165,54 @@ export function createShareToken(params: {
   return record;
 }
 
+/**
+ * Creates a student read-only gap report share link.
+ * Requirements:
+ * - Uses crypto.randomUUID() (long unguessable token, not sequential)
+ * - Expires after 14 days
+ * - Stores ONLY first name, class/grade, and gap results (NO surname, roll number, school, contact info)
+ * - Returns a creatorSecret so only the creator session can revoke the link
+ */
+export function createStudentShareToken(params: {
+  assessmentSessionId: string;
+  firstName: string;
+  grade: number | string;
+  skillsUnlocked: Array<{ id: string; name: string }>;
+  skillsSleeping: Array<{ id: string; name: string; prereqRoot?: string }>;
+  prescribedPlan?: Array<{ step: number; title: string; desc: string }>;
+}): SharedReportRecord {
+  const token = crypto.randomUUID();
+  const creatorSecret = crypto.randomUUID();
+
+  // Strip all surnames, middle names, or suffixes: ONLY first name is retained
+  const rawFirstName = (params.firstName || 'Learner').trim();
+  const cleanFirstName = rawFirstName.split(/\s+/)[0] || 'Learner';
+
+  const record: SharedReportRecord = {
+    token,
+    studentId: `stu_${params.assessmentSessionId.slice(0, 8)}`,
+    schoolId: 'student_share',
+    classId: `class_${params.grade}`,
+    createdById: params.assessmentSessionId,
+    createdAt: Date.now(),
+    expiresAt: Date.now() + 14 * 24 * 60 * 60 * 1000, // 14 days
+    revoked: false,
+    viewsCount: 0,
+    maxViews: 200,
+    confirmedNotice: true,
+    firstName: cleanFirstName,
+    grade: params.grade,
+    skillsUnlocked: params.skillsUnlocked,
+    skillsSleeping: params.skillsSleeping,
+    prescribedPlan: params.prescribedPlan,
+    assessmentSessionId: params.assessmentSessionId,
+    creatorSecret,
+  };
+
+  shareTokens.set(token, record);
+  return record;
+}
+
 export function getShareToken(token: string): SharedReportRecord | null {
   const record = shareTokens.get(token);
   if (!record) return null;
@@ -143,6 +220,10 @@ export function getShareToken(token: string): SharedReportRecord | null {
   if (Date.now() > record.expiresAt) return null;
   if (record.viewsCount >= record.maxViews) return null;
   return record;
+}
+
+export function getRawShareToken(token: string): SharedReportRecord | null {
+  return shareTokens.get(token) || null;
 }
 
 export function recordTokenView(token: string): boolean {
@@ -158,6 +239,20 @@ export function revokeShareToken(token: string, userId: string, schoolId: string
   if (record.schoolId !== schoolId) return false;
   record.revoked = true;
   record.revokedBy = userId;
+  return true;
+}
+
+export function revokeStudentShareToken(token: string, creatorSecretOrSessionId: string): boolean {
+  const record = shareTokens.get(token);
+  if (!record) return false;
+  if (
+    record.creatorSecret !== creatorSecretOrSessionId &&
+    record.assessmentSessionId !== creatorSecretOrSessionId
+  ) {
+    return false;
+  }
+  record.revoked = true;
+  record.revokedBy = 'creator';
   return true;
 }
 

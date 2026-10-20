@@ -74,7 +74,7 @@ export default function PublicLandingPage() {
 }
 
 function PublicLandingPageContent() {
-  const { lang, setLang } = useI18n();
+  const { lang, setLang, dict } = useI18n();
   const selectedClassId = DEFAULT_CLASS_ID;
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -253,7 +253,19 @@ function PublicLandingPageContent() {
               Sign In
             </Link>
 
-            {/* PRIMARY ACTION: ASSESS TEST BUTTON (Hidden on mobile header to avoid crowding; present in Hero, Drawer & Sticky Bottom) */}
+            {/* ACTION: TRY AS A STUDENT BUTTON (No login required, preset Class 5) */}
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="hidden sm:inline-block">
+              <Link
+                href="/assessment?demo=student&class=class_5"
+                data-testid="header-try-as-student-btn"
+                className="inline-flex rounded-full bg-primary text-primary-foreground px-4 py-2.5 min-h-[44px] items-center text-xs font-sans font-bold hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-ring cursor-pointer shadow-warm tracking-wide transition-all gap-1.5"
+              >
+                <Sparkle size={14} weight="fill" />
+                <span>{dict.tryAsStudent || "Try as a student"}</span>
+              </Link>
+            </motion.div>
+
+            {/* PRIMARY ACTION: ASSESS TEST BUTTON */}
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="hidden sm:inline-block">
               <Link
                 href="/assessment"
@@ -280,6 +292,16 @@ function PublicLandingPageContent() {
         {/* Mobile Navigation Drawer */}
         {isMobileMenuOpen && (
           <div className="lg:hidden mt-3 pt-3 border-t border-[#C7DDAE] flex flex-col gap-2 font-sans text-sm">
+            <Link
+              href="/assessment?demo=student&class=class_5"
+              onClick={() => setIsMobileMenuOpen(false)}
+              data-testid="drawer-try-as-student-btn"
+              className="min-h-[48px] rounded-full flex items-center justify-center gap-2 px-4 bg-primary text-primary-foreground font-bold text-sm shadow-warm"
+            >
+              <Sparkle size={16} weight="fill" />
+              <span>{dict.tryAsStudent || "Try as a student"}</span>
+              <span className="text-xs opacity-80 font-normal">({dict.demoModeBadge || "Demo"})</span>
+            </Link>
             <Link
               href="/assessment"
               onClick={() => setIsMobileMenuOpen(false)}
@@ -419,7 +441,7 @@ function PublicLandingPageContent() {
                     </div>
                   </div>
 
-                  {/* PRIMARY ACTION BUTTON: ASSESS TEST */}
+                  {/* PRIMARY ACTION BUTTONS: ASSESS TEST & TRY AS A STUDENT */}
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                     <motion.div
                       whileHover={{ y: -2, scale: 1.02 }}
@@ -433,6 +455,22 @@ function PublicLandingPageContent() {
                       >
                         <span>Assess Test</span>
                         <ArrowRight size={17} weight="bold" />
+                      </Link>
+                    </motion.div>
+
+                    <motion.div
+                      whileHover={{ y: -2, scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      transition={{ duration: 0.18, ease: 'easeOut' }}
+                      className="inline-block"
+                    >
+                      <Link
+                        href="/assessment?demo=student&class=class_5"
+                        data-testid="hero-try-as-student-btn"
+                        className="w-full sm:w-auto rounded-full bg-primary text-primary-foreground px-5 py-3.5 min-h-[50px] inline-flex items-center justify-center gap-2 text-sm font-sans font-bold hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-ring cursor-pointer shadow-warm active:translate-y-[1px] transition-all"
+                      >
+                        <Sparkle size={17} weight="fill" />
+                        <span>{dict.tryAsStudent || "Try as a student"}</span>
                       </Link>
                     </motion.div>
 

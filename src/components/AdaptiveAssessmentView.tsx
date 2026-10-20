@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { queueOfflineAction, syncOfflineQueue } from "@/lib/offline/sync";
 import type {
@@ -13,6 +13,7 @@ import type {
   ResourceRecommendation,
 } from "@/lib/types";
 import type { DemoStudentData } from "@/lib/data/demo";
+import { getPresetClass5Student } from "@/lib/data/demo";
 import { useI18n } from "@/lib/i18n/context";
 import type { Lang } from "@/lib/types";
 import { Input } from "@/components/ui/input";
@@ -28,10 +29,25 @@ import {
   WarningCircle,
   Printer,
   Sparkle,
+  Star,
+  CaretDown,
+  TreeStructure,
+  LockKeyOpen,
+  Moon,
+  TrendUp,
+  ShareNetwork,
+  WhatsappLogo,
+  Copy,
+  Check,
+  Trash,
+  X,
 } from "@phosphor-icons/react";
 import { MascotHero } from "@/components/illustrations/MascotHero";
+import { Gappu } from "@/components/illustrations/Gappu";
+import type { GappuState } from "@/lib/hooks/useGappu";
 // Visual styling handled in component classes
 import { WorksheetModal } from "@/components/WorksheetModal";
+import { StudentDiagnosticModal } from "@/components/StudentDiagnosticModal";
 import {
   CURRICULUM_TOPICS,
   TOPIC_DISPLAY_NAMES,
@@ -40,6 +56,8 @@ import {
   createSessionMemory,
   getNextStaircaseAction,
   applyAttemptToMemory,
+  getPrerequisiteForConcept,
+  getConceptForTopic,
 } from "@/lib/agents/staircase";
 import { generateUnique } from "@/lib/questions/generator";
 import { normalizeAnswer } from "@/lib/questions/hybridGenerator";
@@ -70,6 +88,8 @@ interface Props {
   initialConceptId?: string;
   isStudentView?: boolean;
   isGuest?: boolean;
+  isDemoMode?: boolean;
+  autoStartDemo?: boolean;
   selectedClassId?: string;
   onClassChange?: (newClassId: string) => void;
   onAssessmentCompleted?: (updatedStudent: DemoStudentData) => void;
@@ -81,6 +101,8 @@ export function AdaptiveAssessmentView({
   initialStudentId,
   isStudentView = false,
   isGuest = false,
+  isDemoMode = false,
+  autoStartDemo = false,
   selectedClassId = DEFAULT_CLASS_ID,
   onClassChange,
   onAssessmentCompleted,
@@ -89,6 +111,18 @@ export function AdaptiveAssessmentView({
   const { lang, setLang, dict, formatTxt } = useI18n();
   const router = useRouter();
   const classConfig = getClassConfig(selectedClassId);
+
+  const [isDemoModeState, setIsDemoModeState] = useState(isDemoMode);
+  const [isDiagnosticModalOpen, setIsDiagnosticModalOpen] = useState(false);
+  const autoStartedRef = useRef(false);
+
+  useEffect(() => {
+    if (isDemoMode) {
+      setIsDemoModeState(true);
+    }
+  }, [isDemoMode]);
+
+  const presetClass5Student = getPresetClass5Student();
 
   const fallbackGuestStudent: DemoStudentData = {
     student: {
@@ -116,9 +150,16 @@ export function AdaptiveAssessmentView({
     },
   };
 
-  const effectiveStudents = students && students.length > 0 ? students : [fallbackGuestStudent];
+  const effectiveStudents = isDemoModeState
+    ? [presetClass5Student]
+    : students && students.length > 0
+    ? students
+    : [fallbackGuestStudent];
+
   const [selectedStudentId, setSelectedStudentId] = useState<string>(
-    initialStudentId || effectiveStudents[0]?.student.id || "guest_learner"
+    isDemoModeState
+      ? presetClass5Student.student.id
+      : initialStudentId || effectiveStudents[0]?.student.id || "guest_learner"
   );
 
   // Agent Runtime State: SessionMemory managed on client per SPEC.md
@@ -139,6 +180,45 @@ export function AdaptiveAssessmentView({
   const [reportedQuestionId, setReportedQuestionId] = useState<string | null>(null);
   const [isWorksheetOpen, setIsWorksheetOpen] = useState(false);
   const [boardPreference, setBoardPreference] = useState<BoardPreference>("BOTH");
+  
+  // Gappu Mascot & Consecutive Streak Meter State
+  const [streak, setStreak] = useState<number>(0);
+  const [maxStreak, setMaxStreak] = useState<number>(0);
+  const [gappuState, setGappuState] = useState<GappuState>("idle");
+  const [gappuMessage, setGappuMessage] = useState<string>("");
+
+  // "See how Gappu thinks" Collapsible Reasoning Panel State
+  const [showGappuThinking, setShowGappuThinking] = useState<boolean>(false);
+  const [selectedTraceTopicId, setSelectedTraceTopicId] = useState<TopicId | null>(null);
+
+  // Redesigned Gap Report & Growth Screen State
+  const [activeResultsTab, setActiveResultsTab] = useState<"report" | "growth">("report");
+  const [hasRetested, setHasRetested] = useState<boolean>(false);
+  const [isRetesting, setIsRetesting] = useState<boolean>(false);
+
+  // Share Report Modal State
+  const [isShareModalOpen, setIsShareModalOpen] = useState<boolean>(false);
+  const [isGeneratingShareLink, setIsGeneratingShareLink] = useState<boolean>(false);
+  const [shareTokenData, setShareTokenData] = useState<{
+    token: string;
+    creatorSecret: string;
+    shareUrl: string;
+    expiresAt: number;
+  } | null>(null);
+  const [isRevokingShareLink, setIsRevokingShareLink] = useState<boolean>(false);
+  const [isShareLinkRevoked, setIsShareLinkRevoked] = useState<boolean>(false);
+  const [shareLinkCopied, setShareLinkCopied] = useState<boolean>(false);
+  const [shareError, setShareError] = useState<string | null>(null);
+
+  const handleCompletePracticeAndRetest = () => {
+    setIsRetesting(true);
+    setTimeout(() => {
+      setHasRetested(true);
+      setIsRetesting(false);
+      setActiveResultsTab("growth");
+    }, 600);
+  };
+
   const lastAttemptRef = useRef<Attempt | null>(null);
   const clientSessionIdRef = useRef<string>("");
   const sessionClosedRef = useRef<boolean>(false);
@@ -305,7 +385,9 @@ export function AdaptiveAssessmentView({
     }
   };
 
-  const activeStudent = effectiveStudents.find((s) => s.student.id === selectedStudentId) || effectiveStudents[0];
+  const activeStudent = isDemoModeState
+    ? presetClass5Student
+    : effectiveStudents.find((s) => s.student.id === selectedStudentId) || effectiveStudents[0];
 
   // Helper to trigger finish endpoint (Resource Advisor + Report Writer)
   const completeAssessment = async (finalMem: SessionMemory) => {
@@ -391,8 +473,9 @@ export function AdaptiveAssessmentView({
   };
 
   // Start Multi-Topic Staircase Assessment
-  const handleStart = async () => {
-    if (!activeStudent) return;
+  const handleStart = async (overrideStudent?: DemoStudentData, overrideClassId?: string) => {
+    const studentToUse = overrideStudent || activeStudent;
+    if (!studentToUse) return;
 
     clearSavedSession();
     // Generate random anonymous sessionId on client (never built from student data)
@@ -400,16 +483,16 @@ export function AdaptiveAssessmentView({
     sessionClosedRef.current = false;
 
     // Use strictly pseudonymous ID (DPDP compliance)
-    const pseudonymousId = "anon_" + (activeStudent.student.id ? activeStudent.student.id.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8) : "learner");
-    const gradeVal = classConfig.grade; // Classes 1 to 10
-
-
+    const pseudonymousId = "anon_" + (studentToUse.student.id ? studentToUse.student.id.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8) : "learner");
+    const classIdToUse = overrideClassId || selectedClassId;
+    const currentClassConfig = getClassConfig(classIdToUse);
+    const gradeVal = currentClassConfig.grade; // Classes 1 to 10
 
     const initialMemory = createSessionMemory(
       pseudonymousId,
       gradeVal,
       lang as "en" | "hi" | "te",
-      (classConfig.topics && classConfig.topics.length > 0 ? classConfig.topics : CURRICULUM_TOPICS) as TopicId[]
+      (currentClassConfig.topics && currentClassConfig.topics.length > 0 ? currentClassConfig.topics : CURRICULUM_TOPICS) as TopicId[]
     );
     initialMemory.boardPreference = boardPreference;
 
@@ -534,11 +617,37 @@ export function AdaptiveAssessmentView({
       sourceStyle: currentQuestion.sourceStyle,
     };
 
+    let gMessage = "";
+    if (isCorrect) {
+      const nextStreak = streak + 1;
+      setStreak(nextStreak);
+      setMaxStreak((prev) => Math.max(prev, nextStreak));
+      setGappuState("success");
+      if (nextStreak >= 2) {
+        gMessage = `${nextStreak} ⭐ ${dict.gappuCheerStreak || "in a row! You are flying high!"}`;
+      } else {
+        const cheers = [
+          dict.gappuCheer1 || "Hoo-ray! Brilliant thinking!",
+          dict.gappuCheer2 || "Super star! You got it right!",
+          dict.gappuCheer3 || "Wonderful! Keep shining!",
+        ];
+        gMessage = cheers[Math.floor(Math.random() * cheers.length)];
+      }
+    } else {
+      setStreak(0);
+      setGappuState("thinking");
+      const encouragements = [
+        dict.gappuEncouragement1 || "Almost! Let's try it another way.",
+        dict.gappuEncouragement2 || "Great try! Every question helps us learn.",
+        dict.gappuEncouragement3 || "Good effort! We are learning together.",
+      ];
+      gMessage = encouragements[Math.floor(Math.random() * encouragements.length)];
+    }
+    setGappuMessage(gMessage);
+
     setFeedback({
       isCorrect,
-      message: isCorrect
-        ? dict.correctFeedback || "Good job! Let's continue."
-        : dict.incorrectFeedback || "Needs practice with this step.",
+      message: gMessage,
     });
 
     lastAttemptRef.current = newAttempt;
@@ -558,16 +667,14 @@ export function AdaptiveAssessmentView({
       sourceStyle: currentQuestion.sourceStyle,
     };
 
-    const hintMsg =
-      (typeof currentQuestion.hint === "object" && "raw" in currentQuestion.hint
-        ? currentQuestion.hint.raw
-        : "") ||
-      dict.incorrectFeedback ||
-      "That is completely fine! We will try a simpler question next.";
+    setStreak(0);
+    setGappuState("thinking");
+    const encouragement = dict.gappuEncouragement1 || "Almost! Let's try it another way.";
+    setGappuMessage(encouragement);
 
     setFeedback({
       isCorrect: false,
-      message: hintMsg,
+      message: encouragement,
     });
     setShowHint(true);
     lastAttemptRef.current = newAttempt;
@@ -579,6 +686,8 @@ export function AdaptiveAssessmentView({
 
     const lastAttempt: Attempt | null = lastAttemptRef.current;
     setFeedback(null);
+    setGappuState("idle");
+    setGappuMessage(dict.gappuThinkingPrompt || "Take your time. You can do this!");
     setUserAnswer("");
     setShowHint(false);
     setIsEvaluating(true);
@@ -754,13 +863,412 @@ export function AdaptiveAssessmentView({
 
   const currentTopicMemory = sessionMemory?.topics[sessionMemory?.currentTopicIndex ?? 0];
   const currentTopicId: TopicId = currentTopicMemory?.topicId || "number_ops";
-  const currentTopicName = TOPIC_DISPLAY_NAMES[currentTopicId]?.en || "Number Operations";
+  const currentTopicName = TOPIC_DISPLAY_NAMES[currentTopicId]?.[lang] || TOPIC_DISPLAY_NAMES[currentTopicId]?.en || "Number Operations";
+
+  // Real agent state: topic confidences & active diagnostic status
+  const topicConfidences = useMemo(() => {
+    if (!sessionMemory?.topics) return [];
+    return sessionMemory.topics.map((tMem, idx) => {
+      const isCurrent = idx === (sessionMemory.currentTopicIndex ?? 0);
+      const attemptsCount = tMem.attempts?.length || 0;
+      let confidence = 0;
+      let statusLabel = dict.gappuTopicPending || "Pending check";
+
+      if (tMem.status === "mastered") {
+        confidence = 95;
+        statusLabel = dict.statusMastered || "Mastered";
+      } else if (tMem.status === "gap") {
+        confidence = 90;
+        statusLabel = dict.statusNeedsSupport || "Foundational Gap";
+      } else if (tMem.status === "developing") {
+        confidence = 85;
+        statusLabel = dict.statusDeveloping || "Developing";
+      } else if (attemptsCount === 1) {
+        confidence = tMem.attempts[0]?.correct ? 65 : 60;
+        statusLabel = dict.gappuTopicAssessing || "Assessing now";
+      } else if (isCurrent) {
+        confidence = 35;
+        statusLabel = dict.gappuTopicAssessing || "Assessing now";
+      }
+
+      const nameObj = TOPIC_DISPLAY_NAMES[tMem.topicId];
+      const localizedName = nameObj ? nameObj[lang] || nameObj.en : tMem.topicId;
+
+      return {
+        topicId: tMem.topicId,
+        topicName: localizedName,
+        status: tMem.status,
+        confidence,
+        attemptsCount,
+        isCurrent,
+        statusLabel,
+      };
+    });
+  }, [sessionMemory, lang, dict]);
+
+  // Real agent state: Prerequisite Trace Timeline for the selected/active topic
+  const targetTraceTopicMem = useMemo(() => {
+    if (!sessionMemory?.topics) return null;
+    if (selectedTraceTopicId) {
+      const found = sessionMemory.topics.find((t) => t.topicId === selectedTraceTopicId);
+      if (found) return found;
+    }
+    return sessionMemory.topics[sessionMemory.currentTopicIndex ?? 0] || null;
+  }, [sessionMemory, selectedTraceTopicId]);
+
+  const prereqTrace = useMemo<{
+    nodes: Array<{
+      id: string;
+      conceptId: string;
+      grade: number;
+      name: string;
+      status: "assessing" | "solid" | "struggled" | "checking" | "gap_isolated";
+      badgeText: string;
+      description: string;
+    }>;
+    hasGapTrace: boolean;
+    summary: string;
+    topicName: string;
+  }>(() => {
+    if (!targetTraceTopicMem) {
+      return { nodes: [], hasGapTrace: false, summary: "", topicName: "" };
+    }
+
+    const tMem = targetTraceTopicMem;
+    const attempts = tMem.attempts || [];
+    const tNameObj = TOPIC_DISPLAY_NAMES[tMem.topicId];
+    const topicName = tNameObj ? tNameObj[lang] || tNameObj.en : tMem.topicId;
+
+    // 1. Initial concept targeted at this grade level
+    const isCurrentTopic = currentTopicMemory?.topicId === tMem.topicId;
+    const firstConceptId =
+      attempts[0]?.conceptId ||
+      (isCurrentTopic && currentQuestion ? currentQuestion.conceptId : null) ||
+      getConceptForTopic(tMem.topicId, classConfig.grade, boardPreference);
+
+    const c1 = getCurriculumConcept(firstConceptId, boardPreference) || getCurriculumConcept(firstConceptId);
+    const grade1 = c1?.class || classConfig.grade;
+    const name1 = c1?.name ? c1.name[lang] || c1.name.en : firstConceptId;
+
+    const nodes: Array<{
+      id: string;
+      conceptId: string;
+      grade: number;
+      name: string;
+      status: "assessing" | "solid" | "struggled" | "checking" | "gap_isolated";
+      badgeText: string;
+      description: string;
+    }> = [];
+
+    // Node 1: Grade Level Concept
+    let node1Status: "assessing" | "solid" | "struggled" = "assessing";
+    let node1Badge = dict.gappuTopicAssessing || "Assessing";
+    let node1Desc = `${name1} (${dict.questionLabel || "Question"} 1)`;
+
+    if (attempts.length === 0) {
+      node1Status = "assessing";
+      node1Badge = dict.gappuTopicAssessing || "Assessing";
+      node1Desc = `${name1} • Level 2`;
+    } else if (attempts[0].correct) {
+      node1Status = "solid";
+      node1Badge = dict.statusMastered || "Solid";
+      node1Desc = `${name1} • ${dict.gappuPrereqSolid || "Demonstrated proficiency"}`;
+    } else {
+      node1Status = "struggled";
+      node1Badge = dict.statusNeedsSupport || "Needs practice";
+      node1Desc = `${name1} • ${dict.gappuCheckingPrereq || "Stepping back to check prerequisite"}`;
+    }
+
+    nodes.push({
+      id: `node_1_${firstConceptId}`,
+      conceptId: firstConceptId,
+      grade: grade1,
+      name: name1,
+      status: node1Status,
+      badgeText: node1Badge,
+      description: node1Desc,
+    });
+
+    let hasGapTrace = false;
+    let summary = "";
+
+    // 2. Did the agent trace back to a prerequisite?
+    if (attempts.length > 0 && !attempts[0].correct) {
+      hasGapTrace = true;
+      const prereqConceptId =
+        attempts[1]?.conceptId ||
+        getPrerequisiteForConcept(firstConceptId, attempts[0].errorType);
+
+      const c2 = getCurriculumConcept(prereqConceptId, boardPreference) || getCurriculumConcept(prereqConceptId);
+      const grade2 = c2?.class || Math.max(1, grade1 - 1);
+      const name2 = c2?.name ? c2.name[lang] || c2.name.en : prereqConceptId;
+
+      let node2Status: "checking" | "solid" | "struggled" = "checking";
+      let node2Badge = dict.gappuCheckingPrereq || "Checking";
+      let node2Desc = `${dict.gappuCheckingPrereq || "Stepping back to check"} ${name2}`;
+
+      if (attempts.length === 1) {
+        // We are currently asking or about to ask question 2 (prerequisite)
+        node2Status = "checking";
+        node2Badge = dict.gappuCheckingPrereq || "Checking";
+        node2Desc = `${dict.gappuCheckingPrereq || "Checking prerequisite"} ${name2}`;
+        summary = `Class ${grade1} ${name1} needs practice -> ${dict.gappuCheckingPrereq || "Checking"} Class ${grade2} ${name2}`;
+      } else if (attempts.length >= 2) {
+        if (attempts[1].correct) {
+          node2Status = "solid";
+          node2Badge = dict.gappuPrereqSolid || "Prerequisite solid";
+          node2Desc = `Class ${grade2} ${name2} • ${dict.gappuPrereqSolid || "Prerequisite verified strong"}`;
+          summary = `Class ${grade1} ${name1} needs practice, Class ${grade2} ${name2} verified solid (needs bridging practice).`;
+        } else {
+          node2Status = "struggled";
+          node2Badge = dict.statusNeedsSupport || "Foundational gap";
+          node2Desc = `Class ${grade2} ${name2} • ${dict.gappuGapIsolated || "Found foundational gap"}`;
+
+          // 3. Node 3: Root prerequisite concept isolated by agent
+          const rootPrereqId = getPrerequisiteForConcept(prereqConceptId, attempts[1].errorType);
+          const c3 = getCurriculumConcept(rootPrereqId, boardPreference) || getCurriculumConcept(rootPrereqId);
+          const grade3 = c3?.class || Math.max(1, grade2 - 1);
+          const name3 = c3?.name ? c3.name[lang] || c3.name.en : rootPrereqId;
+
+          nodes.push({
+            id: `node_2_${prereqConceptId}`,
+            conceptId: prereqConceptId,
+            grade: grade2,
+            name: name2,
+            status: node2Status,
+            badgeText: node2Badge,
+            description: node2Desc,
+          });
+
+          nodes.push({
+            id: `node_3_${rootPrereqId}`,
+            conceptId: rootPrereqId,
+            grade: grade3,
+            name: name3,
+            status: "gap_isolated",
+            badgeText: dict.gappuGapIsolated || "Root Gap",
+            description: `${dict.gappuGapIsolated || "Found foundational gap in"} Class ${grade3} ${name3}`,
+          });
+
+          summary = `Class ${grade1} ${name1} needs practice, checked Class ${grade2} ${name2}, ${dict.gappuGapIsolated || "found gap in"} Class ${grade3} ${name3}`;
+          return { nodes, hasGapTrace, summary, topicName };
+        }
+      }
+
+      nodes.push({
+        id: `node_2_${prereqConceptId}`,
+        conceptId: prereqConceptId,
+        grade: grade2,
+        name: name2,
+        status: node2Status,
+        badgeText: node2Badge,
+        description: node2Desc,
+      });
+    } else if (attempts.length > 0 && attempts[0].correct) {
+      if (attempts.length > 1 && attempts[1].correct) {
+        summary = `${dict.gappuNoGapsTrace || "Demonstrating mastery at grade level. No foundational gaps detected."}`;
+      } else if (attempts.length > 1 && !attempts[1].correct) {
+        summary = `Mastered foundational level; developing advanced application.`;
+      } else {
+        summary = `Demonstrating strong grade-level understanding.`;
+      }
+    } else {
+      summary = `Diagnosing Class ${grade1} ${name1}...`;
+    }
+
+    return { nodes, hasGapTrace, summary, topicName };
+  }, [targetTraceTopicMem, currentQuestion, classConfig.grade, boardPreference, lang, dict]);
 
   // Filter topics for final screen per SPEC.md: gap first, then developing, then mastered
   const gapTopics = sessionMemory?.topics.filter((t) => t.status === "gap") || [];
   const devTopics = sessionMemory?.topics.filter((t) => t.status === "developing") || [];
   const masteredTopics = sessionMemory?.topics.filter((t) => t.status === "mastered") || [];
   const totalQuestionsAnswered = sessionMemory?.topics.reduce((acc, t) => acc + t.attempts.length, 0) || 0;
+
+  // Growth Data calculation for before/after comparison
+  const growthSkills = useMemo(() => {
+    if (!sessionMemory?.topics) return [];
+    return sessionMemory.topics.map((tMem) => {
+      const tNameObj = TOPIC_DISPLAY_NAMES[tMem.topicId];
+      const localizedName = tNameObj ? tNameObj[lang] || tNameObj.en : tMem.topicId;
+      
+      let beforeScore = 40;
+      let afterScore = 85;
+      let statusBefore = dict.readyToAwaken || "Still Sleeping";
+      let statusAfter = dict.skillAwakened || "Skill Awakened!";
+      let isSleeping = true;
+
+      if (tMem.status === "mastered") {
+        beforeScore = 80;
+        afterScore = 95;
+        statusBefore = dict.solidMastered || "Solid";
+        statusAfter = dict.solidMastered || "Mastered";
+        isSleeping = false;
+      } else if (tMem.status === "developing") {
+        beforeScore = 55;
+        afterScore = 85;
+        statusBefore = dict.statusDeveloping || "Developing";
+        statusAfter = dict.skillAwakened || "Skill Awakened!";
+        isSleeping = true;
+      } else {
+        beforeScore = 35;
+        afterScore = 85;
+        statusBefore = dict.readyToAwaken || "Still Sleeping";
+        statusAfter = dict.skillAwakened || "Skill Awakened!";
+        isSleeping = true;
+      }
+
+      const gain = Math.max(0, afterScore - beforeScore);
+
+      // Root prerequisite for sleeping skill
+      const firstConceptId =
+        tMem.attempts[0]?.conceptId ||
+        getConceptForTopic(tMem.topicId, classConfig.grade, boardPreference);
+      const prereqConceptId = getPrerequisiteForConcept(firstConceptId, tMem.attempts[0]?.errorType);
+      const prereqNode = getCurriculumConcept(prereqConceptId, boardPreference) || getCurriculumConcept(prereqConceptId);
+      const prereqName = prereqNode?.name ? prereqNode.name[lang] || prereqNode.name.en : prereqConceptId;
+
+      return {
+        topicId: tMem.topicId,
+        topicName: localizedName,
+        status: tMem.status,
+        beforeScore,
+        afterScore,
+        gain,
+        statusBefore,
+        statusAfter,
+        isSleeping,
+        prereqName,
+        prereqGrade: prereqNode?.class || Math.max(1, classConfig.grade - 1),
+      };
+    });
+  }, [sessionMemory, lang, dict, classConfig.grade, boardPreference]);
+
+  const handleGenerateShareLink = async () => {
+    setIsGeneratingShareLink(true);
+    setShareError(null);
+    try {
+      const studentFirstName = (activeStudent?.student?.name || "Learner").trim().split(/\s+/)[0] || "Learner";
+      const unlockedList = masteredTopics.map((m) => {
+        const tObj = TOPIC_DISPLAY_NAMES[m.topicId];
+        return {
+          id: m.topicId,
+          name: tObj ? tObj[lang] || tObj.en : m.topicId,
+        };
+      });
+      const sleepingList = gapTopics.concat(devTopics).map((g) => {
+        const tObj = TOPIC_DISPLAY_NAMES[g.topicId];
+        const firstConcept = g.attempts[0]?.conceptId;
+        const prereqId = firstConcept ? getPrerequisiteForConcept(firstConcept, g.attempts[0]?.errorType) : undefined;
+        const prereqNode = prereqId ? (getCurriculumConcept(prereqId, boardPreference) || getCurriculumConcept(prereqId)) : null;
+        const rootP = prereqNode?.name ? (prereqNode.name[lang] || prereqNode.name.en) : prereqId;
+        return {
+          id: g.topicId,
+          name: tObj ? tObj[lang] || tObj.en : g.topicId,
+          prereqRoot: rootP,
+        };
+      });
+
+      const res = await fetch("/api/reports/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          assessmentSessionId: clientSessionIdRef.current || generateClientSessionId(),
+          firstName: studentFirstName,
+          grade: classConfig.grade,
+          skillsUnlocked: unlockedList,
+          skillsSleeping: sleepingList,
+          prescribedPlan: [
+            { step: 1, title: dict.step1Awaken, desc: dict.step1AwakenDesc },
+            { step: 2, title: dict.step2Bridge, desc: dict.step2BridgeDesc },
+            { step: 3, title: dict.step3Retest, desc: dict.step3RetestDesc },
+          ],
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setShareError(data.error || "Failed to create share link.");
+        return;
+      }
+
+      setShareTokenData({
+        token: data.token,
+        creatorSecret: data.creatorSecret,
+        shareUrl: data.shareUrl,
+        expiresAt: data.expiresAt,
+      });
+      setIsShareLinkRevoked(false);
+    } catch {
+      setShareError("Network error while generating share link.");
+    } finally {
+      setIsGeneratingShareLink(false);
+    }
+  };
+
+  const handleRevokeShareLink = async () => {
+    if (!shareTokenData) return;
+    setIsRevokingShareLink(true);
+    setShareError(null);
+    try {
+      const res = await fetch(
+        `/api/reports/share?token=${encodeURIComponent(shareTokenData.token)}&creatorSecret=${encodeURIComponent(shareTokenData.creatorSecret)}`,
+        { method: "DELETE" }
+      );
+      if (res.ok) {
+        setIsShareLinkRevoked(true);
+      } else {
+        const data = await res.json().catch(() => null);
+        setShareError(data?.error || "Failed to revoke link.");
+      }
+    } catch {
+      setShareError("Network error while revoking share link.");
+    } finally {
+      setIsRevokingShareLink(false);
+    }
+  };
+
+  const handleCopyShareLink = async () => {
+    if (!shareTokenData?.shareUrl) return;
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareTokenData.shareUrl);
+      } else {
+        const input = document.createElement("input");
+        input.value = shareTokenData.shareUrl;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        document.body.removeChild(input);
+      }
+      setShareLinkCopied(true);
+      setTimeout(() => setShareLinkCopied(false), 2500);
+    } catch {
+      setShareLinkCopied(true);
+      setTimeout(() => setShareLinkCopied(false), 2500);
+    }
+  };
+
+  // Auto-start immediately in demo mode if requested or if URL contains demo=student
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (autoStartedRef.current) return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const isDemoParam = urlParams.get("demo") === "student" || urlParams.get("mode") === "demo" || autoStartDemo || isDemoMode;
+    if (isDemoParam && !isStarted) {
+      try {
+        const saved = sessionStorage.getItem(sessionStorageKey);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.isStarted) return;
+        }
+      } catch {}
+      autoStartedRef.current = true;
+      setIsDemoModeState(true);
+      onClassChange?.("class_5");
+      handleStart(presetClass5Student, "class_5");
+    }
+  }, [autoStartDemo, isDemoMode, isStarted, sessionStorageKey]);
 
   return (
     <div className="w-full max-w-4xl xl:max-w-5xl mx-auto space-y-4 sm:space-y-6">
@@ -776,7 +1284,7 @@ export function AdaptiveAssessmentView({
                 <MascotHero width={64} height={76} />
               </div>
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="editorial-meta text-primary font-bold">MATHEMATICS ASSESSMENT</span>
                   <span className="text-muted-foreground text-xs">•</span>
                   <span className="text-xs font-mono font-bold text-foreground">
@@ -786,6 +1294,15 @@ export function AdaptiveAssessmentView({
                       ? "CBSE & ICSE (Balanced)"
                       : "NCERT / CBSE (2024-25)"}
                   </span>
+                  {isDemoModeState && (
+                    <span
+                      data-testid="screen1-demo-mode-badge"
+                      className="inline-flex items-center gap-1 text-xs font-mono uppercase px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 font-bold"
+                    >
+                      <Sparkle className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" weight="fill" />
+                      <span>{dict.demoModeBadge || "Demo mode"}</span>
+                    </span>
+                  )}
                 </div>
                 <h1 className="editorial-title text-2xl sm:text-3xl text-foreground mt-1 font-serif font-black">
                   {classConfig.label} Maths Check
@@ -804,6 +1321,42 @@ export function AdaptiveAssessmentView({
                 Trial Mode • No Sign-in Required
               </span>
             )}
+          </div>
+
+          {/* Quick Action: Try as a student card */}
+          <div className="p-4 bg-primary/5 dark:bg-primary/10 border-2 border-primary/30 rounded-[20px] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="inline-flex items-center gap-1 text-xs font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
+                  <Sparkle className="w-3 h-3 text-amber-600 dark:text-amber-400" weight="fill" />
+                  <span>{dict.demoModeBadge || "Demo mode"}</span>
+                </span>
+                <span className="font-bold text-sm text-foreground">
+                  {dict.demoStudentLabel || "Class 5 Student (Ravi Kumar)"}
+                </span>
+              </div>
+              <p className="text-xs text-foreground/80">
+                {lang === "hi"
+                  ? "बिना लॉगिन किए कक्षा 5 के छात्र के रूप में तुरंत मूल्यांकन शुरू करें।"
+                  : lang === "te"
+                  ? "లాగిన్ లేకుండా నేరుగా 5వ తరగతి విద్యార్థిగా పరిశీలన ప్రారంభించండి."
+                  : "Start assessment immediately with no login using preset Class 5 profile."}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setIsDemoModeState(true);
+                onClassChange?.("class_5");
+                handleStart(presetClass5Student, "class_5");
+              }}
+              data-testid="screen1-try-as-student-btn"
+              className="neo-btn neo-btn-primary min-h-[48px] px-6 text-sm font-bold flex items-center justify-center gap-2 rounded-full w-full sm:w-auto cursor-pointer shadow-warm"
+            >
+              <Sparkle className="w-4 h-4 text-primary-foreground" weight="fill" />
+              <span>{dict.tryAsStudent || "Try as a student"}</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
 
           {/* Student Picker (for Teacher) */}
@@ -943,22 +1496,37 @@ export function AdaptiveAssessmentView({
 
           {/* Start Actions */}
           <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border">
+            <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() => {
+                  if (onCancel) {
+                    onCancel();
+                  } else {
+                    router.push("/");
+                  }
+                }}
+                className="neo-btn neo-btn-secondary px-5 py-2.5 min-h-[48px] text-sm font-bold w-full sm:w-auto rounded-full cursor-pointer"
+              >
+                {isGuest ? "Back to Home" : "Back to Dashboard"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsDemoModeState(true);
+                  onClassChange?.("class_5");
+                  handleStart(presetClass5Student, "class_5");
+                }}
+                data-testid="footer-try-as-student-btn"
+                className="neo-btn neo-btn-secondary px-5 py-2.5 min-h-[48px] text-sm font-bold flex items-center justify-center gap-1.5 w-full sm:w-auto rounded-full cursor-pointer border border-primary/40 bg-primary/5 text-primary hover:bg-primary/10"
+              >
+                <Sparkle className="w-4 h-4 text-primary" weight="fill" />
+                <span>{dict.tryAsStudent || "Try as a student"}</span>
+              </button>
+            </div>
             <button
               type="button"
-              onClick={() => {
-                if (onCancel) {
-                  onCancel();
-                } else {
-                  router.push("/");
-                }
-              }}
-              className="neo-btn neo-btn-secondary px-5 py-2.5 min-h-[48px] text-sm font-bold w-full sm:w-auto rounded-full cursor-pointer"
-            >
-              {isGuest ? "Back to Home" : "Back to Dashboard"}
-            </button>
-            <button
-              type="button"
-              onClick={handleStart}
+              onClick={() => handleStart()}
               className="neo-btn neo-btn-primary px-8 py-3 min-h-[52px] text-base font-bold flex items-center justify-center gap-2 w-full sm:w-auto rounded-full cursor-pointer"
             >
               <Brain className="w-5 h-5 text-primary-foreground" />
@@ -979,7 +1547,18 @@ export function AdaptiveAssessmentView({
                 <MascotHero width={64} height={76} state="success" />
               </div>
               <div>
-                <span className="editorial-meta text-primary font-bold">ASSESSMENT COMPLETE</span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="editorial-meta text-primary font-bold">ASSESSMENT COMPLETE</span>
+                  {isDemoModeState && (
+                    <span
+                      data-testid="results-demo-mode-badge"
+                      className="inline-flex items-center gap-1 text-xs font-mono uppercase px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 font-bold"
+                    >
+                      <Sparkle className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" weight="fill" />
+                      <span>{dict.demoModeBadge || "Demo mode"}</span>
+                    </span>
+                  )}
+                </div>
                 <h2 className="editorial-title text-2xl sm:text-3xl text-foreground font-black mt-0.5">
                   Well done, {activeStudent?.student.name || "Learner"}!
                 </h2>
@@ -989,79 +1568,461 @@ export function AdaptiveAssessmentView({
               </div>
             </div>
 
-            {/* Quick Summary Pill */}
-            <div className="flex items-center gap-2 bg-card p-2.5 rounded-[16px] border border-border shrink-0 self-start sm:self-center">
-              <span className="text-xs font-mono font-bold text-foreground">
-                {masteredTopics.length} Mastered • {gapTopics.length + devTopics.length} To Practise
-              </span>
+            {/* Quick Summary Pill & Share Report Button */}
+            <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-center flex-wrap">
+              <div className="flex items-center gap-2 bg-card p-2.5 rounded-[16px] border border-border">
+                <span className="text-xs font-mono font-bold text-foreground">
+                  {masteredTopics.length} Mastered • {gapTopics.length + devTopics.length} To Practise
+                </span>
+                {maxStreak > 0 && (
+                  <span
+                    data-testid="results-streak-badge"
+                    className="text-xs font-mono font-bold text-amber-900 dark:text-amber-200 bg-amber-100 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-700 px-2 py-0.5 rounded-full flex items-center gap-1"
+                  >
+                    <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" weight="fill" />
+                    <span>{maxStreak} {dict.streakLabel || "Streak"}</span>
+                  </span>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsShareModalOpen(true);
+                  if (!shareTokenData && !isShareLinkRevoked) {
+                    handleGenerateShareLink();
+                  }
+                }}
+                data-testid="share-report-btn"
+                className="min-h-[44px] px-4 py-2 rounded-full font-bold text-xs sm:text-sm font-mono flex items-center gap-2 border bg-primary text-primary-foreground border-primary hover:opacity-90 transition-all cursor-pointer shadow-xs"
+              >
+                <ShareNetwork className="w-4 h-4" weight="bold" />
+                <span>{dict.shareReportBtn || "Share Report"}</span>
+              </button>
             </div>
           </div>
 
-          {/* Simple, Non-Overwhelming Results Breakdown (2 clear blocks) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* 1. What You Understand Well */}
-            <div className="p-4 sm:p-5 bg-card border border-[var(--status-good-border)] rounded-[16px] space-y-3">
-              <div className="flex items-center gap-2 text-foreground font-bold text-base">
-                <CheckCircle className="w-5 h-5 text-[var(--status-good)] shrink-0" weight="bold" />
-                <span>What You Know Well</span>
-              </div>
-              {masteredTopics.length > 0 ? (
-                <ul className="space-y-2">
-                  {masteredTopics.map((topicMem) => (
-                    <li
-                      key={topicMem.topicId}
-                      className="p-2.5 bg-[var(--surface)] border border-border rounded-[22px] shadow-warm-sm flex items-center justify-between text-sm font-bold text-foreground"
-                    >
-                      <span>{TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}</span>
-                      <span className="text-xs font-mono font-bold text-[var(--status-good)] px-2 py-0.5 bg-[var(--status-good-bg)] rounded-[16px]">
-                        Solid
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-foreground/80">
-                  You are building foundational skills across these topics. Keep practising!
-                </p>
-              )}
+          {/* View Mode Switcher: Gap Report vs Before & After Growth Screen */}
+          <div className="flex items-center justify-between flex-wrap gap-3 pb-2 border-b border-border">
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => setActiveResultsTab("report")}
+                data-testid="tab-gap-report-btn"
+                className={`min-h-[44px] px-4 py-2 rounded-full font-bold text-xs sm:text-sm font-mono flex items-center gap-2 border transition-all cursor-pointer ${
+                  activeResultsTab === "report"
+                    ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                    : "bg-card text-foreground border-border hover:bg-muted"
+                }`}
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>{dict.viewReportCardsBtn || "View Gap Report"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveResultsTab("growth")}
+                data-testid="tab-growth-screen-btn"
+                className={`min-h-[44px] px-4 py-2 rounded-full font-bold text-xs sm:text-sm font-mono flex items-center gap-2 border transition-all cursor-pointer ${
+                  activeResultsTab === "growth"
+                    ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                    : "bg-card text-foreground border-border hover:bg-muted"
+                }`}
+              >
+                <TrendUp className="w-4 h-4" />
+                <span>{dict.viewGrowthBtn || "See Before/After Growth"}</span>
+                {hasRetested && (
+                  <span className="text-xs bg-amber-400 text-amber-950 font-black px-2 py-0.5 rounded-full">
+                    +Growth!
+                  </span>
+                )}
+              </button>
             </div>
 
-            {/* 2. What to Practise Next */}
-            <div className="p-4 sm:p-5 bg-card border border-primary/40 rounded-[16px] space-y-3">
-              <div className="flex items-center gap-2 text-primary font-bold text-base">
-                <Sparkle className="w-5 h-5 text-primary shrink-0" weight="fill" />
-                <span>Next Topics to Practise</span>
-              </div>
-              {gapTopics.length > 0 || devTopics.length > 0 ? (
-                <ul className="space-y-2">
-                  {[...gapTopics, ...devTopics].map((topicMem) => {
-                    const isGap = topicMem.status === "gap";
-                    return (
-                      <li
-                        key={topicMem.topicId}
-                        className="p-2.5 bg-[var(--surface)] border border-border rounded-[22px] shadow-warm-sm flex items-center justify-between text-sm font-bold text-foreground"
-                      >
-                        <span>{TOPIC_DISPLAY_NAMES[topicMem.topicId]?.en || topicMem.topicId}</span>
-                        <span
-                          className={`text-xs font-mono font-bold px-2 py-0.5 rounded-[16px] ${
-                            isGap
-                              ? "bg-primary/10 text-primary border border-primary/30"
-                              : "bg-[var(--status-warn-bg)] text-foreground border border-[var(--status-warn-border)]"
-                          }`}
-                        >
-                          {isGap ? "Needs Practice" : "Getting There"}
+            <span className="text-xs font-mono text-muted-foreground hidden sm:inline">
+              {activeResultsTab === "report"
+                ? "Skills Unlocked & Sleeping Action Plan"
+                : "Score Gains After Practice & Retest"}
+            </span>
+          </div>
+
+          {activeResultsTab === "report" ? (
+            /* ============================================================== */
+            /* TAB 1: REDESIGNED GAP REPORT (CARDS WITH ICONS & NEXT STEPS)   */
+            /* ============================================================== */
+            <div className="space-y-6">
+              {/* 1. Skills Unlocked & Skills Still Sleeping Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                {/* A. SKILLS UNLOCKED CARD SECTION */}
+                <div
+                  data-testid="skills-unlocked-section"
+                  className="p-4 sm:p-5 bg-card border border-[var(--status-good-border)] rounded-[20px] space-y-3.5 shadow-sm"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-[var(--status-good-bg)] text-[var(--status-good)] flex items-center justify-center shrink-0 border border-[var(--status-good-border)]">
+                      <LockKeyOpen className="w-4 h-4" weight="bold" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm sm:text-base font-bold text-foreground">
+                          {dict.skillsUnlocked || "Skills Unlocked"}
                         </span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : (
-                <p className="text-sm text-foreground/80">
-                  Great job! You demonstrated strong mastery on all topics assessed today.
-                </p>
-              )}
+                        <span className="text-xs text-muted-foreground font-medium">
+                          • What You Know Well
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {dict.skillsUnlockedSub || "Concepts you understand well and can use with confidence!"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {masteredTopics.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-2.5">
+                      {masteredTopics.map((topicMem) => {
+                        const tNameObj = TOPIC_DISPLAY_NAMES[topicMem.topicId];
+                        const tName = tNameObj ? tNameObj[lang] || tNameObj.en : topicMem.topicId;
+                        return (
+                          <div
+                            key={topicMem.topicId}
+                            data-testid={`unlocked-skill-card-${topicMem.topicId}`}
+                            className="p-3.5 bg-[var(--surface)] border border-[var(--status-good-border)]/60 rounded-[18px] space-y-2 shadow-xs transition-transform hover:-translate-y-0.5"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-muted border border-border text-foreground">
+                                Class {classConfig.grade}
+                              </span>
+                              <span className="text-xs font-mono font-bold text-[var(--status-good)] px-2 py-0.5 bg-[var(--status-good-bg)] border border-[var(--status-good-border)] rounded-full flex items-center gap-1">
+                                <Sparkle className="w-3 h-3 text-[var(--status-good)]" weight="fill" />
+                                <span>{dict.solidMastered || "Solid & Mastered"}</span>
+                              </span>
+                            </div>
+
+                            <div className="font-bold text-sm sm:text-base text-foreground">
+                              {tName}
+                            </div>
+
+                            <p className="text-xs text-muted-foreground">
+                              Strong understanding demonstrated! Ready for next-grade adventures.
+                            </p>
+
+                            {/* Mini Mastery Bar */}
+                            <div className="w-full bg-muted h-1.5 rounded-full overflow-hidden">
+                              <div className="bg-[var(--status-good)] h-full rounded-full w-full" />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-[var(--surface)] border border-border rounded-[18px] text-center space-y-1">
+                      <p className="text-xs sm:text-sm font-medium text-foreground">
+                        Every question is helping build your skills! Practice will unlock these soon.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* B. SKILLS STILL SLEEPING CARD SECTION */}
+                <div
+                  data-testid="skills-sleeping-section"
+                  className="p-4 sm:p-5 bg-card border border-amber-300 dark:border-amber-700/80 rounded-[20px] space-y-3.5 shadow-sm"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-200 flex items-center justify-center shrink-0 border border-amber-300 dark:border-amber-700">
+                      <Moon className="w-4 h-4" weight="fill" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm sm:text-base font-bold text-foreground">
+                          {dict.skillsSleeping || "Skills Still Sleeping"}
+                        </span>
+                        <span className="text-xs text-muted-foreground font-medium">
+                          • Next Topics to Practise
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {dict.skillsSleepingSub || "Gentle practice will awaken these skills step by step!"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {gapTopics.length > 0 || devTopics.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-2.5">
+                      {[...gapTopics, ...devTopics].map((topicMem) => {
+                        const tNameObj = TOPIC_DISPLAY_NAMES[topicMem.topicId];
+                        const tName = tNameObj ? tNameObj[lang] || tNameObj.en : topicMem.topicId;
+                        const isGap = topicMem.status === "gap";
+
+                        // Look up root prerequisite concept
+                        const firstConceptId =
+                          topicMem.attempts[0]?.conceptId ||
+                          getConceptForTopic(topicMem.topicId, classConfig.grade, boardPreference);
+                        const prereqId = getPrerequisiteForConcept(firstConceptId, topicMem.attempts[0]?.errorType);
+                        const prereqNode = getCurriculumConcept(prereqId, boardPreference) || getCurriculumConcept(prereqId);
+                        const prereqName = prereqNode?.name ? prereqNode.name[lang] || prereqNode.name.en : prereqId;
+
+                        return (
+                          <div
+                            key={topicMem.topicId}
+                            data-testid={`sleeping-skill-card-${topicMem.topicId}`}
+                            className="p-3.5 bg-[var(--surface)] border border-amber-300/60 dark:border-amber-700/60 rounded-[18px] space-y-2 shadow-xs transition-transform hover:-translate-y-0.5"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-muted border border-border text-foreground">
+                                Class {classConfig.grade}
+                              </span>
+                              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 flex items-center gap-1">
+                                <Moon className="w-3 h-3 text-amber-600 dark:text-amber-400" weight="fill" />
+                                <span>{dict.readyToAwaken || "Ready to awaken"}</span>
+                              </span>
+                            </div>
+
+                            <div className="font-bold text-sm sm:text-base text-foreground">
+                              {tName}
+                            </div>
+
+                            <p className="text-xs text-muted-foreground">
+                              Awaken first by reviewing: <strong className="text-foreground">{prereqName}</strong> (Class {prereqNode?.class || Math.max(1, classConfig.grade - 1)}).
+                            </p>
+
+                            {/* Mini Readiness Bar */}
+                            <div className="w-full bg-muted h-1.5 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full rounded-full ${
+                                  isGap ? "bg-amber-500 w-2/5" : "bg-amber-400 w-3/5"
+                                }`}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-[var(--surface)] border border-border rounded-[18px] text-center space-y-1">
+                      <p className="text-xs sm:text-sm font-medium text-foreground">
+                        All skills are active and awake! Wonderful mastery across all topics today.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* 2. Prescribed Next-Steps Growth Plan */}
+              <div
+                data-testid="prescribed-plan-section"
+                className="p-4 sm:p-6 bg-card border border-border rounded-[22px] space-y-4 shadow-sm"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-border">
+                  <div className="flex items-center gap-2">
+                    <Sparkle className="w-5 h-5 text-primary" weight="fill" />
+                    <h3 className="font-bold text-base sm:text-lg text-foreground">
+                      {dict.prescribedNextSteps || "Prescribed Next-Steps Growth Plan"}
+                    </h3>
+                  </div>
+                  <span className="text-xs font-mono text-muted-foreground">
+                    Positive 3-Step Action Plan
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {/* Step 1 Card */}
+                  <div className="p-4 rounded-[18px] bg-[var(--surface)] border border-border space-y-1.5">
+                    <span className="text-xs font-mono font-bold text-primary uppercase">
+                      01 • Hands-on Practice
+                    </span>
+                    <div className="font-bold text-sm text-foreground">
+                      {dict.step1Awaken || "Step 1: Awaken the Root Skill"}
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {dict.step1AwakenDesc || "Spend 5-10 minutes with physical counters or simple drawings on the sleeping foundation."}
+                    </p>
+                  </div>
+
+                  {/* Step 2 Card */}
+                  <div className="p-4 rounded-[18px] bg-[var(--surface)] border border-border space-y-1.5">
+                    <span className="text-xs font-mono font-bold text-primary uppercase">
+                      02 • Guided Connection
+                    </span>
+                    <div className="font-bold text-sm text-foreground">
+                      {dict.step2Bridge || "Step 2: Connect to Grade-Level Math"}
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {dict.step2BridgeDesc || "Solve 2-3 guided examples connecting the foundation to today's lesson."}
+                    </p>
+                  </div>
+
+                  {/* Step 3 Card */}
+                  <div className="p-4 rounded-[18px] bg-[var(--surface)] border border-border space-y-1.5">
+                    <span className="text-xs font-mono font-bold text-primary uppercase">
+                      03 • Celebrate & Check
+                    </span>
+                    <div className="font-bold text-sm text-foreground">
+                      {dict.step3Retest || "Step 3: Quick Retest & Celebrate Growth"}
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {dict.step3RetestDesc || "Take a gentle 3-question check to see your growth score climb and awaken the skill!"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Plan Interactive CTA Button */}
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <p className="text-xs text-muted-foreground">
+                    Ready to see your scores rise? Practice sleeping skills and view before/after growth.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleCompletePracticeAndRetest}
+                    disabled={isRetesting}
+                    data-testid="complete-practice-retest-btn"
+                    className="neo-btn neo-btn-primary min-h-[48px] px-6 text-sm font-bold flex items-center justify-center gap-2 rounded-full w-full sm:w-auto cursor-pointer shadow-warm"
+                  >
+                    <TrendUp className="w-4 h-4 text-primary-foreground" />
+                    <span>
+                      {isRetesting
+                        ? "Simulating Practice & Retest..."
+                        : (dict.completePracticeAndRetest || "Complete Practice & Retest")}
+                    </span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
+          ) : (
+            /* ============================================================== */
+            /* TAB 2: BEFORE / AFTER GROWTH SCREEN (ANIMATED PROGRESS BARS)   */
+            /* ============================================================== */
+            <div
+              data-testid="growth-screen-section"
+              className="p-4 sm:p-6 bg-card border border-border rounded-[22px] space-y-6 shadow-sm"
+            >
+              {/* Celebratory Growth Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-[18px] bg-primary/5 dark:bg-primary/10 border border-primary/20">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/30">
+                    <TrendUp className="w-5 h-5 text-primary" weight="bold" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base sm:text-lg text-foreground">
+                      {dict.growthScreenTitle || "Before & After Growth"}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-foreground/80">
+                      {dict.growthScreenSub || "Look how much you grew! Every bit of practice makes you stronger."}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Growth Metric Badge */}
+                <div className="flex items-center gap-2 self-start sm:self-center">
+                  <span className="text-xs font-mono font-bold bg-[var(--status-good-bg)] text-[var(--status-good)] px-3 py-1.5 rounded-full border border-[var(--status-good-border)] flex items-center gap-1">
+                    <Sparkle className="w-3.5 h-3.5" weight="fill" />
+                    <span>+38% Average Growth Gain</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Skills Growth Comparison Cards */}
+              <div className="space-y-4">
+                <span className="editorial-meta text-foreground">
+                  SCORE CHANGE & AWAKENED SKILLS
+                </span>
+
+                <div className="grid grid-cols-1 gap-3">
+                  {growthSkills.map((skill) => (
+                    <div
+                      key={skill.topicId}
+                      data-testid={`growth-card-${skill.topicId}`}
+                      className="p-4 rounded-[18px] bg-[var(--surface)] border border-border space-y-3 shadow-xs"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-sm sm:text-base text-foreground">
+                            {skill.topicName}
+                          </span>
+                          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-muted border border-border text-foreground">
+                            Class {classConfig.grade}
+                          </span>
+                        </div>
+
+                        {/* Growth Gain Badge */}
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-[var(--status-good-bg)] text-[var(--status-good)] border border-[var(--status-good-border)] flex items-center gap-1">
+                            <TrendUp className="w-3 h-3" weight="bold" />
+                            <span>+{skill.gain}% {dict.skillGrowthGain || "Gain"}</span>
+                          </span>
+                          {skill.isSleeping && (
+                            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700">
+                              {dict.skillAwakened || "Skill Awakened!"} ⭐
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Before vs After Scores */}
+                      <div className="flex items-center justify-between text-xs font-mono text-muted-foreground flex-wrap gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-semibold">{dict.beforePractice || "Before Practice"}:</span>
+                          <span className="font-bold text-foreground">{skill.beforeScore}%</span>
+                          <span className="text-muted-foreground">({skill.statusBefore})</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-semibold">{dict.afterRetest || "After Retest"}:</span>
+                          <span className="font-bold text-[var(--status-good)]">{skill.afterScore}%</span>
+                          <span className="text-[var(--status-good)]">({skill.statusAfter})</span>
+                        </div>
+                      </div>
+
+                      {/* Animated Dual Progress Bar */}
+                      <div
+                        data-testid={`growth-bar-${skill.topicId}`}
+                        className="w-full bg-muted h-3.5 rounded-full overflow-hidden relative flex"
+                      >
+                        {/* Base Before Score Segment */}
+                        <div
+                          className="bg-muted-foreground/35 h-full transition-all duration-700"
+                          style={{ width: `${skill.beforeScore}%` }}
+                          title={`Before: ${skill.beforeScore}%`}
+                        />
+                        {/* Animated Growth Gain Segment */}
+                        <div
+                          className="bg-[var(--status-good)] h-full transition-all duration-1000 ease-out animate-pulse"
+                          style={{ width: `${skill.gain}%` }}
+                          title={`Gain: +${skill.gain}%`}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between text-[12px] font-mono text-muted-foreground">
+                        <span>0%</span>
+                        <span>Before: {skill.beforeScore}%</span>
+                        <span className="text-[var(--status-good)] font-bold">Retest: {skill.afterScore}%</span>
+                        <span>100%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action: Switch Back to Full Report */}
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border">
+                <button
+                  type="button"
+                  onClick={() => setActiveResultsTab("report")}
+                  className="neo-btn neo-btn-secondary min-h-[48px] px-5 text-sm font-bold flex items-center justify-center gap-2 rounded-full w-full sm:w-auto cursor-pointer"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  <span>{dict.viewReportCardsBtn || "View Gap Report"}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsWorksheetOpen(true)}
+                  className="neo-btn neo-btn-primary min-h-[48px] px-6 text-sm font-bold flex items-center justify-center gap-2 rounded-full w-full sm:w-auto cursor-pointer"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>Print Practice Worksheet</span>
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Direct Verified NCERT Textbook Chapter Recommendations (Zero Jargon) */}
           {recommendations.length > 0 && (
@@ -1210,7 +2171,7 @@ export function AdaptiveAssessmentView({
             </div>
           )}
 
-          {/* Action Buttons */}
+            {/* Action Buttons */}
           <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border">
             <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
               <button
@@ -1240,14 +2201,17 @@ export function AdaptiveAssessmentView({
               )}
             </div>
 
-            {isGuest ? (
-              <a
-                href="/login?redirect=/app"
-                className="neo-btn neo-btn-primary min-h-[48px] px-6 text-sm font-bold flex items-center justify-center gap-2 rounded-full w-full sm:w-auto text-center cursor-pointer"
+            {isGuest || isDemoModeState ? (
+              <button
+                type="button"
+                onClick={() => setIsDiagnosticModalOpen(true)}
+                data-testid="view-full-report-btn"
+                className="neo-btn neo-btn-primary min-h-[48px] px-6 text-sm font-bold flex items-center justify-center gap-2 rounded-full w-full sm:w-auto cursor-pointer bg-primary text-primary-foreground shadow-warm"
               >
-                <span>Teacher Sign In to Save</span>
+                <BookOpen className="w-4 h-4" />
+                <span>{dict.viewReportBtn || "View Diagnostic Report"}</span>
                 <ArrowRight className="w-4 h-4" />
-              </a>
+              </button>
             ) : (
               <button
                 type="button"
@@ -1261,6 +2225,24 @@ export function AdaptiveAssessmentView({
             )}
           </div>
 
+          {/* Modal for Full Student Diagnostic Report */}
+          {activeStudent && (
+            <StudentDiagnosticModal
+              data={activeStudent}
+              isOpen={isDiagnosticModalOpen}
+              onClose={() => setIsDiagnosticModalOpen(false)}
+              onStartReassessment={() => {
+                setIsDiagnosticModalOpen(false);
+                clearSavedSession();
+                handleStart();
+              }}
+              onPrintWorksheet={() => {
+                setIsDiagnosticModalOpen(false);
+                setIsWorksheetOpen(true);
+              }}
+            />
+          )}
+
           {/* Modal for Printable Practice Worksheet */}
           {activeStudent && (
             <WorksheetModal
@@ -1268,6 +2250,174 @@ export function AdaptiveAssessmentView({
               isOpen={isWorksheetOpen}
               onClose={() => setIsWorksheetOpen(false)}
             />
+          )}
+
+          {/* Modal for Read-Only Gap Report Sharing */}
+          {isShareModalOpen && (
+            <div
+              data-testid="share-report-modal"
+              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-fade-in"
+              onClick={() => setIsShareModalOpen(false)}
+            >
+              <div
+                className="bg-card border border-border w-full max-w-lg rounded-[24px] p-5 sm:p-7 shadow-xl space-y-5 relative"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Modal Header */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/20">
+                      <ShareNetwork className="w-5 h-5 text-primary" weight="bold" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-base sm:text-lg text-foreground">
+                        {dict.shareReportModalTitle || "Share Student Gap Report"}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {dict.shareReportModalSub || "Creates a private, read-only link valid for 14 days. Only first name and skills are shown to protect privacy."}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsShareModalOpen(false)}
+                    data-testid="close-share-modal-btn"
+                    className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer transition-colors"
+                    aria-label="Close"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {shareError && (
+                  <div className="p-3 rounded-[14px] bg-red-100 dark:bg-red-950/60 border border-red-300 dark:border-red-800 text-xs text-red-900 dark:text-red-200">
+                    {shareError}
+                  </div>
+                )}
+
+                {isGeneratingShareLink ? (
+                  <div className="py-8 flex flex-col items-center justify-center gap-3">
+                    <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                    <span className="text-xs font-mono text-muted-foreground">
+                      {dict.generatingLink || "Creating link..."}
+                    </span>
+                  </div>
+                ) : isShareLinkRevoked ? (
+                  <div className="p-4 rounded-[18px] bg-muted/60 border border-border space-y-3 text-center">
+                    <span className="text-xs font-mono font-bold text-red-600 dark:text-red-400 uppercase">
+                      {dict.linkRevoked || "Link Revoked"}
+                    </span>
+                    <p className="text-xs text-muted-foreground">
+                      {dict.linkRevokedDesc || "This report link is now deactivated and can no longer be viewed."}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleGenerateShareLink}
+                      className="neo-btn neo-btn-primary min-h-[44px] px-4 text-xs font-bold rounded-full cursor-pointer"
+                    >
+                      {dict.createShareLink || "Generate Share Link"}
+                    </button>
+                  </div>
+                ) : shareTokenData ? (
+                  <div className="space-y-4">
+                    {/* Readonly Link Box */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-mono font-bold uppercase text-muted-foreground">
+                        {dict.shareReportBtn || "Share Report"} Link (14 Days)
+                      </label>
+                      <div className="flex items-center gap-2 bg-muted/70 border border-border rounded-[14px] p-2 sm:p-2.5">
+                        <input
+                          type="text"
+                          readOnly
+                          value={shareTokenData.shareUrl}
+                          data-testid="share-link-input"
+                          className="bg-transparent text-xs font-mono text-foreground flex-1 outline-hidden select-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleCopyShareLink}
+                          data-testid="modal-copy-link-btn"
+                          className="min-h-[44px] px-3 bg-card border border-border hover:bg-muted text-foreground text-xs font-mono rounded-[10px] flex items-center gap-1.5 cursor-pointer shrink-0 font-bold"
+                        >
+                          {shareLinkCopied ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-emerald-600" weight="bold" />
+                              <span className="text-emerald-600 font-bold">{dict.linkCopied || "Link Copied!"}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>{dict.copyLink || "Copy Link"}</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons: WhatsApp & Revoke */}
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
+                      {(() => {
+                        const studentFirstName = (activeStudent?.student?.name || "Learner").trim().split(/\s+/)[0] || "Learner";
+                        const whatsAppText =
+                          lang === "hi"
+                            ? `यहाँ शिक्षागैप पर ${studentFirstName} की कक्षा ${classConfig.grade} की गणित सीख रिपोर्ट है: ${shareTokenData.shareUrl}\nघर पर अभ्यास के लिए खुले हुए कौशल और आसान अगले कदम देखें!`
+                            : lang === "te"
+                            ? `ఇక్కడ శిక్షాగ్యాప్‌లో ${studentFirstName} యొక్క ${classConfig.grade}వ తరగతి గణిత అభ్యసన నివేదిక ఉంది: ${shareTokenData.shareUrl}\nఇంట్లో సాధన చేయడానికి అన్‌లాక్ అయిన నైపుణ్యాలు మరియు సులభమైన తదుపరి దశలను చూడండి!`
+                            : `Here is ${studentFirstName}'s Class ${classConfig.grade} Maths Learning Gap Report on ShikshaGap: ${shareTokenData.shareUrl}\nSee unlocked skills and gentle next steps to practice at home!`;
+                        const whatsAppUrl = `https://wa.me/?text=${encodeURIComponent(whatsAppText)}`;
+                        return (
+                          <a
+                            href={whatsAppUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            data-testid="modal-whatsapp-share-btn"
+                            className="min-h-[44px] px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 rounded-full border border-emerald-700 transition-colors cursor-pointer shadow-xs"
+                          >
+                            <WhatsappLogo className="w-5 h-5" weight="fill" />
+                            <span>{dict.shareViaWhatsApp || "Share on WhatsApp"}</span>
+                          </a>
+                        );
+                      })()}
+
+                      <button
+                        type="button"
+                        onClick={handleRevokeShareLink}
+                        disabled={isRevokingShareLink}
+                        data-testid="modal-revoke-link-btn"
+                        className="min-h-[44px] px-3.5 py-2 text-xs font-mono text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-full flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                      >
+                        <Trash className="w-3.5 h-3.5" />
+                        <span>
+                          {isRevokingShareLink ? "Revoking..." : (dict.revokeLink || "Revoke Link")}
+                        </span>
+                      </button>
+                    </div>
+
+                    {/* Privacy Footnote */}
+                    <p className="text-xs text-muted-foreground border-t border-border/80 pt-3 flex items-center gap-1.5">
+                      <span className="font-bold text-primary font-mono text-xs">SHIKSHAGAP PRIVACY:</span>
+                      <span>
+                        {dict.linkExpiresNotice || "Private link expires in 14 days. No surname, school, or contact info is shared."}
+                      </span>
+                    </p>
+                  </div>
+                ) : (
+                  <div className="py-4 text-center space-y-3">
+                    <p className="text-xs text-muted-foreground">
+                      {dict.linkExpiresNotice || "Private link expires in 14 days. No surname, school, or contact info is shared."}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleGenerateShareLink}
+                      data-testid="generate-share-link-btn"
+                      className="neo-btn neo-btn-primary min-h-[48px] px-6 text-sm font-bold rounded-full w-full cursor-pointer shadow-warm"
+                    >
+                      {dict.createShareLink || "Generate Share Link"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
         </div>
       ) : (
@@ -1282,6 +2432,15 @@ export function AdaptiveAssessmentView({
                 <span className="text-xs font-mono uppercase font-bold text-muted-foreground">
                   {classConfig.label.toUpperCase()}
                 </span>
+                {isDemoModeState && (
+                  <span
+                    data-testid="active-demo-mode-badge"
+                    className="inline-flex items-center gap-1 text-xs font-mono uppercase px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 font-bold"
+                  >
+                    <Sparkle className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" weight="fill" />
+                    <span>{dict.demoModeBadge || "Demo mode"}</span>
+                  </span>
+                )}
                 <span className="text-xs text-muted-foreground">•</span>
                 <span className="text-xs font-mono font-bold text-primary">
                   {currentTopicName}
@@ -1384,6 +2543,377 @@ export function AdaptiveAssessmentView({
                 />
               </div>
             </div>
+          </div>
+
+          {/* Gappu Mascot & Consecutive Star Streak Companion */}
+          <div
+            data-testid="gappu-companion-banner"
+            className="bg-[var(--surface)] border border-border rounded-[22px] shadow-warm-sm p-3.5 sm:p-4 flex items-center justify-between gap-3"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              {/* Interactive Gappu Owl Avatar */}
+              <div
+                className="relative shrink-0 w-16 h-20 sm:w-20 sm:h-24 flex items-center justify-center cursor-pointer select-none"
+                title={`${dict.gappuName || "Gappu"} - ${dict.appName}`}
+                role="button"
+                tabIndex={0}
+                aria-label={`${dict.gappuName || "Gappu"} owl mascot`}
+                onClick={() => {
+                  setGappuState((prev) => (prev === "success" ? "idle" : "success"));
+                }}
+              >
+                <Gappu
+                  width={76}
+                  height={92}
+                  state={gappuState}
+                  showSpeechBubble={false}
+                  enableEyeTracking={true}
+                  enableClickReactions={false}
+                />
+              </div>
+
+              {/* Gappu Message & Live Reaction */}
+              <div className="flex flex-col justify-center min-w-0 space-y-0.5">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-xs font-bold text-primary flex items-center gap-1">
+                    <Sparkle className="w-3.5 h-3.5 text-amber-500 fill-amber-500" weight="fill" />
+                    <span>{dict.gappuName || "Gappu"}</span>
+                  </span>
+                  {feedback && (
+                    <span
+                      data-testid="gappu-reaction-badge"
+                      className={`text-xs px-2 py-0.5 rounded-full font-bold ${
+                        feedback.isCorrect
+                          ? "bg-[var(--status-good-bg)] text-[var(--status-good)] border border-[var(--status-good-border)]"
+                          : "bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700"
+                      }`}
+                    >
+                      {feedback.isCorrect ? "⭐ Super!" : "✨ Encouragement"}
+                    </span>
+                  )}
+                </div>
+
+                <p
+                  data-testid="gappu-speech-bubble"
+                  className="text-xs sm:text-sm font-medium text-foreground leading-snug"
+                >
+                  {gappuMessage || dict.gappuThinkingPrompt || "Take your time. You can do this!"}
+                </p>
+              </div>
+            </div>
+
+            {/* Star / Consecutive Streak Meter */}
+            <div
+              data-testid="star-streak-meter"
+              className={`shrink-0 flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 rounded-2xl border transition-all duration-300 ${
+                streak > 0
+                  ? "bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 shadow-sm"
+                  : "bg-muted/40 border-border"
+              }`}
+            >
+              <div className="flex items-center gap-1.5">
+                <Star
+                  className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform ${
+                    streak > 0 ? "text-amber-500 fill-amber-500 scale-110 animate-bounce" : "text-muted-foreground/40"
+                  }`}
+                  weight={streak > 0 ? "fill" : "regular"}
+                />
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm sm:text-base font-black text-foreground">
+                      {streak}
+                    </span>
+                    <span className="text-xs font-bold text-muted-foreground">
+                      {dict.streakLabel || "Streak"}
+                    </span>
+                  </div>
+                  {streak >= 2 && (
+                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400 leading-none">
+                      {streak} {dict.streakCount || "in a row!"}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Visual Stars up to 5 */}
+              <div className="hidden md:flex items-center gap-1 pl-2 border-l border-border/60">
+                {[1, 2, 3, 4, 5].map((starNum) => (
+                  <Star
+                    key={starNum}
+                    className={`w-3.5 h-3.5 transition-all duration-200 ${
+                      streak >= starNum
+                        ? "text-amber-500 fill-amber-500 scale-110 drop-shadow-sm"
+                        : "text-muted-foreground/25"
+                    }`}
+                    weight={streak >= starNum ? "fill" : "regular"}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Collapsible "See how Gappu thinks" Live Agent Reasoning & Prerequisite Trace Panel */}
+          <div
+            data-testid="gappu-thinking-panel"
+            className="bg-[var(--surface)] border border-border rounded-[22px] shadow-warm-sm overflow-hidden transition-all duration-200"
+          >
+            {/* Panel Toggle Header */}
+            <button
+              type="button"
+              onClick={() => setShowGappuThinking((prev) => !prev)}
+              aria-expanded={showGappuThinking}
+              aria-controls="gappu-thinking-content"
+              data-testid="toggle-gappu-thinking-btn"
+              className="w-full min-h-[48px] px-4 py-3 flex items-center justify-between gap-3 text-left hover:bg-muted/40 transition-colors cursor-pointer select-none"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/20">
+                  <Brain className="w-4 h-4 animate-pulse" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-bold text-sm text-foreground">
+                      {dict.seeHowGappuThinks || "See how Gappu thinks"}
+                    </span>
+                    <span className="text-xs px-2 py-0.5 rounded-full font-mono font-bold bg-primary/15 text-primary border border-primary/25">
+                      Live
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {dict.seeHowGappuThinksSub || "Live diagnostic reasoning & prerequisite trace"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xs font-mono text-muted-foreground hidden sm:inline">
+                  {showGappuThinking ? (dict.hideDetails || "Hide") : (dict.showDetails || "View")}
+                </span>
+                <div
+                  className={`w-7 h-7 rounded-full bg-muted flex items-center justify-center text-foreground transition-transform duration-200 ${
+                    showGappuThinking ? "rotate-180" : ""
+                  }`}
+                >
+                  <CaretDown className="w-4 h-4" weight="bold" />
+                </div>
+              </div>
+            </button>
+
+            {/* Collapsible Content */}
+            {showGappuThinking && (
+              <div
+                id="gappu-thinking-content"
+                data-testid="gappu-thinking-content"
+                className="p-4 sm:p-5 pt-2 space-y-4 border-t border-border/80 bg-card/40"
+              >
+                {/* 1. Live Current Topic & Topic Switcher */}
+                <div
+                  data-testid="active-topic-display"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-card border border-border rounded-[18px]"
+                >
+                  <div className="space-y-0.5">
+                    <span className="text-xs font-mono uppercase font-bold text-muted-foreground flex items-center gap-1.5">
+                      <Sparkle className="w-3.5 h-3.5 text-primary" weight="fill" />
+                      <span>{dict.gappuActiveTopic || "Active Topic"}</span>
+                    </span>
+                    <div className="font-bold text-base text-foreground flex items-center gap-2 flex-wrap">
+                      <span>{currentTopicName}</span>
+                      <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                        Class {classConfig.grade}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Topic tabs to inspect trace of any topic in session */}
+                  {sessionMemory?.topics && sessionMemory.topics.length > 0 && (
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {sessionMemory.topics.map((t) => {
+                        const tNameObj = TOPIC_DISPLAY_NAMES[t.topicId];
+                        const tName = tNameObj ? tNameObj[lang] || tNameObj.en : t.topicId;
+                        const isTarget = (selectedTraceTopicId || currentTopicId) === t.topicId;
+                        return (
+                          <button
+                            key={t.topicId}
+                            type="button"
+                            onClick={() => setSelectedTraceTopicId(t.topicId)}
+                            data-testid={`trace-topic-pill-${t.topicId}`}
+                            className={`min-h-[36px] px-3 py-1 text-xs font-mono font-bold rounded-[14px] border transition-all cursor-pointer ${
+                              isTarget
+                                ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                                : "bg-card text-foreground border-border hover:bg-muted"
+                            }`}
+                          >
+                            {tName}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. Agent's Confidence Per Topic */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono uppercase font-bold text-foreground">
+                      {dict.gappuConfidenceLabel || "Confidence"} ({dict.tabOverview || "Per Topic"})
+                    </span>
+                    <span className="text-xs font-mono text-muted-foreground">
+                      {topicConfidences.filter((t) => t.status !== "pending").length} / {topicConfidences.length} {dict.statusMastered || "Evaluated"}
+                    </span>
+                  </div>
+
+                  <div
+                    data-testid="topic-confidences-grid"
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-2.5"
+                  >
+                    {topicConfidences.map((tc) => (
+                      <div
+                        key={tc.topicId}
+                        data-testid={`confidence-card-${tc.topicId}`}
+                        className={`p-3 rounded-[16px] border space-y-2 transition-all ${
+                          tc.isCurrent
+                            ? "bg-primary/5 border-primary/40 shadow-sm"
+                            : "bg-card border-border"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            {tc.isCurrent && (
+                              <span className="w-2 h-2 rounded-full bg-primary animate-ping shrink-0" />
+                            )}
+                            <span className="font-bold text-sm text-foreground truncate">
+                              {tc.topicName}
+                            </span>
+                          </div>
+                          <span
+                            className={`text-xs font-mono font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                              tc.status === "mastered"
+                                ? "bg-[var(--status-good-bg)] text-[var(--status-good)] border border-[var(--status-good-border)]"
+                                : tc.status === "gap"
+                                ? "bg-primary/10 text-primary border border-primary/30"
+                                : tc.status === "developing"
+                                ? "bg-[var(--status-warn-bg)] text-foreground border border-[var(--status-warn-border)]"
+                                : "bg-muted text-muted-foreground border border-border"
+                            }`}
+                          >
+                            {tc.statusLabel}
+                          </span>
+                        </div>
+
+                        {/* Confidence Progress Bar */}
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-xs font-mono text-muted-foreground">
+                            <span>{dict.gappuConfidenceLabel || "Confidence"}</span>
+                            <span className="font-bold text-foreground">{tc.confidence}%</span>
+                          </div>
+                          <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-500 ${
+                                tc.status === "mastered"
+                                  ? "bg-[var(--status-good)]"
+                                  : tc.status === "gap"
+                                  ? "bg-primary"
+                                  : tc.status === "developing"
+                                  ? "bg-amber-500"
+                                  : "bg-primary/60"
+                              }`}
+                              style={{ width: `${tc.confidence}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. Prerequisite Trace Timeline / Animated Path */}
+                <div
+                  data-testid="prereq-trace-timeline"
+                  className="space-y-3 pt-2 border-t border-border/80"
+                >
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="flex items-center gap-2">
+                      <TreeStructure className="w-4 h-4 text-primary" />
+                      <span className="text-xs font-mono uppercase font-bold text-foreground">
+                        {dict.gappuPrereqTrace || "Prerequisite Trace Timeline"}
+                      </span>
+                    </div>
+                    <span className="text-xs font-mono text-muted-foreground">
+                      {prereqTrace.topicName}
+                    </span>
+                  </div>
+
+                  {/* Summary Narrative Banner */}
+                  {prereqTrace.summary && (
+                    <div
+                      data-testid="prereq-trace-summary"
+                      className="p-3 rounded-[16px] bg-muted/60 border border-border text-xs sm:text-sm font-medium text-foreground flex items-center gap-2"
+                    >
+                      <Sparkle className="w-4 h-4 text-primary shrink-0" weight="fill" />
+                      <span>{prereqTrace.summary}</span>
+                    </div>
+                  )}
+
+                  {/* Animated Path / Timeline Nodes */}
+                  <div
+                    data-testid="prereq-trace-nodes-container"
+                    className="relative flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pt-1"
+                  >
+                    {prereqTrace.nodes.map((node, nIdx) => (
+                      <div
+                        key={node.id}
+                        data-testid={`prereq-node-${node.id}`}
+                        className="relative flex-1 flex flex-col p-3.5 rounded-[18px] border bg-card shadow-sm transition-all duration-300"
+                        style={{
+                          borderColor:
+                            node.status === "gap_isolated"
+                              ? "var(--primary)"
+                              : node.status === "solid"
+                              ? "var(--status-good)"
+                              : node.status === "struggled"
+                              ? "var(--primary)"
+                              : "var(--border)",
+                        }}
+                      >
+                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-muted border border-border text-foreground">
+                            Class {node.grade}
+                          </span>
+                          <span
+                            className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                              node.status === "gap_isolated"
+                                ? "bg-primary text-primary-foreground animate-pulse"
+                                : node.status === "solid"
+                                ? "bg-[var(--status-good-bg)] text-[var(--status-good)] border border-[var(--status-good-border)]"
+                                : node.status === "struggled"
+                                ? "bg-primary/10 text-primary border border-primary/30"
+                                : "bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 animate-pulse"
+                            }`}
+                          >
+                            {node.badgeText}
+                          </span>
+                        </div>
+
+                        <div className="font-bold text-sm text-foreground mb-1 leading-snug">
+                          {node.name}
+                        </div>
+
+                        <p className="text-xs text-muted-foreground leading-normal mt-auto">
+                          {node.description}
+                        </p>
+
+                        {/* Connector Arrow for desktop */}
+                        {nIdx < prereqTrace.nodes.length - 1 && (
+                          <div className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-card border border-border items-center justify-center text-primary shadow-sm">
+                            <ArrowRight className="w-3.5 h-3.5" weight="bold" />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Calm Loading State */}
@@ -1604,7 +3134,7 @@ export function AdaptiveAssessmentView({
                       {feedback.isCorrect ? (
                         <CheckCircle className="w-6 h-6 shrink-0 text-[var(--status-good)]" />
                       ) : (
-                        <WarningCircle className="w-6 h-6 shrink-0 text-[var(--status-warn)]" />
+                        <Sparkle className="w-6 h-6 shrink-0 text-amber-500 fill-amber-500" weight="fill" />
                       )}
                       <span className="text-base sm:text-lg font-bold text-foreground">
                         {feedback.message}

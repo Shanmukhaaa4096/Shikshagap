@@ -9,6 +9,67 @@ export interface Dict {
   badgeGovtSchool: string;
   demoBadge: string;
   resetDemo: string;
+  tryAsStudent: string;
+  demoModeBadge: string;
+  demoStudentLabel: string;
+  viewReportBtn: string;
+  streakLabel: string;
+  streakCount: string;
+  gappuName: string;
+  gappuCheer1: string;
+  gappuCheer2: string;
+  gappuCheer3: string;
+  gappuCheerStreak: string;
+  gappuEncouragement1: string;
+  gappuEncouragement2: string;
+  gappuEncouragement3: string;
+  gappuThinkingPrompt: string;
+  seeHowGappuThinks: string;
+  seeHowGappuThinksSub: string;
+  gappuActiveTopic: string;
+  gappuConfidenceLabel: string;
+  gappuPrereqTrace: string;
+  gappuNoGapsTrace: string;
+  gappuCheckingPrereq: string;
+  gappuGapIsolated: string;
+  gappuPrereqSolid: string;
+  gappuTopicPending: string;
+  gappuTopicAssessing: string;
+  skillsUnlocked: string;
+  skillsUnlockedSub: string;
+  skillsSleeping: string;
+  skillsSleepingSub: string;
+  readyToAwaken: string;
+  solidMastered: string;
+  prescribedNextSteps: string;
+  step1Awaken: string;
+  step1AwakenDesc: string;
+  step2Bridge: string;
+  step2BridgeDesc: string;
+  step3Retest: string;
+  step3RetestDesc: string;
+  growthScreenTitle: string;
+  growthScreenSub: string;
+  beforePractice: string;
+  afterRetest: string;
+  skillGrowthGain: string;
+  skillAwakened: string;
+  viewGrowthBtn: string;
+  viewReportCardsBtn: string;
+  completePracticeAndRetest: string;
+  shareReportBtn: string;
+  shareReportModalTitle: string;
+  shareReportModalSub: string;
+  shareViaWhatsApp: string;
+  copyLink: string;
+  linkCopied: string;
+  revokeLink: string;
+  linkRevoked: string;
+  linkRevokedDesc: string;
+  linkExpiresNotice: string;
+  createShareLink: string;
+  generatingLink: string;
+  onlyAssessmentSessionCanShare: string;
   teacherView: string;
   studentView: string;
   schoolName: string;
@@ -209,6 +270,67 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     badgeGovtSchool: "Foundational Primary School",
     demoBadge: "Demo: Classes 3 to 5",
     resetDemo: "Reset Demo",
+    tryAsStudent: "Try as a student",
+    demoModeBadge: "Demo mode",
+    demoStudentLabel: "Class 5 Student (Ravi Kumar)",
+    viewReportBtn: "View Diagnostic Report",
+    streakLabel: "Streak",
+    streakCount: "in a row!",
+    gappuName: "Gappu",
+    gappuCheer1: "Hoo-ray! Brilliant thinking!",
+    gappuCheer2: "Super star! You got it right!",
+    gappuCheer3: "Wonderful! Keep shining!",
+    gappuCheerStreak: "in a row! You are flying high!",
+    gappuEncouragement1: "Almost! Let's try it another way.",
+    gappuEncouragement2: "Great try! Every question helps us learn.",
+    gappuEncouragement3: "Good effort! We are learning together.",
+    gappuThinkingPrompt: "Take your time. You can do this!",
+    seeHowGappuThinks: "See how Gappu thinks",
+    seeHowGappuThinksSub: "Live diagnostic reasoning & prerequisite trace",
+    gappuActiveTopic: "Active Topic",
+    gappuConfidenceLabel: "Confidence",
+    gappuPrereqTrace: "Prerequisite Trace Timeline",
+    gappuNoGapsTrace: "Demonstrating mastery at grade level. No foundational gaps detected.",
+    gappuCheckingPrereq: "Stepping back to check prerequisite",
+    gappuGapIsolated: "Found foundational gap in",
+    gappuPrereqSolid: "Prerequisite verified strong",
+    gappuTopicPending: "Pending check",
+    gappuTopicAssessing: "Assessing now",
+    skillsUnlocked: "Skills Unlocked",
+    skillsUnlockedSub: "What you understand well and can use with confidence!",
+    skillsSleeping: "Skills Still Sleeping",
+    skillsSleepingSub: "Gentle practice will awaken these skills step by step!",
+    readyToAwaken: "Ready to awaken",
+    solidMastered: "Solid & Mastered",
+    prescribedNextSteps: "Prescribed Next-Steps Growth Plan",
+    step1Awaken: "Step 1: Awaken the Root Skill",
+    step1AwakenDesc: "Spend 5-10 minutes with physical counters or simple drawings on the sleeping foundation.",
+    step2Bridge: "Step 2: Connect to Grade-Level Math",
+    step2BridgeDesc: "Solve 2-3 guided examples connecting the foundation to today's lesson.",
+    step3Retest: "Step 3: Quick Retest & Celebrate Growth",
+    step3RetestDesc: "Take a gentle 3-question check to see your growth score climb and awaken the skill!",
+    growthScreenTitle: "Before & After Growth",
+    growthScreenSub: "Look how much you grew! Every bit of practice makes you stronger.",
+    beforePractice: "Before Practice",
+    afterRetest: "After Retest",
+    skillGrowthGain: "Growth Gain",
+    skillAwakened: "Skill Awakened!",
+    viewGrowthBtn: "See Before/After Growth",
+    viewReportCardsBtn: "View Gap Report",
+    completePracticeAndRetest: "Complete Practice & Retest",
+    shareReportBtn: "Share Report",
+    shareReportModalTitle: "Share Student Gap Report",
+    shareReportModalSub: "Creates a private, read-only link valid for 14 days. Only first name and skills are shown to protect privacy.",
+    shareViaWhatsApp: "Share on WhatsApp",
+    copyLink: "Copy Link",
+    linkCopied: "Link Copied!",
+    revokeLink: "Revoke Link",
+    linkRevoked: "Link Revoked",
+    linkRevokedDesc: "This report link is now deactivated and can no longer be viewed.",
+    linkExpiresNotice: "Private link expires in 14 days. No surname, school, or contact info is shared.",
+    createShareLink: "Generate Share Link",
+    generatingLink: "Creating link...",
+    onlyAssessmentSessionCanShare: "Only the session that completed this assessment can create or manage its share link.",
     teacherView: "Teacher Dashboard",
     studentView: "Student Assessment",
     schoolName: "MPPS Primary School",
@@ -289,8 +411,8 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     selectOption: "Choose an answer:",
     enterAnswer: "Type your answer...",
     yourAnswer: "Your Answer:",
-    correctFeedback: "Correct answer.",
-    incorrectFeedback: "Needs practice with this step.",
+    correctFeedback: "Super! That is right.",
+    incorrectFeedback: "Almost! Let's try it another way.",
     assessmentComplete: "Learning Check Complete!",
     viewReport: "See Learning Report and Plan",
 
@@ -395,6 +517,67 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     badgeGovtSchool: "बुनियादी प्राथमिक विद्यालय",
     demoBadge: "डेमो: कक्षा 3 से 5",
     resetDemo: "डेमो रीसेट करें",
+    tryAsStudent: "छात्र के रूप में आज़माएं",
+    demoModeBadge: "डेमो मोड",
+    demoStudentLabel: "कक्षा 5 छात्र (रवि कुमार)",
+    viewReportBtn: "सीख रिपोर्ट देखें",
+    streakLabel: "लगातार सही",
+    streakCount: "लगातार!",
+    gappuName: "गप्पू",
+    gappuCheer1: "शाबाश! शानदार सोच!",
+    gappuCheer2: "सुपरस्टार! आपने बिल्कुल सही किया!",
+    gappuCheer3: "बहुत बढ़िया! ऐसे ही चमकते रहो!",
+    gappuCheerStreak: "लगातार सही! आप कमाल कर रहे हैं!",
+    gappuEncouragement1: "लगभग हो गया! आइए इसे दूसरे तरीके से समझें।",
+    gappuEncouragement2: "शानदार कोशिश! हर सवाल हमें नया सिखाता है।",
+    gappuEncouragement3: "अच्छा प्रयास! हम मिलकर सीख रहे हैं।",
+    gappuThinkingPrompt: "आराम से सोचिए। आप यह कर सकते हैं!",
+    seeHowGappuThinks: "देखें कि गप्पू कैसे सोचता है",
+    seeHowGappuThinksSub: "लाइव नैदानिक सोच और बुनियादी कौशल की पड़ताल",
+    gappuActiveTopic: "सक्रिय विषय",
+    gappuConfidenceLabel: "विश्वास स्तर",
+    gappuPrereqTrace: "पूर्व-आवश्यकता ट्रेस समयरेखा",
+    gappuNoGapsTrace: "कक्षा स्तर पर दक्षता प्रदर्शित हो रही है। कोई बुनियादी कमी नहीं मिली।",
+    gappuCheckingPrereq: "पूर्व-आवश्यकता कौशल की जांच जारी",
+    gappuGapIsolated: "बुनियादी कमी की पहचान हुई:",
+    gappuPrereqSolid: "पूर्व-आवश्यकता कौशल मजबूत पाया गया",
+    gappuTopicPending: "जांच लंबित",
+    gappuTopicAssessing: "वर्तमान जांच जारी",
+    skillsUnlocked: "खुले हुए कौशल",
+    skillsUnlockedSub: "वे अवधारणाएं जिन्हें आप अच्छी तरह समझते हैं और आत्मविश्वास से उपयोग कर सकते हैं!",
+    skillsSleeping: "कौशल जो अभी सो रहे हैं",
+    skillsSleepingSub: "धीमे और सरल अभ्यास से ये कौशल एक-एक करके जाग जाएंगे!",
+    readyToAwaken: "जागने के लिए तैयार",
+    solidMastered: "पूरी तरह मजबूत",
+    prescribedNextSteps: "प्रस्तावित अगले कदम की विकास योजना",
+    step1Awaken: "चरण 1: बुनियादी कौशल को जगाएं",
+    step1AwakenDesc: "चित्रों या वस्तुओं के साथ 5-10 मिनट का सरल बुनियादी अभ्यास करें।",
+    step2Bridge: "चरण 2: कक्षा स्तर के गणित से जोड़ें",
+    step2BridgeDesc: "2-3 मार्गदर्शित उदाहरण हल करें और हर छोटे कदम की सराहना करें।",
+    step3Retest: "चरण 3: त्वरित दोबारा जांच और प्रगति का उत्सव",
+    step3RetestDesc: "अपनी प्रगति देखने और कौशल को जगाने के लिए 3 प्रश्नों की छोटी जांच करें!",
+    growthScreenTitle: "पहले और बाद की प्रगति",
+    growthScreenSub: "देखिए आपने कितनी प्रगति की है! हर अभ्यास आपको और मजबूत बनाता है।",
+    beforePractice: "अभ्यास से पहले",
+    afterRetest: "दोबारा जांच के बाद",
+    skillGrowthGain: "प्रगति में सुधार",
+    skillAwakened: "कौशल जाग उठा!",
+    viewGrowthBtn: "पहले/बाद की प्रगति देखें",
+    viewReportCardsBtn: "सीख रिपोर्ट देखें",
+    completePracticeAndRetest: "अभ्यास पूरा करें और दोबारा जांचें",
+    shareReportBtn: "रिपोर्ट साझा करें",
+    shareReportModalTitle: "छात्र की सीख रिपोर्ट साझा करें",
+    shareReportModalSub: "14 दिनों के लिए वैध एक निजी, केवल-पढ़ने योग्य लिंक बनाता है। गोपनीयता बनाए रखने के लिए केवल पहला नाम और कौशल दिखाए जाते हैं।",
+    shareViaWhatsApp: "व्हाट्सएप पर साझा करें",
+    copyLink: "लिंक कॉपी करें",
+    linkCopied: "लिंक कॉपी हो गया!",
+    revokeLink: "लिंक रद्द करें",
+    linkRevoked: "लिंक रद्द कर दिया गया",
+    linkRevokedDesc: "यह रिपोर्ट लिंक अब निष्क्रिय कर दिया गया है और इसे आगे नहीं देखा जा सकता है।",
+    linkExpiresNotice: "निजी लिंक 14 दिनों में समाप्त हो जाएगा। कोई उपनाम, स्कूल या संपर्क जानकारी साझा नहीं की जाती है।",
+    createShareLink: "शेयर लिंक बनाएं",
+    generatingLink: "लिंक बन रहा है...",
+    onlyAssessmentSessionCanShare: "केवल वह सत्र जिसने यह मूल्यांकन पूरा किया है, इसके शेयर लिंक को बना या प्रबंधित कर सकता है।",
     teacherView: "शिक्षक डैशबोर्ड",
     studentView: "छात्र मूल्यांकन",
     schoolName: "प्राथमिक विद्यालय (डेमो)",
@@ -475,8 +658,8 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     selectOption: "उत्तर चुनें:",
     enterAnswer: "उत्तर दर्ज करें...",
     yourAnswer: "आपका उत्तर:",
-    correctFeedback: "शाबाश! सही उत्तर।",
-    incorrectFeedback: "इस चरण के अभ्यास की जरूरत है।",
+    correctFeedback: "शाबाश! बिल्कुल सही उत्तर।",
+    incorrectFeedback: "लगभग हो गया! आइए इसे दूसरे तरीके से समझें।",
     assessmentComplete: "सीख की जांच पूरी हुई!",
     viewReport: "सीख रिपोर्ट और योजना देखें",
 
@@ -581,6 +764,67 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     badgeGovtSchool: "ప్రాథమిక పాఠశాల",
     demoBadge: "డెమో: 3 నుండి 5 తరగతులు",
     resetDemo: "డెమో రీసెట్ చేయండి",
+    tryAsStudent: "విద్యార్థిగా ప్రయత్నించండి",
+    demoModeBadge: "డెమో మోడ్",
+    demoStudentLabel: "5వ తరగతి విద్యార్థి (రవి కుమార్)",
+    viewReportBtn: "అభ్యసన నివేదిక చూడండి",
+    streakLabel: "వరుస విజయాలు",
+    streakCount: "వరుసగా!",
+    gappuName: "గప్పు",
+    gappuCheer1: "వావ్! అద్భుతమైన ఆలోచన!",
+    gappuCheer2: "సూపర్ స్టార్! సరిగ్గా చెప్పారు!",
+    gappuCheer3: "చాలా బాగుంది! ఇలాగే కొనసాగించండి!",
+    gappuCheerStreak: "వరుసగా సరైనవి! అద్భుతంగా దూసుకుపోతున్నారు!",
+    gappuEncouragement1: "దాదాపు సరిపోయింది! రండి, మరో విధంగా ప్రయత్నిద్దాం.",
+    gappuEncouragement2: "మంచి ప్రయత్నం! ప్రతి ప్రశ్న మనకు కొత్తది నేర్పిస్తుంది.",
+    gappuEncouragement3: "ఉత్సాహకరమైన ప్రయత్నం! మనం కలిసి నేర్చుకుంటున్నాం.",
+    gappuThinkingPrompt: "శాంతంగా ఆలోచించండి. మీరు ఇది సాధించగలరు!",
+    seeHowGappuThinks: "గప్పు ఎలా ఆలోచిస్తుందో చూడండి",
+    seeHowGappuThinksSub: "ప్రత్యక్ష రోగనిర్ధారణ ఆలోచన & పునాది నైపుణ్యాల జాడ",
+    gappuActiveTopic: "ప్రస్తుత అంశం",
+    gappuConfidenceLabel: "విశ్వాస స్థాయి",
+    gappuPrereqTrace: "పునాది నైపుణ్యాల కాలక్రమం",
+    gappuNoGapsTrace: "ప్రస్తుత తరగతి స్థాయిలోనే ప్రావీణ్యం కనబరుస్తున్నారు. ఎటువంటి పునాది లోపాలు కనిపించలేదు.",
+    gappuCheckingPrereq: "పునాది నైపుణ్యాన్ని పరిశీలిస్తోంది",
+    gappuGapIsolated: "పునాది లోపం కనుగొనబడింది:",
+    gappuPrereqSolid: "పునాది నైపుణ్యం దృఢంగా ఉంది",
+    gappuTopicPending: "పరిశీలన వేచి ఉంది",
+    gappuTopicAssessing: "ప్రస్తుతం పరిశీలిస్తోంది",
+    skillsUnlocked: "అన్‌లాక్ అయిన నైపుణ్యాలు",
+    skillsUnlockedSub: "మీకు బాగా తెలిసిన మరియు నమ్మకంతో ఉపయోగించగల నైపుణ్యాలు!",
+    skillsSleeping: "ఇంకా నిద్రపోతున్న నైపుణ్యాలు",
+    skillsSleepingSub: "సులభమైన సాధనతో ఈ నైపుణ్యాలు ఒక్కొక్కటిగా మేల్కొంటాయి!",
+    readyToAwaken: "మేల్కొలపడానికి సిద్ధం",
+    solidMastered: "అద్భుత ప్రావీణ్యం",
+    prescribedNextSteps: "తదుపరి దశల అభివృద్ధి ప్రణాళిక",
+    step1Awaken: "దశ 1: పునాది నైపుణ్యాన్ని మేల్కొలపండి",
+    step1AwakenDesc: "వస్తువులు లేదా చిత్రాలతో 5-10 నిమిషాలు సరదాగా పునాది సాధన చేయండి.",
+    step2Bridge: "దశ 2: తరగతి స్థాయి గణితంతో అనుసంధానించండి",
+    step2BridgeDesc: "2-3 మార్గదర్శక ప్రశ్నలను కలిసి సాధించండి, ప్రతి ప్రయత్నాన్ని ప్రోత్సహించండి.",
+    step3Retest: "దశ 3: చిన్న పునఃపరిశీలన & ఎదుగుదల సంబరం",
+    step3RetestDesc: "మీ స్కోరు ఎలా పెరిగిందో మరియు నైపుణ్యం ఎలా మేల్కొందో చూడటానికి 3 ప్రశ్నల చిన్న పరీక్ష చేయండి!",
+    growthScreenTitle: "మునుపటి మరియు ప్రస్తుత ఎదుగుదల",
+    growthScreenSub: "మీరు ఎంతగా ఎదిగారో చూడండి! ప్రతి సాధన మిమ్మల్ని మరింత సమర్థవంతంగా చేస్తుంది.",
+    beforePractice: "సాధనకు ముందు",
+    afterRetest: "తిరిగి పరిశీలించిన తర్వాత",
+    skillGrowthGain: "పెరిగిన సామర్థ్యం",
+    skillAwakened: "నైపుణ్యం మేల్కొంది!",
+    viewGrowthBtn: "ఎదుగుదల పోలికను చూడండి",
+    viewReportCardsBtn: "గ్యాప్ నివేదికను చూడండి",
+    completePracticeAndRetest: "సాధన పూర్తి చేసి తిరిగి పరీక్షించండి",
+    shareReportBtn: "నివేదికను భాగస్వామ్యం చేయండి",
+    shareReportModalTitle: "విద్యార్థి అభ్యసన నివేదికను భాగస్వామ్యం చేయండి",
+    shareReportModalSub: "14 రోజుల పాటు చెల్లుబాటు అయ్యే ప్రైవేట్, చదవడానికి మాత్రమే వీలైన లింక్‌ను సృష్టిస్తుంది. గోప్యతను రక్షించడానికి మొదటి పేరు మరియు నైపుణ్యాలు మాత్రమే చూపబడతాయి.",
+    shareViaWhatsApp: "వాట్సాప్‌లో షేర్ చేయండి",
+    copyLink: "లింక్ కాపీ చేయండి",
+    linkCopied: "లింక్ కాపీ చేయబడింది!",
+    revokeLink: "లింక్‌ను రద్దు చేయండి",
+    linkRevoked: "లింక్ రద్దు చేయబడింది",
+    linkRevokedDesc: "ఈ నివేదిక లింక్ ఇప్పుడు నిష్క్రియం చేయబడింది మరియు ఇకపై చూడలేరు.",
+    linkExpiresNotice: "ప్రైవేట్ లింక్ 14 రోజుల్లో ముగుస్తుంది. ఇంటిపేరు, పాఠశాల లేదా సంప్రదింపు సమాచారం భాగస్వామ్యం చేయబడదు.",
+    createShareLink: "షేర్ లింక్ రూపొందించండి",
+    generatingLink: "లింక్ రూపొందుతోంది...",
+    onlyAssessmentSessionCanShare: "ఈ అసెస్‌మెంట్‌ను పూర్తి చేసిన సెషన్ మాత్రమే దాని షేర్ లింక్‌ను సృష్టించగలదు లేదా నిర్వహించగలదు.",
     teacherView: "ఉపాధ్యాయుల డాష్‌బోర్డ్",
     studentView: "విద్యార్థి పరిశీలన",
     schoolName: "ప్రాథమిక పాఠశాల (డెమో)",
@@ -662,7 +906,7 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     enterAnswer: "సమాధానం టైప్ చేయండి...",
     yourAnswer: "మీ సమాధానం:",
     correctFeedback: "చాలా బాగుంది! సరైన సమాధానం.",
-    incorrectFeedback: "ఈ భావన మరింత సాధన చేయాలి.",
+    incorrectFeedback: "దాదాపు సరిపోయింది! రండి, మరో విధంగా ప్రయత్నిద్దాం.",
     assessmentComplete: "పరిశీలన పూర్తయింది!",
     viewReport: "అభ్యసన నివేదిక మరియు ప్రణాళిక చూడండి",
 

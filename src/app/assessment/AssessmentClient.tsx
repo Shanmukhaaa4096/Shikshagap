@@ -1,15 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { LanguageProvider } from '@/lib/i18n/context';
+import { useI18n, LanguageProvider } from '@/lib/i18n/context';
 import { AdaptiveAssessmentView } from '@/components/AdaptiveAssessmentView';
 import { DEFAULT_CLASS_ID, getClassConfig } from '@/lib/curriculum/classes';
-import { Sun, Moon, ArrowLeft, ShieldCheck, User } from '@phosphor-icons/react';
+import { Sun, Moon, ArrowLeft, ShieldCheck, User, Sparkle } from '@phosphor-icons/react';
 
 function AssessmentInner() {
   const router = useRouter();
+  const { dict } = useI18n();
+
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('demo') === 'student' || urlParams.get('mode') === 'demo';
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  });
+
   const [selectedClassId, setSelectedClassId] = useState<string>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -17,6 +31,9 @@ function AssessmentInner() {
         const qClass = urlParams.get('class');
         if (qClass && ['class_3', 'class_4', 'class_5'].includes(qClass)) {
           return qClass;
+        }
+        if (urlParams.get('demo') === 'student' || urlParams.get('mode') === 'demo') {
+          return 'class_5';
         }
         return localStorage.getItem('sg_trial_class') || DEFAULT_CLASS_ID;
       } catch {
@@ -39,11 +56,38 @@ function AssessmentInner() {
     return false;
   });
 
+  // Keep demo mode in sync if URL changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('demo') === 'student' || urlParams.get('mode') === 'demo') {
+        setIsDemoMode(true);
+        setSelectedClassId('class_5');
+      }
+    }
+  }, []);
+
   const handleClassChange = (newClassId: string) => {
     setSelectedClassId(newClassId);
     if (typeof window !== 'undefined') {
       try {
         localStorage.setItem('sg_trial_class', newClassId);
+      } catch {
+        // ignore
+      }
+    }
+  };
+
+  const handleTryAsStudent = () => {
+    setIsDemoMode(true);
+    setSelectedClassId('class_5');
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('sg_trial_class', 'class_5');
+        const url = new URL(window.location.href);
+        url.searchParams.set('demo', 'student');
+        url.searchParams.set('class', 'class_5');
+        window.history.replaceState({}, '', url.toString());
       } catch {
         // ignore
       }
@@ -87,22 +131,46 @@ function AssessmentInner() {
               <ArrowLeft size={18} />
             </Link>
             <div>
-              <Link href="/" className="flex items-center gap-2">
-                <span className="font-serif font-black text-xl tracking-tight text-foreground">
-                  Shiksha<span className="text-primary">Gap</span>
-                </span>
-                <span className="hidden sm:inline-block text-xs font-mono uppercase px-2 py-0.5 bg-[var(--status-good-bg)] text-[var(--status-good)] border border-[var(--status-good-border)] rounded-[2px] font-bold">
-                  Free Student Trial
-                </span>
-              </Link>
+              <div className="flex items-center gap-2 flex-wrap">
+                <Link href="/" className="flex items-center gap-2">
+                  <span className="font-serif font-black text-xl tracking-tight text-foreground">
+                    Shiksha<span className="text-primary">Gap</span>
+                  </span>
+                </Link>
+                {isDemoMode ? (
+                  <span
+                    data-testid="demo-mode-badge"
+                    className="inline-flex items-center gap-1 text-xs font-mono uppercase px-2.5 py-0.5 bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 rounded-full font-bold shadow-xs"
+                  >
+                    <Sparkle size={11} weight="fill" className="text-amber-600 dark:text-amber-400" />
+                    <span>{dict.demoModeBadge || "Demo mode"}</span>
+                  </span>
+                ) : (
+                  <span className="hidden sm:inline-block text-xs font-mono uppercase px-2 py-0.5 bg-[var(--status-good-bg)] text-[var(--status-good)] border border-[var(--status-good-border)] rounded-[2px] font-bold">
+                    Free Student Trial
+                  </span>
+                )}
+              </div>
               <div className="text-xs font-mono text-muted-foreground">
-                {classConfig.label} Maths Diagnostic
+                {classConfig.label} Maths Diagnostic {isDemoMode && '• Preset Profile (Ravi Kumar)'}
               </div>
             </div>
           </div>
 
           {/* Right Header Actions */}
           <div className="flex items-center gap-2">
+            {!isDemoMode && (
+              <button
+                type="button"
+                onClick={handleTryAsStudent}
+                data-testid="header-try-as-student-btn"
+                className="min-h-[44px] px-3 sm:px-4 py-2 border border-primary bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center gap-1.5 text-xs font-mono uppercase font-bold rounded-[2px] cursor-pointer shadow-warm"
+              >
+                <Sparkle size={14} weight="fill" />
+                <span>{dict.tryAsStudent || "Try as a student"}</span>
+              </button>
+            )}
+
             <button
               type="button"
               onClick={toggleTheme}
@@ -129,6 +197,8 @@ function AssessmentInner() {
         <AdaptiveAssessmentView
           isGuest={true}
           isStudentView={true}
+          isDemoMode={isDemoMode}
+          autoStartDemo={isDemoMode}
           selectedClassId={selectedClassId}
           onClassChange={handleClassChange}
           onCancel={() => {

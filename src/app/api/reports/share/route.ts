@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '@/lib/auth/session';
-import { createShareToken, revokeShareToken, logAuditEvent, hashIp } from '@/lib/server/store';
+import {
+  createShareToken,
+  revokeShareToken,
+  createStudentShareToken,
+  revokeStudentShareToken,
+  isAssessmentSessionCompleted,
+  logAuditEvent,
+  hashIp
+} from '@/lib/server/store';
 import { getClientIp } from '@/lib/server/security';
 import { guardRequest, createGuardResponse } from '@/lib/server/guard';
 
@@ -11,15 +19,72 @@ export async function POST(req: NextRequest) {
       return createGuardResponse(guard);
     }
 
+    const ip = getClientIp(req);
+    const body = await req.json().catch(() => null);
+
+    if (!body) {
+      return NextResponse.json({ error: 'Missing request body.' }, { status: 400 });
+    }
+
+    // ==============================================================
+    // CASE 1: Student Assessment Gap Report Share Link
+    // Requirements:
+    // - Only the session that ran and completed the assessment can create the link
+    // - Uses crypto.randomUUID() (long unguessable token, not sequential)
+    // - Expires after 14 days
+    // - Stores only first name, class, and gap results (no surname, roll number, school, contact info)
+    // ==============================================================
+    if (body.assessmentSessionId) {
+      const { assessmentSessionId, firstName, grade, skillsUnlocked, skillsSleeping, prescribedPlan } = body;
+
+      if (!isAssessmentSessionCompleted(assessmentSessionId)) {
+        return NextResponse.json(
+          { error: 'Only the session that completed the assessment can create a share link.' },
+          { status: 403 }
+        );
+      }
+
+      const record = createStudentShareToken({
+        assessmentSessionId: String(assessmentSessionId),
+        firstName: String(firstName || 'Learner'),
+        grade: grade || 5,
+        skillsUnlocked: Array.isArray(skillsUnlocked) ? skillsUnlocked : [],
+        skillsSleeping: Array.isArray(skillsSleeping) ? skillsSleeping : [],
+        prescribedPlan: Array.isArray(prescribedPlan) ? prescribedPlan : undefined,
+      });
+
+      logAuditEvent({
+        userId: 'student_session',
+        userRole: 'student',
+        schoolId: 'student_share',
+        action: 'share_report_created',
+        targetRecordId: `token_${record.token.slice(0, 8)}`,
+        ipHash: hashIp(ip),
+        details: 'Student gap report share link generated (valid 14 days, crypto.randomUUID)',
+      });
+
+      const host = req.headers.get('host') || 'shikshagap.vercel.app';
+      const protocol = req.headers.get('x-forwarded-proto') || 'https';
+      const shareUrl = `${protocol}://${host}/report/${record.token}`;
+
+      return NextResponse.json({
+        success: true,
+        token: record.token,
+        creatorSecret: record.creatorSecret,
+        shareUrl,
+        expiresAt: record.expiresAt,
+      });
+    }
+
+    // ==============================================================
+    // CASE 2: Teacher Guardian-Sharing Flow (authenticated teacher session)
+    // ==============================================================
     const session = await getServerSession();
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized. Teacher session required.' }, { status: 401 });
     }
 
-    const ip = getClientIp(req);
-    const body = await req.json().catch(() => null);
-
-    if (!body || !body.studentId || !body.confirmedNotice) {
+    if (!body.studentId || !body.confirmedNotice) {
       return NextResponse.json(
         { error: 'Missing required parameters. Teacher guardian-sharing confirmation is required.' },
         { status: 400 }
@@ -82,17 +147,39 @@ export async function DELETE(req: NextRequest) {
       return createGuardResponse(guard);
     }
 
-    const session = await getServerSession();
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    }
-
     const { searchParams } = new URL(req.url);
     const token = searchParams.get('token');
+    const creatorSecret = searchParams.get('creatorSecret') || req.headers.get('x-creator-secret');
     const ip = getClientIp(req);
 
     if (!token) {
       return NextResponse.json({ error: 'Token parameter required.' }, { status: 400 });
+    }
+
+    // Case 1: Creator of student share report revoking using creatorSecret
+    if (creatorSecret) {
+      const success = revokeStudentShareToken(token, creatorSecret);
+      if (!success) {
+        return NextResponse.json({ error: 'Invalid token or creator credentials.' }, { status: 403 });
+      }
+
+      logAuditEvent({
+        userId: 'creator_session',
+        userRole: 'student',
+        schoolId: 'student_share',
+        action: 'share_report_revoked',
+        targetRecordId: `token_${token.slice(0, 8)}`,
+        ipHash: hashIp(ip),
+        details: 'Student share link revoked by creator',
+      });
+
+      return NextResponse.json({ success: true });
+    }
+
+    // Case 2: Teacher revoking teacher-generated share token
+    const session = await getServerSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
     const success = revokeShareToken(token, session.user.id, session.user.schoolId);

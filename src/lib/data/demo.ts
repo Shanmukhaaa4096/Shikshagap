@@ -389,3 +389,46 @@ export function resetDemoData(classId: string = DEFAULT_CLASS_ID): DemoStudentDa
   saveStudents(fresh, classId);
   return fresh;
 }
+
+export function getPresetClass5Student(): DemoStudentData {
+  const students = initializeDemoData("class_5");
+  if (students && students.length > 0) {
+    return {
+      ...students[0],
+      student: {
+        ...students[0].student,
+        id: "demo_student_class_5",
+        name: "Ravi Kumar",
+        rollNo: 1,
+        classroomId: "class_5",
+        isDemo: true,
+      },
+    };
+  }
+  return {
+    student: {
+      id: "demo_student_class_5",
+      name: "Ravi Kumar",
+      rollNo: 1,
+      classroomId: "class_5",
+      isDemo: true,
+    },
+    profile: {
+      studentId: "demo_student_class_5",
+      overallMastery: 0.52,
+      confidence: 0.88,
+      status: "need_practice",
+      concepts: {},
+      strong: [],
+      developing: ["mult_facts"],
+      needsSupport: ["division_facts", "long_division"],
+      inferredOk: [],
+      rootCauses: [],
+      nextConcept: null,
+      nextReason: "none",
+      evidenceCount: 4,
+      lastAssessedAt: "2026-10-15T00:00:00.000Z",
+    },
+  };
+}
+

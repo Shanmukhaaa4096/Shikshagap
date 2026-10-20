@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { finalizeAssessment } from "@/lib/agents/orchestrator";
 import type { SessionMemory } from "@/lib/types";
 import { guardRequest, createGuardResponse } from "@/lib/server/guard";
+import { recordAssessmentSessionCompletion } from "@/lib/server/store";
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,6 +39,15 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await finalizeAssessment(memory);
+
+    // Register this completed assessment session so only this session can generate a share report
+    const validSessionId =
+      (body && typeof body.sessionId === "string" && body.sessionId.length >= 8)
+        ? body.sessionId
+        : undefined;
+    if (validSessionId) {
+      recordAssessmentSessionCompletion(validSessionId, memory.grade || 5);
+    }
 
     // Step 10: In background, record anonymous session memory update
     try {
