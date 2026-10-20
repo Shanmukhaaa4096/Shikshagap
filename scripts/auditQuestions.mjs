@@ -5,8 +5,7 @@
  * deterministic correctness, and official syllabus citations.
  */
 import { SUPPORTED_CLASSES } from "../src/lib/curriculum/classes.ts";
-import { getMultiBoardQuestion, MULTI_BOARD_QUESTION_BANK } from "../src/lib/questions/multiBoardBank.ts";
-import { getCurriculumConcept } from "../src/data/curriculum/index.ts";
+import { getMultiBoardQuestion } from "../src/lib/questions/multiBoardBank.ts";
 import { generateQuestion } from "../src/lib/questions/generator.ts";
 
 console.log("=== SHIKSHAGAP CURRICULUM & QUESTION AUDIT: CLASSES 1 TO 10 ===\n");
@@ -27,7 +26,6 @@ for (const cls of SUPPORTED_CLASSES) {
 
     // Pick concept
     const conceptId = cls.targetConcepts[i % cls.targetConcepts.length];
-    const currConcept = getCurriculumConcept(conceptId);
 
     // Retrieve question from multi-board bank or fallback generator
     let q = getMultiBoardQuestion({

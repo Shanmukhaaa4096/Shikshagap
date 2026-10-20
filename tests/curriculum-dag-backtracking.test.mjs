@@ -3,7 +3,6 @@ import assert from "node:assert/strict";
 import {
   CURRICULUM_REGISTRY,
   ancestorsOfConcept,
-  prerequisitesOfConcept,
 } from "../src/data/curriculum/index.ts";
 
 test("Curriculum Cross-Grade Backtracking: Class 10 Quadratic Equations reaches lower classes", () => {

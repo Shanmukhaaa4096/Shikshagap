@@ -15,22 +15,19 @@
 
 import test, { after } from "node:test";
 import assert from "node:assert/strict";
-import { SUPPORTED_CLASSES, getClassConfig } from "../src/lib/curriculum/classes.ts";
+import { SUPPORTED_CLASSES } from "../src/lib/curriculum/classes.ts";
 import {
   ALL_CURRICULUM_CONCEPTS_LIST,
   CURRICULUM_REGISTRY,
   ancestorsOfConcept,
-  prerequisitesOfConcept,
 } from "../src/data/curriculum/index.ts";
 import {
-  MULTI_BOARD_QUESTION_BANK,
   getMultiBoardQuestion,
 } from "../src/lib/questions/multiBoardBank.ts";
 import { generateQuestion } from "../src/lib/questions/generator.ts";
 import {
   createSessionMemory,
   getNextStaircaseAction,
-  applyAttemptToMemory,
 } from "../src/lib/agents/staircase.ts";
 import { makeRng } from "../src/lib/rng.ts";
 

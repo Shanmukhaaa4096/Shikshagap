@@ -56,7 +56,6 @@ test('Report Share: Expiration - Links expire after exactly 14 days', () => {
   });
 
   const fourteenDaysMs = 14 * 24 * 60 * 60 * 1000;
-  const toleranceMs = 2000; // allow small execution delta
 
   const diff = tokenRecord.expiresAt - tokenRecord.createdAt;
   assert.equal(diff, fourteenDaysMs, 'Token must expire in exactly 14 days (1209600000 ms)');

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
-import { ArrowLeft, ArrowRight, Brain, CheckCircle, WarningCircle, BookOpen, TreeStructure } from "@phosphor-icons/react/dist/ssr";
+import { ArrowLeft, ArrowRight, Brain, CheckCircle, WarningCircle, TreeStructure } from "@phosphor-icons/react/dist/ssr";
 
 export const metadata: Metadata = {
   title: `What is a Learning Gap? Mathematics Diagnosis & Prerequisite Graphs | ${siteConfig.siteName}`,

@@ -16,12 +16,11 @@ import path from "node:path";
 import { DICTS } from "../src/lib/i18n/dict.ts";
 import {
   createSessionMemory,
-  getNextStaircaseAction,
   applyAttemptToMemory,
   getPrerequisiteForConcept,
   getConceptForTopic,
 } from "../src/lib/agents/staircase.ts";
-import { allConceptsMap, getCurriculumConcept } from "../src/data/curriculum/index.ts";
+import { allConceptsMap } from "../src/data/curriculum/index.ts";
 
 test("Gappu Thinking Panel: All 3 languages populated in dictionary", () => {
   const requiredKeys = [

@@ -19,7 +19,7 @@ import { chromium } from "playwright";
 
 const BASE_URL = process.env.BASE_URL || "https://shikshagap.vercel.app";
 
-test("E2E Assessment Smoke Test: Multi-Class & Multi-Board Complete Flows", async (t) => {
+test("E2E Assessment Smoke Test: Multi-Class & Multi-Board Complete Flows", async () => {
   let browser;
   try {
     browser = await chromium.launch({

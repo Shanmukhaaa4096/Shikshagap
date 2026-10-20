@@ -367,41 +367,59 @@ export default function ReportClientView({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="p-3.5 rounded-[16px] bg-card border border-border space-y-1">
-                  <span className="text-xs font-mono font-bold text-primary uppercase">
-                    01 • Hands-on Practice
-                  </span>
-                  <div className="font-bold text-xs sm:text-sm text-foreground">
-                    {content.step1}
-                  </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {content.step1Desc}
-                  </p>
-                </div>
+                {prescribedPlan && prescribedPlan.length > 0 ? (
+                  prescribedPlan.map((step) => (
+                    <div key={step.step} className="p-3.5 rounded-[16px] bg-card border border-border space-y-1">
+                      <span className="text-xs font-mono font-bold text-primary uppercase">
+                        {String(step.step).padStart(2, '0')} • Action Step
+                      </span>
+                      <div className="font-bold text-xs sm:text-sm text-foreground">
+                        {step.title}
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {step.desc}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    <div className="p-3.5 rounded-[16px] bg-card border border-border space-y-1">
+                      <span className="text-xs font-mono font-bold text-primary uppercase">
+                        01 • Hands-on Practice
+                      </span>
+                      <div className="font-bold text-xs sm:text-sm text-foreground">
+                        {content.step1}
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {content.step1Desc}
+                      </p>
+                    </div>
 
-                <div className="p-3.5 rounded-[16px] bg-card border border-border space-y-1">
-                  <span className="text-xs font-mono font-bold text-primary uppercase">
-                    02 • Guided Connection
-                  </span>
-                  <div className="font-bold text-xs sm:text-sm text-foreground">
-                    {content.step2}
-                  </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {content.step2Desc}
-                  </p>
-                </div>
+                    <div className="p-3.5 rounded-[16px] bg-card border border-border space-y-1">
+                      <span className="text-xs font-mono font-bold text-primary uppercase">
+                        02 • Guided Connection
+                      </span>
+                      <div className="font-bold text-xs sm:text-sm text-foreground">
+                        {content.step2}
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {content.step2Desc}
+                      </p>
+                    </div>
 
-                <div className="p-3.5 rounded-[16px] bg-card border border-border space-y-1">
-                  <span className="text-xs font-mono font-bold text-primary uppercase">
-                    03 • Celebrate & Check
-                  </span>
-                  <div className="font-bold text-xs sm:text-sm text-foreground">
-                    {content.step3}
-                  </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {content.step3Desc}
-                  </p>
-                </div>
+                    <div className="p-3.5 rounded-[16px] bg-card border border-border space-y-1">
+                      <span className="text-xs font-mono font-bold text-primary uppercase">
+                        03 • Celebrate & Check
+                      </span>
+                      <div className="font-bold text-xs sm:text-sm text-foreground">
+                        {content.step3}
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {content.step3Desc}
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
