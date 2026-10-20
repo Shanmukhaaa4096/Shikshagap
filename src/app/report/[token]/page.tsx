@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { Metadata } from 'next';
-import { getShareToken, getRawShareToken, recordTokenView, logAuditEvent } from '@/lib/server/store';
+import { getShareTokenStatus, recordTokenView, logAuditEvent } from '@/lib/server/store';
 import { ErrorState, LoadingSkeletonState } from '@/components/StateScreens';
 import ReportClientView from './ReportClientView';
 
@@ -20,14 +20,13 @@ interface PageProps {
 
 async function ReportLoader({ params }: PageProps) {
   const { token } = await params;
-  const record = getShareToken(token);
+  const { record, status } = getShareTokenStatus(token);
 
-  if (!record) {
-    const raw = getRawShareToken(token);
+  if (status !== 'active' || !record) {
     let errorMsg = "This report link is invalid, has expired, or was revoked.";
-    if (raw?.revoked) {
+    if (status === 'revoked') {
       errorMsg = "This report link was revoked by the creator.";
-    } else if (raw && Date.now() > raw.expiresAt) {
+    } else if (status === 'expired') {
       errorMsg = "This report link has expired (links expire after 14 days).";
     }
     return (

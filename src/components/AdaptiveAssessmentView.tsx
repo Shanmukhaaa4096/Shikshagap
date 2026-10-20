@@ -112,17 +112,23 @@ export function AdaptiveAssessmentView({
   const router = useRouter();
   const classConfig = getClassConfig(selectedClassId);
 
-  const [isDemoModeState, setIsDemoModeState] = useState(isDemoMode);
+  const [isDemoModeLocal, setIsDemoModeLocal] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get("demo") === "student" || urlParams.get("mode") === "demo";
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  });
+  const isDemoModeState = isDemoMode || autoStartDemo || isDemoModeLocal;
+  const setIsDemoModeState = (val: boolean) => setIsDemoModeLocal(val);
   const [isDiagnosticModalOpen, setIsDiagnosticModalOpen] = useState(false);
   const autoStartedRef = useRef(false);
 
-  useEffect(() => {
-    if (isDemoMode) {
-      setIsDemoModeState(true);
-    }
-  }, [isDemoMode]);
-
-  const presetClass5Student = getPresetClass5Student();
+  const presetClass5Student = useMemo(() => getPresetClass5Student(), []);
 
   const fallbackGuestStudent: DemoStudentData = {
     student: {
@@ -631,7 +637,7 @@ export function AdaptiveAssessmentView({
           dict.gappuCheer2 || "Super star! You got it right!",
           dict.gappuCheer3 || "Wonderful! Keep shining!",
         ];
-        gMessage = cheers[Math.floor(Math.random() * cheers.length)];
+        gMessage = cheers[(nextStreak + (currentQuestion.id.length || 0)) % cheers.length];
       }
     } else {
       setStreak(0);
@@ -641,7 +647,8 @@ export function AdaptiveAssessmentView({
         dict.gappuEncouragement2 || "Great try! Every question helps us learn.",
         dict.gappuEncouragement3 || "Good effort! We are learning together.",
       ];
-      gMessage = encouragements[Math.floor(Math.random() * encouragements.length)];
+      const attemptIdx = (sessionMemory?.stepCount ?? 0) + 1;
+      gMessage = encouragements[attemptIdx % encouragements.length];
     }
     setGappuMessage(gMessage);
 
@@ -1077,7 +1084,7 @@ export function AdaptiveAssessmentView({
     }
 
     return { nodes, hasGapTrace, summary, topicName };
-  }, [targetTraceTopicMem, currentQuestion, classConfig.grade, boardPreference, lang, dict]);
+  }, [targetTraceTopicMem, currentQuestion, classConfig.grade, boardPreference, lang, dict, currentTopicMemory?.topicId]);
 
   // Filter topics for final screen per SPEC.md: gap first, then developing, then mastered
   const gapTopics = sessionMemory?.topics.filter((t) => t.status === "gap") || [];
@@ -1249,6 +1256,15 @@ export function AdaptiveAssessmentView({
     }
   };
 
+  // Keep latest refs for callbacks to avoid re-triggering auto-start effect
+  const handleStartRef = useRef(handleStart);
+  const onClassChangeRef = useRef(onClassChange);
+
+  useEffect(() => {
+    handleStartRef.current = handleStart;
+    onClassChangeRef.current = onClassChange;
+  });
+
   // Auto-start immediately in demo mode if requested or if URL contains demo=student
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -1264,11 +1280,13 @@ export function AdaptiveAssessmentView({
         }
       } catch {}
       autoStartedRef.current = true;
-      setIsDemoModeState(true);
-      onClassChange?.("class_5");
-      handleStart(presetClass5Student, "class_5");
+      onClassChangeRef.current?.("class_5");
+      const timer = setTimeout(() => {
+        handleStartRef.current(presetClass5Student, "class_5");
+      }, 0);
+      return () => clearTimeout(timer);
     }
-  }, [autoStartDemo, isDemoMode, isStarted, sessionStorageKey]);
+  }, [autoStartDemo, isDemoMode, isStarted, presetClass5Student, sessionStorageKey]);
 
   return (
     <div className="w-full max-w-4xl xl:max-w-5xl mx-auto space-y-4 sm:space-y-6">

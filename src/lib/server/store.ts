@@ -222,6 +222,18 @@ export function getShareToken(token: string): SharedReportRecord | null {
   return record;
 }
 
+export function getShareTokenStatus(token: string): {
+  record: SharedReportRecord | null;
+  status: 'active' | 'revoked' | 'expired' | 'max_views' | 'not_found';
+} {
+  const record = shareTokens.get(token);
+  if (!record) return { record: null, status: 'not_found' };
+  if (record.revoked) return { record, status: 'revoked' };
+  if (Date.now() > record.expiresAt) return { record, status: 'expired' };
+  if (record.viewsCount >= record.maxViews) return { record, status: 'max_views' };
+  return { record, status: 'active' };
+}
+
 export function getRawShareToken(token: string): SharedReportRecord | null {
   return shareTokens.get(token) || null;
 }

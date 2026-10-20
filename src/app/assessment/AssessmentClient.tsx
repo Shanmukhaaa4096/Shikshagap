@@ -56,15 +56,19 @@ function AssessmentInner() {
     return false;
   });
 
-  // Keep demo mode in sync if URL changes
+  // Keep demo mode in sync if URL changes via navigation events
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('demo') === 'student' || urlParams.get('mode') === 'demo') {
-        setIsDemoMode(true);
-        setSelectedClassId('class_5');
+    const handlePopState = () => {
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('demo') === 'student' || urlParams.get('mode') === 'demo') {
+          setIsDemoMode(true);
+          setSelectedClassId('class_5');
+        }
       }
-    }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   const handleClassChange = (newClassId: string) => {
