@@ -18,6 +18,8 @@ jobs:
       DATABASE_URL: ""
       GEMINI_API_KEY: ""
       GEMINI_MODEL: gemini-2.5-flash
+      NEXT_PUBLIC_SUPABASE_URL: https://dummy-project.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy_anon_key_for_ci_testing
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
