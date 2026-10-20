@@ -84,6 +84,11 @@ export interface Dict {
   goToDashboard: string;
   launchStudentCheck: string;
   googleAuthFailed: string;
+  continueTestModalTitle: string;
+  continueTestModalPrompt: string;
+  continueTestBtn: string;
+  quitAssessmentBtn: string;
+  back: string;
   schoolName: string;
   class5A: string;
 
@@ -357,6 +362,11 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     goToDashboard: "Go to Classroom Dashboard",
     launchStudentCheck: "Launch Student Assessment",
     googleAuthFailed: "Google authentication failed or was cancelled. Please try again.",
+    continueTestModalTitle: "Continue the test?",
+    continueTestModalPrompt: "Are you sure you want to quit? Your current test progress will be lost if you leave.",
+    continueTestBtn: "Continue test",
+    quitAssessmentBtn: "Quit assessment",
+    back: "Back",
     schoolName: "MPPS Primary School",
     class5A: "Primary School (Maths)",
 
@@ -616,6 +626,11 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     goToDashboard: "कक्षा डैशबोर्ड पर जाएं",
     launchStudentCheck: "छात्र मूल्यांकन शुरू करें",
     googleAuthFailed: "Google प्रमाणीकरण विफल रहा या रद्द कर दिया गया। कृपया पुनः प्रयास करें।",
+    continueTestModalTitle: "परीक्षण जारी रखें?",
+    continueTestModalPrompt: "क्या आप वाकई छोड़ना चाहते हैं? यदि आप बाहर निकलते हैं तो आपकी वर्तमान प्रगति मिट जाएगी।",
+    continueTestBtn: "परीक्षण जारी रखें",
+    quitAssessmentBtn: "परीक्षण छोड़ें",
+    back: "पीछे",
     schoolName: "प्राथमिक विद्यालय (डेमो)",
     class5A: "प्राथमिक विद्यालय (गणित)",
 
@@ -875,6 +890,11 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     goToDashboard: "తరగతి డాష్‌బోర్డ్‌కు వెళ్లండి",
     launchStudentCheck: "విద్యార్థి అంచనాను ప్రారంభించండి",
     googleAuthFailed: "Google ప్రామాణీకరణ విఫలమైంది లేదా రద్దు చేయబడింది. దయచేసి మళ్ళీ ప్రయత్నించండి.",
+    continueTestModalTitle: "పరీక్షను కొనసాగించాలా?",
+    continueTestModalPrompt: "మీరు ఖచ్చితంగా నిష్క్రమించాలనుకుంటున్నారా? మీరు వెళ్లిపోతే మీ ప్రస్తుत పురోగతి పోతుంది.",
+    continueTestBtn: "పరీక్షను కొనసాగించు",
+    quitAssessmentBtn: "పరీక్షను విడిచిపెట్టు",
+    back: "వెనుకకు",
     schoolName: "ప్రాథమిక పాఠశాల (డెమో)",
     class5A: "ప్రాథమిక పాఠశాల (గణితం)",
 

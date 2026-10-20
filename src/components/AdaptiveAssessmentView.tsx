@@ -20,6 +20,7 @@ import {
   Brain,
   CheckCircle,
   ArrowRight,
+  ArrowLeft,
   Question as QuestionIcon,
   ArrowCounterClockwise,
   BookOpen,
@@ -210,11 +211,14 @@ export function AdaptiveAssessmentView({
 
   const sessionStorageKey = `sg_assessment_session_${selectedClassId}_${selectedStudentId}`;
 
-  // Restore session from sessionStorage on mount / class change
+  // Confirmation Modal state for back navigation / exit during active assessment
+  const [isExitModalOpen, setIsExitModalOpen] = useState<boolean>(false);
+
+  // Restore session from sessionStorage or localStorage on mount / class change
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-      const saved = sessionStorage.getItem(sessionStorageKey);
+      const saved = sessionStorage.getItem(sessionStorageKey) || localStorage.getItem(sessionStorageKey);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && parsed.sessionMemory && parsed.isStarted) {
@@ -227,6 +231,8 @@ export function AdaptiveAssessmentView({
             setIsFinished(Boolean(parsed.isFinished));
             setRecommendations(parsed.recommendations || []);
             setReportSummary(parsed.reportSummary || "");
+            if (typeof parsed.streak === "number") setStreak(parsed.streak);
+            if (typeof parsed.maxStreak === "number") setMaxStreak(parsed.maxStreak);
             if (parsed.boardPreference) {
               setBoardPreference(parsed.boardPreference);
             }
@@ -241,39 +247,134 @@ export function AdaptiveAssessmentView({
     }
   }, [sessionStorageKey]);
 
-  // Persist session to sessionStorage on state updates
+  // Persist session to sessionStorage and localStorage after every state change/answer
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
       if (isStarted && sessionMemory) {
-        sessionStorage.setItem(
-          sessionStorageKey,
-          JSON.stringify({
-            isStarted,
-            isFinished,
-            sessionMemory,
-            currentQuestion,
-            userAnswer,
-            feedback,
-            recommendations,
-            reportSummary,
-            boardPreference,
-            clientSessionId: clientSessionIdRef.current,
-          })
-        );
+        const payload = JSON.stringify({
+          isStarted,
+          isFinished,
+          sessionMemory,
+          currentQuestion,
+          userAnswer,
+          feedback,
+          recommendations,
+          reportSummary,
+          boardPreference,
+          streak,
+          maxStreak,
+          clientSessionId: clientSessionIdRef.current,
+        });
+        sessionStorage.setItem(sessionStorageKey, payload);
+        localStorage.setItem(sessionStorageKey, payload);
       }
     } catch {
       // Graceful fallback
     }
-  }, [sessionStorageKey, isStarted, isFinished, sessionMemory, currentQuestion, userAnswer, feedback, recommendations, reportSummary, boardPreference]);
+  }, [sessionStorageKey, isStarted, isFinished, sessionMemory, currentQuestion, userAnswer, feedback, recommendations, reportSummary, boardPreference, streak, maxStreak]);
 
   const clearSavedSession = () => {
     try {
       sessionStorage.removeItem(sessionStorageKey);
+      localStorage.removeItem(sessionStorageKey);
     } catch {
       // ignore
     }
   };
+
+  // Intercept browser back button (popstate) and window close/refresh (beforeunload) during active assessment
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!isStarted || isFinished) return;
+
+    // Push initial history state entry when active assessment mounts or starts
+    try {
+      window.history.pushState({ assessmentActive: true }, "", window.location.href);
+    } catch {
+      // ignore
+    }
+
+    const handlePopState = () => {
+      if (isStarted && !isFinished) {
+        // Re-push state immediately so the student does not navigate back
+        try {
+          window.history.pushState({ assessmentActive: true }, "", window.location.href);
+        } catch {
+          // ignore
+        }
+        // Open the confirmation modal
+        setIsExitModalOpen(true);
+      }
+    };
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isStarted && !isFinished) {
+        e.preventDefault();
+        e.returnValue = "";
+        return "";
+      }
+    };
+
+    // Intercept in-app link clicks that attempt to navigate away during an active test
+    const handleDocumentClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement)?.closest("a");
+      if (target && target.getAttribute("href")) {
+        const href = target.getAttribute("href") || "";
+        // If clicking an internal or external navigation link while test is in progress
+        if (href.startsWith("/") || href.startsWith("http")) {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsExitModalOpen(true);
+        }
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("click", handleDocumentClick, true);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("click", handleDocumentClick, true);
+    };
+  }, [isStarted, isFinished]);
+
+  // Modal actions
+  const handleContinueTest = () => {
+    setIsExitModalOpen(false);
+  };
+
+  const handleQuitAssessment = () => {
+    clearSavedSession();
+    setIsExitModalOpen(false);
+    setIsStarted(false);
+    setIsFinished(false);
+    setSessionMemory(null);
+    setCurrentQuestion(null);
+    setUserAnswer("");
+    setFeedback(null);
+    setRecommendations([]);
+    setReportSummary("");
+    setStreak(0);
+    setMaxStreak(0);
+    sessionClosedRef.current = true;
+    lastAttemptRef.current = null;
+    setIsEvaluating(false);
+  };
+
+  // Close modal on Escape key (behaves like Continue test)
+  useEffect(() => {
+    if (!isExitModalOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        handleContinueTest();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isExitModalOpen]);
 
   // Track evaluating duration for calm loading message after 3s
   useEffect(() => {
@@ -2560,6 +2661,17 @@ export function AdaptiveAssessmentView({
           <div className="bg-[var(--surface)] border border-border rounded-[22px] shadow-warm-sm p-4 sm:p-5 space-y-3">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setIsExitModalOpen(true)}
+                  data-testid="in-app-back-btn"
+                  className="min-h-[44px] px-3 py-1.5 rounded-full border border-border bg-card hover:bg-muted text-foreground text-xs font-mono font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 shadow-xs"
+                  aria-label="Back to assessment start"
+                  title="Back"
+                >
+                  <ArrowLeft size={16} />
+                  <span>{dict.back || "Back"}</span>
+                </button>
                 <span className="text-xs font-mono uppercase font-bold text-muted-foreground">
                   {classConfig.label.toUpperCase()}
                 </span>
@@ -3324,6 +3436,75 @@ export function AdaptiveAssessmentView({
               </div>
             )}
           </nav>
+        </div>
+      )}
+
+      {/* Confirmation Modal: "Continue the test?" */}
+      {isExitModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="continue-test-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200"
+        >
+          <div className="w-full max-w-md bg-card border border-border p-6 rounded-[24px] shadow-warm space-y-5 animate-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between gap-3 pb-3 border-b border-border">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                  <WarningCircle size={24} weight="fill" />
+                </div>
+                <div>
+                  <h3
+                    id="continue-test-modal-title"
+                    className="text-lg sm:text-xl font-bold tracking-tight text-foreground"
+                  >
+                    {dict.continueTestModalTitle || "Continue the test?"}
+                  </h3>
+                  <p className="text-xs font-mono text-muted-foreground mt-0.5">
+                    {dict.appName || "ShikshaGap"} • {classConfig.label}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleContinueTest}
+                aria-label="Close dialog"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground rounded-full hover:bg-muted transition-colors cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <p className="text-sm text-foreground/80 leading-relaxed">
+              {dict.continueTestModalPrompt ||
+                "Are you sure you want to quit? Your current test progress will be lost if you leave."}
+            </p>
+
+            {/* Modal Action Buttons: Touch Friendly, min-h 48px */}
+            <div className="flex flex-col-reverse sm:flex-row items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={handleQuitAssessment}
+                data-testid="quit-assessment-btn"
+                className="w-full sm:flex-1 min-h-[48px] px-4 py-2.5 rounded-full border border-border bg-card hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 text-foreground text-sm font-bold font-mono transition-all cursor-pointer flex items-center justify-center"
+              >
+                <span>{dict.quitAssessmentBtn || "Quit assessment"}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleContinueTest}
+                data-testid="continue-test-btn"
+                className="w-full sm:flex-1 min-h-[48px] px-4 py-2.5 rounded-full bg-primary text-primary-foreground hover:opacity-90 text-sm font-bold font-mono transition-all cursor-pointer shadow-warm flex items-center justify-center gap-1.5"
+              >
+                <span>{dict.continueTestBtn || "Continue test"}</span>
+                <ArrowRight size={16} />
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
