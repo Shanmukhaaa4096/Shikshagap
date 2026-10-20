@@ -245,12 +245,13 @@ function PublicLandingPageContent() {
               {isDark ? <Sun size={17} weight="bold" className="text-secondary" /> : <Moon size={17} weight="bold" className="text-primary" />}
             </button>
 
-            {/* Secondary Link: Sign In */}
+            {/* Teacher login Link (Trilingual: English, Hindi, Telugu) */}
             <Link
               href="/login"
-              className="hidden sm:inline-flex rounded-full border border-[#C7DDAE] dark:border-[#3B5428] bg-transparent text-foreground px-4 py-2 min-h-[44px] items-center text-xs font-sans uppercase font-bold hover:bg-[#C7DDAE]/30 cursor-pointer transition-colors"
+              data-testid="header-teacher-login-btn"
+              className="hidden sm:inline-flex rounded-full border border-[#C7DDAE] dark:border-[#3B5428] bg-transparent text-foreground px-3.5 py-2 min-h-[44px] items-center text-xs font-sans font-bold hover:bg-[#C7DDAE]/30 cursor-pointer transition-colors"
             >
-              Sign In
+              {dict.teacherLogin || "Teacher login"}
             </Link>
 
             {/* PRIMARY ACTION: START ASSESSMENT BUTTON */}
@@ -323,7 +324,7 @@ function PublicLandingPageContent() {
               onClick={() => setIsMobileMenuOpen(false)}
               className="min-h-[44px] rounded-full flex items-center justify-center px-4 border border-[#C7DDAE] bg-transparent text-foreground font-bold"
             >
-              Teacher Sign In
+              {dict.teacherLogin || "Teacher login"}
             </Link>
           </div>
         )}

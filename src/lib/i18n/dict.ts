@@ -73,6 +73,17 @@ export interface Dict {
   onlyAssessmentSessionCanShare: string;
   teacherView: string;
   studentView: string;
+  teacherLogin: string;
+  signInWithGoogle: string;
+  signOut: string;
+  teacherPortal: string;
+  welcomeTeacher: string;
+  verifiedTeacherBadge: string;
+  signedInAs: string;
+  teacherPortalDesc: string;
+  goToDashboard: string;
+  launchStudentCheck: string;
+  googleAuthFailed: string;
   schoolName: string;
   class5A: string;
 
@@ -335,6 +346,17 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     onlyAssessmentSessionCanShare: "Only the session that completed this assessment can create or manage its share link.",
     teacherView: "Teacher Dashboard",
     studentView: "Student Assessment",
+    teacherLogin: "Teacher Login",
+    signInWithGoogle: "Sign in with Google",
+    signOut: "Sign out",
+    teacherPortal: "Teacher Portal",
+    welcomeTeacher: "Welcome",
+    verifiedTeacherBadge: "Verified Educator",
+    signedInAs: "Signed in as",
+    teacherPortalDesc: "Access classroom diagnostics, monitor learning gap profiles, and generate printable practice worksheets.",
+    goToDashboard: "Go to Classroom Dashboard",
+    launchStudentCheck: "Launch Student Assessment",
+    googleAuthFailed: "Google authentication failed or was cancelled. Please try again.",
     schoolName: "MPPS Primary School",
     class5A: "Primary School (Maths)",
 
@@ -583,6 +605,17 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     onlyAssessmentSessionCanShare: "केवल वह सत्र जिसने यह मूल्यांकन पूरा किया है, इसके शेयर लिंक को बना या प्रबंधित कर सकता है।",
     teacherView: "शिक्षक डैशबोर्ड",
     studentView: "छात्र मूल्यांकन",
+    teacherLogin: "शिक्षक लॉगिन",
+    signInWithGoogle: "Google से साइन इन करें",
+    signOut: "साइन आउट",
+    teacherPortal: "शिक्षक पोर्टल",
+    welcomeTeacher: "स्वागत है",
+    verifiedTeacherBadge: "सत्यापित शिक्षक",
+    signedInAs: "के रूप में साइन इन हैं",
+    teacherPortalDesc: "कक्षा निदान देखें, छात्र शिक्षण अंतरालों की निगरानी करें और प्रिंट करने योग्य अभ्यास वर्कशीट बनाएं।",
+    goToDashboard: "कक्षा डैशबोर्ड पर जाएं",
+    launchStudentCheck: "छात्र मूल्यांकन शुरू करें",
+    googleAuthFailed: "Google प्रमाणीकरण विफल रहा या रद्द कर दिया गया। कृपया पुनः प्रयास करें।",
     schoolName: "प्राथमिक विद्यालय (डेमो)",
     class5A: "प्राथमिक विद्यालय (गणित)",
 
@@ -831,6 +864,17 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     onlyAssessmentSessionCanShare: "ఈ అసెస్‌మెంట్‌ను పూర్తి చేసిన సెషన్ మాత్రమే దాని షేర్ లింక్‌ను సృష్టించగలదు లేదా నిర్వహించగలదు.",
     teacherView: "ఉపాధ్యాయుల డాష్‌బోర్డ్",
     studentView: "విద్యార్థి పరిశీలన",
+    teacherLogin: "ఉపాధ్యాయుల లాగిన్",
+    signInWithGoogle: "Googleతో సైన్ ఇన్ చేయండి",
+    signOut: "సైన్ అవుట్",
+    teacherPortal: "ఉపాధ్యాయ పోర్టల్",
+    welcomeTeacher: "స్వాగతం",
+    verifiedTeacherBadge: "ధృవీకరించబడిన ఉపాధ్యాయుడు",
+    signedInAs: "ఇలా సైన్ ఇన్ అయ్యారు",
+    teacherPortalDesc: "తరగతి గది విశ్లేషణలను యాక్సెస్ చేయండి, విద్యార్థుల అభ్యసన లోపాలను పర్యవేక్షించండి మరియు ప్రింట్ చేయగల సాధన వర్క్‌షీట్‌లను రూపొందించండి.",
+    goToDashboard: "తరగతి డాష్‌బోర్డ్‌కు వెళ్లండి",
+    launchStudentCheck: "విద్యార్థి అంచనాను ప్రారంభించండి",
+    googleAuthFailed: "Google ప్రామాణీకరణ విఫలమైంది లేదా రద్దు చేయబడింది. దయచేసి మళ్ళీ ప్రయత్నించండి.",
     schoolName: "ప్రాథమిక పాఠశాల (డెమో)",
     class5A: "ప్రాథమిక పాఠశాల (గణితం)",
 
