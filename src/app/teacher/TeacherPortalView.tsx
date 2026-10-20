@@ -7,11 +7,8 @@ import {
   ChalkboardTeacher,
   ShieldCheck,
   Brain,
-  FileText,
   TrendUp,
-  User,
-  ArrowRight,
-  Sparkle
+  ArrowRight
 } from '@phosphor-icons/react';
 import { createClient } from '@/lib/supabase/client';
 import { DICTS } from '@/lib/i18n/dict';

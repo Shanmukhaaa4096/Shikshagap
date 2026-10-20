@@ -50,6 +50,7 @@ export default async function SharedReportPage({ params }: PageProps) {
     notFound();
   }
 
+  // eslint-disable-next-line react-hooks/purity
   if (report.expires_at && Date.now() > new Date(report.expires_at).getTime()) {
     notFound();
   }
