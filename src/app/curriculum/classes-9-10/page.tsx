@@ -6,11 +6,11 @@ import { ArrowLeft, ArrowRight, Brain, BookOpen, CheckCircle } from "@phosphor-i
 export const metadata: Metadata = {
   title: `Classes 9 and 10 Maths Learning Gaps: Secondary Board Readiness | ${siteConfig.siteName}`,
   description:
-    "Diagnose secondary mathematics learning gaps in Classes 9 and 10 for CBSE NCERT and ICSE board readiness, covering polynomials, quadratics, and trig.",
+    "Preview planned secondary mathematics curriculum for Classes 9 and 10 across NCERT (CBSE) and ICSE. Diagnostic assessments currently in preparation.",
   openGraph: {
     title: `Classes 9 and 10 Maths Learning Gaps: Secondary Board Readiness | ${siteConfig.siteName}`,
     description:
-      "Diagnose secondary mathematics learning gaps in Classes 9 and 10 for CBSE NCERT and ICSE board readiness, covering polynomials, quadratics, and trig.",
+      "Preview planned secondary mathematics curriculum for Classes 9 and 10 across NCERT (CBSE) and ICSE. Diagnostic assessments currently in preparation.",
     url: `${siteConfig.siteUrl}/curriculum/classes-9-10`,
     siteName: siteConfig.siteName,
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: `${siteConfig.siteName} Classes 9 and 10 Mathematics` }],
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `Classes 9 and 10 Maths Learning Gaps: Secondary Board Readiness | ${siteConfig.siteName}`,
     description:
-      "Diagnose secondary mathematics learning gaps in Classes 9 and 10 for CBSE NCERT and ICSE board readiness, covering polynomials, quadratics, and trig.",
+      "Preview planned secondary mathematics curriculum for Classes 9 and 10 across NCERT (CBSE) and ICSE. Diagnostic assessments currently in preparation.",
     images: ["/og-image.png"],
   },
   alternates: {
@@ -44,7 +44,7 @@ export default function Classes9to10Page() {
               href="/assessment"
               className="neo-btn neo-btn-primary px-4 py-2 text-xs font-bold rounded-full flex items-center gap-1.5 cursor-pointer"
             >
-              <span>Assess Class 9–10</span>
+              <span>Assess Live Classes (3 to 5)</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -53,6 +53,13 @@ export default function Classes9to10Page() {
 
       <main id="main-content" className="flex-1 py-10 px-4 sm:px-6 lg:px-8">
         <article className="max-w-4xl mx-auto space-y-10">
+          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-foreground text-xs sm:text-sm font-sans flex items-start gap-3">
+            <span className="font-bold uppercase tracking-wider font-mono text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-900 dark:text-amber-100 shrink-0">Planned Curriculum Preview</span>
+            <div>
+              <strong>This is a preview of the planned curriculum for Classes 9 and 10.</strong> Interactive diagnostic assessments for these grades are currently in preparation. Live assessments are currently available for Classes 3 to 5.
+            </div>
+          </div>
+
           <header className="space-y-4 border-b border-border pb-8">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono font-bold uppercase">
               <BookOpen className="w-3.5 h-3.5" />
@@ -62,7 +69,7 @@ export default function Classes9to10Page() {
               Classes 9 and 10 Mathematics: Polynomials, Quadratics & Trigonometry
             </h1>
             <p className="text-base sm:text-lg text-foreground/85 leading-relaxed max-w-3xl font-sans">
-              Diagnosing board-level prerequisite gaps for Class 10 CBSE (NCERT Rationalised 2024–25 & Exemplar) and ICSE (CISCE / ML Aggarwal / Selina).
+              Diagnosing board-level prerequisite gaps for Class 10 NCERT (CBSE Rationalised 2024-2025 & Exemplar) and ICSE (CISCE / ML Aggarwal / Selina).
             </p>
           </header>
 
@@ -133,10 +140,10 @@ export default function Classes9to10Page() {
 
           <section className="p-6 rounded-3xl bg-card border border-primary/30 space-y-3 text-center">
             <h2 className="editorial-title text-2xl font-bold text-foreground">
-              Assess a Class 9 or 10 Student Now
+              Classes 9 and 10 Assessments in Preparation
             </h2>
             <p className="text-sm text-foreground/80 max-w-lg mx-auto font-sans">
-              Takes just 6 minutes with dual-board NCERT/ICSE difficulty calibration and step-by-step diagnostic reasoning.
+              Diagnostic assessments for secondary classes are currently being developed. You can run live diagnostic assessments for Classes 3 to 5 right now.
             </p>
             <div className="pt-1">
               <Link
@@ -144,7 +151,7 @@ export default function Classes9to10Page() {
                 className="neo-btn neo-btn-primary px-8 py-3 text-base font-bold rounded-full inline-flex items-center gap-2 cursor-pointer"
               >
                 <Brain className="w-5 h-5 text-primary-foreground" />
-                <span>Start Free Assessment</span>
+                <span>Start Live Assessment (Classes 3 to 5)</span>
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </div>

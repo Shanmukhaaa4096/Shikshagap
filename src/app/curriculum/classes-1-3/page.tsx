@@ -6,11 +6,11 @@ import { ArrowLeft, ArrowRight, Brain, BookOpen, CheckCircle } from "@phosphor-i
 export const metadata: Metadata = {
   title: `Classes 1 to 3 Maths Learning Gaps: Foundational Numeracy | ${siteConfig.siteName}`,
   description:
-    "Diagnose foundational mathematics learning gaps in Classes 1, 2, and 3. Aligned to NCERT Joyful Mathematics and ICSE CISCE for early number confidence.",
+    "Diagnose foundational mathematics learning gaps in Class 3, with planned curriculum preview for Classes 1 and 2. Aligned to NCERT (CBSE) Joyful Mathematics and ICSE CISCE for early number confidence.",
   openGraph: {
     title: `Classes 1 to 3 Maths Learning Gaps: Foundational Numeracy | ${siteConfig.siteName}`,
     description:
-      "Diagnose foundational mathematics learning gaps in Classes 1, 2, and 3. Aligned to NCERT Joyful Mathematics and ICSE CISCE for early number confidence.",
+      "Diagnose foundational mathematics learning gaps in Class 3, with planned curriculum preview for Classes 1 and 2. Aligned to NCERT (CBSE) Joyful Mathematics and ICSE CISCE for early number confidence.",
     url: `${siteConfig.siteUrl}/curriculum/classes-1-3`,
     siteName: siteConfig.siteName,
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: `${siteConfig.siteName} Classes 1 to 3 Mathematics` }],
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `Classes 1 to 3 Maths Learning Gaps: Foundational Numeracy | ${siteConfig.siteName}`,
     description:
-      "Diagnose foundational mathematics learning gaps in Classes 1, 2, and 3. Aligned to NCERT Joyful Mathematics and ICSE CISCE for early number confidence.",
+      "Diagnose foundational mathematics learning gaps in Class 3, with planned curriculum preview for Classes 1 and 2. Aligned to NCERT (CBSE) Joyful Mathematics and ICSE CISCE for early number confidence.",
     images: ["/og-image.png"],
   },
   alternates: {
@@ -44,7 +44,7 @@ export default function Classes1to3Page() {
               href="/assessment"
               className="neo-btn neo-btn-primary px-4 py-2 text-xs font-bold rounded-full flex items-center gap-1.5 cursor-pointer"
             >
-              <span>Assess Class 1–3</span>
+              <span>Assess Class 3 (Live)</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -53,6 +53,13 @@ export default function Classes1to3Page() {
 
       <main id="main-content" className="flex-1 py-10 px-4 sm:px-6 lg:px-8">
         <article className="max-w-4xl mx-auto space-y-10">
+          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-foreground text-xs sm:text-sm font-sans flex items-start gap-3">
+            <span className="font-bold uppercase tracking-wider font-mono text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-900 dark:text-amber-100 shrink-0">Status Notice</span>
+            <div>
+              <strong>Class 3 diagnostic assessments are live.</strong> Classes 1 and 2 are a preview of the planned curriculum; interactive assessments for Classes 1 and 2 are currently in preparation.
+            </div>
+          </div>
+
           <header className="space-y-4 border-b border-border pb-8">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono font-bold uppercase">
               <BookOpen className="w-3.5 h-3.5" />
@@ -62,7 +69,7 @@ export default function Classes1to3Page() {
               Classes 1 to 3 Mathematics: Foundational Numeracy & Concept Diagnostics
             </h1>
             <p className="text-base sm:text-lg text-foreground/85 leading-relaxed max-w-3xl font-sans">
-              Building concrete number sense, place value comprehension, and arithmetic intuition aligned to NCERT Joyful Mathematics / Math-Magic and ICSE CISCE curriculum guidelines.
+              Building concrete number sense, place value comprehension, and arithmetic intuition aligned to NCERT (CBSE) Joyful Mathematics / Math-Magic and ICSE CISCE curriculum guidelines.
             </p>
           </header>
 
@@ -137,10 +144,10 @@ export default function Classes1to3Page() {
 
           <section className="p-6 rounded-3xl bg-card border border-primary/30 space-y-3 text-center">
             <h2 className="editorial-title text-2xl font-bold text-foreground">
-              Assess a Class 1, 2, or 3 Learner Now
+              Assess a Class 3 Learner Now
             </h2>
             <p className="text-sm text-foreground/80 max-w-lg mx-auto font-sans">
-              Takes just 6 minutes with clean visual prompts and trilingual instructions in English, Hindi, and Telugu.
+              Takes just 6 minutes with clean visual prompts and trilingual instructions in English, Hindi, and Telugu for Class 3. Assessments for Classes 1 and 2 are currently in preparation.
             </p>
             <div className="pt-1">
               <Link
@@ -148,7 +155,7 @@ export default function Classes1to3Page() {
                 className="neo-btn neo-btn-primary px-8 py-3 text-base font-bold rounded-full inline-flex items-center gap-2 cursor-pointer"
               >
                 <Brain className="w-5 h-5 text-primary-foreground" />
-                <span>Start Free Assessment</span>
+                <span>Start Class 3 Assessment</span>
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </div>

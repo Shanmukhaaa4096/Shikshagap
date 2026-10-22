@@ -21,6 +21,11 @@ import {
   getClassConfig, 
   DEFAULT_CLASS_ID 
 } from '@/lib/curriculum/classes';
+import { 
+  getComputedStats, 
+  LIVE_CLASS_RANGE_LABEL, 
+  LIVE_CLASS_SUMMARY 
+} from '@/lib/coverage';
 import { siteConfig } from '@/config/site';
 import { generateQuestion } from '@/lib/questions/generator';
 import { makeRng } from '@/lib/rng';
@@ -108,13 +113,7 @@ function PublicLandingPageContent() {
     }
   };
 
-  // Dynamic worksheet preview sample question
-  const targetConcept: ConceptId = (activeClassConfig.targetConcepts.find(
-    (c): c is ConceptId => c in CONCEPTS
-  ) || 'mult_facts');
-  const previewRng = makeRng(42);
-  const previewSampleQ1 = generateQuestion(targetConcept, 1, previewRng);
-  const previewSampleQ2 = generateQuestion(targetConcept, 2, previewRng);
+  const computedStats = getComputedStats();
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -124,7 +123,7 @@ function PublicLandingPageContent() {
         'name': 'ShikshaGap',
         'applicationCategory': 'EducationalApplication',
         'operatingSystem': 'Web Browser',
-        'description': 'AI agent that assesses students across Classes 3 to 5 and finds their foundational learning gaps.',
+        'description': `AI agent that assesses students across ${LIVE_CLASS_RANGE_LABEL} and finds their foundational learning gaps.`,
         'offers': {
           '@type': 'Offer',
           'price': '0',
@@ -179,7 +178,7 @@ function PublicLandingPageContent() {
             <FlowerPetal size={16} color="#F4C542" />
             <span className="font-bold text-primary tracking-wide">SHIKSHAGAP &bull; PRIMARY MATHEMATICS</span>
             <span className="opacity-40 hidden md:inline">|</span>
-            <span className="hidden md:inline italic text-muted-foreground">The unboxing starts before you open it.</span>
+            <span className="hidden md:inline italic text-muted-foreground">Diagnostic assessment and targeted practice for Indian classrooms.</span>
           </div>
           <div className="hidden sm:flex items-center gap-2 text-xs">
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#C7DDAE]/50 dark:bg-[#2A3E1F] text-foreground font-semibold">
@@ -579,10 +578,7 @@ function PublicLandingPageContent() {
         </section>
 
         {/* SECTION 03: HOW THE AGENT WORKS (Modular Specimen Section) */}
-        <LandingHowAgentWorksSection
-          sampleQ1Expression={previewSampleQ1.expression || '4 x 6 = ?'}
-          sampleQ2Expression={previewSampleQ2.expression || '7 x 8 = ?'}
-        />
+        <LandingHowAgentWorksSection />
 
         {/* SECTION 04: PRODUCT DEMO (Modular Interactive Case Dossier) */}
         <LandingDemoSection />
@@ -600,7 +596,7 @@ function PublicLandingPageContent() {
           {/* Editorial Pull-Quote */}
           <div className="max-w-4xl mb-10">
             <blockquote className="font-heading text-2xl sm:text-3xl lg:text-4xl leading-tight text-foreground">
-              &ldquo;A curriculum map of 15 connected concepts, taught across 3 Indian regional languages, with zero tracking cookies and built following DPDP Act 2023 principles.&rdquo;
+              &ldquo;A curriculum map of {computedStats.conceptsCount} connected concepts across {LIVE_CLASS_RANGE_LABEL}, taught in {computedStats.languagesCount} Indian languages, with zero tracking cookies and built following DPDP Act 2023 principles.&rdquo;
             </blockquote>
           </div>
 
@@ -608,19 +604,19 @@ function PublicLandingPageContent() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-6 border-t border-[#C7DDAE]/60">
             <div className="rounded-[20px] bg-[#C7DDAE]/20 p-5 border border-[#C7DDAE]/50">
               <div className="font-heading text-5xl sm:text-6xl font-bold text-primary leading-none">
-                15
+                {computedStats.conceptsCount}
               </div>
               <div className="text-xs font-sans uppercase tracking-wider text-foreground mt-2 font-bold">
                 Concepts in DAG
               </div>
               <div className="text-xs text-muted-foreground mt-0.5">
-                Single unified acyclic graph
+                Prerequisite dependency graph across {LIVE_CLASS_RANGE_LABEL}
               </div>
             </div>
 
             <div className="rounded-[20px] bg-[#FFF7E6] dark:bg-[#1C2817] p-5 border border-[#C7DDAE]/50">
               <div className="font-heading text-5xl sm:text-6xl font-bold text-accent leading-none">
-                03
+                {String(computedStats.languagesCount).padStart(2, '0')}
               </div>
               <div className="text-xs font-sans uppercase tracking-wider text-foreground mt-2 font-bold">
                 Languages Supported
@@ -632,13 +628,13 @@ function PublicLandingPageContent() {
 
             <div className="rounded-[20px] bg-[#C7DDAE]/20 p-5 border border-[#C7DDAE]/50">
               <div className="font-heading text-5xl sm:text-6xl font-bold text-foreground leading-none">
-                10
+                {String(computedStats.liveClassesCount).padStart(2, '0')}
               </div>
               <div className="text-xs font-sans uppercase tracking-wider text-foreground mt-2 font-bold">
-                Classes Enabled (1 to 10)
+                Live Classes ({LIVE_CLASS_RANGE_LABEL})
               </div>
               <div className="text-xs text-muted-foreground mt-0.5">
-                Aligned to Class 1 to 10 topics
+                Classes 3 to 5 live; Classes 1, 2, 6–10 in preparation
               </div>
             </div>
 
@@ -650,7 +646,7 @@ function PublicLandingPageContent() {
                 Tracking Cookies
               </div>
               <div className="text-xs text-muted-foreground mt-0.5">
-                Local device session storage only
+                Essential session storage only, no ad trackers
               </div>
             </div>
           </div>
@@ -714,7 +710,7 @@ function PublicLandingPageContent() {
               <span className="text-primary font-bold">Shiksha<span className="text-accent">Gap</span></span>
             </div>
             <p className="text-xs text-muted-foreground mt-2 max-w-md leading-relaxed">
-              AI-powered learning gap detection and personalized remediation for Indian schools, Classes 1 to 10 across NCERT and ICSE curricula.
+              AI-powered learning gap detection and personalized remediation for Indian schools, Classes 3 to 5 maths (with more classes in preparation) across NCERT (CBSE) and ICSE curricula.
             </p>
             <div className="mt-4 text-xs text-muted-foreground flex items-center gap-2">
               <GiftBoxMotif size={15} />
@@ -779,7 +775,7 @@ function PublicLandingPageContent() {
             AI Diagnostic
           </span>
           <span className="text-[12px] font-sans text-foreground font-bold">
-            Class 1 to 10 Math
+            Classes 3 to 5 Math
           </span>
         </div>
         <Link

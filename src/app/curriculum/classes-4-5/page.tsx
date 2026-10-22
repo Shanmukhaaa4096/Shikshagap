@@ -6,11 +6,11 @@ import { ArrowLeft, ArrowRight, Brain, BookOpen, CheckCircle } from "@phosphor-i
 export const metadata: Metadata = {
   title: `Classes 4 and 5 Maths Learning Gaps: Preparatory Mathematics | ${siteConfig.siteName}`,
   description:
-    "Identify preparatory mathematics learning gaps in Classes 4 and 5 across NCERT Math-Magic and ICSE CISCE, covering multi-digit math, fractions, and area.",
+    "Identify preparatory mathematics learning gaps in Classes 4 and 5 across NCERT (CBSE) Math-Magic and ICSE CISCE, covering multi-digit math, fractions, and area.",
   openGraph: {
     title: `Classes 4 and 5 Maths Learning Gaps: Preparatory Mathematics | ${siteConfig.siteName}`,
     description:
-      "Identify preparatory mathematics learning gaps in Classes 4 and 5 across NCERT Math-Magic and ICSE CISCE, covering multi-digit math, fractions, and area.",
+      "Identify preparatory mathematics learning gaps in Classes 4 and 5 across NCERT (CBSE) Math-Magic and ICSE CISCE, covering multi-digit math, fractions, and area.",
     url: `${siteConfig.siteUrl}/curriculum/classes-4-5`,
     siteName: siteConfig.siteName,
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: `${siteConfig.siteName} Classes 4 and 5 Mathematics` }],
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `Classes 4 and 5 Maths Learning Gaps: Preparatory Mathematics | ${siteConfig.siteName}`,
     description:
-      "Identify preparatory mathematics learning gaps in Classes 4 and 5 across NCERT Math-Magic and ICSE CISCE, covering multi-digit math, fractions, and area.",
+      "Identify preparatory mathematics learning gaps in Classes 4 and 5 across NCERT (CBSE) Math-Magic and ICSE CISCE, covering multi-digit math, fractions, and area.",
     images: ["/og-image.png"],
   },
   alternates: {
@@ -44,7 +44,7 @@ export default function Classes4to5Page() {
               href="/assessment"
               className="neo-btn neo-btn-primary px-4 py-2 text-xs font-bold rounded-full flex items-center gap-1.5 cursor-pointer"
             >
-              <span>Assess Class 4–5</span>
+              <span>Assess Classes 4 and 5</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -53,6 +53,13 @@ export default function Classes4to5Page() {
 
       <main id="main-content" className="flex-1 py-10 px-4 sm:px-6 lg:px-8">
         <article className="max-w-4xl mx-auto space-y-10">
+          <div className="p-4 rounded-2xl bg-primary/10 border border-primary/30 text-foreground text-xs sm:text-sm font-sans flex items-start gap-3">
+            <span className="font-bold uppercase tracking-wider font-mono text-xs px-2 py-0.5 rounded bg-primary/20 text-primary shrink-0">Live Assessments</span>
+            <div>
+              <strong>Classes 4 and 5 diagnostic assessments are fully live.</strong> Test multi-digit arithmetic, fractions, decimals, and measurement across NCERT (CBSE) and ICSE curricula with instant remediation plans.
+            </div>
+          </div>
+
           <header className="space-y-4 border-b border-border pb-8">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-mono font-bold uppercase">
               <BookOpen className="w-3.5 h-3.5" />
@@ -62,7 +69,7 @@ export default function Classes4to5Page() {
               Classes 4 and 5 Mathematics: Multi-Digit Operations, Fractions & Measurement
             </h1>
             <p className="text-base sm:text-lg text-foreground/85 leading-relaxed max-w-3xl font-sans">
-              Navigating the critical cognitive leap from concrete counting to multiplicative reasoning, rational parts, and geometric mensuration under NCERT Math-Magic and ICSE CISCE.
+              Navigating the critical cognitive leap from concrete counting to multiplicative reasoning, rational parts, and geometric mensuration under NCERT (CBSE) Math-Magic and ICSE CISCE.
             </p>
           </header>
 
@@ -136,7 +143,7 @@ export default function Classes4to5Page() {
               Assess a Class 4 or 5 Student Now
             </h2>
             <p className="text-sm text-foreground/80 max-w-lg mx-auto font-sans">
-              Takes just 6 minutes with dual-board NCERT/ICSE difficulty calibration and an instant 5-day printable remedial worksheet.
+              Takes just 6 minutes with dual-board NCERT (CBSE) and ICSE difficulty calibration and an instant 5-day printable remedial worksheet.
             </p>
             <div className="pt-1">
               <Link

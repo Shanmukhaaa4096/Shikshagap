@@ -2,6 +2,7 @@
 
 import type { DemoStudentData } from "@/lib/data/demo";
 import { useI18n } from "@/lib/i18n/context";
+import { getClassConfig } from "@/lib/curriculum/classes";
 import { ArrowRight, WarningCircle } from "@phosphor-icons/react";
 import { FlowerPetal, BotanicalLeaf, WarmSparkle } from "@/components/illustrations/FloralMotifs";
 
@@ -112,7 +113,7 @@ export function StudentHome({
           <FlowerPetal size={36} />
         </div>
         <span className="text-xs font-sans uppercase tracking-wider font-bold text-primary flex items-center justify-center gap-1.5">
-          <BotanicalLeaf size={14} /> Class 5 Mathematics
+          <BotanicalLeaf size={14} /> {getClassConfig(student.classroomId || "class_5").label} Mathematics
         </span>
         <h1 className="font-heading text-3xl sm:text-4xl font-bold text-foreground">
           {greetingWord}, {student.name}!

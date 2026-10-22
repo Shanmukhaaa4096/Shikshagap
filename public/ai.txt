@@ -1,5 +1,6 @@
 # ai.txt for shikshagap.vercel.app
 # Policy for AI crawlers and AI training. Keep this consistent with robots.txt.
+# Scope: Diagnostic mathematics assessment for Classes 3 to 5 (Classes 1, 2, 6-10 in preparation), aligned to NCERT (CBSE) and ICSE.
 
 User-Agent: *
 Allow: /

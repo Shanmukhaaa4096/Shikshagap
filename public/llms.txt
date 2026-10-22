@@ -2,7 +2,7 @@
 
 > ShikshaGap is an AI-powered learning gap detection and personalised remediation tool for Indian school students and teachers. It finds the root-cause prerequisite concept behind a student's mistakes instead of only reporting marks, then gives a short action plan and printable worksheets.
 
-ShikshaGap currently focuses on school Mathematics. It supports English, Hindi and Telugu. Questions are aligned to NCERT and ICSE syllabi.
+ShikshaGap currently focuses on school Mathematics across Classes 3 to 5 (with more classes in preparation). It supports English, Hindi and Telugu. Questions are aligned to NCERT (CBSE) and ICSE syllabi.
 
 ## Main pages
 
