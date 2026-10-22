@@ -110,7 +110,7 @@ export function LandingBentoSection() {
                 Built Following DPDP Act 2023 Principles &amp; Zero Surveillance
               </h3>
               <p className="text-xs sm:text-sm text-foreground/80 leading-relaxed mb-4">
-                Zero tracking cookies, zero third-party advertising trackers, and strictly necessary local storage only. Children are never profiled.
+                Zero tracking cookies, zero third-party advertising trackers. Essential local session storage on device, with encrypted cloud storage on Supabase for teacher accounts. Children are never profiled.
               </p>
             </div>
             <div className="shrink-0 flex justify-center pb-2 sm:pb-0">
@@ -118,9 +118,9 @@ export function LandingBentoSection() {
             </div>
           </div>
           <div className="rounded-[18px] border border-[#C7DDAE] p-3.5 bg-[#C7DDAE]/20 flex flex-wrap items-center gap-2 sm:gap-4 text-xs font-sans text-muted-foreground">
-            <span className="flex items-center gap-1 font-semibold text-foreground"><ShieldCheck size={14} className="text-[var(--status-good)]" /> Cookies: 0</span>
-            <span className="flex items-center gap-1 font-semibold text-foreground"><Lock size={14} className="text-[var(--status-good)]" /> Third-Party Scripts: 0</span>
-            <span>Storage: Local Device Only</span>
+            <span className="flex items-center gap-1 font-semibold text-foreground"><ShieldCheck size={14} className="text-[var(--status-good)]" /> Ad Cookies: 0</span>
+            <span className="flex items-center gap-1 font-semibold text-foreground"><Lock size={14} className="text-[var(--status-good)]" /> Ad Trackers: 0</span>
+            <span>Storage: Essential Session &amp; Secure Cloud</span>
           </div>
         </div>
       </div>
@@ -129,7 +129,7 @@ export function LandingBentoSection() {
       <div className="mt-8 pt-8 border-t border-[#C7DDAE]/60 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="text-xs font-sans uppercase tracking-widest text-primary font-bold">
-            Curriculum Deep-Dives by Stage (NCERT &amp; ICSE Aligned)
+            Curriculum Deep-Dives by Stage (NCERT (CBSE) &amp; ICSE Aligned)
           </div>
           <a href="/learning-gaps" className="text-xs font-bold text-accent hover:underline flex items-center gap-1">
             <span>Read: What is a Learning Gap?</span>

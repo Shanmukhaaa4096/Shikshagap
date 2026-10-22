@@ -334,7 +334,7 @@ export function LandingPilotSection() {
                   <span>{pilotLoading ? 'Submitting...' : 'Submit Pilot Request'}</span>
                 </button>
                 <span className="text-xs text-muted-foreground font-sans">
-                  DPDP 2023 protected &bull; Masked storage
+                  Built following DPDP Act 2023 principles &bull; Masked storage
                 </span>
               </div>
             </form>

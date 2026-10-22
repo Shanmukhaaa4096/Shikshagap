@@ -89,7 +89,7 @@ export function CookieBanner() {
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="flex items-center gap-1.5 text-sm font-mono uppercase font-bold text-primary">
           <ShieldCheck size={16} className="text-[var(--status-good)]" />
-          <span>DPDP 2023 : Privacy Choices</span>
+          <span>Privacy Choices (DPDP 2023 Principles)</span>
         </div>
         <button
           onClick={() => handleChoice(false)}

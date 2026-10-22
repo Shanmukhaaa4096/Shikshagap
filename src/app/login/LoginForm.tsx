@@ -214,7 +214,7 @@ export default function LoginForm({ initialError = null, initialRedirect = '/app
             </button>
             <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
               <ShieldCheck size={14} className="text-primary" />
-              <span>Google OAuth 2.0 • DPDP Act 2023 Compliant</span>
+              <span>Google OAuth 2.0 • Built following DPDP Act 2023 principles</span>
             </div>
           </div>
 
@@ -398,13 +398,13 @@ export default function LoginForm({ initialError = null, initialRedirect = '/app
             &larr; Return to Public Landing Page
           </Link>
           <Link href="/privacy" className="hover:underline">
-            DPDP Compliance Policy
+            Privacy Policy (DPDP Act 2023 Principles)
           </Link>
         </div>
       </div>
 
       <footer className="w-full text-center text-xs text-muted-foreground py-4 border-t border-border">
-        ShikshaGap Educational Intelligence System. DPDP Act 2023 verified.
+        ShikshaGap Educational Intelligence System. Built following DPDP Act 2023 principles.
       </footer>
     </div>
   );

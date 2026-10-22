@@ -112,13 +112,44 @@ export default function LicensesPage() {
           </Link>
           <h1 className="font-serif text-3xl sm:text-4xl font-normal mt-3">Open Source Software Attribution</h1>
           <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground dark:text-muted-foreground mt-1">
-            Compliant with Third-Party Notice Requirements
+            Notice of Open Source and Third-Party Dependencies
           </p>
         </div>
 
-        <p className="text-xs text-foreground/80 dark:text-muted-foreground leading-relaxed mb-8">
-          ShikshaGap is built with appreciation for the open-source software community. In accordance with the license conditions of our dependencies, the copyright notices and permissions for core libraries are reproduced below.
-        </p>
+        <section className="mb-10 space-y-4">
+          <h2 className="font-serif text-xl font-bold text-foreground">
+            Third-Party Cloud Service Providers &amp; Data Processors
+          </h2>
+          <p className="text-xs text-foreground/80 dark:text-muted-foreground leading-relaxed">
+            In compliance with our transparent data-handling policy, the following third-party infrastructure providers act as data processors for specific technical functions:
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-sans">
+            <div className="p-4 rounded border border-border bg-card">
+              <h3 className="font-bold text-sm text-foreground mb-1">Supabase, Inc.</h3>
+              <p className="text-muted-foreground mb-2">Cloud Database &amp; Vector Storage</p>
+              <p className="text-xs text-foreground/80">Provides PostgreSQL and pgvector for teacher account credentials, 14-day shared report links, and anonymous mathematical question embeddings.</p>
+            </div>
+            <div className="p-4 rounded border border-border bg-card">
+              <h3 className="font-bold text-sm text-foreground mb-1">Google LLC</h3>
+              <p className="text-muted-foreground mb-2">Google Gemini API</p>
+              <p className="text-xs text-foreground/80">Generates contextual question phrasing and 5-day remediation plan summaries using concept-level mathematical data with zero student personal names or roll numbers.</p>
+            </div>
+            <div className="p-4 rounded border border-border bg-card">
+              <h3 className="font-bold text-sm text-foreground mb-1">Vercel, Inc.</h3>
+              <p className="text-muted-foreground mb-2">Application Hosting &amp; Analytics</p>
+              <p className="text-xs text-foreground/80">Hosts application infrastructure with TLS encryption. Optionally collects aggregate, anonymous web analytics only when explicitly accepted by the user.</p>
+            </div>
+          </div>
+        </section>
+
+        <div className="border-t border-border pt-8 mb-6">
+          <h2 className="font-serif text-xl font-bold text-foreground mb-2">
+            Open Source Software Licenses
+          </h2>
+          <p className="text-xs text-foreground/80 dark:text-muted-foreground leading-relaxed">
+            ShikshaGap is built with appreciation for the open-source software community. In accordance with the license conditions of our dependencies, the copyright notices and permissions for core libraries are reproduced below.
+          </p>
+        </div>
 
         <div className="space-y-6">
           {LICENSES.map((lib, i) => (

@@ -403,7 +403,7 @@ export default function VerificationClient() {
             <Link href="/login" className="hover:underline">
               &larr; Return to Login
             </Link>
-            <span className="font-mono text-xs">DPDP Act 2023 Compliant</span>
+            <span className="font-mono text-xs">Built following DPDP Act 2023 principles</span>
           </div>
         </div>
       </div>

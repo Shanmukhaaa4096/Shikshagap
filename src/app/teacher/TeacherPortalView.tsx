@@ -197,7 +197,7 @@ export default function TeacherPortalView({
         <footer className="p-4 rounded-[18px] bg-card border border-border text-xs text-muted-foreground flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-primary shrink-0" weight="bold" />
-            <span>DPDP Act 2023 Compliant • Student assessment records are strictly isolated.</span>
+            <span>Built following DPDP Act 2023 principles • Student assessment records are strictly isolated.</span>
           </div>
 
           <div className="flex items-center gap-3">

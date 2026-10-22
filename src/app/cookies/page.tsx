@@ -61,10 +61,10 @@ export default function CookiesPage() {
 
         <section className="space-y-3">
           <h2 className="font-serif text-xl font-bold text-foreground">
-            Zero Advertising &amp; Zero Tracking Cookies
+            Zero Advertising &amp; Zero Cross-Site Trackers
           </h2>
           <p className="text-xs text-foreground/80 dark:text-muted-foreground leading-relaxed">
-            We do NOT use Google Analytics, advertising trackers, tracking pixels, behavioral monitors, or UTM campaign tracking. No cookie consent banner is needed because we store no non-essential data.
+            We do NOT use Google Analytics, advertising trackers, tracking pixels, behavioral monitors, or third-party ad networks. We provide a cookie and privacy choices banner that allows educators to optionally accept or decline anonymous usage metrics (Vercel Web Analytics) to help us improve classroom tool performance.
           </p>
         </section>
 
@@ -100,6 +100,24 @@ export default function CookiesPage() {
                   <td className="p-2.5">localStorage</td>
                   <td className="p-2.5">Saves user theme choice (light cream / dark brown mode)</td>
                   <td className="p-2.5">Persistent on device</td>
+                </tr>
+                <tr>
+                  <td className="p-2.5 font-mono font-bold">shikshagap_board_preference</td>
+                  <td className="p-2.5">localStorage</td>
+                  <td className="p-2.5">Saves selected educational board (NCERT (CBSE) or ICSE)</td>
+                  <td className="p-2.5">Persistent on device</td>
+                </tr>
+                <tr>
+                  <td className="p-2.5 font-mono font-bold">shikshagap_cookie_consent</td>
+                  <td className="p-2.5">localStorage</td>
+                  <td className="p-2.5">Records user consent choice for anonymous usage analytics (accepted / rejected)</td>
+                  <td className="p-2.5">Persistent on device</td>
+                </tr>
+                <tr>
+                  <td className="p-2.5 font-mono font-bold">sessionStorage</td>
+                  <td className="p-2.5">sessionStorage</td>
+                  <td className="p-2.5">Holds active diagnostic session steps and attempt state on device memory</td>
+                  <td className="p-2.5">Cleared when browser tab is closed</td>
                 </tr>
               </tbody>
             </table>

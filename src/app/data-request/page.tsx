@@ -5,11 +5,11 @@ import DataRequestForm from "./DataRequestForm";
 export const metadata: Metadata = {
   title: `Data Rights & Request Form | ${siteConfig.siteName}`,
   description:
-    "Exercise student data rights under India's DPDP Act 2023: Request access to, correction of, or permanent deletion of student diagnostic assessment records.",
+    "Exercise student data rights following India's DPDP Act 2023 principles: Request access to, correction of, or permanent deletion of student diagnostic assessment records.",
   openGraph: {
     title: `Data Rights & Request Form | ${siteConfig.siteName}`,
     description:
-      "Exercise student data rights under India's DPDP Act 2023: Request access to, correction of, or permanent deletion of student diagnostic assessment records.",
+      "Exercise student data rights following India's DPDP Act 2023 principles: Request access to, correction of, or permanent deletion of student diagnostic assessment records.",
     url: `${siteConfig.siteUrl}/data-request`,
     siteName: siteConfig.siteName,
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: `${siteConfig.siteName} Data Request Form` }],
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `Data Rights & Request Form | ${siteConfig.siteName}`,
     description:
-      "Exercise student data rights under India's DPDP Act 2023: Request access to, correction of, or permanent deletion of student diagnostic assessment records.",
+      "Exercise student data rights following India's DPDP Act 2023 principles: Request access to, correction of, or permanent deletion of student diagnostic assessment records.",
     images: ["/og-image.png"],
   },
   alternates: {

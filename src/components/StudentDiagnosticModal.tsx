@@ -823,7 +823,7 @@ export function StudentDiagnosticModal({
               <div className="border border-[var(--border)] p-5 bg-[var(--card)] space-y-4">
                 <div>
                   <span className="text-sm font-mono uppercase text-primary font-bold">
-                    Child Privacy Protected (DPDP Act 2023)
+                    Child Privacy Safeguarded (DPDP Act 2023 Principles)
                   </span>
                   <h3 className="font-serif text-lg font-bold text-[var(--foreground)] mt-0.5">
                     Generate Private 7-Day Parent Progress Note

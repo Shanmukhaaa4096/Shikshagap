@@ -9,11 +9,11 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: `Privacy Policy | ${siteConfig.siteName}`,
   description:
-    "Read ShikshaGap's privacy policy and child data protection practices under India's DPDP Act 2023, ensuring zero tracking and strict educational privacy.",
+    "Read ShikshaGap's privacy policy and child data protection practices built following India's DPDP Act 2023 principles, ensuring zero advertising tracking and strict educational privacy.",
   openGraph: {
     title: `Privacy Policy | ${siteConfig.siteName}`,
     description:
-      "Read ShikshaGap's privacy policy and child data protection practices under India's DPDP Act 2023, ensuring zero tracking and strict educational privacy.",
+      "Read ShikshaGap's privacy policy and child data protection practices built following India's DPDP Act 2023 principles, ensuring zero advertising tracking and strict educational privacy.",
     url: `${siteConfig.siteUrl}/privacy`,
     siteName: siteConfig.siteName,
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: `${siteConfig.siteName} Privacy Policy` }],
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `Privacy Policy | ${siteConfig.siteName}`,
     description:
-      "Read ShikshaGap's privacy policy and child data protection practices under India's DPDP Act 2023, ensuring zero tracking and strict educational privacy.",
+      "Read ShikshaGap's privacy policy and child data protection practices built following India's DPDP Act 2023 principles, ensuring zero advertising tracking and strict educational privacy.",
     images: ["/og-image.png"],
   },
   alternates: {
@@ -168,6 +168,7 @@ export default function PrivacyPage() {
             <li><strong>Hosting:</strong> Vercel Inc. (cloud infrastructure with TLS encryption in transit and at rest).</li>
             <li><strong>Database &amp; Persistent Question Memory:</strong> Supabase Inc. (PostgreSQL with pgvector for question memory and shared report links). The Question-Memory table stores only verified mathematical problem text, 768-dimensional embeddings, and anonymous aggregate counters (times served, times correct). Zero student names, roll numbers, session IDs, or individual student responses are ever written to the database. Access is strictly server-side using service-role authentication with Row Level Security (RLS) enabled and zero public access policies.</li>
             <li><strong>AI Diagnostic Analysis &amp; Knowledge RAG:</strong> Google Gemini API (Flash models &amp; gemini-embedding-001). Student identifiers sent to Gemini are anonymized pseudonyms (e.g., anon_4b8f), and real student names, roll numbers, or student answers are never passed in prompt contexts or embedding queries. Embedding calls process strictly static curriculum textbook text and concept-level search queries server-side.</li>
+            <li><strong>Optional Analytics:</strong> Vercel Web Analytics is loaded only if you explicitly choose to enable anonymous usage analytics via the cookie and privacy choices banner. If declined or unprompted, zero analytics scripts or cookies are loaded.</li>
             <li><strong>Fonts:</strong> Self-hosted at build time via next/font; zero runtime requests to third-party CDNs or external font servers.</li>
           </ul>
           <div className="p-3 bg-card dark:bg-card border border-border rounded-[2px] text-xs text-foreground/80 dark:text-muted-foreground leading-relaxed">
@@ -181,7 +182,7 @@ export default function PrivacyPage() {
             4. Special Safeguards for Children
           </h2>
           <p className="text-xs text-foreground/80 dark:text-muted-foreground leading-relaxed">
-            In compliance with Section 9 of the DPDP Act 2023, ShikshaGap enforces strict safeguards regarding minors:
+            Following the child data protection principles of Section 9 of the DPDP Act 2023, ShikshaGap enforces strict safeguards regarding minors:
           </p>
           <ul className="list-disc list-inside text-xs space-y-1 text-foreground/80 dark:text-muted-foreground">
             <li><strong>No Tracking:</strong> Zero tracking cookies, zero pixel tags, and zero device fingerprinting.</li>
