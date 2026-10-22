@@ -50,7 +50,7 @@ export function getSampleReportData(): SampleReportData {
     rootId: rootConceptId,
     symptomIds: [targetConceptId],
     chain: [targetConceptId, intermediateConceptId, rootConceptId],
-    severity: "critical",
+    severity: "high",
     confidence: 0.95,
     rootMastery: 0.42,
     uncheckedPrereqs: [],
@@ -107,19 +107,19 @@ export function getSampleReportData(): SampleReportData {
       "Day 1 to 2: Physical bundle exchange (tens to units). Day 3: Crossing out and column regrouping on slate. Day 4 to 5: 1-page paper checks.",
     fiveDayPlanDetails: plan.days.map((d) => ({
       day: d.day,
-      title: d.title.raw,
-      activity: d.activity.raw,
+      title: "raw" in d.title ? d.title.raw : String(d.title.key),
+      activity: "raw" in d.activity ? d.activity.raw : String(d.activity.key),
     })),
     sampleWorksheet: {
       targetSkillId: rootConceptId,
       targetSkillTitle: "Target Skill: Subtraction with Regrouping",
       q1: {
         expression: q1.expression || "54 − 28 = ?",
-        prompt: q1.prompt,
+        prompt: "raw" in q1.prompt ? q1.prompt.raw : String(q1.prompt.key),
       },
       q2: {
         expression: q2.expression || "62 − 37 = ?",
-        prompt: q2.prompt,
+        prompt: "raw" in q2.prompt ? q2.prompt.raw : String(q2.prompt.key),
       },
       footerClaim:
         "Generated and verified by code • Classroom Diagnostic • Form SG-A4-2026",

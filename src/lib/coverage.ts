@@ -12,7 +12,8 @@
  * - Naming convention for boards is strictly: "NCERT (CBSE)" and "ICSE".
  */
 
-import { CONCEPTS, type Concept } from "./concepts/graph.ts";
+import { CONCEPTS } from "./concepts/graph.ts";
+import type { Concept } from "./types.ts";
 import { ALL_CURRICULUM_CONCEPTS_LIST } from "../data/curriculum/index.ts";
 
 export type ClassStatus = "live" | "coming_soon";

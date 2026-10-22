@@ -1050,15 +1050,8 @@ export function generateQuestion(
     const base = generatorFn(difficulty, rng, effectiveCtx, grade);
     const finalBoard: "CBSE" | "ICSE" =
       targetBoard || (base.board === "ICSE" ? "ICSE" : "CBSE");
-    const synced = syncQuestionProvenance(
-      {
-        ...base,
-        board: finalBoard,
-      },
-      finalBoard
-    );
-    return {
-      ...synced,
+    const fullQuestion: Question = {
+      ...base,
       id: uid("q"),
       conceptId,
       difficulty,
@@ -1066,6 +1059,7 @@ export function generateQuestion(
       board: finalBoard,
       linkedFrom: effectiveCtx.link?.conceptId,
     };
+    return syncQuestionProvenance(fullQuestion, finalBoard);
   }
 
   // Fallback for curriculum concepts across Classes 1-10
