@@ -24,6 +24,7 @@ All nine architectural features and required security, mobile-first, and regulat
 | **Feature 9: Admin Audit Log** | Completed | Append-only audit trail at `/app/audit-log` for school admins with action/date filters, self-logging, responsive desktop table and stacked mobile cards. |
 | **Feature 10: Classes 1 to 10 Multi-Board Curriculum & Question Engine** | Completed | Full NCERT (NCF-SE 2023 / NCF-FS) and ICSE (CISCE) curriculum models for Classes 1 to 10; 180+ concepts with verified provenance citations; 4-tier difficulty calibration starting at Tier 2; strict board isolation; cross-grade DAG prerequisite backtracking. |
 | **Feature 11: Curriculum Knowledge RAG & Grounded Pedagogy** | Completed | 92 Class 5 curriculum chunks (200-400 words) anchored to DAG concepts; 768-dim normalized embeddings with content-hash cache; cosine retriever with strict board isolation; grounds hints, misconceptions, 5-day remediation (zero-cost manipulatives), and generation style; deterministic math verification untouched; 100.0% Hit@4 measured (30/30). |
+| **Feature 12: Persistent Question-Memory RAG & Empirical Calibration** | Completed | Supabase pgvector store with HNSW index and strict board isolation; interface pattern with `SupabaseQuestionStore` (prod) and `LocalJsonQuestionStore` (dev/test); write path embeds 768-dim vector, deduplicates at cosine $\ge 0.92$, updates aggregate outcome counters (`times_served`, `times_correct`); read path prevents repetition, serves proven low-exposure items, and calibrates difficulty empirically when $N \ge 20$; teacher flagging endpoint `/api/teacher/flag-question`; idempotent backfill script `scripts/seedQuestionMemory.mjs`. |
 
 ---
 
@@ -100,6 +101,30 @@ All nine architectural features and required security, mobile-first, and regulat
 - **Prompt Injection Defense & Zod Validation**: Context is demarcated inside delimited `<context>` tags with explicit instructions that chunk text is untrusted educational data and never system instructions. Gemini outputs are validated using Zod schemas (`usedChunkIds`).
 - **Privacy Compliance**: Server-side only. Zero student names, roll numbers, or student answers are ever embedded or sent to embedding endpoints.
 - **Empirical Retrieval Evaluation**: Measured Hit@4 on 30 labelled queries (`tests/fixtures/labelled-queries.json`) achieved **100.0% (30/30)** with 0% cross-board leakage.
+
+### Feature 12: Persistent Question-Memory RAG & Empirical Calibration
+- **Interface-Driven Storage (`src/lib/db/questionStore.ts`)**:
+  - Implements `QuestionStore` interface supporting production `SupabaseQuestionStore` (PostgreSQL with `pgvector`) and local/test `LocalJsonQuestionStore`.
+  - Automatically switches based on `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`.
+- **Database Schema & Indexes (`supabase/migrations/20261022000000_question_memory.sql`)**:
+  - `question_memory` table storing question text, verified answer value, format, difficulty (1–5), board ("CBSE" | "ICSE"), class, concept ID, normalized text SHA-256 fingerprint, 768-dim vector embedding, and aggregate counters (`times_served`, `times_correct`).
+  - HNSW index on `embedding vector_cosine_ops` for fast similarity search.
+  - Btree indexes on `(board, class, concept_id, difficulty)` and unique constraint on `fingerprint`.
+  - Row Level Security (RLS) enabled with **zero public policies**; server-only access via service role key.
+  - SQL function `match_questions()` performs pre-filtered cosine similarity search with strict board, class, and concept filtering.
+- **Write Path & Deduplication**:
+  - Canonical question text normalization via `src/lib/questions/fingerprint.ts` (lowercasing, Indic digit mapping, stripping symbols and whitespace).
+  - 768-dim document embedding using `gemini-embedding-001`.
+  - Deduplication gate skips insertion if nearest neighbor similarity $\ge 0.92$ (`DUPLICATE_THRESHOLD`) or identical fingerprint exists.
+  - Non-blocking async execution ensures question generation never crashes or stalls.
+- **Read Path & Three-Way Utilization**:
+  - Injects nearest stored questions into generation prompt as explicit anti-repetition constraints.
+  - Serves proven, unasked stored questions directly when fitting target difficulty, prioritizing items with low `times_served`.
+  - Calibrates difficulty empirically from `times_correct / times_served` once an item reaches 20 impressions ($N \ge 20$).
+- **Teacher Flagging & Safe Upkeep**:
+  - Protected API endpoint `/api/teacher/flag-question` allows authenticated teachers to flag questions (`flagged = true`), removing them from all future retrieval.
+  - Idempotent backfill script `scripts/seedQuestionMemory.mjs` populates validated questions across Classes 3–5 with `--wipe` capability.
+  - Strict privacy invariant: Zero student names, roll numbers, session IDs, or individual responses are stored.
 
 ---
 

@@ -89,6 +89,16 @@ Redistribution and use in source and binary forms, with or without modification,
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 http://www.apache.org/licenses/LICENSE-2.0`
+  },
+  {
+    name: '@supabase/supabase-js',
+    version: '2.x',
+    author: 'Supabase, Inc.',
+    license: 'MIT License',
+    url: 'https://github.com/supabase/supabase-js',
+    text: `MIT License
+Copyright (c) 2026 Supabase, Inc.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files.`
   }
 ];
 

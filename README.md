@@ -54,9 +54,11 @@ Create `.env.local` based on `.env.example`:
 
 | Variable | Required | Description |
 |---|---|---|
-| `GEMINI_API_KEY` | Optional | Google Gemini API key used by the Examiner and Analyst agents. When absent, the system operates deterministically on code-gate fallback with zero crashes. |
-| `DATABASE_URL` | Optional | PostgreSQL connection string with pgvector support for persistent question memory. When absent, operates in-memory with safe fallbacks. |
-| `CRON_SECRET` | Recommended in prod | Secret token securing the automated memory upkeep route (`/api/cron/memory-upkeep`). |
+| `GEMINI_API_KEY` | Optional | Google Gemini API key used for generation and 768-dim embeddings (`gemini-embedding-001`). When absent, the system operates deterministically on code-gate fallback with zero crashes. |
+| `SUPABASE_URL` | Optional | Supabase project URL for pgvector question memory and shared reports. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Optional (Server Only) | Supabase service role key (bypasses RLS). STRICTLY SERVER-SIDE: never use `NEXT_PUBLIC_` or expose to browser. |
+| `DATABASE_URL` | Optional | PostgreSQL connection string for persistent teacher accounts and classrooms. |
+| `CRON_SECRET` | Recommended in prod | Secret token securing automated upkeep routes (`/api/cron/memory-upkeep`). |
 | `SESSION_SECRET` | Recommended in prod | 32-byte secret for HMAC signing of auth session cookies. |
 | `IP_SALT` | Recommended in prod | Salt for one-way pseudonymized IP hashing in audit logs. |
 | `DEMO_TEACHER_PASSWORD` / `DEMO_TEACHER_HASH` | Optional | Explicit password or bcrypt hash to enable demo teacher login. Disabled by default in production and development unless explicitly set. |
@@ -147,7 +149,69 @@ ShikshaGap integrates a Knowledge RAG system (`src/lib/rag/`) to ground Gemini i
 
 ---
 
-## 7. Question Engine Quality Evaluation Script
+## 7. Persistent Question-Memory RAG & Operating Guide
+
+ShikshaGap features a persistent Question-Memory RAG (`src/lib/db/questionStore.ts`) backed by Supabase Postgres with `pgvector` (production) and a local JSON store (development & offline testing):
+
+### Storage Architecture & Interface
+- **Interface Abstraction (`QuestionStore`)**: Seamlessly switches between `SupabaseQuestionStore` (when `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are configured) and `LocalJsonQuestionStore` (when offline or in test suites).
+- **Schema & Indexes (`question_memory`)**: Stores question text, answer value, format, difficulty (1–5), board ("CBSE" | "ICSE"), class, concept ID, normalized text hash (`fingerprint`), 768-dimensional embedding vector, and aggregate counters (`times_served`, `times_correct`).
+- **Index Optimization**: HNSW cosine distance index on `embedding`, composite btree index on `(board, class, concept_id, difficulty)`, and unique index on `fingerprint`.
+- **Security & RLS**: Row Level Security is enabled with **zero public policies**. Access is restricted strictly to server routes using the service role key.
+
+### Write Path: Deduplication & Quality Filtering
+- After a generated question passes deterministic operand validation and the blind-solver check:
+  1. Computes a canonical SHA-256 fingerprint from normalized text and operands.
+  2. Embeds the question text using `gemini-embedding-001` (768 dimensions, L2-normalized).
+  3. Checks nearest-neighbor cosine similarity: if similarity $\ge 0.92$ (`DUPLICATE_THRESHOLD`), the duplicate is skipped. Otherwise, it is saved.
+
+### Read Path: Three-Way Utilization
+- **Anti-Repetition Prompting**: Nearest stored questions are passed to Gemini inside generation prompts as explicit "do not repeat or closely paraphrase" constraints.
+- **Direct Proven Reuse**: When a stored question matches the required concept, board, and difficulty, and has not been seen by the student in the current session, it is served directly, prioritizing low `times_served` items.
+- **Empirical Difficulty Calibration**: Once an item reaches 20 attempts (`times_served >= 20`), the adaptive difficulty engine estimates empirical difficulty from `times_correct / times_served` to calibrate question difficulty.
+
+### Operating the Question Memory
+
+#### 1. Running the Database Migration
+In the Supabase SQL Editor or via Supabase CLI, run:
+```sql
+-- Migration file located at: supabase/migrations/20261022000000_question_memory.sql
+-- Enables vector extension, creates question_memory table, HNSW indexes, RLS, and match_questions() RPC
+```
+
+#### 2. Seeding Question Memory (Idempotent Backfill)
+Backfill validated questions across CBSE and ICSE Classes 3–5:
+```bash
+npm run seed:questions
+```
+The script computes fingerprints and embeddings for each candidate question. Re-running it is completely idempotent (duplicates are skipped).
+
+#### 3. Flagging Problematic Questions
+Teachers can flag bad or ambiguous questions via the protected API:
+```bash
+POST /api/teacher/flag-question
+Content-Type: application/json
+
+{
+  "questionId": "00000000-0000-0000-0000-000000000000",
+  "reason": "Ambiguous word problem phrasing"
+}
+```
+Setting `flagged = true` instantly excludes the question from all future retrieval and rotation.
+
+#### 4. Wiping Question Memory (Maintenance)
+To wipe local development question memory:
+```bash
+npm run seed:questions -- --wipe
+```
+Or in Supabase SQL editor:
+```sql
+TRUNCATE TABLE question_memory;
+```
+
+---
+
+## 8. Question Engine Quality Evaluation Script
 
 Run the automated quality evaluation script to verify mathematical accuracy, range compliance, blind-solver agreement, and format variety:
 

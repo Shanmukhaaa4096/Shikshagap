@@ -166,11 +166,12 @@ export default function PrivacyPage() {
           </p>
           <ul className="list-disc list-inside text-xs space-y-1.5 text-foreground/80 dark:text-muted-foreground">
             <li><strong>Hosting:</strong> Vercel Inc. (cloud infrastructure with TLS encryption in transit and at rest).</li>
+            <li><strong>Database &amp; Persistent Question Memory:</strong> Supabase Inc. (PostgreSQL with pgvector for question memory and shared report links). The Question-Memory table stores only verified mathematical problem text, 768-dimensional embeddings, and anonymous aggregate counters (times served, times correct). Zero student names, roll numbers, session IDs, or individual student responses are ever written to the database. Access is strictly server-side using service-role authentication with Row Level Security (RLS) enabled and zero public access policies.</li>
             <li><strong>AI Diagnostic Analysis &amp; Knowledge RAG:</strong> Google Gemini API (Flash models &amp; gemini-embedding-001). Student identifiers sent to Gemini are anonymized pseudonyms (e.g., anon_4b8f), and real student names, roll numbers, or student answers are never passed in prompt contexts or embedding queries. Embedding calls process strictly static curriculum textbook text and concept-level search queries server-side.</li>
             <li><strong>Fonts:</strong> Self-hosted at build time via next/font; zero runtime requests to third-party CDNs or external font servers.</li>
           </ul>
           <div className="p-3 bg-card dark:bg-card border border-border rounded-[2px] text-xs text-foreground/80 dark:text-muted-foreground leading-relaxed">
-            <strong>Cross-Border Processing Disclosure:</strong> While ShikshaGap is tailored for Indian schools, technical data may be processed by Google (Gemini) and Vercel on secure cloud servers located outside India. All such transfers are subject to rigorous encryption, pseudonymous masking of student records, and strict data confidentiality agreements.
+            <strong>Cross-Border Processing Disclosure:</strong> While ShikshaGap is tailored for Indian schools, technical data may be processed by Google (Gemini), Supabase (PostgreSQL), and Vercel on secure cloud servers. All such processing is subject to rigorous encryption in transit and at rest, pseudonymous masking of student records, strict service-role isolation, and zero behavioral tracking or child profiling.
           </div>
         </section>
 
