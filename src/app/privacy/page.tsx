@@ -166,7 +166,7 @@ export default function PrivacyPage() {
           </p>
           <ul className="list-disc list-inside text-xs space-y-1.5 text-foreground/80 dark:text-muted-foreground">
             <li><strong>Hosting:</strong> Vercel Inc. (cloud infrastructure with TLS encryption in transit and at rest).</li>
-            <li><strong>AI Diagnostic Analysis:</strong> Google Gemini API (Interactions API / Flash models). Student identifiers sent to Gemini are anonymized pseudonyms (e.g., anon_4b8f), and real student names are never passed in prompt contexts.</li>
+            <li><strong>AI Diagnostic Analysis &amp; Knowledge RAG:</strong> Google Gemini API (Flash models &amp; gemini-embedding-001). Student identifiers sent to Gemini are anonymized pseudonyms (e.g., anon_4b8f), and real student names, roll numbers, or student answers are never passed in prompt contexts or embedding queries. Embedding calls process strictly static curriculum textbook text and concept-level search queries server-side.</li>
             <li><strong>Fonts:</strong> Self-hosted at build time via next/font; zero runtime requests to third-party CDNs or external font servers.</li>
           </ul>
           <div className="p-3 bg-card dark:bg-card border border-border rounded-[2px] text-xs text-foreground/80 dark:text-muted-foreground leading-relaxed">

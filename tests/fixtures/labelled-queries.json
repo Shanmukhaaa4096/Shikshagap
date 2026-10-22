@@ -1,0 +1,182 @@
+[
+  {
+    "id": "q01",
+    "query": "How to multiply 3 digit by 2 digit numbers using area box model and partial products",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "multi_digit_mult", "type": "explanation" },
+    "expectedChunkId": "ncert-cl5-mdm-exp-01"
+  },
+  {
+    "id": "q02",
+    "query": "Zero cost classroom verandah floor grid with chalk and tamarind seeds for multiplication",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "multi_digit_mult", "type": "activity" },
+    "expectedChunkId": "ncert-cl5-mdm-act-02"
+  },
+  {
+    "id": "q03",
+    "query": "Student forgets zero in tens row during column multiplication shifting place value",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "multi_digit_mult", "type": "misconception" },
+    "expectedChunkId": "ncert-cl5-mdm-misc-03"
+  },
+  {
+    "id": "q04",
+    "query": "Multi digit multiplication step by step checklist for units and tens rows",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "multi_digit_mult", "type": "hint" },
+    "expectedChunkId": "ncert-cl5-mdm-hint-04"
+  },
+  {
+    "id": "q05",
+    "query": "Why does division algorithm require four steps divide multiply subtract bring down",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "long_division", "type": "explanation" },
+    "expectedChunkId": "ncert-cl5-ld-exp-01"
+  },
+  {
+    "id": "q06",
+    "query": "Play money currency notes trading hundreds and tens for long division bank activity",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "long_division", "type": "activity" },
+    "expectedChunkId": "ncert-cl5-ld-act-02"
+  },
+  {
+    "id": "q07",
+    "query": "Omitting zero in quotient middle when digit cannot be divided 618 divided by 6",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "long_division", "type": "misconception" },
+    "expectedChunkId": "ncert-cl5-ld-misc-03"
+  },
+  {
+    "id": "q08",
+    "query": "దీర్ఘ భాగాహారం పదుల స్థానంలో సున్నా ఉంచడం స్థాన విలువల ప్రకారం లెక్కించడం",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "long_division", "type": "hint", "lang": "te" },
+    "expectedChunkId": "ncert-cl5-ld-hint-04"
+  },
+  {
+    "id": "q09",
+    "query": "Division word problems difference between sharing and grouping quotative partitive",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "division_word", "type": "explanation" },
+    "expectedChunkId": "ncert-cl5-dw-exp-01"
+  },
+  {
+    "id": "q10",
+    "query": "Mid day meal ration dispatch remainder interpretation rounding up vans and containers",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "division_word", "type": "activity" },
+    "expectedChunkId": "ncert-cl5-dw-act-02"
+  },
+  {
+    "id": "q11",
+    "query": "Equivalent fractions visual models chapati parts multiplying numerator and denominator by same number",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "equivalent_fractions", "type": "explanation" },
+    "expectedChunkId": "ncert-cl5-ef-exp-01"
+  },
+  {
+    "id": "q12",
+    "query": "Paper folding fraction wall strips newspaper fourths eighths alignment desk activity",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "equivalent_fractions", "type": "activity" },
+    "expectedChunkId": "ncert-cl5-ef-act-02"
+  },
+  {
+    "id": "q13",
+    "query": "Additive equivalence fallacy adding same number to numerator and denominator 2/3 becomes 4/5",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "equivalent_fractions", "type": "misconception" },
+    "expectedChunkId": "ncert-cl5-ef-misc-03"
+  },
+  {
+    "id": "q14",
+    "query": "तुल्य भिन्न अंश और हर दोनों को एक ही संख्या से गुणा करना रोटी उदाहरण",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "equivalent_fractions", "type": "hint", "lang": "hi" },
+    "expectedChunkId": "ncert-cl5-ef-hint-04"
+  },
+  {
+    "id": "q15",
+    "query": "Comparing fractions unlike denominators common denominator cross multiplication butterfly method",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "comparing_fractions", "type": "explanation" },
+    "expectedChunkId": "ncert-cl5-cf-exp-01"
+  },
+  {
+    "id": "q16",
+    "query": "Fraction addition unlike denominators finding LCM and equivalent fractions before adding numerators",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "fraction_addition", "type": "explanation" },
+    "expectedChunkId": "ncert-cl5-fa-exp-01"
+  },
+  {
+    "id": "q17",
+    "query": "Student adds numerators and adds denominators across 1/3 plus 1/4 equals 2/7",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "fraction_addition", "type": "misconception" },
+    "expectedChunkId": "ncert-cl5-fa-misc-03"
+  },
+  {
+    "id": "q18",
+    "query": "Decimals place value tenths hundredths metric rupees paise division by ten and hundred",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "cbse_5_decimals", "type": "explanation" },
+    "expectedChunkId": "ncert-cl5-dec-exp-01"
+  },
+  {
+    "id": "q19",
+    "query": "Angles classification acute obtuse right angle reflex rotation turn",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "cbse_5_angles", "type": "explanation" },
+    "expectedChunkId": "ncert-cl5-ang-exp-01"
+  },
+  {
+    "id": "q20",
+    "query": "Area on grid paper square centimeters counting full and half squares surface measurement",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "cbse_5_area", "type": "explanation" },
+    "expectedChunkId": "ncert-cl5-ar-exp-01"
+  },
+  {
+    "id": "q21",
+    "query": "Volume concept cubic centimeters 3D space solid blocks length breadth height",
+    "options": { "board": "NCERT", "class": 5, "conceptId": "cbse_5_volume", "type": "explanation" },
+    "expectedChunkId": "ncert-cl5-vol-exp-01"
+  },
+  {
+    "id": "q22",
+    "query": "Indian and International place value periods commas lakhs millions 8 digit numbers",
+    "options": { "board": "ICSE", "class": 5, "conceptId": "icse_5_numbers_operations", "type": "explanation" },
+    "expectedChunkId": "icse-cl5-no-exp-01"
+  },
+  {
+    "id": "q23",
+    "query": "Digit card trading commas in lakhs versus millions international periods ICSE activity",
+    "options": { "board": "ICSE", "class": 5, "conceptId": "icse_5_numbers_operations", "type": "activity" },
+    "expectedChunkId": "icse-cl5-no-act-02"
+  },
+  {
+    "id": "q24",
+    "query": "HCF and LCM prime factorization division method highest common factor least common multiple",
+    "options": { "board": "ICSE", "class": 5, "conceptId": "icse_5_hcf_lcm", "type": "explanation" },
+    "expectedChunkId": "icse-cl5-hl-exp-01"
+  },
+  {
+    "id": "q25",
+    "query": "Factor tree paper leaves common multiple Venn diagram prime factors activity",
+    "options": { "board": "ICSE", "class": 5, "conceptId": "icse_5_hcf_lcm", "type": "activity" },
+    "expectedChunkId": "icse-cl5-hl-act-02"
+  },
+  {
+    "id": "q26",
+    "query": "Fraction division reciprocal keep change flip dividing fractions by fraction",
+    "options": { "board": "ICSE", "class": 5, "conceptId": "icse_5_fractions_ops", "type": "explanation" },
+    "expectedChunkId": "icse-cl5-fo-exp-01"
+  },
+  {
+    "id": "q27",
+    "query": "Decimal operations column alignment multiplying decimals counting total decimal places",
+    "options": { "board": "ICSE", "class": 5, "conceptId": "icse_5_decimals_ops", "type": "explanation" },
+    "expectedChunkId": "icse-cl5-do-exp-01"
+  },
+  {
+    "id": "q28",
+    "query": "Percentage per hundred converting fraction to percentage 100 bead string",
+    "options": { "board": "ICSE", "class": 5, "conceptId": "icse_5_percentages", "type": "explanation" },
+    "expectedChunkId": "icse-cl5-pct-exp-01"
+  },
+  {
+    "id": "q29",
+    "query": "Unitary method two steps find cost of one unit then multiply for required quantity",
+    "options": { "board": "ICSE", "class": 5, "conceptId": "icse_5_unitary_average", "type": "explanation" },
+    "expectedChunkId": "icse-cl5-ua-exp-01"
+  },
+  {
+    "id": "q30",
+    "query": "Angles in a triangle sum to 180 degrees paper corner tearing straight line activity",
+    "options": { "board": "ICSE", "class": 5, "conceptId": "icse_5_geometry", "type": "activity" },
+    "expectedChunkId": "icse-cl5-geo-act-02"
+  }
+]
