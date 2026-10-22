@@ -13,6 +13,9 @@
  */
 
 import { computeDeterministicQueryEmbedding, cosineSimilarity } from "../agents/resourceAdvisor.ts";
+import { getQuestionStore } from "./questionStore.ts";
+
+export * from "./questionStore.ts";
 
 export interface ValidatedQuestionRecord {
   id: string;
@@ -460,7 +463,12 @@ export async function reportQuestion(
   questionId: string,
   _reason?: string
 ): Promise<{ success: boolean; requiresApproval: boolean }> {
-  void _reason;
+  try {
+    const store = getQuestionStore();
+    await store.flagQuestion(questionId, _reason);
+  } catch {
+    // Non-blocking
+  }
   const record = memoryStore.questions.get(questionId);
   if (!record) {
     return { success: false, requiresApproval: false };
