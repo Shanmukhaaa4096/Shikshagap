@@ -4,13 +4,18 @@ import Link from 'next/link';
 import { ArrowRight } from '@phosphor-icons/react';
 import { WorksheetPreviewIllustration } from '@/components/illustrations/WorksheetPreviewIllustration';
 import { FlowerPetal, BotanicalLeaf, WarmSparkle } from '@/components/illustrations/FloralMotifs';
+import { getSampleReportData } from '@/lib/data/sampleReportData';
 
 interface Props {
-  sampleQ1Expression: string;
-  sampleQ2Expression: string;
+  sampleQ1Expression?: string;
+  sampleQ2Expression?: string;
 }
 
 export function LandingHowAgentWorksSection({ sampleQ1Expression, sampleQ2Expression }: Props) {
+  const sampleData = getSampleReportData();
+  const q1Exp = sampleQ1Expression || sampleData.sampleWorksheet.q1.expression;
+  const q2Exp = sampleQ2Expression || sampleData.sampleWorksheet.q2.expression;
+
   return (
     <section id="how-agent-works" className="px-4 sm:px-8 py-14 max-w-7xl mx-auto bg-[#FFF7E6] dark:bg-[#1A2615] rounded-[32px] border border-[#C7DDAE]/60 my-6 shadow-card">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-[#C7DDAE]/60 pb-4">
@@ -48,10 +53,10 @@ export function LandingHowAgentWorksSection({ sampleQ1Expression, sampleQ2Expres
             </div>
             <div className="flex flex-col items-end gap-1">
               <span className="text-xs font-sans px-3 py-1 rounded-full bg-[#F4C542]/25 text-[#9E6000] dark:text-[#F4C542] border border-[#F4C542]/50 font-bold">
-                Class 5A : 42%
+                {sampleData.student.scoreLabel}
               </span>
               <span className="text-xs font-sans px-2 py-0.5 rounded-full bg-[#C7DDAE]/20 text-muted-foreground border border-[#C7DDAE]/40">
-                Sample data. Not a real student.
+                {sampleData.student.badge}
               </span>
             </div>
           </div>
@@ -60,16 +65,16 @@ export function LandingHowAgentWorksSection({ sampleQ1Expression, sampleQ2Expres
           <div className="rounded-[20px] border border-[#C7DDAE] p-4 bg-[#C7DDAE]/20 space-y-2">
             <div className="flex items-center justify-between text-xs font-sans">
               <span className="text-muted-foreground uppercase">Student:</span>
-              <strong className="text-foreground">Rajesh Kumar (Roll #7)</strong>
+              <strong className="text-foreground">{sampleData.student.name} ({sampleData.student.rollNo})</strong>
             </div>
             <div className="text-xs font-sans">
               <span className="text-accent font-bold uppercase block">Diagnosed Root Cause:</span>
               <p className="font-heading text-base font-bold text-primary">
-                Class 3 Subtraction Regrouping (Tens to Units Borrowing)
+                {sampleData.diagnosedRootCause.title}
               </p>
             </div>
             <p className="text-xs text-foreground/80 leading-relaxed italic border-t border-[#C7DDAE]/50 pt-2">
-              &ldquo;Student attempted long division in 24 / 6 by subtracting 6 repeatedly, but subtracted the smaller ones digit from the larger digit without borrowing.&rdquo;
+              &ldquo;{sampleData.diagnosedRootCause.description}&rdquo;
             </p>
           </div>
 
@@ -78,12 +83,17 @@ export function LandingHowAgentWorksSection({ sampleQ1Expression, sampleQ2Expres
             <span className="uppercase font-bold text-primary flex items-center gap-1">
               <FlowerPetal size={13} /> AI Agent Backtracking Trail:
             </span>
-            <div className="flex items-center justify-between text-xs bg-[#FFF7E6] dark:bg-[#1C2817] p-2.5 rounded-[14px] border border-[#C7DDAE]/60">
-              <span className="text-primary font-bold">Class 3 Place Value</span>
-              <ArrowRight size={13} weight="bold" className="text-accent" />
-              <span className="text-primary font-bold">Class 4 Mult Facts</span>
-              <ArrowRight size={13} weight="bold" className="text-accent" />
-              <span className="text-muted-foreground font-semibold">Class 5 Long Division</span>
+            <div className="flex flex-wrap items-center justify-between gap-1 text-xs bg-[#FFF7E6] dark:bg-[#1C2817] p-2.5 rounded-[14px] border border-[#C7DDAE]/60">
+              {sampleData.backtrackingTrail.map((node, i) => (
+                <div key={node.id} className="flex items-center gap-1">
+                  <span className={node.isRootCause ? "text-primary font-bold" : "text-muted-foreground font-semibold"}>
+                    {node.label}
+                  </span>
+                  {i < sampleData.backtrackingTrail.length - 1 && (
+                    <ArrowRight size={13} weight="bold" className="text-accent shrink-0" />
+                  )}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -93,7 +103,7 @@ export function LandingHowAgentWorksSection({ sampleQ1Expression, sampleQ2Expres
               Prescribed 5-Day Classroom Sequence:
             </span>
             <div className="text-foreground/80 leading-relaxed">
-              Day 1 to 2: Physical pebble bundles for grouping. Day 3: Inverse facts on slate. Day 4 to 5: Single-sheet paper checks.
+              {sampleData.fiveDayPlanSummary}
             </div>
           </div>
         </div>
@@ -112,7 +122,7 @@ export function LandingHowAgentWorksSection({ sampleQ1Expression, sampleQ2Expres
                 Standard A4 Print
               </span>
               <span className="text-xs font-sans px-2 py-0.5 rounded-full bg-[#C7DDAE]/20 text-muted-foreground border border-[#C7DDAE]/40">
-                Sample data. Not a real student.
+                {sampleData.student.badge}
               </span>
             </div>
           </div>
@@ -121,19 +131,19 @@ export function LandingHowAgentWorksSection({ sampleQ1Expression, sampleQ2Expres
           </div>
 
           <div className="grid grid-cols-3 gap-2 border border-[#C7DDAE] p-2.5 rounded-[16px] text-xs font-sans bg-[#C7DDAE]/20">
-            <div>STUDENT: <strong>Rajesh Kumar</strong></div>
-            <div>ROLL NO: <strong>#7</strong></div>
-            <div className="text-right">CLASS: <strong>5A</strong></div>
+            <div>STUDENT: <strong>{sampleData.student.name}</strong></div>
+            <div>ROLL NO: <strong>{sampleData.student.rollNo}</strong></div>
+            <div className="text-right">CLASS: <strong>{sampleData.student.classLabel}</strong></div>
           </div>
 
           <div className="space-y-3 pt-1">
             <div className="text-xs font-sans uppercase tracking-wider text-primary font-bold">
-              Target Skill: Equal Sharing Division Concept
+              {sampleData.sampleWorksheet.targetSkillTitle}
             </div>
 
             <div className="border border-[#C7DDAE] p-3 rounded-[16px] space-y-1 bg-white dark:bg-[#1A2615]">
               <div className="text-xs font-bold font-sans">1. Solve the following problem:</div>
-              <div className="text-xs font-mono font-bold text-primary">{sampleQ1Expression}</div>
+              <div className="text-xs font-mono font-bold text-primary">{q1Exp}</div>
               <div className="h-8 border-b border-dashed border-[#C7DDAE] flex items-end text-xs text-muted-foreground font-sans">
                 Answer: _______________________
               </div>
@@ -141,7 +151,7 @@ export function LandingHowAgentWorksSection({ sampleQ1Expression, sampleQ2Expres
 
             <div className="border border-[#C7DDAE] p-3 rounded-[16px] space-y-1 bg-white dark:bg-[#1A2615]">
               <div className="text-xs font-bold font-sans">2. Solve the following problem:</div>
-              <div className="text-xs font-mono font-bold text-primary">{sampleQ2Expression}</div>
+              <div className="text-xs font-mono font-bold text-primary">{q2Exp}</div>
               <div className="h-8 border-b border-dashed border-[#C7DDAE] flex items-end text-xs text-muted-foreground font-sans">
                 Answer: _______________________
               </div>
@@ -149,7 +159,7 @@ export function LandingHowAgentWorksSection({ sampleQ1Expression, sampleQ2Expres
           </div>
 
           <div className="pt-2 text-center text-xs font-sans text-muted-foreground border-t border-[#C7DDAE]/50">
-            Deterministic Question Bank &bull; Generated for Student Diagnosis &bull; Form SG-A4-2026
+            {sampleData.sampleWorksheet.footerClaim}
           </div>
         </div>
 
