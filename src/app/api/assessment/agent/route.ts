@@ -37,6 +37,7 @@ import {
   retrieveSimilarQuestionsSafe,
   embedQuestionText,
 } from "@/lib/db/questionStore";
+import { computeQuestionFingerprint } from "@/lib/questions/fingerprint";
 
 const AssessmentAgentSchema = z.object({
   memory: z.object({
@@ -314,9 +315,9 @@ export async function POST(req: NextRequest) {
           // Calibrate difficulty with empirical data if times_served >= 20
           const matchingCandidates = [];
           for (const c of storedCandidates) {
-            if (askedIds.has(c.id)) continue;
             const norm = normalizeQuestionText(c.question_text);
-            if (norm && askedTexts.has(norm)) continue;
+            if (norm) askedTexts.add(norm); // Deduplication: prevent generator from repeating or paraphrasing stored questions
+            if (askedIds.has(c.id)) continue;
 
             const empirical = await store.getEmpiricalDifficulty(c.id);
             const effDiff = calibrateDifficultyWithEmpiricalData(c.difficulty as DifficultyLevel, empirical);
@@ -382,7 +383,7 @@ export async function POST(req: NextRequest) {
           const synced = syncQuestionProvenance(baseQuestion, targetBoard);
 
           let candidateQ = synced;
-          if (lookupClass <= 4) {
+          if (lookupClass <= 5) {
             candidateQ = await enhanceQuestionWithHybridWording(
               synced,
               currentMemory.language,
@@ -478,6 +479,45 @@ export async function POST(req: NextRequest) {
       nextQuestion.hintSource = hintChunk?.source || ragSources[0].title;
     }
     askedIds.add(nextQuestion.id);
+
+    // Persist served question into persistent QuestionStore (Supabase in production, Local in dev/test)
+    try {
+      const store = getQuestionStore();
+      const questionText = getQuestionText(nextQuestion, currentMemory.language);
+      const rawQ = nextQuestion as unknown as { operands?: number[]; provenance?: { type?: string } };
+      const operands = Array.isArray(rawQ.operands) ? rawQ.operands : [];
+      const fingerprint = computeQuestionFingerprint(questionText, operands);
+      const embedding = await embedQuestionText(questionText, {
+        conceptId: nextAction.conceptId,
+        board: targetBoard,
+      });
+
+      const questionClass = nextQuestion.meta?.class || currentMemory.grade;
+
+      const saveRes = await store.saveQuestion({
+        id: baseId,
+        board: targetBoard,
+        class: questionClass,
+        concept_id: nextAction.conceptId,
+        lang: currentMemory.language,
+        difficulty: nextAction.level,
+        question_text: questionText,
+        answer_value: String(nextQuestion.answer ?? ""),
+        answer_format: nextQuestion.format || "numeric",
+        template_or_source: (rawQ.provenance?.type === "textbook" || nextQuestion.sourceStyle) ? "hybrid" : "gemini",
+        fingerprint,
+        embedding,
+        times_served: 1,
+        times_correct: 0,
+        flagged: false,
+      });
+
+      if (!saveRes.saved && saveRes.reason !== "duplicate_fingerprint" && saveRes.reason !== "duplicate_similarity") {
+        console.warn(`[QuestionStore] Served question save failed (${saveRes.reason}): id=${baseId}`);
+      }
+    } catch (saveErr) {
+      console.warn(`[QuestionStore] Served question save caught error:`, saveErr instanceof Error ? saveErr.message : saveErr);
+    }
 
     currentMemory.askedQuestionIds = Array.from(askedIds);
     currentMemory.askedQuestionTexts = Array.from(askedTexts);

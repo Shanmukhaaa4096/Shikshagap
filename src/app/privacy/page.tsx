@@ -58,7 +58,7 @@ export default function PrivacyPage() {
             Privacy Policy &amp; Child Data Protection
           </h1>
           <p className="text-sm text-foreground/80 dark:text-muted-foreground leading-relaxed">
-            ShikshaGap is an academic diagnostic and pedagogical intelligence application designed for elementary school teachers in Indian government schools. Because our tool assists with children&apos;s learning evaluations (Classes 3 to 5, minors under 18), we treat all student data with the highest sensitivity under India&apos;s Digital Personal Data Protection Act 2023 (DPDP Act).
+            ShikshaGap is an academic diagnostic and pedagogical intelligence application designed for elementary school teachers in Indian government schools. Because our tool assists with children&apos;s learning evaluations (Classes 1 to 10, minors under 18), we treat all student data with the highest sensitivity under India&apos;s Digital Personal Data Protection Act 2023 (DPDP Act).
           </p>
         </div>
 

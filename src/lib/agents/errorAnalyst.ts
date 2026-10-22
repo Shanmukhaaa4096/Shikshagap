@@ -11,6 +11,7 @@
 import { GoogleGenAI } from "@google/genai";
 import type { Attempt, ConceptId, TopicId } from "../types";
 import { getClassPedagogicalInstructions } from "../curriculum/classes.ts";
+import { retrieve } from "../rag/retrieve.ts";
 
 export const CONCEPT_MISCONCEPTIONS: Record<string, string[]> = {
   number_sense: ["slip", "place_value", "order_reversal", "magnitude_confusion", "unclassified"],
@@ -128,6 +129,29 @@ export async function analyzeErrors(
     }));
 
     const pedagogicalInstructions = getClassPedagogicalInstructions(grade);
+
+    // Retrieve curriculum RAG context for grounding misconception analysis
+    let retrievedChunks: Array<{ id: string; source: string; text: string }> = [];
+    try {
+      retrievedChunks = await retrieve(
+        `Class ${grade} curriculum misconceptions and student error patterns for ${primaryConcept || topicId}`,
+        {
+          board: "NCERT",
+          class: grade,
+          conceptId: primaryConcept || topicId,
+          type: "misconception",
+          k: 2,
+          client,
+        }
+      );
+    } catch {
+      retrievedChunks = [];
+    }
+
+    const contextBlock = retrievedChunks.length > 0
+      ? `<context>\n${retrievedChunks.map((r) => `[Chunk ID: ${r.id}] Source: ${r.source}\n${r.text}`).join("\n\n")}\n</context>`
+      : "";
+
     const systemInstruction = `You are the ShikshaGap Error Analyst for Class ${grade} Mathematics.
 Grade Adaptivity: ${pedagogicalInstructions}
 Analyze the student's incorrect attempts for topic "${topicId}".
@@ -149,12 +173,16 @@ Return ONLY valid JSON matching this schema:
       attempts: attemptsSummary,
     });
 
+    const fullPromptText = contextBlock
+      ? `${systemInstruction}\n\nCurriculum Grounding:\n${contextBlock}\n\nStudent Attempts:\n${prompt}`
+      : `${systemInstruction}\n\nStudent Attempts:\n${prompt}`;
+
     const response = await ai.models.generateContent({
       model,
       contents: [
         {
           role: "user",
-          parts: [{ text: `${systemInstruction}\n\nStudent Attempts:\n${prompt}` }],
+          parts: [{ text: fullPromptText }],
         },
       ],
       config: {
