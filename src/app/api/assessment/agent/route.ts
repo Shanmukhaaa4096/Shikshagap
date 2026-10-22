@@ -27,6 +27,7 @@ import { rotateSourceStyle, type SourceStyle, type DifficultyLevel } from "@/lib
 import { z } from "zod";
 import { guardRequest, createGuardResponse } from "@/lib/server/guard";
 import { getClientIp } from "@/lib/server/security";
+import { retrieve } from "@/lib/rag/retrieve.ts";
 
 const AssessmentAgentSchema = z.object({
   memory: z.object({
@@ -347,8 +348,30 @@ export async function POST(req: NextRequest) {
         isFinished: true,
         nextQuestion: null,
         action: nextAction,
+        sources: [],
       });
     }
+
+    // Call curriculum RAG retriever to ground pedagogical hints and style
+    const ragBoard = targetBoard === "ICSE" ? "ICSE" : (currentMemory.boardPreference === "CBSE" ? "CBSE" : "NCERT");
+    let retrievedChunks: Array<{ id: string; source: string; text: string; type: string }> = [];
+    try {
+      retrievedChunks = await retrieve(
+        `Class ${currentMemory.grade} maths curriculum pedagogy and hints for ${nextAction.conceptId}`,
+        {
+          board: ragBoard,
+          class: currentMemory.grade,
+          conceptId: nextAction.conceptId,
+          lang: currentMemory.language,
+          k: 4,
+        }
+      );
+    } catch {
+      retrievedChunks = [];
+    }
+
+    const ragSources = retrievedChunks.map((c) => ({ id: c.id, title: c.source }));
+    const hintChunk = retrievedChunks.find((c) => c.type === "hint");
 
     // Stamp final synchronization, unique step-scoped instance ID, and record in asked lists
     const baseId = nextQuestion.id.split("_s")[0];
@@ -360,6 +383,12 @@ export async function POST(req: NextRequest) {
     nextQuestion = syncQuestionProvenance(nextQuestion, targetBoard);
     nextQuestion.sourceStyle = nextQuestion.sourceStyle || targetSourceStyle;
     nextQuestion.id = `${baseId}_s${currentStep + 1}_${Date.now()}`;
+    if (!nextQuestion.ragSources && ragSources.length > 0) {
+      nextQuestion.ragSources = ragSources;
+    }
+    if (!nextQuestion.hintSource && (hintChunk || ragSources.length > 0)) {
+      nextQuestion.hintSource = hintChunk?.source || ragSources[0].title;
+    }
     askedIds.add(nextQuestion.id);
 
     currentMemory.askedQuestionIds = Array.from(askedIds);
@@ -380,6 +409,7 @@ export async function POST(req: NextRequest) {
         conceptId: nextAction.conceptId,
         sourceStyle: nextQuestion.sourceStyle || targetSourceStyle,
       },
+      sources: ragSources,
     });
   } catch (error) {
     console.error("[AgentRoute] Assessment error (sanitized, zero student data):", error instanceof Error ? error.message : "Internal error");

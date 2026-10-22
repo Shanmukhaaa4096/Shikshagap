@@ -278,6 +278,7 @@ export interface Dict {
   err_remainder: string;
   err_dont_know: string;
   err_unclassified: string;
+  basedOn: string;
 }
 
 export const DICTS: Record<"en" | "hi" | "te", Dict> = {
@@ -543,6 +544,7 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     err_remainder: "Remainder ignored or calculated incorrectly",
     err_dont_know: "Student indicated they did not know",
     err_unclassified: "Unclassified arithmetic mistake",
+    basedOn: "Based on:",
   },
 
   hi: {
@@ -807,6 +809,7 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     err_remainder: "शेषफल छोड़ दिया या गलत निकाला",
     err_dont_know: "छात्र ने उत्तर नहीं पता बताया",
     err_unclassified: "अवर्गीकृत अंकगणितीय त्रुटि",
+    basedOn: "आधारित:",
   },
 
   te: {
@@ -1071,5 +1074,6 @@ export const DICTS: Record<"en" | "hi" | "te", Dict> = {
     err_remainder: "శేషాన్ని విస్మరించారు లేదా తప్పుగా లెక్కించారు",
     err_dont_know: "సమాధానం తెలియదని విద్యార్థి తెలిపారు",
     err_unclassified: "వర్గీకరించని లెక్క పొరపాటు",
+    basedOn: "ఆధారంగా:",
   },
 };

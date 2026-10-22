@@ -335,6 +335,11 @@ export function StudentDiagnosticModal({
                     ? `${student.name} needs help with ${t(`c_${rootCause.rootId}`)}. This foundational gap affects higher topics like ${rootCause.symptomIds.map((s) => t(`c_${s}`)).join(", ")}.`
                     : `${student.name} is on track with foundational concepts and ready for advanced Class 5 topics.`}
                 </p>
+                {activePlan?.sourceTitle && (
+                  <div className="text-xs text-[var(--muted-foreground)] font-mono mt-1">
+                    {dict.basedOn || "Based on:"} {activePlan.sourceTitle}
+                  </div>
+                )}
               </div>
 
               {/* Below: What to do next (up to 3 practice steps) */}
@@ -592,6 +597,11 @@ export function StudentDiagnosticModal({
                   <p className="text-sm text-[var(--muted-foreground)]">
                     15 minutes daily | Concrete classroom manipulatives | Zero cost
                   </p>
+                  {activePlan?.sourceTitle && (
+                    <div className="text-xs text-[var(--muted-foreground)] font-mono mt-1">
+                      {dict.basedOn || "Based on:"} {activePlan.sourceTitle}
+                    </div>
+                  )}
                 </div>
                 <div className="text-sm font-mono font-semibold bg-[var(--background)] px-2.5 py-1 rounded-[2px] border border-[var(--border)]">
                   Progress: {completedDays.length} / 5 Days Completed

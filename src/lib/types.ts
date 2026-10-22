@@ -226,6 +226,10 @@ export interface Question {
   sourceStyle?: SourceStyle;
   /** Curriculum board tag ("CBSE" or "ICSE") */
   board: Board;
+  /** Retrieved curriculum RAG sources that influenced hints, activities, or question style */
+  ragSources?: Array<{ id: string; title: string }>;
+  /** Provenance title of the curriculum chunk used for hint grounding */
+  hintSource?: string;
 }
 
 export type Classification = "correct" | ErrorType;
@@ -340,6 +344,8 @@ export interface RemediationPlan {
   aiNote?: string;
   completedDays: number[];
   reassessAfter: string;
+  sourceTitle?: string;
+  ragSources?: Array<{ id: string; title: string }>;
 }
 
 export interface PracticeSession {
@@ -572,6 +578,8 @@ export interface ResourceRecommendation {
     type: string;
     reason: string;
   }>;
+  ragSources?: Array<{ id: string; title: string }>;
+  usedChunkIds?: string[];
 }
 
 

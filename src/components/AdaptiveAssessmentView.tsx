@@ -64,7 +64,7 @@ import {
   type StaircaseAction,
 } from "@/lib/agents/staircase";
 import { generateUnique } from "@/lib/questions/generator";
-import { normalizeAnswer } from "@/lib/questions/hybridGenerator";
+import { normalizeAnswer } from "@/lib/questions/normalizeAnswer";
 import { areAnswersEquivalent } from "@/lib/questions/integrity";
 import { makeRng } from "@/lib/rng";
 import { getClassConfig, DEFAULT_CLASS_ID, SUPPORTED_CLASSES } from "@/lib/curriculum/classes";
@@ -2970,6 +2970,11 @@ export function AdaptiveAssessmentView({
                               {dict.hintLabel || "Hint"}:
                             </strong>{" "}
                             {formatTxt(currentQuestion.hint)}
+                            {currentQuestion.hintSource && (
+                              <div className="text-xs text-muted-foreground mt-1.5 font-mono">
+                                {dict.basedOn || "Based on:"} {currentQuestion.hintSource}
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>

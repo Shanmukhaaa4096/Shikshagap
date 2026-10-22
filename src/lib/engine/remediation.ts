@@ -702,6 +702,8 @@ const REMEDIATION_TEMPLATES: Record<ConceptId, PlanTemplate> = {
   },
 };
 
+import { getRemediationCurriculumItem } from "../../data/curriculum/remediationActivities.ts";
+
 /**
  * Generate a personalized 5-day remediation plan for a student based on their
  * diagnosed root cause and symptoms.
@@ -713,19 +715,33 @@ export function generateRemediationPlan(
   const template =
     REMEDIATION_TEMPLATES[rootCause.rootId] || REMEDIATION_TEMPLATES.mult_facts;
 
-  const days: PlanDay[] = template.days.map((d, index) => ({
-    day: index + 1,
-    title: { raw: d.title },
-    activity: { raw: d.activity },
-    focus: d.focus,
-    minutes: d.minutes,
-  }));
+  // Retrieve authentic zero-cost manipulative activity and curriculum source
+  const curriculumItem = getRemediationCurriculumItem(rootCause.rootId);
+  const ragSources = [
+    { id: curriculumItem.chunkId, title: curriculumItem.source },
+  ];
+  const sourceTitle = curriculumItem.source;
+
+  const days: PlanDay[] = template.days.map((d, index) => {
+    let act = d.activity;
+    // Ground Day 1 concrete manipulatives with zero-cost classroom activity from retrieved curriculum
+    if (index === 0 && curriculumItem.activityText) {
+      act = `${curriculumItem.activityText} ${d.activity}`;
+    }
+    return {
+      day: index + 1,
+      title: { raw: d.title },
+      activity: { raw: act },
+      focus: d.focus,
+      minutes: d.minutes,
+    };
+  });
 
   const symptomNames = rootCause.symptomIds
     .map((s) => CONCEPTS[s]?.strand || s)
     .join(", ");
 
-  const aiNote = `Diagnosed root cause is ${rootCause.rootId} (severity: ${rootCause.severity.toUpperCase()}, mastery: ${Math.round(rootCause.rootMastery * 100)}%). This deficit directly blocks fluency in ${symptomNames}. Recommended plan uses 15 min/day low-cost concrete manipulatives and visual scaffolding before advancing to symbolic algorithms.`;
+  const aiNote = `Diagnosed root cause is ${rootCause.rootId} (severity: ${rootCause.severity.toUpperCase()}, mastery: ${Math.round(rootCause.rootMastery * 100)}%). This deficit directly blocks fluency in ${symptomNames}. Recommended plan uses 15 min/day low-cost concrete manipulatives and visual scaffolding before advancing to symbolic algorithms. Grounded in: ${sourceTitle}.`;
 
   return {
     id: `plan_${studentId}_${rootCause.rootId}`,
@@ -738,5 +754,7 @@ export function generateRemediationPlan(
     aiNote,
     completedDays: [],
     reassessAfter: "2026-10-12",
+    sourceTitle,
+    ragSources: ragSources.length > 0 ? ragSources : undefined,
   };
 }

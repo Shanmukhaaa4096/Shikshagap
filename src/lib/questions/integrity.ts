@@ -11,7 +11,7 @@
  */
 
 import type { Question } from "../types.ts";
-import { normalizeAnswer } from "./hybridGenerator.ts";
+import { normalizeAnswer } from "./normalizeAnswer.ts";
 import { gcd } from "../rng.ts";
 
 export interface IntegrityCheckResult {
