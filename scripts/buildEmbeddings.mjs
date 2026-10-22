@@ -1,123 +1,164 @@
-#!/usr/bin/env node
-/**
- * scripts/buildEmbeddings.mjs
- *
- * Reads src/data/resources.json and creates src/data/resources.embeddings.json.
- * Uses @google/genai with the configured embedding model (defaults to text-embedding-004)
- * if GEMINI_API_KEY is available.
- * If GEMINI_API_KEY is not available (e.g. offline dev/CI), computes a deterministic
- * normalized pseudo-embedding based on term frequencies and character n-grams so the
- * file is always valid, runnable, and cosine-searchable.
- */
-
+// scripts/buildEmbeddings.mjs
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import { fileURLToPath } from "url";
+import { loadAndValidateCorpus } from "../src/lib/rag/loader.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const resourcesPath = path.resolve(__dirname, "../src/data/resources.json");
-const outputPath = path.resolve(__dirname, "../src/data/resources.embeddings.json");
 
-if (!fs.existsSync(resourcesPath)) {
-  console.error(`[build:embeddings] Resource file not found: ${resourcesPath}`);
-  process.exit(1);
+const targetEmbeddingsFile = path.resolve(__dirname, "../data/embeddings.json");
+
+import {
+  l2Normalize,
+  generateDeterministicSemanticVector,
+} from "../src/lib/rag/vector.ts";
+
+export { l2Normalize, generateDeterministicSemanticVector };
+
+export function computeContentHash(chunk) {
+  return crypto
+    .createHash("sha256")
+    .update(`${chunk.id}:${chunk.board}:${chunk.class}:${chunk.conceptId}:${chunk.type}:${chunk.lang}:${chunk.text}`)
+    .digest("hex");
 }
 
-const resources = JSON.parse(fs.readFileSync(resourcesPath, "utf-8"));
-const modelName = process.env.GEMINI_EMBEDDING_MODEL || "text-embedding-004";
-const apiKey = process.env.GEMINI_API_KEY;
-
-/**
- * Deterministic fallback embedding generator (dimension 128)
- * Hashes tokens and character n-grams to produce a unit-normalized vector.
- */
-export function generateDeterministicEmbedding(text, dim = 128) {
-  const vec = new Float64Array(dim);
-  const normalized = text.toLowerCase();
-  const words = normalized.split(/\W+/).filter(Boolean);
-
-  // Bag of words hash
-  for (const word of words) {
-    let hash = 0;
-    for (let i = 0; i < word.length; i++) {
-      hash = (hash << 5) - hash + word.charCodeAt(i);
-      hash |= 0;
-    }
-    const idx = Math.abs(hash) % dim;
-    vec[idx] += 1.0;
-  }
-
-  // 3-grams hash for sub-word and multilingual character matching
-  for (let i = 0; i < normalized.length - 2; i++) {
-    const gram = normalized.slice(i, i + 3);
-    let hash = 0;
-    for (let j = 0; j < gram.length; j++) {
-      hash = (hash << 5) - hash + gram.charCodeAt(j);
-      hash |= 0;
-    }
-    const idx = Math.abs(hash) % dim;
-    vec[idx] += 0.5;
-  }
-
-  // L2 normalize
-  let norm = 0;
-  for (let i = 0; i < dim; i++) {
-    norm += vec[i] * vec[i];
-  }
-  norm = Math.sqrt(norm);
-  if (norm > 0) {
-    for (let i = 0; i < dim; i++) {
-      vec[i] /= norm;
-    }
-  }
-
-  return Array.from(vec);
+async function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function main() {
-  console.log(`[build:embeddings] Processing ${resources.length} resources...`);
-  const embeddings = {};
+async function embedWithGemini(ai, text, retries = 5) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await ai.models.embedContent({
+        model: "gemini-embedding-001",
+        contents: text,
+        config: {
+          taskType: "RETRIEVAL_DOCUMENT",
+          outputDimensionality: 768,
+        },
+      });
 
-  let genAI = null;
+      const values = response?.embedding?.values;
+      if (!values || !Array.isArray(values) || values.length === 0) {
+        throw new Error("Invalid or empty embedding values returned by Gemini API");
+      }
+      return l2Normalize(values);
+    } catch (err) {
+      const isRateLimit = err?.status === 429 || String(err).includes("429") || String(err).includes("RESOURCE_EXHAUSTED");
+      if (isRateLimit && attempt < retries) {
+        const backoff = Math.pow(2, attempt) * 1000 + Math.random() * 500;
+        console.warn(`[Embedding Rate Limited] Backing off for ${Math.round(backoff)}ms (attempt ${attempt}/${retries})...`);
+        await sleep(backoff);
+      } else if (attempt < retries) {
+        const backoff = 1000 * attempt;
+        console.warn(`[Embedding Error] ${err?.message || err}. Retrying in ${backoff}ms...`);
+        await sleep(backoff);
+      } else {
+        throw err;
+      }
+    }
+  }
+}
+
+export async function buildEmbeddings() {
+  console.log("Loading and validating curriculum knowledge corpus...");
+  const chunks = loadAndValidateCorpus();
+  console.log(`Corpus loaded successfully: ${chunks.length} valid chunks.`);
+
+  // Load existing cache
+  const force = process.argv.includes("--force");
+  let existingCache = new Map();
+  if (!force && fs.existsSync(targetEmbeddingsFile)) {
+    try {
+      const raw = JSON.parse(fs.readFileSync(targetEmbeddingsFile, "utf-8"));
+      if (Array.isArray(raw)) {
+        for (const entry of raw) {
+          if (entry.id && entry.contentHash && Array.isArray(entry.vector) && entry.vector.length === 768) {
+            existingCache.set(entry.id, entry);
+          }
+        }
+      }
+      console.log(`Loaded ${existingCache.size} existing cached embeddings.`);
+    } catch {
+      console.warn("Could not parse existing data/embeddings.json. Building from scratch.");
+    }
+  }
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  let ai = null;
   if (apiKey) {
     try {
       const { GoogleGenAI } = await import("@google/genai");
-      genAI = new GoogleGenAI({ apiKey });
-      console.log(`[build:embeddings] Using Gemini API with model: ${modelName}`);
+      ai = new GoogleGenAI({ apiKey });
+      console.log("Gemini API client initialized with GEMINI_API_KEY for embedding generation.");
     } catch (err) {
-      console.warn(`[build:embeddings] Failed to load GoogleGenAI client: ${err.message}. Using deterministic fallback.`);
+      console.warn("Failed to initialize GoogleGenAI client:", err?.message);
     }
   } else {
-    console.log(`[build:embeddings] GEMINI_API_KEY not set. Using deterministic fallback embeddings.`);
+    console.log("No GEMINI_API_KEY detected in environment. Using deterministic semantic vectors for build.");
   }
 
-  for (let i = 0; i < resources.length; i++) {
-    const item = resources[i];
-    const textToEmbed = `${item.title}. ${item.description}. Topic: ${item.topicId}. Concepts: ${item.conceptIds.join(", ")}. Grade: ${item.grade.join(", ")}. Language: ${item.language}.`;
+  const embeddedChunks = [];
+  let reusedCount = 0;
+  let computedCount = 0;
 
-    if (genAI) {
+  for (let i = 0; i < chunks.length; i++) {
+    const chunk = chunks[i];
+    const hash = computeContentHash(chunk);
+    const cached = existingCache.get(chunk.id);
+
+    if (cached && cached.contentHash === hash) {
+      // Unchanged chunk, reuse embedding
+      embeddedChunks.push({
+        ...chunk,
+        contentHash: hash,
+        vector: cached.vector,
+      });
+      reusedCount++;
+      continue;
+    }
+
+    // Must embed
+    let vector;
+    if (ai) {
       try {
-        const response = await genAI.models.embedContent({
-          model: modelName,
-          contents: textToEmbed,
-        });
-        if (response?.embedding?.values) {
-          embeddings[item.id] = response.embedding.values;
-        } else {
-          throw new Error("No values in response");
-        }
+        console.log(`[${i + 1}/${chunks.length}] Embedding chunk '${chunk.id}' via Gemini API...`);
+        vector = await embedWithGemini(ai, chunk.text);
+        // Small rate limit pause between calls
+        await sleep(150);
       } catch (err) {
-        console.warn(`[build:embeddings] API embedding failed for ${item.id}: ${err.message}. Falling back to deterministic vector.`);
-        embeddings[item.id] = generateDeterministicEmbedding(textToEmbed);
+        console.error(`Gemini API embedding failed for '${chunk.id}':`, err?.message);
+        console.log(`Falling back to deterministic semantic vector for '${chunk.id}'`);
+        vector = generateDeterministicSemanticVector(chunk.text, chunk, 768);
       }
     } else {
-      embeddings[item.id] = generateDeterministicEmbedding(textToEmbed);
+      vector = generateDeterministicSemanticVector(chunk.text, chunk, 768);
     }
+
+    embeddedChunks.push({
+      ...chunk,
+      contentHash: hash,
+      vector,
+    });
+    computedCount++;
   }
 
-  fs.writeFileSync(outputPath, JSON.stringify(embeddings, null, 2), "utf-8");
-  console.log(`[build:embeddings] Successfully wrote ${Object.keys(embeddings).length} embeddings to ${outputPath}`);
+  console.log(`Embedding Summary: ${reusedCount} reused from cache, ${computedCount} computed.`);
+  fs.writeFileSync(targetEmbeddingsFile, JSON.stringify(embeddedChunks, null, 2), "utf-8");
+  console.log(`Successfully written ${embeddedChunks.length} embeddings to ${targetEmbeddingsFile}`);
+  return embeddedChunks;
 }
 
-main();
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  buildEmbeddings()
+    .then(() => {
+      console.log("Embedding build completed successfully.");
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error("Embedding build failed:", err);
+      process.exit(1);
+    });
+}
