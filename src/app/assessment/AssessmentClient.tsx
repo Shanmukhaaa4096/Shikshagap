@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { LanguageProvider } from '@/lib/i18n/context';
 import { AdaptiveAssessmentView } from '@/components/AdaptiveAssessmentView';
 import { DEFAULT_CLASS_ID, getClassConfig } from '@/lib/curriculum/classes';
+import { LIVE_CLASS_RANGE_LABEL } from '@/lib/coverage';
 import { Sun, Moon, ArrowLeft, ShieldCheck, User } from '@phosphor-icons/react';
 
 function AssessmentInner() {
@@ -71,6 +72,12 @@ function AssessmentInner() {
   };
 
   const classConfig = getClassConfig(selectedClassId);
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.title = `${classConfig.label} Maths Diagnostic | ShikshaGap`;
+    }
+  }, [classConfig.label]);
 
   return (
     <div className="min-h-screen min-h-[100dvh] bg-[var(--background)] text-[var(--foreground)] flex flex-col font-sans transition-colors duration-200">
@@ -145,10 +152,10 @@ function AssessmentInner() {
         <div className="w-full max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-1.5">
             <ShieldCheck size={14} className="text-[var(--status-good)]" />
-            <span>DPDP Act 2023 Compliant • Strictly Pseudonymous • Zero Child Tracking Cookies</span>
+            <span>Built following DPDP Act 2023 principles • Anonymous student sessions • No tracking cookies</span>
           </div>
           <div>
-            <span>Government School Maths Curriculum (Classes 3 to 5)</span>
+            <span>Government School Maths Curriculum ({LIVE_CLASS_RANGE_LABEL}, with more in preparation)</span>
           </div>
         </div>
       </footer>

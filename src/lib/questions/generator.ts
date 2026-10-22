@@ -1020,22 +1020,55 @@ export function generateQuestion(
 ): Question {
   const grade = typeof gradeOrCtx === "number" ? gradeOrCtx : 5;
   const effectiveCtx = typeof gradeOrCtx === "object" ? gradeOrCtx : ctx;
+  const targetBoard = effectiveCtx.board;
+
+  // 1. If board is specifically ICSE, check multi-board bank for ICSE first
+  if (targetBoard === "ICSE") {
+    const mbq = getMultiBoardQuestion({
+      conceptId,
+      difficulty,
+      class: grade,
+      board: "ICSE",
+    });
+    if (mbq) {
+      const synced = syncQuestionProvenance(mbq, "ICSE");
+      return {
+        ...synced,
+        id: uid("q"),
+        conceptId,
+        difficulty,
+        source: "bank",
+        board: "ICSE",
+        linkedFrom: effectiveCtx.link?.conceptId,
+      };
+    }
+  }
+
+  // 2. Parametric algorithmic generator
   const generatorFn = gen[conceptId];
   if (generatorFn) {
     const base = generatorFn(difficulty, rng, effectiveCtx, grade);
+    const finalBoard: "CBSE" | "ICSE" =
+      targetBoard || (base.board === "ICSE" ? "ICSE" : "CBSE");
+    const synced = syncQuestionProvenance(
+      {
+        ...base,
+        board: finalBoard,
+      },
+      finalBoard
+    );
     return {
-      board: base.board || "CBSE",
-      ...base,
+      ...synced,
       id: uid("q"),
       conceptId,
       difficulty,
       source: "bank",
+      board: finalBoard,
       linkedFrom: effectiveCtx.link?.conceptId,
     };
   }
 
   // Fallback for curriculum concepts across Classes 1-10
-  const targetBoard = effectiveCtx.board;
   const currConcept = getCurriculumConcept(conceptId, targetBoard);
   const conceptName = currConcept?.name?.en || conceptId;
   const conceptGrade = currConcept?.class || grade;

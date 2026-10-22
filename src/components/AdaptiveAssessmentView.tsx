@@ -165,7 +165,7 @@ export function AdaptiveAssessmentView({
   const [isBackupQuestion, setIsBackupQuestion] = useState(false);
   const [reportedQuestionId, setReportedQuestionId] = useState<string | null>(null);
   const [isWorksheetOpen, setIsWorksheetOpen] = useState(false);
-  const [boardPreference, setBoardPreference] = useState<BoardPreference>("BOTH");
+  const [boardPreference, setBoardPreference] = useState<BoardPreference>("CBSE");
   
   // Gappu Mascot & Consecutive Streak Meter State
   const [streak, setStreak] = useState<number>(0);
@@ -1438,8 +1438,8 @@ export function AdaptiveAssessmentView({
                           {boardPreference === "ICSE"
                             ? "ICSE (CISCE syllabus)"
                             : boardPreference === "BOTH"
-                            ? "CBSE & ICSE (Balanced)"
-                            : "NCERT / CBSE (2024-25)"}
+                            ? "NCERT (CBSE) & ICSE (Balanced)"
+                            : "NCERT (CBSE)"}
                         </span>
                       </div>
                       <h1 className="editorial-title text-2xl sm:text-3xl text-foreground mt-1 font-serif font-black">
@@ -1491,14 +1491,15 @@ export function AdaptiveAssessmentView({
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between flex-wrap gap-1">
-                      <span className="editorial-meta text-foreground">SELECT CLASS (CLASSES 1 TO 10)</span>
-                      <span className="text-xs font-mono text-muted-foreground">Classes 1–10 ready</span>
+                      <span className="editorial-meta text-foreground">SELECT CLASS</span>
+                      <span className="text-xs font-mono text-muted-foreground">Classes 3 to 5 live • Others coming soon</span>
                     </div>
                     <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5">
                       {SUPPORTED_CLASSES.map((c) => (
                         <button
                           key={c.id}
                           type="button"
+                          disabled={!c.enabled}
                           onClick={() => {
                             if (c.enabled) {
                               clearSavedSession();
@@ -1507,20 +1508,20 @@ export function AdaptiveAssessmentView({
                           }}
                           title={
                             c.enabled
-                              ? `Select ${c.label} for scored ${boardPreference === "ICSE" ? "ICSE" : boardPreference === "BOTH" ? "CBSE & ICSE" : "CBSE"} assessment`
-                              : `${c.label}: ${boardPreference === "ICSE" ? "ICSE (CISCE)" : "CBSE (NCERT)"} curriculum mapped. Question engine coming soon.`
+                              ? `Select ${c.label} for scored ${boardPreference === "ICSE" ? "ICSE" : boardPreference === "BOTH" ? "NCERT (CBSE) & ICSE" : "NCERT (CBSE)"} assessment`
+                              : `${c.label}: ${boardPreference === "ICSE" ? "ICSE" : "NCERT (CBSE)"} curriculum preview. Coming soon.`
                           }
-                          className={`min-h-[44px] px-2 py-2 text-xs font-bold font-mono rounded-[16px] border flex flex-col items-center justify-center cursor-pointer ${
+                          className={`min-h-[44px] px-2 py-2 text-xs font-bold font-mono rounded-[16px] border flex flex-col items-center justify-center ${
                             selectedClassId === c.id
                               ? "bg-primary text-primary-foreground border-primary"
                               : c.enabled
-                              ? "bg-card text-foreground border-border hover:bg-muted"
-                              : "bg-muted/30 text-muted-foreground/60 border-border/50 cursor-not-allowed"
+                              ? "bg-card text-foreground border-border hover:bg-muted cursor-pointer"
+                              : "bg-muted/30 text-muted-foreground/60 border-border/50 cursor-not-allowed opacity-60"
                           }`}
                         >
                           <span>{c.label}</span>
                           <span className="text-[12px] font-normal opacity-85 leading-none">
-                            {c.stage === "foundational" ? "Found" : c.stage === "preparatory" ? "Primary" : c.stage === "middle" ? "Middle" : "High"}
+                            {c.enabled ? (c.stage === "foundational" ? "Found" : c.stage === "preparatory" ? "Primary" : c.stage === "middle" ? "Middle" : "High") : "Coming soon"}
                           </span>
                         </button>
                       ))}
@@ -1551,8 +1552,8 @@ export function AdaptiveAssessmentView({
                   {/* Curriculum Board & Question Sources */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between flex-wrap gap-1">
-                      <span className="editorial-meta text-foreground">CURRICULUM BOARD & QUESTION SOURCES</span>
-                      <span className="text-xs font-mono text-muted-foreground">CBSE, ICSE or Balanced Mix</span>
+                      <span className="editorial-meta text-foreground">CURRICULUM BOARD</span>
+                      <span className="text-xs font-mono text-muted-foreground">NCERT (CBSE) or ICSE</span>
                     </div>
                     <div className="grid grid-cols-3 gap-2 max-w-md">
                       {(["CBSE", "ICSE", "BOTH"] as const).map((b) => (
@@ -1566,16 +1567,22 @@ export function AdaptiveAssessmentView({
                               : "bg-card text-foreground border-border hover:bg-muted"
                           }`}
                         >
-                          <span>{b === "BOTH" ? "Both (Balanced)" : b}</span>
+                          <span>
+                            {b === "CBSE"
+                              ? "NCERT (CBSE)"
+                              : b === "ICSE"
+                              ? "ICSE"
+                              : "Both (Balanced)"}
+                          </span>
                         </button>
                       ))}
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {boardPreference === "CBSE"
-                        ? "Focuses on NCERT Math-Magic & Exemplar with CBSE reference problems (R.D. Sharma / R.S. Aggarwal)."
+                        ? "Questions strictly aligned to NCERT (CBSE) curriculum and textbooks."
                         : boardPreference === "ICSE"
-                        ? "Focuses on ICSE Selina / Concise Mathematics & ML Aggarwal with formal step-by-step reasoning."
-                        : "Balanced alternation between NCERT conceptual clarity and ICSE step-by-step mathematical rigour."}
+                        ? "Questions strictly aligned to ICSE (CISCE) curriculum and textbooks."
+                        : "Balanced selection between NCERT (CBSE) and ICSE questions with explicit source badges on each question."}
                     </p>
                   </div>
                 </div>
@@ -2859,7 +2866,7 @@ export function AdaptiveAssessmentView({
                         : "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-200 dark:border-emerald-800"
                     }`}
                   >
-                    {currentQuestion.board === "ICSE" ? "ICSE" : "CBSE"}
+                    {currentQuestion.board === "ICSE" ? "ICSE" : "NCERT (CBSE)"}
                   </span>
                   <span className="text-xs font-mono text-muted-foreground">
                     Level {currentQuestion.difficulty} of 5
