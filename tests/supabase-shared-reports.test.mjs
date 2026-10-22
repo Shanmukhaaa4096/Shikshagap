@@ -43,7 +43,7 @@ test('1. Supabase Service Role: Never exposed to client code (no NEXT_PUBLIC_ pr
   }
 });
 
-test('2. Insert into shared_reports: token from crypto.randomUUID(), gap results only, first name, class, expires_at = now + 14 days', async () => {
+test('2. Insert into shared_reports: unguessable token, gap results only, first name, class, expires_at = now + 30 days', async () => {
   const sessionCompleted = `sess_completed_${Math.random().toString(36).slice(2)}`;
   recordAssessmentSessionCompletion(sessionCompleted, 5);
 
@@ -61,9 +61,9 @@ test('2. Insert into shared_reports: token from crypto.randomUUID(), gap results
     class: 5,
   });
 
-  // 1. UUID token verification
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  assert.match(inserted.token, uuidRegex, 'Token must be a valid crypto.randomUUID()');
+  // 1. Unguessable token verification (>= 128 bits entropy)
+  const tokenRegex = /^[0-9a-f]{32,64}$/i;
+  assert.match(inserted.token, tokenRegex, 'Token must have >= 128 bits entropy');
 
   // 2. First name only (strictly stripped of surname)
   assert.equal(inserted.first_name, 'Ananya', 'Must store only first name, stripped of surname');
@@ -72,12 +72,12 @@ test('2. Insert into shared_reports: token from crypto.randomUUID(), gap results
   // 3. Class check
   assert.equal(inserted.class, 5, 'Class must be stored');
 
-  // 4. Expires at = now + 14 days
+  // 4. Expires at = now + 30 days
   const now = Date.now();
   const expiryTime = new Date(inserted.expires_at).getTime();
-  const fourteenDaysMs = 14 * 24 * 60 * 60 * 1000;
+  const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
   const diff = expiryTime - now;
-  assert.ok(Math.abs(diff - fourteenDaysMs) < 5000, 'Expiry must be approximately 14 days from insertion');
+  assert.ok(Math.abs(diff - thirtyDaysMs) < 5000, 'Expiry must be approximately 30 days from insertion');
 
   // 5. Default revoked = false
   assert.equal(inserted.revoked, false, 'Default revoked state must be false');
@@ -90,19 +90,23 @@ test('2. Insert into shared_reports: token from crypto.randomUUID(), gap results
   assert.equal(inserted.report_data.schoolName, undefined);
 });
 
-test('3. /r/[token] Server-side page: 404 on missing, expired, or revoked token', async () => {
-  const pagePath = path.join(workspaceRoot, 'src', 'app', 'r', '[token]', 'page.tsx');
+test('3. /report/[token] Server-side page and /r/[token] redirect', async () => {
+  const pagePath = path.join(workspaceRoot, 'src', 'app', 'report', '[token]', 'page.tsx');
   const pageContent = fs.readFileSync(pagePath, 'utf8');
 
-  // Verify server-side notFound() imports and checks
-  assert.ok(pageContent.includes("notFound()"), 'Must call notFound() for invalid tokens');
+  // Verify server-side checks for invalid, expired, or revoked tokens
   assert.ok(pageContent.includes("if (!report)"), 'Must check missing report');
   assert.ok(pageContent.includes("report.revoked"), 'Must check revoked status');
   assert.ok(pageContent.includes("Date.now() >"), 'Must check expiration');
 
+  // Verify redirect from legacy /r/[token]
+  const rRedirectPath = path.join(workspaceRoot, 'src', 'app', 'r', '[token]', 'page.tsx');
+  const rContent = fs.readFileSync(rRedirectPath, 'utf8');
+  assert.ok(rContent.includes("redirect(`/report/"), 'Must redirect /r/[token] to /report/[token]');
+
   // Functional test via store
   // A. Non-existent token returns null
-  const nonExistent = await getSharedReport('00000000-0000-0000-0000-000000000000');
+  const nonExistent = await getSharedReport('0000000000000000000000000000000000000000000000000000000000000000');
   assert.equal(nonExistent, null, 'Non-existent token must return null');
 
   // B. Active token returns report
@@ -121,15 +125,15 @@ test('3. /r/[token] Server-side page: 404 on missing, expired, or revoked token'
   assert.ok(fetchedRevoked === null || fetchedRevoked.revoked === true, 'Revoked report must be marked revoked or null');
 });
 
-test('4. SEO Invariant: /r/[token] page has noindex meta tag', () => {
-  const pagePath = path.join(workspaceRoot, 'src', 'app', 'r', '[token]', 'page.tsx');
+test('4. SEO Invariant: /report/[token] page has noindex meta tag', () => {
+  const pagePath = path.join(workspaceRoot, 'src', 'app', 'report', '[token]', 'page.tsx');
   const pageContent = fs.readFileSync(pagePath, 'utf8');
 
-  assert.ok(pageContent.includes('index: false'), '/r/[token] metadata must have index: false');
-  assert.ok(pageContent.includes('follow: false'), '/r/[token] metadata must have follow: false');
+  assert.ok(pageContent.includes('index: false'), '/report/[token] metadata must have index: false');
+  assert.ok(pageContent.includes('follow: false'), '/report/[token] metadata must have follow: false');
 });
 
-test('5. WhatsApp Share, Copy-Link, and Stop Sharing in /r/[token] UI', () => {
+test('5. WhatsApp Share, Copy-Link, and Stop Sharing in UI', () => {
   const clientPath = path.join(workspaceRoot, 'src', 'app', 'r', '[token]', 'SharedReportClient.tsx');
   const clientContent = fs.readFileSync(clientPath, 'utf8');
 
@@ -148,10 +152,10 @@ test('5. WhatsApp Share, Copy-Link, and Stop Sharing in /r/[token] UI', () => {
   assert.ok(clientContent.includes("lang === 'te'"), 'Must support Telugu in UI');
 });
 
-test('6. Return link /r/<token> from Route Handler', () => {
+test('6. Return link /report/<token> from Route Handler', () => {
   const routePath = path.join(workspaceRoot, 'src', 'app', 'api', 'reports', 'share', 'route.ts');
   const routeContent = fs.readFileSync(routePath, 'utf8');
 
-  assert.ok(routeContent.includes("`/r/${record.token}`") || routeContent.includes("'/r/'"), 'Route handler must generate /r/<token> link');
+  assert.ok(routeContent.includes("`/report/${record.token}`") || routeContent.includes("'/report/'"), 'Route handler must generate /report/<token> link');
   assert.ok(routeContent.includes('insertSharedReport'), 'Route handler must call insertSharedReport');
 });

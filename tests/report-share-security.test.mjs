@@ -35,17 +35,18 @@ test('Report Share: Token Entropy - Uses crypto.randomUUID (not sequential IDs)'
     skillsSleeping: [],
   });
 
-  // Verify UUID v4 format (8-4-4-4-12 hex chars)
+  // Verify token has at least 128 bits of entropy (64 hex chars / 256-bit unguessable token)
+  const tokenRegex = /^[0-9a-f]{32,64}$/i;
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  assert.match(tokenRecord1.token, uuidRegex, 'Share token must be a valid crypto.randomUUID()');
-  assert.match(tokenRecord2.token, uuidRegex, 'Share token must be a valid crypto.randomUUID()');
+  assert.match(tokenRecord1.token, tokenRegex, 'Share token must have >= 128 bits of cryptographic entropy');
+  assert.match(tokenRecord2.token, tokenRegex, 'Share token must have >= 128 bits of cryptographic entropy');
   assert.notEqual(tokenRecord1.token, tokenRecord2.token, 'Tokens must be unique and non-sequential');
 
   // Verify creator secret is also an unguessable UUID
   assert.match(tokenRecord1.creatorSecret, uuidRegex, 'Creator secret must be a valid crypto.randomUUID()');
 });
 
-test('Report Share: Expiration - Links expire after exactly 14 days', () => {
+test('Report Share: Expiration - Links expire after 30 days', () => {
   const now = Date.now();
   const tokenRecord = createStudentShareToken({
     assessmentSessionId: 'sess_expiry_test',
@@ -55,19 +56,19 @@ test('Report Share: Expiration - Links expire after exactly 14 days', () => {
     skillsSleeping: [],
   });
 
-  const fourteenDaysMs = 14 * 24 * 60 * 60 * 1000;
+  const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
 
   const diff = tokenRecord.expiresAt - tokenRecord.createdAt;
-  assert.equal(diff, fourteenDaysMs, 'Token must expire in exactly 14 days (1209600000 ms)');
+  assert.equal(diff, thirtyDaysMs, 'Token must expire in exactly 30 days (2592000000 ms)');
 
   // Active token retrieval
   const activeRecord = getShareToken(tokenRecord.token);
-  assert.ok(activeRecord !== null, 'Active token within 14 days must be accessible');
+  assert.ok(activeRecord !== null, 'Active token within 30 days must be accessible');
 
   // Expired token test
   tokenRecord.expiresAt = now - 1000; // set expiry in past
   const expiredRecord = getShareToken(tokenRecord.token);
-  assert.equal(expiredRecord, null, 'Expired token beyond 14 days must return null');
+  assert.equal(expiredRecord, null, 'Expired token beyond 30 days must return null');
 });
 
 test('Report Share: Creator Revocation - Only creator with creatorSecret can revoke link', () => {

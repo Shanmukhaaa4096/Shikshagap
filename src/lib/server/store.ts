@@ -142,6 +142,15 @@ export function recordAssessmentSessionCompletion(sessionId: string, grade: numb
   });
 }
 
+export const DEFAULT_REPORT_EXPIRY_DAYS = 30;
+
+export function generateShareToken(): string {
+  // At least 128 bits of cryptographic entropy: two random UUIDs without hyphens (256 bits total)
+  const part1 = crypto.randomUUID().replace(/-/g, '');
+  const part2 = crypto.randomUUID().replace(/-/g, '');
+  return `${part1}${part2}`;
+}
+
 export function isAssessmentSessionCompleted(sessionId: string): boolean {
   if (!sessionId || typeof sessionId !== 'string') return false;
   return completedAssessmentSessions.has(sessionId);
@@ -154,9 +163,11 @@ export function createShareToken(params: {
   createdById: string;
   confirmedNotice: boolean;
   maxViews?: number;
+  token?: string;
+  expiryDays?: number;
 }): SharedReportRecord {
-  // 128-bit unguessable random cryptographic token
-  const token = crypto.randomBytes(16).toString('hex');
+  const token = params.token || generateShareToken();
+  const expiryDays = params.expiryDays ?? DEFAULT_REPORT_EXPIRY_DAYS;
   const record: SharedReportRecord = {
     token,
     studentId: params.studentId,
@@ -164,10 +175,10 @@ export function createShareToken(params: {
     classId: params.classId,
     createdById: params.createdById,
     createdAt: Date.now(),
-    expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
+    expiresAt: Date.now() + expiryDays * 24 * 60 * 60 * 1000,
     revoked: false,
     viewsCount: 0,
-    maxViews: params.maxViews ?? 20, // default max 20 parent views
+    maxViews: params.maxViews ?? 200,
     confirmedNotice: params.confirmedNotice,
   };
 
@@ -178,8 +189,8 @@ export function createShareToken(params: {
 /**
  * Creates a student read-only gap report share link.
  * Requirements:
- * - Uses crypto.randomUUID() (long unguessable token, not sequential)
- * - Expires after 14 days
+ * - Uses unguessable 256-bit token (crypto.randomUUID twice)
+ * - Expires after 30 days (DEFAULT_REPORT_EXPIRY_DAYS)
  * - Stores ONLY first name, class/grade, and gap results (NO surname, roll number, school, contact info)
  * - Returns a creatorSecret so only the creator session can revoke the link
  */
@@ -191,9 +202,11 @@ export function createStudentShareToken(params: {
   skillsSleeping: Array<{ id: string; name: string; prereqRoot?: string }>;
   prescribedPlan?: Array<{ step: number; title: string; desc: string }>;
   token?: string;
+  expiryDays?: number;
 }): SharedReportRecord {
-  const token = params.token || crypto.randomUUID();
+  const token = params.token || generateShareToken();
   const creatorSecret = crypto.randomUUID();
+  const expiryDays = params.expiryDays ?? DEFAULT_REPORT_EXPIRY_DAYS;
 
   // Strip all surnames, middle names, or suffixes: ONLY first name is retained
   const rawFirstName = (params.firstName || 'Learner').trim();
@@ -206,7 +219,7 @@ export function createStudentShareToken(params: {
     classId: `class_${params.grade}`,
     createdById: params.assessmentSessionId,
     createdAt: Date.now(),
-    expiresAt: Date.now() + 14 * 24 * 60 * 60 * 1000, // 14 days
+    expiresAt: Date.now() + expiryDays * 24 * 60 * 60 * 1000,
     revoked: false,
     viewsCount: 0,
     maxViews: 200,

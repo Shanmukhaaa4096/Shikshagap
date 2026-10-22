@@ -7,11 +7,31 @@ import {
   revokeStudentShareToken,
   isAssessmentSessionCompleted,
   logAuditEvent,
-  hashIp
+  hashIp,
+  DEFAULT_REPORT_EXPIRY_DAYS,
 } from '@/lib/server/store';
 import { insertSharedReport, revokeSharedReport } from '@/lib/server/supabase';
 import { getClientIp } from '@/lib/server/security';
 import { guardRequest, createGuardResponse } from '@/lib/server/guard';
+import { siteConfig } from '@/config/site';
+
+function getBaseUrl(req: NextRequest): string {
+  const configured = (process.env.NEXT_PUBLIC_SITE_URL || siteConfig.siteUrl || '').trim().replace(/\/+$/, '');
+  if (configured && !configured.includes('localhost') && !configured.includes('127.0.0.1')) {
+    return configured;
+  }
+  const origin = req.headers.get('origin');
+  if (origin && !origin.includes('localhost') && !origin.includes('127.0.0.1')) {
+    return origin.replace(/\/+$/, '');
+  }
+  const forwardedHost = req.headers.get('x-forwarded-host');
+  const host = forwardedHost || req.headers.get('host');
+  const proto = req.headers.get('x-forwarded-proto') || 'https';
+  if (host && !host.includes('localhost') && !host.includes('127.0.0.1')) {
+    return `${proto}://${host}`.replace(/\/+$/, '');
+  }
+  return configured || (process.env.NODE_ENV === 'production' ? 'https://shikshagap.vercel.app' : `${proto}://${host || 'localhost:3000'}`);
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,14 +51,26 @@ export async function POST(req: NextRequest) {
     // CASE 1: Student Assessment Gap Report Share Link
     // Requirements:
     // - Only the session that ran and completed the assessment can create the link
-    // - Uses crypto.randomUUID() (long unguessable token, not sequential)
+    // - Uses unguessable 256-bit token (crypto.randomUUID twice)
     // - Inserts into Supabase `shared_reports` using service role key
-    // - Expires after 14 days
+    // - Expires after 30 days (DEFAULT_REPORT_EXPIRY_DAYS)
     // - Stores only first name, class, and gap results (no surname, roll number, school, contact info)
-    // - Returns the link /r/<token>
+    // - Returns the link /report/<token>
     // ==============================================================
     if (body.assessmentSessionId || body.isStudentShare || body.gapResults) {
-      const { assessmentSessionId, firstName, grade, class: classVal, skillsUnlocked, skillsSleeping, prescribedPlan, gapTopics } = body;
+      const {
+        assessmentSessionId,
+        firstName,
+        grade,
+        class: classVal,
+        skillsUnlocked,
+        skillsSleeping,
+        prescribedPlan,
+        gapTopics,
+        totalQuestions,
+        confidence,
+        isProvisional,
+      } = body;
 
       const sessionIdStr = assessmentSessionId ? String(assessmentSessionId) : '';
       if (sessionIdStr && !isAssessmentSessionCompleted(sessionIdStr)) {
@@ -71,11 +103,15 @@ export async function POST(req: NextRequest) {
             prescribedPlan: Array.isArray(prescribedPlan) ? prescribedPlan : undefined,
             gapTopics: Array.isArray(gapTopics) ? gapTopics : undefined,
             assessmentSessionId: sessionIdStr,
+            totalQuestions: typeof totalQuestions === 'number' ? totalQuestions : undefined,
+            confidence: typeof confidence === 'number' ? confidence : undefined,
+            isProvisional: Boolean(isProvisional),
           },
           first_name: cleanFirstName,
           class: classId,
           expires_at: new Date(record.expiresAt).toISOString(),
           revoked: false,
+          creator_secret: record.creatorSecret,
         });
       } catch (insertError: unknown) {
         const errorMsg = insertError instanceof Error ? insertError.message : String(insertError);
@@ -93,17 +129,12 @@ export async function POST(req: NextRequest) {
         action: 'share_report_created',
         targetRecordId: `token_${record.token.slice(0, 8)}`,
         ipHash: hashIp(ip),
-        details: 'Student gap report share link generated (valid 14 days, crypto.randomUUID)',
+        details: `Student gap report share link generated (valid ${DEFAULT_REPORT_EXPIRY_DAYS} days)`,
       });
 
-      const originHeader = req.headers.get('origin');
-      const forwardedHost = req.headers.get('x-forwarded-host');
-      const host = forwardedHost || req.headers.get('host') || 'shikshagap.vercel.app';
-      const forwardedProto = req.headers.get('x-forwarded-proto');
-      const proto = forwardedProto || (host.startsWith('localhost') || host.startsWith('127.0.0.1') ? 'http' : 'https');
-      const realOrigin = originHeader || `${proto}://${host}`;
-      const link = `/r/${record.token}`;
-      const shareUrl = `${realOrigin}${link}`;
+      const baseUrl = getBaseUrl(req);
+      const link = `/report/${record.token}`;
+      const shareUrl = `${baseUrl}${link}`;
 
       return NextResponse.json({
         success: true,
@@ -130,7 +161,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { studentId, classId, confirmedNotice } = body;
+    const { studentId, classId, confirmedNotice, firstName: teacherFirstName } = body;
 
     // Data isolation check: Teacher can only share for their own assigned class
     if (session.user.role === 'teacher' && classId && session.user.classId && classId !== session.user.classId) {
@@ -145,7 +176,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden. You may only share reports for your own class cohort.' }, { status: 403 });
     }
 
-    // Generate 128-bit cryptographically secure unguessable share token
+    // Generate 256-bit cryptographically secure unguessable share token
     const record = createShareToken({
       studentId: String(studentId),
       schoolId: session.user.schoolId,
@@ -154,6 +185,28 @@ export async function POST(req: NextRequest) {
       confirmedNotice: Boolean(confirmedNotice),
     });
 
+    const cleanTeacherFirstName = (teacherFirstName || 'Learner').trim().split(/\s+/)[0] || 'Learner';
+
+    // Persist to Supabase shared_reports via service role key so link works across devices
+    try {
+      await insertSharedReport({
+        token: record.token,
+        report_data: {
+          studentId: String(studentId),
+          classId: String(classId || session.user.classId || 'class_5a'),
+          skillsUnlocked: Array.isArray(body.skillsUnlocked) ? body.skillsUnlocked : [],
+          skillsSleeping: Array.isArray(body.skillsSleeping) ? body.skillsSleeping : [],
+          prescribedPlan: Array.isArray(body.prescribedPlan) ? body.prescribedPlan : undefined,
+        },
+        first_name: cleanTeacherFirstName,
+        class: classId || 5,
+        expires_at: new Date(record.expiresAt).toISOString(),
+        revoked: false,
+      });
+    } catch (insertError: unknown) {
+      console.warn('[Share API Teacher Insert Warning]:', insertError);
+    }
+
     logAuditEvent({
       userId: session.user.id,
       userRole: session.user.role,
@@ -161,12 +214,12 @@ export async function POST(req: NextRequest) {
       action: 'share_report_created',
       targetRecordId: `token_scope_${studentId}`,
       ipHash: hashIp(ip),
-      details: 'Secure parent report token generated (valid 7 days)',
+      details: `Secure parent report token generated (valid ${DEFAULT_REPORT_EXPIRY_DAYS} days)`,
     });
 
-    const host = req.headers.get('host') || 'shikshagap.vercel.app';
-    const protocol = req.headers.get('x-forwarded-proto') || 'https';
-    const shareUrl = `${protocol}://${host}/report/${record.token}`;
+    const baseUrl = getBaseUrl(req);
+    const link = `/report/${record.token}`;
+    const shareUrl = `${baseUrl}${link}`;
 
     return NextResponse.json({
       success: true,

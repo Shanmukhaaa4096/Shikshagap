@@ -29,6 +29,14 @@ export type StaircaseAction =
   | { type: "finish" };
 
 import { allConceptsMap } from "../../data/curriculum/index.ts";
+import {
+  evaluateStoppingRule,
+  MIN_TOTAL_QUESTIONS,
+  MAX_TOTAL_QUESTIONS,
+  MIN_QUESTIONS_PER_PROBED_CONCEPT,
+  MIN_QUESTIONS_ROOT_GAP,
+  ROOT_GAP_CONFIDENCE_THRESHOLD,
+} from "../engine/stoppingRule.ts";
 
 /**
  * Normalizes question text for prompt deduplication across languages.
@@ -284,93 +292,184 @@ export function getNextStaircaseAction(
   memory: SessionMemory,
   lastAttempt?: Attempt
 ): StaircaseAction {
-  // If we have already stepped beyond all topics, finish.
-  if (memory.currentTopicIndex >= memory.topics.length) {
+  if (!memory.topics || memory.topics.length === 0) {
     return { type: "finish" };
   }
 
-  const currentTopic = memory.topics[memory.currentTopicIndex];
-  if (!currentTopic) {
-    return { type: "finish" };
-  }
-
-  // If the current topic is already closed, check if next topic is available.
-  if (currentTopic.status !== "pending") {
-    const nextIdx = memory.currentTopicIndex + 1;
-    if (nextIdx >= memory.topics.length) {
-      return { type: "finish" };
+  // 1. Gather all real assessment attempts
+  const allAttempts: Attempt[] = [];
+  for (const t of memory.topics) {
+    for (const a of t.attempts) {
+      if (a.questionId !== "dummy" && Boolean(a.conceptId)) {
+        allAttempts.push(a);
+      }
     }
-    const nextTopic = memory.topics[nextIdx];
-    return {
-      type: "ask",
-      topicId: nextTopic.topicId,
-      conceptId: getConceptForTopic(nextTopic.topicId, memory.grade, memory.boardPreference),
-      level: 2,
-    };
   }
-
-  // Combine topic attempts with lastAttempt if lastAttempt is not already present
-  const attempts: Attempt[] = [...currentTopic.attempts];
   if (
     lastAttempt &&
-    !attempts.some((a) => a.questionId === lastAttempt.questionId)
+    lastAttempt.questionId !== "dummy" &&
+    Boolean(lastAttempt.conceptId) &&
+    !allAttempts.some((a) => a.questionId === lastAttempt.questionId)
   ) {
-    attempts.push(lastAttempt);
+    allAttempts.push(lastAttempt);
   }
 
-  // Case 1: Start at level 2
-  if (attempts.length === 0) {
-    return {
-      type: "ask",
-      topicId: currentTopic.topicId,
-      conceptId: getConceptForTopic(currentTopic.topicId, memory.grade, memory.boardPreference),
-      level: 2,
-    };
-  }
-  // Case 2: 1 attempt made
-  if (attempts.length === 1) {
-    const first = attempts[0];
-    if (first.correct) {
-      // Demonstrated proficiency at level 2 -> test mastery at level 3
+  // 2. Initial curriculum pass: ensure every topic is assessed through the 2-question staircase
+  if (memory.currentTopicIndex < memory.topics.length) {
+    const currentTopic = memory.topics[memory.currentTopicIndex];
+    if (currentTopic && currentTopic.status === "pending") {
+      const attempts = [...currentTopic.attempts];
+      if (
+        lastAttempt &&
+        lastAttempt.questionId !== "dummy" &&
+        !attempts.some((a) => a.questionId === lastAttempt.questionId)
+      ) {
+        attempts.push(lastAttempt);
+      }
+
+      if (attempts.length === 0) {
+        const conceptId = getConceptForTopic(currentTopic.topicId, memory.grade, memory.boardPreference);
+        return {
+          type: "ask",
+          topicId: currentTopic.topicId,
+          conceptId,
+          level: 2,
+        };
+      }
+      if (attempts.length === 1) {
+        const a1 = attempts[0];
+        if (a1.correct) {
+          return {
+            type: "ask",
+            topicId: currentTopic.topicId,
+            conceptId: a1.conceptId,
+            level: 3,
+          };
+        } else {
+          const prereq = getPrerequisiteForConcept(a1.conceptId, a1.errorType);
+          return {
+            type: "ask",
+            topicId: currentTopic.topicId,
+            conceptId: prereq,
+            level: 1,
+          };
+        }
+      }
+      // Topic has 2 attempts -> close topic with status
+      const a1 = attempts[0];
+      const a2 = attempts[1];
+      let status: TopicStatus;
+      if (a1.correct && a2.correct) {
+        status = "mastered";
+      } else if (!a1.correct && !a2.correct) {
+        status = "gap";
+      } else {
+        status = "developing";
+      }
       return {
-        type: "ask",
+        type: "close_topic",
         topicId: currentTopic.topicId,
-        conceptId: first.conceptId,
-        level: 3,
-      };
-    } else {
-      // Struggled at level 2 -> investigate foundational prerequisite at level 1
-      const prereqConcept = getPrerequisiteForConcept(first.conceptId, first.errorType);
-      return {
-        type: "ask",
-        topicId: currentTopic.topicId,
-        conceptId: prereqConcept,
-        level: 1,
+        status,
       };
     }
   }
 
-  // Case 3: 2 attempts made -> Topic closes with definitive status
-  const first = attempts[0];
-  const second = attempts[1];
-  let status: TopicStatus;
-
-  if (first.correct && second.correct) {
-    // Correct at 2 -> Correct at 3 -> mastered
-    status = "mastered";
-  } else if (!first.correct && !second.correct) {
-    // Wrong at 2 -> Wrong at 1 -> gap
-    status = "gap";
-  } else {
-    // Correct at 2 -> Wrong at 3 -> developing
-    // OR Wrong at 2 -> Correct at 1 -> developing
-    status = "developing";
+  // 3. Evidence-Based Stopping Engine (Evaluates BKT and MIN/MAX constraints)
+  if (
+    memory.topics &&
+    memory.topics.length > 0 &&
+    memory.currentTopicIndex >= memory.topics.length &&
+    memory.topics.every((t) => t.status !== "pending") &&
+    allAttempts.length >= MIN_TOTAL_QUESTIONS
+  ) {
+    return { type: "finish" };
   }
 
+  const stopping = evaluateStoppingRule(memory, allAttempts);
+  if (stopping.shouldStop) {
+    return { type: "finish" };
+  }
+
+  // Identify fallback topic and previous attempt
+  const fallbackTopic = memory.topics[0] || { topicId: "number_ops" as TopicId };
+  const prevAttempt = lastAttempt || (allAttempts.length > 0 ? allAttempts[allAttempts.length - 1] : undefined);
+
+  // Adaptive difficulty helper: harder after correct, easier after wrong/unanswered
+  const getAdaptiveDifficulty = (lastAtt?: Attempt): 1 | 2 | 3 => {
+    if (!lastAtt) return 2;
+    if (lastAtt.studentAnswer === "" || lastAtt.studentAnswer === "skipped") {
+      return Math.max(1, lastAtt.level - 1) as 1 | 2 | 3;
+    }
+    if (lastAtt.correct) {
+      return Math.min(3, lastAtt.level + 1) as 1 | 2 | 3;
+    }
+    return Math.max(1, lastAtt.level - 1) as 1 | 2 | 3;
+  };
+
+  // 4. PRIORITY A: Candidate root gap confirmation questions (must have >= 3 questions & >= 2 formats)
+  if (stopping.candidateRootGap) {
+    const rootEval = stopping.conceptEvaluations[stopping.candidateRootGap];
+    const rootAttempts = rootEval?.attempts || 0;
+    const rootFormatsCount = rootEval?.formatsUsed?.length || 0;
+
+    if (rootAttempts < MIN_QUESTIONS_ROOT_GAP || rootFormatsCount < 2) {
+      const parentTopic = memory.topics.find((t) =>
+        t.attempts.some((a) => a.conceptId === stopping.candidateRootGap)
+      ) || fallbackTopic;
+
+      return {
+        type: "ask",
+        topicId: parentTopic.topicId,
+        conceptId: stopping.candidateRootGap,
+        level: getAdaptiveDifficulty(prevAttempt),
+      };
+    }
+
+    // A2: Probe immediate prerequisite if not yet probed to at least 2 questions
+    const prereqConcept = getPrerequisiteForConcept(stopping.candidateRootGap);
+    if (prereqConcept && prereqConcept !== stopping.candidateRootGap) {
+      const prereqEval = stopping.conceptEvaluations[prereqConcept];
+      if (!prereqEval || prereqEval.attempts < MIN_QUESTIONS_PER_PROBED_CONCEPT) {
+        const parentTopic = memory.topics.find((t) =>
+          t.attempts.some((a) => a.conceptId === prereqConcept)
+        ) || fallbackTopic;
+
+        return {
+          type: "ask",
+          topicId: parentTopic.topicId,
+          conceptId: prereqConcept,
+          level: 2,
+        };
+      }
+    }
+  }
+
+  // 5. PRIORITY B: Ensure every probed concept has at least MIN_QUESTIONS_PER_PROBED_CONCEPT (2)
+  for (const [cId, evalData] of Object.entries(stopping.conceptEvaluations)) {
+    if (evalData.attempts < MIN_QUESTIONS_PER_PROBED_CONCEPT) {
+      const parentTopic = memory.topics.find((t) =>
+        t.attempts.some((a) => a.conceptId === cId)
+      ) || fallbackTopic;
+
+      return {
+        type: "ask",
+        topicId: parentTopic.topicId,
+        conceptId: cId as ConceptId,
+        level: evalData.correct > 0 ? 3 : 1,
+      };
+    }
+  }
+
+  // 6. PRIORITY C: Rotate among curriculum topics with adaptive difficulty
+  const sortedTopics = [...memory.topics].sort((a, b) => a.attempts.length - b.attempts.length);
+  const targetTopic = sortedTopics[0] || fallbackTopic;
+  const targetConcept = getConceptForTopic(targetTopic.topicId, memory.grade, memory.boardPreference);
+
   return {
-    type: "close_topic",
-    topicId: currentTopic.topicId,
-    status,
+    type: "ask",
+    topicId: targetTopic.topicId,
+    conceptId: targetConcept,
+    level: getAdaptiveDifficulty(prevAttempt),
   };
 }
 
@@ -484,6 +583,18 @@ export function applyAttemptToMemory(
       memory: advancedMem,
       action: nextAction,
       closedTopic: { topicId: action.topicId, status: action.status },
+    };
+  }
+
+  if (action.type === "ask") {
+    const targetIdx = updatedTopics.findIndex((t) => t.topicId === action.topicId);
+    const targetTopicIdx = targetIdx >= 0 ? targetIdx : currentIdx;
+    return {
+      memory: {
+        ...memWithAttempt,
+        currentTopicIndex: targetTopicIdx,
+      },
+      action,
     };
   }
 

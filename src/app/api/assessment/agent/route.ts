@@ -14,6 +14,7 @@ import {
 } from "@/lib/agents/staircase";
 import { runExaminerStep } from "@/lib/agents/examiner";
 import { analyzeErrors } from "@/lib/agents/errorAnalyst";
+import { evaluateStoppingRule } from "@/lib/engine/stoppingRule";
 import type {
   Attempt,
   Question,
@@ -169,23 +170,22 @@ export async function POST(req: NextRequest) {
     nextAction = examinerRes.action;
 
     if (nextAction.type === "close_topic") {
-      const advanced = applyAttemptToMemory(currentMemory, {
-        conceptId: "number_sense",
-        level: 2,
-        questionId: "dummy",
-        studentAnswer: "",
-        correct: true,
-      });
+      const advanced = advanceToNextTopic(currentMemory, `Topic closed with status ${nextAction.status}`);
       currentMemory = advanced.memory;
       nextAction = advanced.action;
     }
 
     if (nextAction.type !== "ask") {
+      const allAtts = currentMemory.topics.flatMap((t) => t.attempts).filter((a) => a.questionId !== "dummy");
+      const stopping = evaluateStoppingRule(currentMemory, allAtts);
       return NextResponse.json({
         memory: currentMemory,
         isFinished: true,
         nextQuestion: null,
         action: nextAction,
+        isProvisional: stopping.isProvisional,
+        confidence: stopping.rootGapConfidence,
+        stoppingReason: stopping.reason,
       });
     }
 

@@ -129,6 +129,12 @@ export default function PrivacyPage() {
                   <td className="p-2.5">90 days rolling retention (purged via automated upkeep cron; aggregate mathematical tallies retained)</td>
                 </tr>
                 <tr>
+                  <td className="p-2.5 font-bold">Shared Learning Reports</td>
+                  <td className="p-2.5">Unguessable 256-bit token, student first name only, grade, unlocked skills, sleeping skills, 3-step growth plan, question count, diagnostic confidence, provisional indicator</td>
+                  <td className="p-2.5">Teacher-initiated formative report sharing with parents/guardians (/report/&lt;token&gt;) with noindex and no-store headers</td>
+                  <td className="p-2.5">Default 30 days automatic expiration; or immediate revocation by educator. Server-side Supabase record with zero public access policies.</td>
+                </tr>
+                <tr>
                   <td className="p-2.5 font-bold">Technical Logs</td>
                   <td className="p-2.5">IP address, browser type, timestamp of errors</td>
                   <td className="p-2.5">System security, rate-limiting, audit compliance</td>
@@ -166,7 +172,7 @@ export default function PrivacyPage() {
           </p>
           <ul className="list-disc list-inside text-xs space-y-1.5 text-foreground/80 dark:text-muted-foreground">
             <li><strong>Hosting:</strong> Vercel Inc. (cloud infrastructure with TLS encryption in transit and at rest).</li>
-            <li><strong>Database &amp; Persistent Question Memory:</strong> Supabase Inc. (PostgreSQL with pgvector for question memory and shared report links). The Question-Memory table stores only verified mathematical problem text, 768-dimensional embeddings, and anonymous aggregate counters (times served, times correct). Zero student names, roll numbers, session IDs, or individual student responses are ever written to the database. Access is strictly server-side using service-role authentication with Row Level Security (RLS) enabled and zero public access policies.</li>
+            <li><strong>Database &amp; Persistent Storage:</strong> Supabase Inc. (PostgreSQL with pgvector for question memory and shared report links). The Question-Memory table stores only verified mathematical problem text, 768-dimensional embeddings, and anonymous aggregate counters (times served, times correct). The shared_reports table stores educator-shared progress summaries for 30 days under long random 256-bit unguessable tokens with RLS enabled and zero public access policies; records can be revoked at any time by the educator. Zero student surnames, roll numbers, or contact details are ever written to the database. Access is strictly server-side using service-role authentication with Row Level Security (RLS) enabled and zero public access policies.</li>
             <li><strong>AI Diagnostic Analysis &amp; Knowledge RAG:</strong> Google Gemini API (Flash models &amp; gemini-embedding-001). Student identifiers sent to Gemini are anonymized pseudonyms (e.g., anon_4b8f), and real student names, roll numbers, or student answers are never passed in prompt contexts or embedding queries. Embedding calls process strictly static curriculum textbook text and concept-level search queries server-side.</li>
             <li><strong>Optional Analytics:</strong> Vercel Web Analytics is loaded only if you explicitly choose to enable anonymous usage analytics via the cookie and privacy choices banner. If declined or unprompted, zero analytics scripts or cookies are loaded.</li>
             <li><strong>Fonts:</strong> Self-hosted at build time via next/font; zero runtime requests to third-party CDNs or external font servers.</li>

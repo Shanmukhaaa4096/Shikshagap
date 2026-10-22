@@ -14,10 +14,18 @@ export function middleware(request: NextRequest) {
     }
   }
 
+  // Apply noindex and no-store caching headers to shared report URLs
+  if (pathname.startsWith("/report/") || pathname.startsWith("/r/")) {
+    const response = NextResponse.next();
+    response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+    response.headers.set("Cache-Control", "no-store, max-age=0, must-revalidate");
+    return response;
+  }
+
   const response = NextResponse.next();
   return response;
 }
 
 export const config = {
-  matcher: ["/app/:path*", "/api/students/:path*"],
+  matcher: ["/app/:path*", "/api/students/:path*", "/report/:path*", "/r/:path*"],
 };

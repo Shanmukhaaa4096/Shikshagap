@@ -14,6 +14,7 @@
 import {
   getNextStaircaseAction,
   applyAttemptToMemory,
+  advanceToNextTopic,
   type StaircaseAction,
 } from "./staircase.ts";
 import { runExaminerStep, type ExaminerStepResult } from "./examiner.ts";
@@ -100,15 +101,9 @@ export async function stepAssessment(
   }
   nextAction = examinerRes.action;
 
-  // If nextAction is close_topic, apply advance
+  // If nextAction is close_topic, apply advance cleanly without dummy attempts
   if (nextAction.type === "close_topic") {
-    const advanced = applyAttemptToMemory(currentMemory, {
-      conceptId: "number_sense",
-      level: 2,
-      questionId: "advance_marker",
-      studentAnswer: "",
-      correct: true,
-    });
+    const advanced = advanceToNextTopic(currentMemory, `Topic closed with status ${nextAction.status}`);
     currentMemory = advanced.memory;
     nextAction = advanced.action;
   }

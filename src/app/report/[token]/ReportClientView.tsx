@@ -18,14 +18,17 @@ import {
 
 interface Props {
   token: string;
-  studentId: string;
-  schoolId: string;
+  studentId?: string;
+  schoolId?: string;
   expiresAt: number;
   firstName?: string;
   grade?: number | string;
   skillsUnlocked?: Array<{ id: string; name: string }>;
   skillsSleeping?: Array<{ id: string; name: string; prereqRoot?: string }>;
   prescribedPlan?: Array<{ step: number; title: string; desc: string }>;
+  totalQuestions?: number;
+  confidence?: number;
+  isProvisional?: boolean;
 }
 
 export default function ReportClientView({
@@ -36,6 +39,9 @@ export default function ReportClientView({
   skillsUnlocked = [],
   skillsSleeping = [],
   prescribedPlan = [],
+  totalQuestions,
+  confidence,
+  isProvisional = false,
 }: Props) {
   const [lang, setLang] = useState<'en' | 'hi' | 'te'>('en');
   const [copied, setCopied] = useState(false);
@@ -76,7 +82,7 @@ export default function ReportClientView({
       badge: 'STUDENT LEARNING GAP REPORT',
       docTitle: `${cleanFirstName}'s Mathematics Learning Progress`,
       subtitle: `Class ${grade} | Formative Gap Report for Parents & Guardians`,
-      privacyBadge: 'Private Family Document (14-Day Link)',
+      privacyBadge: 'Private Family Document (30-Day Link)',
       skillsUnlockedTitle: 'Skills Unlocked',
       skillsUnlockedSub: 'Concepts understood well and used with confidence!',
       skillsSleepingTitle: 'Skills Still Sleeping',
@@ -90,12 +96,14 @@ export default function ReportClientView({
       step2Desc: 'Solve 2-3 guided examples connecting the foundation to today\'s lesson.',
       step3: 'Step 3: Quick Retest & Celebrate Growth',
       step3Desc: 'Take a gentle 3-question check to see your growth score climb and awaken the skill!',
-      printBtn: 'Print / Save as PDF',
+      printBtn: 'Print / Save as PDF (A4)',
       copyBtn: 'Copy Link',
       copiedBtn: 'Link Copied!',
       whatsappBtn: 'Share on WhatsApp',
       whatsappText: `Here is ${cleanFirstName}'s Class ${grade} Maths Learning Gap Report on ShikshaGap: ${shareUrl}\nSee unlocked skills and gentle next steps to practice at home!`,
-      expiryNotice: `This private link expires on ${expiryDate} (14 days). No surname, school, or contact info is stored.`,
+      expiryNotice: `This private link expires on ${expiryDate} (30 days). No surname, school, or contact info is stored.`,
+      provisionalBadge: 'Provisional Result',
+      provisionalText: 'Maximum question budget reached without concluding at full confidence. Results indicate the most probable learning goals. Additional practice is recommended.',
       teacherNoteTitle: 'Teacher Classroom Observation',
       teacherNote: 'With 10 minutes of hands-on practice daily at home, foundational math skills awaken quickly with confidence. Thank you for your active partnership in your child\'s learning journey.',
       legacyStrengthTitle: 'Current Strengths in Class',
@@ -103,12 +111,13 @@ export default function ReportClientView({
       legacyGapTitle: 'Single Core Learning Goal for This Week',
       legacyGapText: 'Understanding how borrowing works in 3-digit subtraction (for example, taking from the Tens place when subtracting a larger number from a smaller number).',
       shareBoxTitle: 'Share & Actions',
+      evidenceStats: `${totalQuestions ? `${totalQuestions} questions answered` : 'Formative assessment complete'}${confidence ? ` • ${Math.round(confidence * 100)}% diagnostic confidence` : ''}`,
     },
     hi: {
       badge: 'छात्र शिक्षण अंतराल रिपोर्ट',
       docTitle: `${cleanFirstName} की गणित सीखने की प्रगति`,
       subtitle: `कक्षा ${grade} | माता-पिता एवं अभिभावकों के लिए रचनात्मक प्रगति रिपोर्ट`,
-      privacyBadge: 'निजी पारिवारिक दस्तावेज़ (14 दिन वैध)',
+      privacyBadge: 'निजी पारिवारिक दस्तावेज़ (30 दिन वैध)',
       skillsUnlockedTitle: 'अनलॉक किए गए कौशल',
       skillsUnlockedSub: 'ये अवधारणाएं अच्छी तरह समझी गई हैं और आत्मविश्वास से उपयोग की जाती हैं!',
       skillsSleepingTitle: 'कौशल जो अभी सोए हुए हैं',
@@ -122,12 +131,14 @@ export default function ReportClientView({
       step2Desc: 'बुनियाद को आज के पाठ से जोड़ने वाले 2-3 निर्देशित उदाहरण हल करें।',
       step3: 'चरण 3: त्वरित री-टेस्ट और सफलता का उत्सव',
       step3Desc: 'अपनी समझ और स्कोर को बढ़ते देखने के लिए 3 प्रश्नों की सहज जांच लें!',
-      printBtn: 'प्रिंट / PDF के रूप में सहेजें',
+      printBtn: 'प्रिंट / PDF के रूप में सहेजें (A4)',
       copyBtn: 'लिंक कॉपी करें',
       copiedBtn: 'लिंक कॉपी हो गया!',
       whatsappBtn: 'व्हाट्सएप पर शेयर करें',
-      whatsappText: `यहाँ शिक्षगैप पर ${cleanFirstName} की कक्षा ${grade} गणित सीखने की रिपोर्ट है: ${shareUrl}\nअनलॉक किए गए कौशल और घर पर अभ्यास के आसान चरण देखें!`,
-      expiryNotice: `यह निजी लिंक ${expiryDate} (14 दिन) को समाप्त होगा। कोई उपनाम, स्कूल या संपर्क जानकारी संग्रहीत नहीं है।`,
+      whatsappText: `यहाँ शिक्षागैप पर ${cleanFirstName} की कक्षा ${grade} गणित सीखने की रिपोर्ट है: ${shareUrl}\nअनलॉक किए गए कौशल और घर पर अभ्यास के आसान चरण देखें!`,
+      expiryNotice: `यह निजी लिंक ${expiryDate} (30 दिन) को समाप्त होगा। कोई उपनाम, स्कूल या संपर्क जानकारी संग्रहीत नहीं है।`,
+      provisionalBadge: 'अनंतिम परिणाम',
+      provisionalText: 'प्रश्नों की अधिकतम सीमा समाप्त हो गई। वर्तमान परिणाम सबसे संभावित शिक्षण अंतराल दर्शाते हैं। अतिरिक्त अभ्यास की अनुशंसा की जाती है।',
       teacherNoteTitle: 'शिक्षक कक्षा अवलोकन',
       teacherNote: 'घर पर प्रतिदिन 10 मिनट के व्यावहारिक अभ्यास से बुनियादी गणितीय कौशल आत्मविश्वास के साथ जल्दी विकसित होते हैं। बच्चे की सीखने की यात्रा में आपकी सक्रिय भागीदारी के लिए धन्यवाद।',
       legacyStrengthTitle: 'कक्षा में वर्तमान क्षमताएं',
@@ -135,12 +146,13 @@ export default function ReportClientView({
       legacyGapTitle: 'इस सप्ताह के लिए मुख्य शिक्षण लक्ष्य',
       legacyGapText: '3-अंकीय घटाव में उधार (हासिल) लेने की प्रक्रिया को समझना (उदाहरण के लिए, दहाई के स्थान से उधार लेना)।',
       shareBoxTitle: 'शेयर और कार्रवाइयां',
+      evidenceStats: `${totalQuestions ? `${totalQuestions} प्रश्न पूर्ण हुए` : 'मूल्यांकन पूर्ण'}${confidence ? ` • ${Math.round(confidence * 100)}% विश्वसनीयता` : ''}`,
     },
     te: {
       badge: 'విద్యార్థి అభ్యసన లోపాల నివేదిక',
       docTitle: `${cleanFirstName} యొక్క గణిత అభ్యసన పురోగతి`,
       subtitle: `${grade}వ తరగతి | తల్లిదండ్రుల కోసం నిర్మాణాత్మక లోపాల నివేదిక`,
-      privacyBadge: 'వ్యక్తిగత కుటుంబ నివేదిక (14 రోజుల లింక్)',
+      privacyBadge: 'వ్యక్తిగత కుటుంబ నివేదిక (30 రోజుల లింక్)',
       skillsUnlockedTitle: 'అన్‌లాక్ అయిన నైపుణ్యాలు',
       skillsUnlockedSub: 'బాగా అర్థం చేసుకుని ఆత్మవిశ్వాసంతో సాధించిన భావనలు!',
       skillsSleepingTitle: 'ఇంకా నిద్రిస్తున్న నైపుణ్యాలు',
@@ -154,12 +166,14 @@ export default function ReportClientView({
       step2Desc: 'పునాదిని ప్రస్తుత పాఠంతో అనుసంధానించే 2-3 మార్గదర్శక ఉదాహరణలను సాధించండి.',
       step3: 'దశ 3: చిన్న పునఃపరిశీలన & విజయాన్ని గుర్తించండి',
       step3Desc: 'మీ పురోగతిని చూడటానికి మరియు నైపుణ్యాన్ని మేల్కొలపడానికి 3-ప్రశ్నల సాధారణ పరీక్ష రాయండి!',
-      printBtn: 'ప్రింట్ / PDF గా భద్రపరచండి',
+      printBtn: 'ప్రింట్ / PDF గా భద్రపరచండి (A4)',
       copyBtn: 'లింక్ కాపీ చేయండి',
       copiedBtn: 'లింక్ కాపీ చేయబడింది!',
       whatsappBtn: 'వాట్సాప్‌లో షేర్ చేయండి',
       whatsappText: `ఇక్కడ శిక్షాగ్యాప్‌లో ${cleanFirstName} యొక్క ${grade}వ తరగతి గణిత అభ్యసన నివేదిక ఉంది: ${shareUrl}\nఅన్‌లాక్ అయిన నైపుణ్యాలు మరియు ఇంట్లో సాధన చేయడానికి సులభమైన తదుపరి దశలను చూడండి!`,
-      expiryNotice: `ఈ వ్యక్తిగత లింక్ ${expiryDate}న (14 రోజులు) ముగుస్తుంది. ఇంటిపేరు లేదా పాఠశాల వివరాలు నిల్వ చేయబడవు.`,
+      expiryNotice: `ఈ వ్యక్తిగత లింక్ ${expiryDate}న (30 రోజులు) ముగుస్తుంది. ఇంటిపేరు లేదా పాఠశాల వివరాలు నిల్వ చేయబడవు.`,
+      provisionalBadge: 'తాత్కాలిక ఫలితం',
+      provisionalText: 'గరిష్ట ప్రశ్నల పరిమితి ముగిసింది. ప్రస్తుత ఫలితం అత్యంత సంభవనీయమైన అభ్యసన లక్ష్యాన్ని సూచిస్తుంది. మరికొంత సాధన సిఫార్సు చేయబడింది.',
       teacherNoteTitle: 'తరగతి గది ఉపాధ్యాయ పరిశీలన',
       teacherNote: 'రోజూ ఇంట్లో 10 నిమిషాల ప్రయోగాత్మక సాధనతో గణిత పునాదులు సులభంగా బలపడతాయి. మీ పిల్లల విద్యా ప్రయాణంలో మీ భాగస్వామ్యానికి ధన్యవాదాలు.',
       legacyStrengthTitle: 'తరగతిలో ప్రస్తుత బలాలు',
@@ -167,6 +181,7 @@ export default function ReportClientView({
       legacyGapTitle: 'ఈ వారపు ప్రధాన అభ్యసన లక్ష్యం',
       legacyGapText: '3 అంకెల తీసివేతలో దశాంశ స్థానం నుండి అప్పు తీసుకోవడం (బారోయింగ్) యొక్క విధానాన్ని స్పష్టంగా అర్థం చేసుకోవడం.',
       shareBoxTitle: 'షేర్ & చర్యలు',
+      evidenceStats: `${totalQuestions ? `${totalQuestions} ప్రశ్నలు పూర్తయ్యాయి` : 'పరిశీలన పూర్తి'}${confidence ? ` • ${Math.round(confidence * 100)}% విశ్వసనీయత` : ''}`,
     },
   };
 
@@ -239,7 +254,27 @@ export default function ReportClientView({
                 <p className="text-sm text-muted-foreground print:text-gray-700 mt-1">
                   {currentContent.subtitle}
                 </p>
+                <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/60 text-xs font-mono text-muted-foreground flex-wrap">
+                  <span className="px-2.5 py-0.5 rounded-full bg-muted border border-border text-foreground font-bold">
+                    {currentContent.evidenceStats}
+                  </span>
+                  {isProvisional && (
+                    <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 dark:bg-amber-950/70 dark:text-amber-200 border border-amber-300 dark:border-amber-700 font-bold">
+                      {currentContent.provisionalBadge}
+                    </span>
+                  )}
+                </div>
               </div>
+
+              {isProvisional && (
+                <div className="p-4 rounded-[16px] bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 text-xs space-y-1">
+                  <div className="font-bold text-sm flex items-center gap-1.5">
+                    <Warning className="w-4 h-4 text-amber-600 dark:text-amber-400" weight="bold" />
+                    <span>{currentContent.provisionalBadge}</span>
+                  </div>
+                  <p>{currentContent.provisionalText}</p>
+                </div>
+              )}
 
               {hasStudentGapData ? (
                 /* Dynamic Gap Results */

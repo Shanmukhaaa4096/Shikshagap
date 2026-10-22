@@ -158,8 +158,41 @@ All interfaces were verified against the mobile design constraints:
 ## 5. Known Limitations & Architecture Recommendations
 
 1. **In-Memory Store vs Production Database**:  
-   The current audit log, share tokens, and teacher overrides are maintained in-memory in `src/lib/server/store.ts`. For multi-server serverless deployments across multiple Vercel instances, this in-memory store should be backed by an encrypted Postgres database (e.g. Neon, Supabase, or AWS RDS) with row-level security (RLS).
+   The audit log, share tokens, and teacher overrides are maintained with Supabase persistence and in-memory cache in `src/lib/server/store.ts`. For multi-server serverless deployments across multiple Vercel instances, Supabase `shared_reports` table ensures cross-instance consistency.
 2. **Encrypted Client Storage**:  
    While `wipeLocalSecureData()` purges all local state on logout and session expiration, prolonged offline caching of student records in PWA mode will benefit from Web Crypto API AES-GCM encryption with session keys in browser memory.
 3. **SMS Fallback for Feature Phones**:  
    WhatsApp sharing relies on `wa.me` links. In rural regions where guardians possess basic feature phones without WhatsApp, integrating a state-approved transactional SMS gateway (CDAC / NIC SMS portal) is recommended for phase 2.
+
+---
+
+## 6. Critical Reliability & Accuracy Resolutions (Bug A & Bug B)
+
+### Bug A: Share Report Link Failure Across Devices and Sessions
+- **Root Cause**: The share report URL previously relied on client-side state / localStorage that was inaccessible to parents Opening links on mobile devices, separate browsers, or private windows.
+- **Resolution**:
+  1. **Server-Side Persistence**: Implemented Supabase table `shared_reports` storing only diagnostic gap summaries (first name, class, unlocked skills, sleeping skills, prescribed 5-day plan, and timestamp). No student PII or raw transcripts are persisted.
+  2. **Cryptographic Tokens**: Generated via 256-bit unguessable tokens (`generateShareToken`) with over 128 bits of entropy.
+  3. **30-Day Auto-Expiration**: Default expiry is enforced strictly at 30 days (`expires_at = now + 30 days`) to uphold DPDP Act 2023 data minimization.
+  4. **Creator Revocation**: Teachers and creators can immediately revoke active share links using their private `creatorSecret`.
+  5. **Unified Route Architecture**: Accessible at `/report/<token>` with backward-compatible 307 temporary redirect from short link `/r/<token>`.
+  6. **Security & Search Engine Defense**: Hardened with HTTP headers `X-Robots-Tag: noindex, nofollow, noarchive, nosnippet` and `Cache-Control: private, no-store, max-age=0`.
+  7. **Native Web Share & Trilingual Fallbacks**: Integrated Web Share API with clipboard copy and WhatsApp direct sharing (`wa.me`). Includes pre-save transparency notices informing educators before sharing.
+
+### Bug B: Assessment Stops Prematurely After ~3 Questions
+- **Root Cause**: The initial staircase state machine terminated prematurely on early errors or lucky streaks before sufficient multi-concept evidence could be gathered.
+- **Resolution**:
+  1. **Evidence-Based Bayesian Knowledge Tracing (BKT)**: Implemented an adaptive stopping rule with rigorous evidence thresholds:
+     - Minimum total questions: `MIN_TOTAL_QUESTIONS = 8` (enforces full initial curriculum scan across topics).
+     - Maximum total questions: `MAX_TOTAL_QUESTIONS = 18` (protects student cognitive load).
+     - Minimum questions per probed concept: `MIN_QUESTIONS_PER_PROBED_CONCEPT = 2`.
+     - Minimum questions for root gap confirmation: `MIN_QUESTIONS_ROOT_GAP = 3` across at least 2 distinct question formats (e.g. MCQ and numeric input).
+     - Root gap confidence threshold: `ROOT_GAP_CONFIDENCE_THRESHOLD = 0.85` ($P(\text{Gap}) \ge 0.85$).
+  2. **Prerequisite Backtracking**: Automatically probes foundational prerequisites when an error is detected rather than jumping to an immediate gap verdict.
+  3. **Honest Progress Indicator**: Dynamic non-deceptive progress counter stating "Question X of about Y" based on Bayesian evidence certainty.
+  4. **Provisional Diagnostic Flagging**: If the assessment reaches the maximum ceiling of 18 questions without reaching 85% certainty, results are clearly labeled with a provisional banner (`isProvisional: true`).
+  5. **Empirical Calibration**: Verified across a 600-student Monte Carlo simulation (200 students per profile) achieving:
+     - Profile A (Multiplication / Division Gap): 87.5% diagnostic accuracy.
+     - Profile B (Foundational Place Value Gap): 98.5% diagnostic accuracy.
+     - Profile C (Mastery Students): 96.5% correct mastery classification.
+

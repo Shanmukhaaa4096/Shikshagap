@@ -41,6 +41,7 @@ import {
   Check,
   Trash,
   X,
+  ShieldCheck,
 } from "@phosphor-icons/react";
 import { MascotHero } from "@/components/illustrations/MascotHero";
 import { Gappu } from "@/components/illustrations/Gappu";
@@ -79,6 +80,13 @@ import {
   type SourceStyle,
   type DifficultyLevel,
 } from "@/lib/agents/adaptiveEngine";
+import {
+  evaluateStoppingRule,
+  MIN_TOTAL_QUESTIONS,
+  MAX_TOTAL_QUESTIONS,
+  ROOT_GAP_CONFIDENCE_THRESHOLD,
+  type StoppingEvaluationResult,
+} from "@/lib/engine/stoppingRule";
 
 function generateClientSessionId(): string {
   const ts = typeof Date !== "undefined" ? Date.now() : 0;
@@ -194,6 +202,7 @@ export function AdaptiveAssessmentView({
   const [isRevokingShareLink, setIsRevokingShareLink] = useState<boolean>(false);
   const [isShareLinkRevoked, setIsShareLinkRevoked] = useState<boolean>(false);
   const [shareLinkCopied, setShareLinkCopied] = useState<boolean>(false);
+  const [shareClipboardFailed, setShareClipboardFailed] = useState<boolean>(false);
   const [shareError, setShareError] = useState<string | null>(null);
 
   const handleCompletePracticeAndRetest = () => {
@@ -1235,7 +1244,40 @@ export function AdaptiveAssessmentView({
   const gapTopics = sessionMemory?.topics.filter((t) => t.status === "gap") || [];
   const devTopics = sessionMemory?.topics.filter((t) => t.status === "developing") || [];
   const masteredTopics = sessionMemory?.topics.filter((t) => t.status === "mastered") || [];
-  const totalQuestionsAnswered = sessionMemory?.topics.reduce((acc, t) => acc + t.attempts.length, 0) || 0;
+  const allAttempts = useMemo(() => {
+    return sessionMemory?.topics.flatMap((t) => t.attempts || []) || [];
+  }, [sessionMemory]);
+
+  const totalQuestionsAnswered = useMemo(() => {
+    return allAttempts.filter((a) => a.questionId !== "dummy" && Boolean(a.conceptId)).length;
+  }, [allAttempts]);
+
+  const stoppingStatus = useMemo<StoppingEvaluationResult>(() => {
+    if (!sessionMemory) {
+      return {
+        shouldStop: false,
+        reason: "",
+        isProvisional: false,
+        totalQuestions: 0,
+        candidateRootGap: null,
+        rootGapConfidence: 0.5,
+        estimatedTotalQuestions: 10,
+        progressText: "Question 1 of about 10",
+        conceptEvaluations: {},
+      };
+    }
+    return evaluateStoppingRule(sessionMemory, allAttempts);
+  }, [sessionMemory, allAttempts]);
+
+  const conceptQuestionCounts = useMemo<Record<string, number>>(() => {
+    const counts: Record<string, number> = {};
+    for (const a of allAttempts) {
+      if (a.conceptId && a.questionId !== "dummy") {
+        counts[a.conceptId] = (counts[a.conceptId] || 0) + 1;
+      }
+    }
+    return counts;
+  }, [allAttempts]);
 
   // Growth Data calculation for before/after comparison
   const growthSkills = useMemo(() => {
@@ -1299,6 +1341,7 @@ export function AdaptiveAssessmentView({
   const handleGenerateShareLink = async () => {
     setIsGeneratingShareLink(true);
     setShareError(null);
+    setShareClipboardFailed(false);
     try {
       const studentFirstName = (activeStudent?.student?.name || "Learner").trim().split(/\s+/)[0] || "Learner";
       const unlockedList = masteredTopics.map((m) => {
@@ -1335,6 +1378,10 @@ export function AdaptiveAssessmentView({
             { step: 2, title: dict.step2Bridge, desc: dict.step2BridgeDesc },
             { step: 3, title: dict.step3Retest, desc: dict.step3RetestDesc },
           ],
+          totalQuestions: totalQuestionsAnswered,
+          confidence: stoppingStatus.rootGapConfidence,
+          isProvisional: stoppingStatus.isProvisional,
+          questionsPerConcept: conceptQuestionCounts,
         }),
       });
 
@@ -1345,7 +1392,7 @@ export function AdaptiveAssessmentView({
       }
 
       const clientOrigin = typeof window !== "undefined" ? window.location.origin : "";
-      const exactShareUrl = data.token ? `${clientOrigin}/r/${data.token}` : data.shareUrl;
+      const exactShareUrl = data.token ? `${clientOrigin}/report/${data.token}` : data.shareUrl;
 
       setShareTokenData({
         token: data.token,
@@ -1388,20 +1435,44 @@ export function AdaptiveAssessmentView({
     try {
       if (navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(shareTokenData.shareUrl);
+        setShareLinkCopied(true);
+        setShareClipboardFailed(false);
+        setTimeout(() => setShareLinkCopied(false), 2500);
       } else {
-        const input = document.createElement("input");
-        input.value = shareTokenData.shareUrl;
-        document.body.appendChild(input);
-        input.select();
-        document.execCommand("copy");
-        document.body.removeChild(input);
+        throw new Error("Clipboard API unavailable");
       }
-      setShareLinkCopied(true);
-      setTimeout(() => setShareLinkCopied(false), 2500);
     } catch {
-      setShareLinkCopied(true);
-      setTimeout(() => setShareLinkCopied(false), 2500);
+      setShareClipboardFailed(true);
+      setShareError("Automatic copy was blocked by browser permissions. Please select the link below to copy manually.");
     }
+  };
+
+  const handleNativeOrCopyShare = async () => {
+    if (!shareTokenData?.shareUrl) return;
+    const studentFirstName = (activeStudent?.student?.name || "Learner").trim().split(/\s+/)[0] || "Learner";
+    const shareTitle = `${studentFirstName}'s Math Learning Progress Report`;
+    const shareText =
+      lang === "hi"
+        ? `यहाँ शिक्षागैप पर ${studentFirstName} की कक्षा ${classConfig.grade} की गणित सीख रिपोर्ट है: ${shareTokenData.shareUrl}\nघर पर अभ्यास के लिए खुले हुए कौशल और आसान अगले कदम देखें!`
+        : lang === "te"
+        ? `ఇక్కడ శిక్షాగ్యాప్‌లో ${studentFirstName} యొక్క ${classConfig.grade}వ తరగతి గణిత అభ్యసన నివేదిక ఉంది: ${shareTokenData.shareUrl}\nఇంట్లో సాధన చేయడానికి అన్‌లాక్ అయిన నైపుణ్యాలు మరియు సులభమైన తదుపరి దశలను చూడండి!`
+        : `Here is ${studentFirstName}'s Class ${classConfig.grade} Maths Learning Gap Report on ShikshaGap: ${shareTokenData.shareUrl}\nSee unlocked skills and gentle next steps to practice at home!`;
+
+    if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareTokenData.shareUrl,
+        });
+        return;
+      } catch (err: unknown) {
+        if ((err as Error)?.name === "AbortError") {
+          return;
+        }
+      }
+    }
+    await handleCopyShareLink();
   };
 
   // Keep latest refs for callbacks to avoid re-triggering auto-start effect
@@ -1690,6 +1761,20 @@ export function AdaptiveAssessmentView({
                 <p className="text-sm text-foreground/80 mt-0.5">
                   You completed the Class {classConfig.grade} Maths Check ({totalQuestionsAnswered} questions answered).
                 </p>
+                <div className="flex flex-wrap items-center gap-2 pt-2 text-xs font-mono text-muted-foreground">
+                  <span className="font-bold text-foreground">
+                    Confidence: {Math.round(stoppingStatus.rootGapConfidence * 100)}%
+                  </span>
+                  <span>•</span>
+                  <span>
+                    Questions: {totalQuestionsAnswered} ({Object.entries(conceptQuestionCounts).map(([cId, count]) => `${cId}: ${count}`).join(', ') || 'N/A'})
+                  </span>
+                  {stoppingStatus.isProvisional && (
+                    <span className="font-bold text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-700 px-2 py-0.5 rounded-full">
+                      Provisional
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -1726,6 +1811,21 @@ export function AdaptiveAssessmentView({
               </button>
             </div>
           </div>
+
+          {stoppingStatus.isProvisional && (
+            <div
+              data-testid="provisional-result-banner"
+              className="p-4 sm:p-5 rounded-[22px] bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 text-xs sm:text-sm space-y-1 shadow-xs"
+            >
+              <div className="font-bold flex items-center gap-2 text-foreground">
+                <WarningCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" weight="bold" />
+                <span>Provisional Assessment Result</span>
+              </div>
+              <p className="leading-relaxed text-xs">
+                The maximum assessment budget (18 questions) was reached before achieving the 85% confidence threshold. The root gap identified is the most probable concept based on current answers. Additional practice and a follow-up check are recommended.
+              </p>
+            </div>
+          )}
 
           {/* Distinct 2-Column Desktop Layout (Skills on Left, Plan & Actions on Right) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
@@ -2512,7 +2612,7 @@ export function AdaptiveAssessmentView({
                         {dict.shareReportModalTitle || "Share Student Gap Report"}
                       </h3>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        {dict.shareReportModalSub || "Creates a private, read-only link valid for 14 days. Only first name and skills are shown to protect privacy."}
+                        Creates a private, read-only link valid for 30 days. Only first name and skills are shown to protect privacy.
                       </p>
                     </div>
                   </div>
@@ -2525,6 +2625,14 @@ export function AdaptiveAssessmentView({
                   >
                     <X className="w-5 h-5" />
                   </button>
+                </div>
+
+                {/* Pre-Save / Transparency Notice for Educator */}
+                <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-[14px] text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2">
+                  <ShieldCheck className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                  <span>
+                    Notice: Anyone with this link can view this report. The link automatically expires in 30 days and can be revoked at any time.
+                  </span>
                 </div>
 
                 {shareError && (
@@ -2558,10 +2666,21 @@ export function AdaptiveAssessmentView({
                   </div>
                 ) : shareTokenData ? (
                   <div className="space-y-4">
+                    {/* Primary Web Share API button */}
+                    <button
+                      type="button"
+                      onClick={handleNativeOrCopyShare}
+                      data-testid="modal-native-share-btn"
+                      className="w-full neo-btn neo-btn-primary min-h-[48px] px-4 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 rounded-full cursor-pointer shadow-warm"
+                    >
+                      <ShareNetwork className="w-4 h-4" weight="bold" />
+                      <span>{dict.shareReportBtn || "Share Report"}</span>
+                    </button>
+
                     {/* Readonly Link Box */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-mono font-bold uppercase text-muted-foreground">
-                        {dict.shareReportBtn || "Share Report"} Link (14 Days)
+                        {dict.shareReportBtn || "Share Report"} Link (30 Days)
                       </label>
                       <div className="flex items-center gap-2 bg-muted/70 border border-border rounded-[14px] p-2 sm:p-2.5">
                         <input
@@ -2590,6 +2709,11 @@ export function AdaptiveAssessmentView({
                           )}
                         </button>
                       </div>
+                      {shareClipboardFailed && (
+                        <p className="text-xs text-amber-700 dark:text-amber-300 pt-1">
+                          Automatic copy blocked by browser. Please tap the box above and copy manually.
+                        </p>
+                      )}
                     </div>
 
                     {/* Action Buttons: WhatsApp & Revoke */}
@@ -2636,14 +2760,14 @@ export function AdaptiveAssessmentView({
                     <p className="text-xs text-muted-foreground border-t border-border/80 pt-3 flex items-center gap-1.5">
                       <span className="font-bold text-primary font-mono text-xs">SHIKSHAGAP PRIVACY:</span>
                       <span>
-                        {dict.linkExpiresNotice || "Private link expires in 14 days. No surname, school, or contact info is shared."}
+                        Private link expires in 30 days. No surname, school, or contact info is shared.
                       </span>
                     </p>
                   </div>
                 ) : (
                   <div className="py-4 text-center space-y-3">
                     <p className="text-xs text-muted-foreground">
-                      {dict.linkExpiresNotice || "Private link expires in 14 days. No surname, school, or contact info is shared."}
+                      Private link expires in 30 days. No surname, school, or contact info is shared.
                     </p>
                     <button
                       type="button"
@@ -2754,18 +2878,22 @@ export function AdaptiveAssessmentView({
               </div>
             </div>
 
-            {/* Simple Progress: e.g. "Question 3 of 8" */}
+            {/* Honest Progress Indicator: e.g. "Question 5 of about 10" */}
             <div className="space-y-1.5 pt-1 border-t border-border">
               <div className="flex items-center justify-between text-sm sm:text-base font-bold text-foreground">
-                <span>
-                  {dict.questionLabel || "Question"} {totalQuestionsAnswered + (currentQuestion ? 1 : 0)} of {Math.max(totalQuestionsAnswered + (currentQuestion ? 1 : 0), (sessionMemory?.topics.length || 4) * 2)}
+                <span data-testid="assessment-progress-indicator">
+                  {lang === "hi"
+                    ? `प्रश्न ${totalQuestionsAnswered + (currentQuestion ? 1 : 0)} (लगभग ${stoppingStatus.estimatedTotalQuestions} में से)`
+                    : lang === "te"
+                    ? `ప్రశ్న ${totalQuestionsAnswered + (currentQuestion ? 1 : 0)} (సుమారు ${stoppingStatus.estimatedTotalQuestions} లో)`
+                    : `Question ${totalQuestionsAnswered + (currentQuestion ? 1 : 0)} of about ${stoppingStatus.estimatedTotalQuestions}`}
                 </span>
                 <span className="text-xs font-mono text-muted-foreground">
                   {Math.min(
                     100,
                     Math.round(
                       ((totalQuestionsAnswered + (currentQuestion ? 1 : 0)) /
-                        Math.max(1, (sessionMemory?.topics.length || 4) * 2)) *
+                        Math.max(1, stoppingStatus.estimatedTotalQuestions)) *
                         100
                     )
                   )}%
@@ -2779,7 +2907,7 @@ export function AdaptiveAssessmentView({
                       100,
                       Math.round(
                         ((totalQuestionsAnswered + (currentQuestion ? 1 : 0)) /
-                          Math.max(1, (sessionMemory?.topics.length || 4) * 2)) *
+                          Math.max(1, stoppingStatus.estimatedTotalQuestions)) *
                           100
                       )
                     )}%`,

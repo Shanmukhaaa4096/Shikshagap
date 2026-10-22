@@ -4,6 +4,8 @@ import {
   createStudentShareToken,
   getRawShareToken,
   revokeStudentShareToken,
+  generateShareToken,
+  DEFAULT_REPORT_EXPIRY_DAYS,
   type SharedReportRecord,
 } from './store.ts';
 
@@ -71,11 +73,13 @@ export async function insertSharedReport(params: {
   class: string | number;
   expires_at?: string;
   revoked?: boolean;
+  creator_secret?: string;
 }): Promise<SharedReportRow> {
-  const token = params.token || crypto.randomUUID();
+  const token = params.token || generateShareToken();
   const cleanFirstName = (params.first_name || 'Learner').trim().split(/\s+/)[0] || 'Learner';
   const expiresAtStr =
-    params.expires_at || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+    params.expires_at ||
+    new Date(Date.now() + DEFAULT_REPORT_EXPIRY_DAYS * 24 * 60 * 60 * 1000).toISOString();
   const revoked = params.revoked ?? false;
 
   const row: SharedReportRow = {
@@ -105,9 +109,11 @@ export async function insertSharedReport(params: {
       token: row.token,
       report_data: row.report_data,
       first_name: row.first_name,
+      class: String(row.class),
       class_level: String(row.class),
       expires_at: row.expires_at,
       revoked: row.revoked,
+      creator_secret: params.creator_secret || null,
     };
 
     const { data, error } = await supabase
@@ -209,7 +215,7 @@ export async function revokeSharedReport(token: string): Promise<boolean> {
     try {
       const { error } = await supabase
         .from('shared_reports')
-        .update({ revoked: true })
+        .update({ revoked: true, revoked_at: new Date().toISOString() })
         .eq('token', token);
 
       if (error) {
