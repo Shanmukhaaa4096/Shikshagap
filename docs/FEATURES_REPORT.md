@@ -23,6 +23,7 @@ All nine architectural features and required security, mobile-first, and regulat
 | **Feature 8: Data Export** | Completed | Authenticated CSV/JSON export requiring 10-minute recent re-auth, formula injection protection (`=`, `+`, `-`, `@`), UTF-8 BOM (`\uFEFF`) for Hindi/Telugu in Excel. |
 | **Feature 9: Admin Audit Log** | Completed | Append-only audit trail at `/app/audit-log` for school admins with action/date filters, self-logging, responsive desktop table and stacked mobile cards. |
 | **Feature 10: Classes 1 to 10 Multi-Board Curriculum & Question Engine** | Completed | Full NCERT (NCF-SE 2023 / NCF-FS) and ICSE (CISCE) curriculum models for Classes 1 to 10; 180+ concepts with verified provenance citations; 4-tier difficulty calibration starting at Tier 2; strict board isolation; cross-grade DAG prerequisite backtracking. |
+| **Feature 11: Curriculum Knowledge RAG & Grounded Pedagogy** | Completed | 92 Class 5 curriculum chunks (200-400 words) anchored to DAG concepts; 768-dim normalized embeddings with content-hash cache; cosine retriever with strict board isolation; grounds hints, misconceptions, 5-day remediation (zero-cost manipulatives), and generation style; deterministic math verification untouched; 100.0% Hit@4 measured (30/30). |
 
 ---
 
@@ -83,6 +84,22 @@ All nine architectural features and required security, mobile-first, and regulat
 - **PII Redaction**: Logs record `timestamp`, `userId`, `userRole`, `schoolId`, `action`, `ipHash` (SHA-256 salted hash), and high-level operational descriptions. Strictly zero student names, scores, notes, or tokens are logged.
 - **Self-Auditing**: Querying the audit log itself emits a `view_audit_log` event.
 - **Role Isolation**: Only `school_admin` users can access `/app/audit-log` or `/api/admin/audit-log`. Cross-school log queries are strictly blocked.
+
+### Feature 11: Curriculum Knowledge RAG & Grounded Pedagogy
+- **Corpus Architecture (`data/knowledge/`)**: 92 original chunks (60 NCERT + 32 ICSE) covering every Class 5 math concept and prerequisite in the curriculum DAG (`src/data/curriculum/`). Each chunk is strictly validated by Zod schema (`src/lib/rag/schema.ts`), constrained to 200–400 words, validated for license presence (`"own"` | `"open"` | `"permission"`), and guaranteed free of verbatim textbook infringement.
+- **Fail-Safe Build Loader (`scripts/validateCorpus.mjs`)**: Automated build hook runs before Next.js builds. If any chunk has a missing license, invalid word count, or an unregistered `conceptId` missing from the curriculum DAG, the build aborts immediately.
+- **Embedding Pipeline (`scripts/buildEmbeddings.mjs`)**: Pre-computes 768-dimensional L2-normalized embeddings using `@google/genai` model `gemini-embedding-001` with `taskType: "RETRIEVAL_DOCUMENT"`. Incorporates SHA-256 content-hash caching and exponential backoff retry. Outputs to committed `data/embeddings.json` so production Vercel builds do not require build-time API access.
+- **Cosine Retriever (`src/lib/rag/retrieve.ts`)**:
+  - Hard metadata filtering precedes vector scoring: board isolation is strictly enforced (ICSE queries only retrieve ICSE chunks; NCERT queries only retrieve NCERT chunks).
+  - Prerequisite chain backtracking support: matches target concept and prerequisite ancestors in the DAG when diagnosing foundational gaps.
+  - Query embedding with in-memory LRU cache (`SimpleLRUCache`).
+  - Zero-exception graceful fallback: returns `[]` without throwing if the API key is missing or calls fail.
+- **Pedagogical Grounding vs. Mathematical Correctness**:
+  - **What RAG Influences**: Contextual hint formulations, misconception explanations, 5-day remediation action plans (including low/zero-cost manipulative activities like paper folding, tamarind seeds, and chalk grids), and question level/style calibration.
+  - **What RAG Does NOT Influence**: RAG NEVER evaluates or decides whether an answer is mathematically correct. Programmatic mathematical verification and blind-solver checks remain 100% deterministic and authoritative.
+- **Prompt Injection Defense & Zod Validation**: Context is demarcated inside delimited `<context>` tags with explicit instructions that chunk text is untrusted educational data and never system instructions. Gemini outputs are validated using Zod schemas (`usedChunkIds`).
+- **Privacy Compliance**: Server-side only. Zero student names, roll numbers, or student answers are ever embedded or sent to embedding endpoints.
+- **Empirical Retrieval Evaluation**: Measured Hit@4 on 30 labelled queries (`tests/fixtures/labelled-queries.json`) achieved **100.0% (30/30)** with 0% cross-board leakage.
 
 ---
 

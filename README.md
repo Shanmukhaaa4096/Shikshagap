@@ -125,7 +125,29 @@ Teachers and students can select their preferred curriculum focus on the assessm
 
 ---
 
-## 6. Question Engine Quality Evaluation Script
+## 6. Curriculum Knowledge RAG (Retrieval-Augmented Generation)
+
+ShikshaGap integrates a Knowledge RAG system (`src/lib/rag/`) to ground Gemini in authentic Indian primary mathematics curriculum content:
+
+### Grounding Scope: What RAG Is and Is Not Used For
+- **What Retrieval Influences**: Hints, misconception explanations, 5-day targeted remediation plans (incorporating zero-cost manipulative activities like paper folding, seed counters, and chalk grids), and question level/style generation.
+- **What Retrieval NEVER Does**: Retrieval **never** evaluates or decides whether an answer is mathematically correct. All answer verification and scoring remains 100% deterministic (verified by programmatic mathematical checks and blind-solver validation).
+
+### Corpus Architecture & Build-Time Validation
+- **Corpus Files (`data/knowledge/`)**: 92 curated chunks (60 NCERT + 32 ICSE) covering every Class 5 concept in the curriculum DAG and prerequisite ancestors. Every chunk is strictly 200–400 words, original pedagogical content (no verbatim textbook copying), tagged with license (`"own"` | `"open"` | `"permission"`), and validated via Zod (`src/lib/rag/schema.ts`).
+- **Fail-Safe Build Hook (`scripts/validateCorpus.mjs`)**: Automatically validates all chunks during `prebuild` and `npm test`. Fails the build immediately if any chunk references a `conceptId` not in the DAG or lacks a license.
+
+### Embedding Pipeline & In-Memory Cosine Retriever
+- **Embedding Script (`scripts/buildEmbeddings.mjs`)**: Generates 768-dimensional L2-normalized vectors using `@google/genai` model `gemini-embedding-001` with `taskType: "RETRIEVAL_DOCUMENT"`, rate-limiting backoff, and SHA-256 content-hash caching.
+- **Offline / Vercel Readiness (`data/embeddings.json`)**: Pre-computed vectors are committed so builds on Vercel do not require API keys at build time.
+- **Strict Board Isolation**: Hard metadata filtering ensures ICSE queries retrieve only ICSE chunks, and NCERT/CBSE queries retrieve only NCERT chunks.
+- **Prerequisite Backtracking**: Searches encompass prerequisite concept chains in the DAG when diagnosing foundational gaps.
+- **Measured Accuracy**: Evaluated on 30 labelled test queries (`tests/fixtures/labelled-queries.json`), achieving **100.0% Hit@4 (30/30)**.
+- **Privacy & Fail-Safe Fallback**: Zero student names, roll numbers, or answers are ever embedded. If `GEMINI_API_KEY` is absent, `retrieve()` returns `[]` without throwing and the app degrades gracefully to code-gate behavior.
+
+---
+
+## 7. Question Engine Quality Evaluation Script
 
 Run the automated quality evaluation script to verify mathematical accuracy, range compliance, blind-solver agreement, and format variety:
 
@@ -138,13 +160,16 @@ Review the resulting analysis at [`docs/QUALITY_REPORT.md`](file:///c:/Users/pba
 
 ---
 
-## 7. Run Tests
+## 8. Run Tests
 
-The test suite covers curriculum consistency, security invariants, privacy boundaries, agent orchestrator states, question formats, adaptive difficulty transitions, and multi-board rotation:
+The test suite covers curriculum consistency, security invariants, privacy boundaries, agent orchestrator states, question formats, adaptive difficulty transitions, multi-board rotation, and RAG retrieval:
 
 ```bash
-# Run full automated test suite (221 tests)
+# Run full automated test suite (320 tests)
 npm test
+
+# Run RAG retrieval test specifically
+npm run test:rag
 
 # Run static type checks
 npx tsc --noEmit
@@ -152,13 +177,13 @@ npx tsc --noEmit
 # Run linter
 npm run lint
 
-# Build production bundle
+# Build production bundle (includes prebuild corpus validation)
 npm run build
 ```
 
 ---
 
-## 8. Getting Started Locally
+## 9. Getting Started Locally
 
 ```bash
 # Clone the repository

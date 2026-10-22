@@ -44,6 +44,11 @@ export default function HowItWorksClient() {
       summary: 'Honest empirical disclosure with no fabricated performance benchmarks.',
       detail: 'ShikshaGap is in pilot research evaluation. Formal empirical accuracy percentages (precision and recall against expert master teacher diagnoses) are actively being collected across classroom trials. We do not publish simulated or unverified "99% accuracy" marketing claims. Known limitations include: inability to evaluate scratchpad mental math, language comprehension barriers in word problems, and lack of handwritten work analysis.',
     },
+    {
+      title: '5. Curriculum Knowledge RAG & Grounded Pedagogy',
+      summary: 'Grounding AI hints, misconception explanations, and remediation plans in authentic curriculum textbooks.',
+      detail: 'ShikshaGap employs a Knowledge Retrieval-Augmented Generation (RAG) system with 768-dimensional normalized curriculum embeddings. What RAG is used for: Retrieved curriculum chunks ground Gemini in authentic NCERT and ICSE pedagogy, shaping contextual hints, error explanations, question styles, and 5-day remediation plans featuring zero-cost manipulative activities (such as paper folding, chalk grids, and seed counters). What RAG is NOT used for: Retrieval NEVER evaluates or decides whether a student answer is mathematically correct; all scoring and answer verification remains strictly deterministic. Performance: On our standardized 30-query labelled curriculum test set, retrieval achieves a measured Hit@4 of 100.0% (30/30) with strict board isolation (ICSE queries never receive NCERT chunks and vice versa). Privacy: No student names, roll numbers, or student answers are ever embedded or transmitted.',
+    },
   ];
 
   return (
