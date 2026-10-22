@@ -14,15 +14,11 @@ import assert from "node:assert/strict";
 import {
   LocalJsonQuestionStore,
   DUPLICATE_THRESHOLD,
-  MIN_EMPIRICAL_SAMPLE_SIZE,
   retrieveSimilarQuestionsSafe,
   setQuestionStoreOverride,
   embedQuestionText,
 } from "../src/lib/db/questionStore.ts";
-import {
-  computeQuestionFingerprint,
-  normalizeQuestionTextForFingerprint,
-} from "../src/lib/questions/fingerprint.ts";
+import { computeQuestionFingerprint } from "../src/lib/questions/fingerprint.ts";
 import { calibrateDifficultyWithEmpiricalData } from "../src/lib/agents/adaptiveEngine.ts";
 import { cosineSimilarity } from "../src/lib/rag/vector.ts";
 

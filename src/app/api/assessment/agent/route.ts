@@ -18,6 +18,9 @@ import type {
   Attempt,
   Question,
   SessionMemory,
+  ConceptId,
+  Difficulty,
+  QuestionFormat,
 } from "@/lib/types";
 
 import { getMultiBoardQuestion } from "@/lib/questions/multiBoardBank";
@@ -329,18 +332,20 @@ export async function POST(req: NextRequest) {
             const chosen = matchingCandidates[0];
             const storedQ: Question = {
               id: chosen.id,
-              conceptId: chosen.concept_id as any,
-              difficulty: chosen.difficulty as any,
+              conceptId: chosen.concept_id as ConceptId,
+              difficulty: chosen.difficulty as Difficulty,
               prompt: {
                 raw: chosen.question_text,
-                [currentMemory.language]: chosen.question_text,
               },
               answer: chosen.answer_value,
-              format: (chosen.answer_format as any) || "short_text",
-              board: targetBoard,
-              class: lookupClass,
+              answerKind: "int",
+              format: (chosen.answer_format as QuestionFormat) || "short_answer",
+              source: "ai",
               sourceStyle: targetSourceStyle,
-              operands: [],
+              board: targetBoard,
+              meta: {
+                class: lookupClass,
+              },
             };
 
             const synced = syncQuestionProvenance(storedQ, targetBoard);

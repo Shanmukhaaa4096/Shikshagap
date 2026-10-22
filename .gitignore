@@ -58,3 +58,4 @@ dist/
 shikshagap/
 lighthouse-*.json
 scratch/
+data/question_memory.json

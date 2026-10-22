@@ -56,7 +56,6 @@ async function runSeed() {
           totalGenerated++;
           try {
             const askedIds = new Set();
-            const askedTexts = new Set();
 
             const question = generateUnique(
               conceptId,
