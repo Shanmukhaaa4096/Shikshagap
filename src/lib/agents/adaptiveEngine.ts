@@ -597,3 +597,18 @@ export function estimateAdaptiveMastery(
   };
 }
 
+/**
+ * Calibrates or corrects a question's nominal difficulty using empirical data from QuestionStore.
+ * Invariant: Empirical difficulty calibration kicks in ONLY after minimum sample size (times_served >= 20).
+ * If times_served < 20 or empirical data is absent, nominal difficulty is preserved untouched.
+ */
+export function calibrateDifficultyWithEmpiricalData(
+  nominalDifficulty: DifficultyLevel,
+  empirical: { sampleSize: number; successRate: number; calibratedDifficulty: number | null }
+): DifficultyLevel {
+  if (!empirical || empirical.sampleSize < 20 || empirical.calibratedDifficulty === null) {
+    return nominalDifficulty;
+  }
+  return Math.min(5, Math.max(1, empirical.calibratedDifficulty)) as DifficultyLevel;
+}
+

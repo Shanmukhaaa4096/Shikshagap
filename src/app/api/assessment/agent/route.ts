@@ -23,11 +23,16 @@ import type {
 import { getMultiBoardQuestion } from "@/lib/questions/multiBoardBank";
 import { syncQuestionProvenance } from "@/lib/questions/provenance";
 import { getCurriculumConcept } from "@/data/curriculum";
-import { rotateSourceStyle, type SourceStyle, type DifficultyLevel } from "@/lib/agents/adaptiveEngine";
+import { rotateSourceStyle, type SourceStyle, type DifficultyLevel, calibrateDifficultyWithEmpiricalData } from "@/lib/agents/adaptiveEngine";
 import { z } from "zod";
 import { guardRequest, createGuardResponse } from "@/lib/server/guard";
 import { getClientIp } from "@/lib/server/security";
 import { retrieve } from "@/lib/rag/retrieve.ts";
+import {
+  getQuestionStore,
+  retrieveSimilarQuestionsSafe,
+  embedQuestionText,
+} from "@/lib/db/questionStore";
 
 const AssessmentAgentSchema = z.object({
   memory: z.object({
@@ -119,6 +124,12 @@ export async function POST(req: NextRequest) {
       const advanced = applyAttemptToMemory(currentMemory, lastAttempt);
       currentMemory = advanced.memory;
       nextAction = advanced.action;
+
+      // Update aggregate counters in QuestionStore (strictly aggregate, no student PII or session id)
+      if (lastAttempt.questionId) {
+        const store = getQuestionStore();
+        store.incrementStats(lastAttempt.questionId, lastAttempt.correct).catch(() => {});
+      }
 
       // 2. If a topic closed as developing or gap, run Error Analyst
       if (
@@ -273,6 +284,78 @@ export async function POST(req: NextRequest) {
           if (valResult.valid && isCandidateUnasked(synced)) {
             nextQuestion = synced;
           }
+        }
+      }
+
+      // 4c. Tertiary: Retrieve proven stored question from Persistent QuestionStore
+      if (!nextQuestion) {
+        try {
+          const store = getQuestionStore();
+          const queryEmb = await embedQuestionText(
+            `Class ${lookupClass} ${targetBoard} ${nextAction.conceptId}`,
+            { conceptId: nextAction.conceptId, board: targetBoard }
+          );
+          const storedCandidates = await retrieveSimilarQuestionsSafe(
+            {
+              queryEmbedding: queryEmb,
+              board: targetBoard,
+              class: lookupClass,
+              conceptId: nextAction.conceptId,
+              difficultyMin: 1,
+              difficultyMax: 5,
+              limit: 8,
+            },
+            800
+          );
+
+          // Calibrate difficulty with empirical data if times_served >= 20
+          const matchingCandidates = [];
+          for (const c of storedCandidates) {
+            if (askedIds.has(c.id)) continue;
+            const norm = normalizeQuestionText(c.question_text);
+            if (norm && askedTexts.has(norm)) continue;
+
+            const empirical = await store.getEmpiricalDifficulty(c.id);
+            const effDiff = calibrateDifficultyWithEmpiricalData(c.difficulty as DifficultyLevel, empirical);
+            if (effDiff === nextAction.level) {
+              matchingCandidates.push(c);
+            }
+          }
+
+          // Prefer low times_served to give questions balanced exposure
+          matchingCandidates.sort((a, b) => a.times_served - b.times_served);
+
+          if (matchingCandidates.length > 0) {
+            const chosen = matchingCandidates[0];
+            const storedQ: Question = {
+              id: chosen.id,
+              conceptId: chosen.concept_id as any,
+              difficulty: chosen.difficulty as any,
+              prompt: {
+                raw: chosen.question_text,
+                [currentMemory.language]: chosen.question_text,
+              },
+              answer: chosen.answer_value,
+              format: (chosen.answer_format as any) || "short_text",
+              board: targetBoard,
+              class: lookupClass,
+              sourceStyle: targetSourceStyle,
+              operands: [],
+            };
+
+            const synced = syncQuestionProvenance(storedQ, targetBoard);
+            const valResult = validateQuestionStrict(synced, {
+              targetLang: currentMemory.language,
+              requireTextbookProvenance: false,
+              enrolledGrade: lookupClass,
+              expectedBoard: targetBoard,
+            });
+            if (valResult.valid && isCandidateUnasked(synced)) {
+              nextQuestion = synced;
+            }
+          }
+        } catch {
+          // Graceful fallback: continue to generator
         }
       }
 

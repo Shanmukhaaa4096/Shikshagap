@@ -17,6 +17,12 @@ import { z } from "zod";
 import type { ConceptId, Difficulty, Lang, Question } from "../types.ts";
 import { getSkillEntry, getSkillRange } from "../../data/skillSheet.ts";
 import { retrieveQuestionMemory, saveValidatedQuestion } from "../db/questionMemory.ts";
+import {
+  getQuestionStore,
+  retrieveSimilarQuestionsSafe,
+  embedQuestionText,
+} from "../db/questionStore.ts";
+import { computeQuestionFingerprint } from "./fingerprint.ts";
 import { validateQuestionIntegrity } from "./integrity.ts";
 import { getClassPedagogicalInstructions } from "../curriculum/classes.ts";
 import { retrieve } from "../rag/retrieve.ts";
@@ -524,6 +530,11 @@ export async function enhanceQuestionWithHybridWording(
     const skillRange = getSkillRange(baseQuestion.conceptId, grade, baseQuestion.difficulty);
     const runtimeTheme = pickRuntimeTheme();
 
+    const targetBoard: "CBSE" | "ICSE" =
+      (options.sourceStyle === "icse_selina" || options.sourceStyle === "icse_foundation")
+        ? "ICSE"
+        : "CBSE";
+
     const sessionHistory = Array.from(seenSignatures).slice(-5);
     let pastExamplesSection = "";
     try {
@@ -533,6 +544,28 @@ export async function enhanceQuestionWithHybridWording(
       }
       if (memory.goodExamples.length > 0) {
         pastExamplesSection += `\nHigh quality reference examples (use for style and variety inspiration):\n${memory.goodExamples.map((q, idx) => `${idx + 1}. ${q.text}`).join("\n")}\n`;
+      }
+
+      // Query Persistent Question-Memory RAG with strict board isolation & 800ms timeout
+      const queryEmb = await embedQuestionText(
+        `Class ${grade} ${targetBoard} question for ${baseQuestion.conceptId}`,
+        { conceptId: baseQuestion.conceptId, board: targetBoard, client }
+      );
+      const storedSimilar = await retrieveSimilarQuestionsSafe(
+        {
+          queryEmbedding: queryEmb,
+          board: targetBoard,
+          class: grade,
+          conceptId: baseQuestion.conceptId,
+          difficultyMin: 1,
+          difficultyMax: 5,
+          limit: 3,
+        },
+        800
+      );
+
+      if (storedSimilar.length > 0) {
+        pastExamplesSection += `\nStored Questions in Question-Memory (do NOT repeat, closely paraphrase, or mimic these scenarios):\n${storedSimilar.map((q, idx) => `${idx + 1}. ${q.question_text}`).join("\n")}\n`;
       }
     } catch {
       // Graceful fallback: continue without memory context
@@ -565,11 +598,6 @@ export async function enhanceQuestionWithHybridWording(
     };
     const diffTag = diffNames[baseQuestion.difficulty] || "L2 Understanding";
     const pedagogicalInstructions = getClassPedagogicalInstructions(grade);
-
-    const targetBoard: "CBSE" | "ICSE" =
-      (options.sourceStyle === "icse_selina" || options.sourceStyle === "icse_foundation")
-        ? "ICSE"
-        : "CBSE";
 
     let retrievedChunks: Array<{ id: string; source: string; text: string; type: string }> = [];
     try {
@@ -879,7 +907,32 @@ STRICT MANDATORY RULES:
         setCachedWording(cacheKey, generatedText);
         seenSignatures.add(generatedText);
 
-        // Safely persist to question memory (async, non-blocking)
+        // Safely persist to persistent QuestionStore with 768-dim embedding and deduplication check
+        const fp = computeQuestionFingerprint(generatedText, operands);
+        embedQuestionText(generatedText, {
+          conceptId: baseQuestion.conceptId,
+          board: targetBoard,
+          client,
+        }).then(async (embedding) => {
+          const store = getQuestionStore();
+          await store.saveQuestion({
+            board: targetBoard,
+            class: grade,
+            concept_id: baseQuestion.conceptId,
+            lang: language,
+            difficulty: baseQuestion.difficulty,
+            question_text: generatedText,
+            answer_value: String(baseQuestion.answer),
+            answer_format: baseQuestion.format,
+            template_or_source: "hybrid",
+            fingerprint: fp,
+            embedding,
+          });
+        }).catch((err) => {
+          console.warn("[QuestionMemoryRAG] Save error:", err instanceof Error ? err.message : err);
+        });
+
+        // Safely persist to legacy question memory (async, non-blocking)
         saveValidatedQuestion({
           grade,
           conceptId: baseQuestion.conceptId,
