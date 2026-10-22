@@ -16,6 +16,7 @@
 import test, { after } from "node:test";
 import assert from "node:assert/strict";
 import { SUPPORTED_CLASSES } from "../src/lib/curriculum/classes.ts";
+import { isClassLive } from "../src/lib/coverage.ts";
 import {
   ALL_CURRICULUM_CONCEPTS_LIST,
   CURRICULUM_REGISTRY,
@@ -68,16 +69,24 @@ for (const grade of CLASSES) {
           classConfig,
           `${cellId}: Class configuration must exist in SUPPORTED_CLASSES`
         );
-        assert.ok(
+        const isLive = isClassLive(grade);
+        assert.equal(
           classConfig.enabled,
-          `${cellId}: Class must be enabled in selector`
+          isLive,
+          `${cellId}: Class enabled property (${classConfig.enabled}) must match isClassLive (${isLive})`
         );
         assert.ok(
           classConfig.topics && classConfig.topics.length >= 3,
           `${cellId}: Class must define at least 3 curriculum topics`
         );
         cellResult.stage = classConfig.stage;
-        cellResult.selectorReady = true;
+        cellResult.selectorReady = isLive;
+
+        if (!isLive) {
+          cellResult.status = "COMING_SOON";
+          coverageMatrix.push(cellResult);
+          return;
+        }
 
         // Initialize session memory
         const memory = createSessionMemory(

@@ -10,7 +10,7 @@ export const FAQS: FAQItem[] = [
   },
   {
     q: 'Which classes are supported?',
-    a: 'Classes 3, 4, and 5 mathematics are fully supported today with verified syllabus topics, cross-grade gap backtracking, and 1-page printable worksheets. Classes 1, 2, 6, 7, and 8 are in preparation and clearly marked Coming soon.'
+    a: 'Classes 3, 4, and 5 mathematics are fully supported today with verified syllabus topics, cross-grade gap backtracking, and 1-page printable worksheets. Classes 1, 2, 6, 7, 8, 9, and 10 are in preparation and clearly marked Coming soon.'
   },
   {
     q: 'How does it help a teacher in a real classroom?',
@@ -26,7 +26,7 @@ export const FAQS: FAQItem[] = [
   },
   {
     q: 'How is student privacy protected under Indian law?',
-    a: 'ShikshaGap follows the Digital Personal Data Protection Act 2023. We collect zero tracking cookies, store only strictly necessary local session data, and never share student identifying details with third parties.'
+    a: 'ShikshaGap is built following Digital Personal Data Protection Act 2023 principles. Student session progress stays on your local device. We do not use tracking cookies or ad trackers. Questions and remediation plans are generated using Google Gemini with anonymous concept-level prompts containing zero student names or roll numbers.'
   },
   {
     q: 'Can a teacher use it on a simple phone or with slow internet?',

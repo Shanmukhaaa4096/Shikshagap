@@ -24,6 +24,7 @@ import {
   isGradeReadyForScoredAssessment,
 } from "../src/lib/curriculum/curriculumData.ts";
 import { SUPPORTED_CLASSES, isClassEnabled } from "../src/lib/curriculum/classes.ts";
+import { isClassLive } from "../src/lib/coverage.ts";
 
 test("Provenance 1: Every scored textbook question has complete and authentic NCERT metadata", () => {
   const stats = getQuestionBankStats();
@@ -100,8 +101,8 @@ test("Curriculum Architecture: Classes 1 through 10 are completely configured wi
     assert.ok(classConfig, `Class config missing for grade ${grade}`);
     assert.equal(classConfig.grade, grade);
 
-    // Classes 1 to 10 are enabled
-    assert.equal(isClassEnabled(classConfig.id), true, `Class ${grade} must be enabled`);
+    // Classes enabled state must match isClassLive (Classes 3-5 live, others coming soon)
+    assert.equal(isClassEnabled(classConfig.id), isClassLive(grade), `Class ${grade} enabled state must match isClassLive`);
     if ([3, 4, 5].includes(grade)) {
       assert.equal(isGradeReadyForScoredAssessment(grade), true, `Class ${grade} must be ready for scored assessment`);
     } else {
