@@ -3,14 +3,16 @@ import { siteConfig } from '@/config/site';
 import PublicLandingPage from './LandingPageClient';
 import { FAQS } from '@/data/faqs';
 
+import { LIVE_CLASS_RANGE_LABEL } from '@/lib/coverage';
+
 export const metadata: Metadata = {
   title: `${siteConfig.siteName} | Find out what each student needs to learn next`,
   description:
-    "ShikshaGap detects learning gaps in school maths for Classes 1 to 10 across NCERT and ICSE, giving teachers root-cause insights and targeted practice plans.",
+    `ShikshaGap detects learning gaps in school maths for ${LIVE_CLASS_RANGE_LABEL} (with more classes in preparation) across NCERT (CBSE) and ICSE, giving teachers root-cause insights and targeted practice plans.`,
   openGraph: {
     title: `${siteConfig.siteName} | Find out what each student needs to learn next`,
     description:
-      "ShikshaGap detects learning gaps in school maths for Classes 1 to 10 across NCERT and ICSE, giving teachers root-cause insights and targeted practice plans.",
+      `ShikshaGap detects learning gaps in school maths for ${LIVE_CLASS_RANGE_LABEL} (with more classes in preparation) across NCERT (CBSE) and ICSE, giving teachers root-cause insights and targeted practice plans.`,
     url: siteConfig.siteUrl,
     siteName: siteConfig.siteName,
     images: [
@@ -28,7 +30,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${siteConfig.siteName} | Find out what each student needs to learn next`,
     description:
-      "ShikshaGap detects learning gaps in school maths for Classes 1 to 10 across NCERT and ICSE, giving teachers root-cause insights and targeted practice plans.",
+      `ShikshaGap detects learning gaps in school maths for ${LIVE_CLASS_RANGE_LABEL} (with more classes in preparation) across NCERT (CBSE) and ICSE, giving teachers root-cause insights and targeted practice plans.`,
     images: ["/og-image.png"],
   },
   alternates: {
@@ -69,14 +71,14 @@ export default function HomePage() {
           "priceCurrency": "INR",
         },
         "description":
-          "Adaptive diagnostic assessment detecting prerequisite learning gaps in school mathematics across Classes 1 to 10 for NCERT and ICSE syllabi.",
+          `Adaptive diagnostic assessment detecting prerequisite learning gaps in school mathematics across ${LIVE_CLASS_RANGE_LABEL} (with more classes in preparation) for NCERT (CBSE) and ICSE syllabi.`,
       },
       {
         "@type": "WebSite",
         "name": siteConfig.siteName,
         "url": siteConfig.siteUrl,
         "description":
-          "AI educational diagnostic agent identifying prerequisite learning gaps in school mathematics for Classes 1 to 10.",
+          `AI educational diagnostic agent identifying prerequisite learning gaps in school mathematics for ${LIVE_CLASS_RANGE_LABEL} (with more classes in preparation).`,
       },
       {
         "@type": "FAQPage",

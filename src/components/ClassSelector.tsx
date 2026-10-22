@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Sparkle } from '@phosphor-icons/react';
 import {
   SUPPORTED_CLASSES,
   type ClassConfig,
@@ -107,7 +108,7 @@ export function ClassSelector({
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Primary (1–5)
+              Primary (Classes 1 to 5)
             </button>
             <button
               type="button"
@@ -118,7 +119,7 @@ export function ClassSelector({
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              Middle & High (6–10)
+              Middle &amp; Secondary (Classes 6 to 10)
             </button>
           </div>
         )}
@@ -128,7 +129,7 @@ export function ClassSelector({
             role="status"
             className="flex items-center gap-1.5 text-xs font-bold text-primary bg-primary/10 border border-primary/20 px-3 py-1 rounded-full animate-in fade-in slide-in-from-bottom-1 duration-200"
           >
-            <span>🦉</span>
+            <Sparkle size={13} weight="fill" className="text-secondary shrink-0" />
             <span>{reactionBubble}</span>
           </div>
         )}
