@@ -6,8 +6,9 @@ import { useRouter } from 'next/navigation';
 import { LanguageProvider } from '@/lib/i18n/context';
 import { AdaptiveAssessmentView } from '@/components/AdaptiveAssessmentView';
 import { DEFAULT_CLASS_ID, getClassConfig } from '@/lib/curriculum/classes';
-import { LIVE_CLASS_RANGE_LABEL } from '@/lib/coverage';
 import { Sun, Moon, ArrowLeft, ShieldCheck, User } from '@phosphor-icons/react';
+
+import type { BoardPreference } from '@/lib/agents/adaptiveEngine';
 
 function AssessmentInner() {
   const router = useRouter();
@@ -27,6 +28,8 @@ function AssessmentInner() {
     }
     return DEFAULT_CLASS_ID;
   });
+
+  const [boardPreference, setBoardPreference] = useState<BoardPreference>('CBSE');
 
   const [isDark, setIsDark] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
@@ -75,9 +78,10 @@ function AssessmentInner() {
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
-      document.title = `${classConfig.label} Maths Diagnostic | ShikshaGap`;
+      const boardLabel = boardPreference === 'ICSE' ? 'ICSE' : boardPreference === 'BOTH' ? 'Both' : 'CBSE (NCERT)';
+      document.title = `${classConfig.label} Maths Diagnostic (${boardLabel}) | ShikshaGap`;
     }
-  }, [classConfig.label]);
+  }, [classConfig.label, boardPreference]);
 
   return (
     <div className="min-h-screen min-h-[100dvh] bg-[var(--background)] text-[var(--foreground)] flex flex-col font-sans transition-colors duration-200">
@@ -106,7 +110,7 @@ function AssessmentInner() {
                 </span>
               </div>
               <div className="text-xs font-mono text-muted-foreground">
-                {classConfig.label} Maths Diagnostic
+                {classConfig.label} Maths Diagnostic • {boardPreference === 'ICSE' ? 'ICSE' : boardPreference === 'BOTH' ? 'Both' : 'CBSE (NCERT)'}
               </div>
             </div>
           </div>
@@ -140,6 +144,8 @@ function AssessmentInner() {
           isGuest={true}
           isStudentView={true}
           selectedClassId={selectedClassId}
+          boardPreference={boardPreference}
+          onBoardPreferenceChange={setBoardPreference}
           onClassChange={handleClassChange}
           onCancel={() => {
             router.push('/');
@@ -155,7 +161,9 @@ function AssessmentInner() {
             <span>Built following DPDP Act 2023 principles • Anonymous student sessions • No tracking cookies</span>
           </div>
           <div>
-            <span>Government School Maths Curriculum ({LIVE_CLASS_RANGE_LABEL}, with more in preparation)</span>
+            <span>
+              {classConfig.label} Maths Curriculum • {boardPreference === 'ICSE' ? 'ICSE' : boardPreference === 'BOTH' ? 'Both' : 'CBSE (NCERT)'} • Classes 1 to 10 ready
+            </span>
           </div>
         </div>
       </footer>

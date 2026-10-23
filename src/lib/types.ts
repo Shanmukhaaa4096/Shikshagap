@@ -181,6 +181,8 @@ export interface QuestionMeta {
   bugs?: Record<string, ErrorType>;
   focus?: number;
   class?: number;
+  sourceBook?: string;
+  sourceChapter?: string;
 }
 
 export interface Question {
@@ -521,6 +523,9 @@ export interface Attempt {
   format?: QuestionFormat;
   sourceStyle?: SourceStyle;
   missingPart?: string;
+  board?: "CBSE" | "ICSE";
+  sourceBook?: string;
+  sourceChapter?: string;
 }
 
 export interface TopicMemory {
@@ -548,6 +553,10 @@ export interface SessionMemory {
   stepCount?: number;
   /** Chosen board preference (CBSE, ICSE, or BOTH) */
   boardPreference?: BoardPreference;
+  /** Initial difficulty for topic staircase (default is medium band 3 for adaptive mode, or 2 for legacy) */
+  initialDifficulty?: Difficulty;
+  /** Whether running in full adaptive 5-level difficulty mode */
+  adaptiveMode?: boolean;
   /** List of asked question IDs in this session to strictly prevent question repetition */
   askedQuestionIds?: string[];
   /** List of normalized question texts in this session to safeguard against duplicate prompts */

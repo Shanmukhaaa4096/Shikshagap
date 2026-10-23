@@ -9,12 +9,18 @@ import { getSampleReportData } from '@/lib/data/sampleReportData';
 interface Props {
   sampleQ1Expression?: string;
   sampleQ2Expression?: string;
+  sampleTargetSkillTitle?: string;
 }
 
-export function LandingHowAgentWorksSection({ sampleQ1Expression, sampleQ2Expression }: Props) {
+export function LandingHowAgentWorksSection({
+  sampleQ1Expression,
+  sampleQ2Expression,
+  sampleTargetSkillTitle,
+}: Props) {
   const sampleData = getSampleReportData();
   const q1Exp = sampleQ1Expression || sampleData.sampleWorksheet.q1.expression;
   const q2Exp = sampleQ2Expression || sampleData.sampleWorksheet.q2.expression;
+  const targetSkillTitle = sampleTargetSkillTitle || sampleData.sampleWorksheet.targetSkillTitle;
 
   return (
     <section id="how-agent-works" className="px-4 sm:px-8 py-14 max-w-7xl mx-auto bg-[#FFF7E6] dark:bg-[#1A2615] rounded-[32px] border border-[#C7DDAE]/60 my-6 shadow-card">
@@ -138,7 +144,7 @@ export function LandingHowAgentWorksSection({ sampleQ1Expression, sampleQ2Expres
 
           <div className="space-y-3 pt-1">
             <div className="text-xs font-sans uppercase tracking-wider text-primary font-bold">
-              {sampleData.sampleWorksheet.targetSkillTitle}
+              {targetSkillTitle}
             </div>
 
             <div className="border border-[#C7DDAE] p-3 rounded-[16px] space-y-1 bg-white dark:bg-[#1A2615]">

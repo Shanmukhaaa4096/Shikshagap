@@ -22,7 +22,18 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 
-export const DUPLICATE_THRESHOLD = 0.92;
+export function getDedupeSimilarityThreshold(): number {
+  const envVal = process.env.RAG_DEDUPE_SIMILARITY_THRESHOLD;
+  if (envVal) {
+    const parsed = parseFloat(envVal);
+    if (!isNaN(parsed) && parsed > 0 && parsed <= 1) {
+      return parsed;
+    }
+  }
+  return 0.98;
+}
+
+export const DUPLICATE_THRESHOLD = 0.98;
 export const MIN_EMPIRICAL_SAMPLE_SIZE = 20;
 
 /**
@@ -79,12 +90,23 @@ export interface SaveQuestionResult {
   id?: string;
   similarity?: number;
   record?: QuestionMemoryItem;
+  error?: unknown;
 }
 
 export interface EmpiricalDifficultyResult {
   sampleSize: number;
   successRate: number;
   calibratedDifficulty: number | null;
+}
+
+export interface QueryQuestionsParams {
+  class: number;
+  board?: "CBSE" | "ICSE" | string;
+  conceptId?: string;
+  difficultyMin?: number;
+  difficultyMax?: number;
+  excludeIds?: string[];
+  limit?: number;
 }
 
 export interface QuestionStore {
@@ -96,6 +118,8 @@ export interface QuestionStore {
   }): Promise<SaveQuestionResult>;
 
   retrieveSimilarQuestions(params: RetrieveQuestionParams): Promise<Array<QuestionMemoryItem & { similarity: number }>>;
+
+  queryQuestions(params: QueryQuestionsParams): Promise<QuestionMemoryItem[]>;
 
   getQuestionById(id: string): Promise<QuestionMemoryItem | null>;
 
@@ -162,9 +186,11 @@ export async function embedQuestionText(
           outputDimensionality: 768,
         },
       });
-      const values = response?.embedding?.values;
-      if (Array.isArray(values) && values.length === 768) {
-        return l2Normalize(values);
+      const values =
+        (response as unknown as { embedding?: { values?: number[] }; embeddings?: Array<{ values?: number[] }> })?.embedding?.values ||
+        (response as unknown as { embeddings?: Array<{ values?: number[] }> })?.embeddings?.[0]?.values;
+      if (Array.isArray(values) && values.length >= 768) {
+        return l2Normalize(values.slice(0, 768));
       }
     } catch {
       // Degrade gracefully to deterministic vector
@@ -250,7 +276,7 @@ export class LocalJsonQuestionStore implements QuestionStore {
     // 1. Check exact fingerprint duplicate
     for (const existing of this.items.values()) {
       if (existing.fingerprint === fingerprint) {
-        console.log(`[QuestionStore] Question skipped (duplicate_fingerprint): id=${existing.id}`);
+        console.log(`[QuestionStore] DEDUPED(duplicate_fingerprint) id=${existing.id} class=${item.class}`);
         return {
           saved: false,
           reason: "duplicate_fingerprint",
@@ -261,6 +287,7 @@ export class LocalJsonQuestionStore implements QuestionStore {
     }
 
     // 2. Check nearest neighbor cosine similarity
+    const threshold = getDedupeSimilarityThreshold();
     const candidates = await this.retrieveSimilarQuestions({
       queryEmbedding: item.embedding,
       board: item.board,
@@ -271,8 +298,8 @@ export class LocalJsonQuestionStore implements QuestionStore {
       limit: 1,
     });
 
-    if (candidates.length > 0 && candidates[0].similarity >= DUPLICATE_THRESHOLD) {
-      console.log(`[QuestionStore] Question skipped (duplicate_similarity): id=${candidates[0].id}`);
+    if (candidates.length > 0 && candidates[0].similarity >= threshold) {
+      console.log(`[QuestionStore] DEDUPED(duplicate_similarity) id=${candidates[0].id} class=${item.class}`);
       return {
         saved: false,
         reason: "duplicate_similarity",
@@ -304,7 +331,7 @@ export class LocalJsonQuestionStore implements QuestionStore {
 
     this.items.set(id, fullItem);
     this.saveToFile();
-    console.log(`[QuestionStore] Question saved: id=${id}`);
+    console.log(`[QuestionStore] SAVED id=${id} class=${fullItem.class}`);
 
     return {
       saved: true,
@@ -338,6 +365,26 @@ export class LocalJsonQuestionStore implements QuestionStore {
     // Sort descending by similarity
     matching.sort((a, b) => b.similarity - a.similarity);
     return matching.slice(0, limit);
+  }
+
+  async queryQuestions(params: QueryQuestionsParams): Promise<QuestionMemoryItem[]> {
+    const diffMin = params.difficultyMin ?? 1;
+    const diffMax = params.difficultyMax ?? 5;
+    const limit = params.limit ?? 20;
+    const excludeSet = new Set((params.excludeIds || []).map((id) => id.split("_s")[0]));
+
+    const matching: QuestionMemoryItem[] = [];
+    for (const item of this.items.values()) {
+      if (item.flagged) continue;
+      if (item.class !== params.class) continue;
+      if (params.board && params.board !== "BOTH" && item.board !== params.board) continue;
+      if (params.conceptId && item.concept_id !== params.conceptId) continue;
+      if (item.difficulty < diffMin || item.difficulty > diffMax) continue;
+      if (excludeSet.has(item.id) || excludeSet.has(item.id.split("_s")[0])) continue;
+      matching.push(item);
+      if (matching.length >= limit) break;
+    }
+    return matching;
   }
 
   async getQuestionById(id: string): Promise<QuestionMemoryItem | null> {
@@ -430,8 +477,8 @@ export class SupabaseQuestionStore implements QuestionStore {
   ): Promise<SaveQuestionResult> {
     const supabase = getSupabaseAdmin();
     if (!supabase) {
-      console.error("[QuestionStore] Question save failed: Supabase admin client not available");
-      return { saved: false, reason: "database_error" };
+      console.error(`[QuestionStore] FAILED(missing_supabase_client) id=${item.id || "unknown"} class=${item.class}`);
+      return { saved: false, reason: "database_error", error: "missing_supabase_client" };
     }
 
     const fingerprint = item.fingerprint || computeQuestionFingerprint(item.question_text);
@@ -444,7 +491,7 @@ export class SupabaseQuestionStore implements QuestionStore {
       .maybeSingle();
 
     if (existingFp) {
-      console.log(`[QuestionStore] Question skipped (duplicate_fingerprint): id=${existingFp.id}`);
+      console.log(`[QuestionStore] DEDUPED(duplicate_fingerprint) id=${existingFp.id} class=${item.class}`);
       return {
         saved: false,
         reason: "duplicate_fingerprint",
@@ -453,6 +500,7 @@ export class SupabaseQuestionStore implements QuestionStore {
     }
 
     // 2. Check nearest neighbor cosine similarity via match_questions
+    const threshold = getDedupeSimilarityThreshold();
     const similar = await this.retrieveSimilarQuestions({
       queryEmbedding: item.embedding,
       board: item.board,
@@ -463,8 +511,8 @@ export class SupabaseQuestionStore implements QuestionStore {
       limit: 1,
     });
 
-    if (similar.length > 0 && similar[0].similarity >= DUPLICATE_THRESHOLD) {
-      console.log(`[QuestionStore] Question skipped (duplicate_similarity): id=${similar[0].id}`);
+    if (similar.length > 0 && similar[0].similarity >= threshold) {
+      console.log(`[QuestionStore] DEDUPED(duplicate_similarity) id=${similar[0].id} class=${item.class}`);
       return {
         saved: false,
         reason: "duplicate_similarity",
@@ -501,11 +549,11 @@ export class SupabaseQuestionStore implements QuestionStore {
       .maybeSingle();
 
     if (error) {
-      console.error(`[QuestionStore] Question save failed (${error.message}): id=${rowId}`);
-      return { saved: false, reason: "database_error" };
+      console.error(`[QuestionStore] FAILED(${error.message}) id=${rowId} class=${item.class}`);
+      return { saved: false, reason: "database_error", error: error.message };
     }
 
-    console.log(`[QuestionStore] Question saved: id=${data?.id || rowId}`);
+    console.log(`[QuestionStore] SAVED id=${data?.id || rowId} class=${item.class}`);
     return {
       saved: true,
       reason: "ok",
@@ -558,6 +606,48 @@ export class SupabaseQuestionStore implements QuestionStore {
       }));
     } catch (err) {
       console.error("[SupabaseQuestionStore] Retrieval exception:", err);
+      return [];
+    }
+  }
+
+  async queryQuestions(params: QueryQuestionsParams): Promise<QuestionMemoryItem[]> {
+    const supabase = getSupabaseAdmin();
+    if (!supabase) return [];
+
+    try {
+      let query = supabase
+        .from("question_memory")
+        .select("*")
+        .eq("class", params.class)
+        .eq("flagged", false);
+
+      if (params.board && params.board !== "BOTH") {
+        query = query.eq("board", params.board);
+      }
+      if (params.conceptId) {
+        query = query.eq("concept_id", params.conceptId);
+      }
+      if (params.difficultyMin) {
+        query = query.gte("difficulty", params.difficultyMin);
+      }
+      if (params.difficultyMax) {
+        query = query.lte("difficulty", params.difficultyMax);
+      }
+      if (params.excludeIds && params.excludeIds.length > 0) {
+        const validUuids = params.excludeIds.map((id) => toDeterministicUuid(id.split("_s")[0]));
+        query = query.not("id", "in", `(${validUuids.join(",")})`);
+      }
+
+      query = query.order("times_served", { ascending: true }).limit(params.limit ?? 20);
+
+      const { data, error } = await query;
+      if (error) {
+        console.error("[SupabaseQuestionStore] queryQuestions error:", error.message);
+        return [];
+      }
+      return (data as QuestionMemoryItem[]) || [];
+    } catch (err) {
+      console.error("[SupabaseQuestionStore] queryQuestions exception:", err);
       return [];
     }
   }
@@ -722,15 +812,18 @@ export function getQuestionStore(): QuestionStore {
 
   const configured = isSupabaseConfigured();
 
-  // Loud error in production if Supabase URL is set but service role key is missing
+  // Fail loudly in production if Supabase credentials are missing or invalid
   if (process.env.NODE_ENV === "production" && !configured) {
     const hasUrl = Boolean(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL);
     const hasKey = Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY);
-    if (hasUrl && !hasKey) {
-      console.error(
-        "[QuestionStore] FATAL CONFIG ERROR: SUPABASE_URL / NEXT_PUBLIC_SUPABASE_URL is configured, but SUPABASE_SERVICE_ROLE_KEY is MISSING in production! LocalJsonQuestionStore will run on read-only serverless filesystem and questions will not persist across requests. Set SUPABASE_SERVICE_ROLE_KEY immediately."
-      );
-    }
+    const fatalError = new Error(
+      `[QuestionStore] FATAL CONFIG ERROR in production: Supabase question store is not configured. ` +
+      `SUPABASE_URL: ${hasUrl ? "configured" : "MISSING"}, ` +
+      `SUPABASE_SERVICE_ROLE_KEY: ${hasKey ? "configured" : "MISSING"}. ` +
+      `Falling back to local disk in production serverless is strictly prohibited.`
+    );
+    console.error(fatalError.message);
+    throw fatalError;
   }
 
   if (!hasLoggedActiveStore && process.env.NODE_ENV !== "test") {

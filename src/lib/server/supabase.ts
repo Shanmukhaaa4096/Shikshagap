@@ -47,6 +47,17 @@ export function getSupabaseAdmin(): SupabaseClient | null {
     return null;
   }
 
+  // Prevent catastrophic misconfiguration where public anon key is passed as service role key
+  if (
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
+    serviceRoleKey === process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    console.error(
+      '[SupabaseServer] SECURITY MISCONFIGURATION: SUPABASE_SERVICE_ROLE_KEY is identical to NEXT_PUBLIC_SUPABASE_ANON_KEY! Service role key is required for RLS bypass.'
+    );
+    return null;
+  }
+
   if (!supabaseAdminClient) {
     supabaseAdminClient = createClient(supabaseUrl, serviceRoleKey, {
       auth: {
@@ -57,6 +68,44 @@ export function getSupabaseAdmin(): SupabaseClient | null {
   }
 
   return supabaseAdminClient;
+}
+
+/**
+ * Returns a server-only Supabase client using SUPABASE_SERVICE_ROLE_KEY.
+ * Fails loudly (throws Error) if required environment variables are missing or misconfigured.
+ */
+export function getRequiredSupabaseAdmin(): SupabaseClient {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_SERVICE_KEY;
+
+  if (!supabaseUrl || !supabaseUrl.trim() || supabaseUrl.includes('placeholder')) {
+    throw new Error(
+      '[SupabaseServer] Missing required environment variable: SUPABASE_URL (or NEXT_PUBLIC_SUPABASE_URL).'
+    );
+  }
+
+  if (!serviceRoleKey || !serviceRoleKey.trim() || serviceRoleKey.includes('placeholder')) {
+    throw new Error(
+      '[SupabaseServer] Missing required server-only environment variable: SUPABASE_SERVICE_ROLE_KEY. Server database writes cannot proceed without the service role key.'
+    );
+  }
+
+  if (
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
+    serviceRoleKey === process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    throw new Error(
+      '[SupabaseServer] SECURITY MISCONFIGURATION: SUPABASE_SERVICE_ROLE_KEY was set to the public anon key. The service role key is strictly required to write to tables protected by Row Level Security.'
+    );
+  }
+
+  const client = getSupabaseAdmin();
+  if (!client) {
+    throw new Error('[SupabaseServer] Failed to initialize Supabase admin client.');
+  }
+  return client;
 }
 
 /**

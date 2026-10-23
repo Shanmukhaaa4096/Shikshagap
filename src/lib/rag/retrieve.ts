@@ -163,9 +163,11 @@ async function embedQuery(
           outputDimensionality: 768,
         },
       });
-      const values = response?.embedding?.values;
-      if (Array.isArray(values) && values.length === 768) {
-        const normalized = l2Normalize(values);
+      const values =
+        (response as unknown as { embedding?: { values?: number[] }; embeddings?: Array<{ values?: number[] }> })?.embedding?.values ||
+        (response as unknown as { embeddings?: Array<{ values?: number[] }> })?.embeddings?.[0]?.values;
+      if (Array.isArray(values) && values.length >= 768) {
+        const normalized = l2Normalize(values.slice(0, 768));
         queryVectorCache.set(cacheKey, normalized);
         return normalized;
       }

@@ -900,8 +900,8 @@ export function getMultiBoardQuestion(
 
   const boardMatches = (q: MultiBoardQuestionEntry) => {
     if (!filter.board) return true;
-    if (filter.board === "ICSE") return q.board === "ICSE" || q.board === "BOTH";
-    if (filter.board === "CBSE") return q.board === "CBSE" || q.board === "NCERT" || q.board === "BOTH";
+    if (filter.board === "ICSE") return q.board === "ICSE";
+    if (filter.board === "CBSE") return q.board === "CBSE" || q.board === "NCERT";
     return true;
   };
 
@@ -969,7 +969,9 @@ export function getMultiBoardQuestion(
     return null;
   }
 
-  const chosen = candidates[0];
+  // Rotate across candidates based on excludeIds count so one book does not dominate
+  const rotateIndex = (filter.excludeIds?.length || 0) % candidates.length;
+  const chosen = candidates[rotateIndex];
 
   return convertMultiBoardEntryToAppQuestion(chosen, lang, filter.board);
 }
@@ -990,7 +992,11 @@ export function convertMultiBoardEntryToAppQuestion(
   }));
 
   const effectiveBoard: "CBSE" | "ICSE" =
-    targetBoard || (entry.board === "ICSE" ? "ICSE" : "CBSE");
+    entry.board === "ICSE"
+      ? "ICSE"
+      : entry.board === "CBSE" || entry.board === "NCERT"
+      ? "CBSE"
+      : targetBoard || "CBSE";
 
   const concept = getCurriculumConcept(entry.conceptIds[0], effectiveBoard);
   const grade = concept?.class || entry.class;
@@ -1019,7 +1025,11 @@ export function convertMultiBoardEntryToAppQuestion(
     answerKind: "choice",
     answer: entry.correctAnswer,
     options: appOptions,
-    meta: { class: grade },
+    meta: {
+      class: grade,
+      sourceBook: entry.bookFamily,
+      sourceChapter: chapterTitle,
+    },
     hint: { raw: hintText },
     source: "bank",
     isTextbookVerified: true,

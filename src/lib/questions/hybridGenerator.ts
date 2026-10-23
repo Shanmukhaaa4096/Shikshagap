@@ -18,11 +18,9 @@ import type { ConceptId, Difficulty, Lang, Question } from "../types.ts";
 import { getSkillEntry, getSkillRange } from "../../data/skillSheet.ts";
 import { retrieveQuestionMemory, saveValidatedQuestion } from "../db/questionMemory.ts";
 import {
-  getQuestionStore,
   retrieveSimilarQuestionsSafe,
   embedQuestionText,
 } from "../db/questionStore.ts";
-import { computeQuestionFingerprint } from "./fingerprint.ts";
 import { validateQuestionIntegrity } from "./integrity.ts";
 import { getClassPedagogicalInstructions } from "../curriculum/classes.ts";
 import { retrieve } from "../rag/retrieve.ts";
@@ -907,30 +905,7 @@ STRICT MANDATORY RULES:
         setCachedWording(cacheKey, generatedText);
         seenSignatures.add(generatedText);
 
-        // Safely persist to persistent QuestionStore with 768-dim embedding and deduplication check
-        const fp = computeQuestionFingerprint(generatedText, operands);
-        embedQuestionText(generatedText, {
-          conceptId: baseQuestion.conceptId,
-          board: targetBoard,
-          client,
-        }).then(async (embedding) => {
-          const store = getQuestionStore();
-          await store.saveQuestion({
-            board: targetBoard,
-            class: grade,
-            concept_id: baseQuestion.conceptId,
-            lang: language,
-            difficulty: baseQuestion.difficulty,
-            question_text: generatedText,
-            answer_value: String(baseQuestion.answer),
-            answer_format: baseQuestion.format,
-            template_or_source: "hybrid",
-            fingerprint: fp,
-            embedding,
-          });
-        }).catch((err) => {
-          console.warn("[QuestionMemoryRAG] Save error:", err instanceof Error ? err.message : err);
-        });
+        // Note: Authoritative QuestionStore persistence is awaited directly in route.ts when the question is served.
 
         // Safely persist to legacy question memory (async, non-blocking)
         saveValidatedQuestion({

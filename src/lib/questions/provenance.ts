@@ -28,16 +28,19 @@ export function syncQuestionProvenance(
   const chapter = concept?.chapterName || "Mathematics";
 
   if (effectiveBoard === "ICSE") {
-    const isMismatched =
-      !q.provenanceLabel ||
-      q.provenanceLabel.includes("NCERT") ||
-      q.provenanceLabel.includes("CBSE") ||
-      q.provenanceLabel.includes("Ganita Prakash") ||
-      q.provenanceLabel.includes("Math-Magic");
+    // Strict isolation: never mask a genuine CBSE/NCERT question with an ICSE badge
+    if (
+      q.board === "CBSE" ||
+      (q.provenanceLabel &&
+        (q.provenanceLabel.includes("NCERT") ||
+          q.provenanceLabel.includes("CBSE") ||
+          q.provenanceLabel.includes("Ganita Prakash") ||
+          q.provenanceLabel.includes("Math-Magic")))
+    ) {
+      return q;
+    }
 
-    const provenance = isMismatched
-      ? `CISCE ICSE Class ${grade} Mathematics (${chapter})`
-      : q.provenanceLabel;
+    const provenance = q.provenanceLabel || `CISCE ICSE Class ${grade} Mathematics (${chapter})`;
 
     return {
       ...q,
@@ -49,16 +52,19 @@ export function syncQuestionProvenance(
       provenanceLabel: provenance,
     };
   } else {
-    const isMismatched =
-      !q.provenanceLabel ||
-      q.provenanceLabel.includes("CISCE") ||
-      q.provenanceLabel.includes("ICSE") ||
-      q.provenanceLabel.includes("Selina") ||
-      q.provenanceLabel.includes("Frank");
+    // Strict isolation: never mask a genuine ICSE question with a CBSE/NCERT badge
+    if (
+      q.board === "ICSE" ||
+      (q.provenanceLabel &&
+        (q.provenanceLabel.includes("CISCE") ||
+          q.provenanceLabel.includes("ICSE") ||
+          q.provenanceLabel.includes("Selina") ||
+          q.provenanceLabel.includes("Frank")))
+    ) {
+      return q;
+    }
 
-    const provenance = isMismatched
-      ? `NCERT Class ${grade} Mathematics (${chapter})`
-      : q.provenanceLabel;
+    const provenance = q.provenanceLabel || `NCERT Class ${grade} Mathematics (${chapter})`;
 
     return {
       ...q,

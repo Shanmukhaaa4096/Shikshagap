@@ -24,7 +24,7 @@ import type {
 } from "@/lib/types";
 
 export type StaircaseAction =
-  | { type: "ask"; topicId: TopicId; conceptId: ConceptId; level: 1 | 2 | 3 }
+  | { type: "ask"; topicId: TopicId; conceptId: ConceptId; level: 1 | 2 | 3 | 4 | 5 }
   | { type: "close_topic"; topicId: TopicId; status: TopicStatus }
   | { type: "finish" };
 
@@ -197,8 +197,29 @@ export function createSessionMemory(
   grade: number = 5,
   language: "en" | "hi" | "te" = "en",
   topics: TopicId[] = DEFAULT_TOPICS,
-  sessionSeed?: number
+  sessionSeedOrDifficulty?: number | 1 | 2 | 3 | 4 | 5,
+  initialDifficultyOrAdaptive?: (1 | 2 | 3 | 4 | 5) | boolean,
+  adaptiveMode?: boolean
 ): SessionMemory {
+  let sessionSeed: number | undefined;
+  let initDiff: (1 | 2 | 3 | 4 | 5) | undefined;
+  let adaptive: boolean | undefined = adaptiveMode;
+
+  if (typeof initialDifficultyOrAdaptive === "boolean") {
+    adaptive = initialDifficultyOrAdaptive;
+    if (
+      typeof sessionSeedOrDifficulty === "number" &&
+      sessionSeedOrDifficulty >= 1 &&
+      sessionSeedOrDifficulty <= 5
+    ) {
+      initDiff = sessionSeedOrDifficulty as 1 | 2 | 3 | 4 | 5;
+    }
+    sessionSeed = undefined;
+  } else {
+    sessionSeed = sessionSeedOrDifficulty;
+    initDiff = initialDifficultyOrAdaptive as (1 | 2 | 3 | 4 | 5) | undefined;
+  }
+
   const topicList = topics.length > 0 ? topics : DEFAULT_TOPICS;
   return {
     pseudonymousId,
@@ -220,6 +241,8 @@ export function createSessionMemory(
     askedQuestionTexts: [],
     sessionSeed: sessionSeed ?? generateFreshSessionSeed(),
     stepCount: 0,
+    initialDifficulty: initDiff,
+    adaptiveMode: adaptive,
   };
 }
 
@@ -325,15 +348,84 @@ export function getNextStaircaseAction(
         attempts.push(lastAttempt);
       }
 
+      const startLevel = (memory.initialDifficulty ?? (memory.adaptiveMode ? 3 : 2)) as 1 | 2 | 3 | 4 | 5;
+
       if (attempts.length === 0) {
         const conceptId = getConceptForTopic(currentTopic.topicId, memory.grade, memory.boardPreference);
         return {
           type: "ask",
           topicId: currentTopic.topicId,
           conceptId,
-          level: 2,
+          level: startLevel,
         };
       }
+
+      // Full Adaptive 5-level difficulty engine (enabled when adaptiveMode is true or initialDifficulty is 3)
+      if (memory.adaptiveMode || memory.initialDifficulty === 3) {
+        const numAttempts = attempts.length;
+        const lastAtt = attempts[numAttempts - 1];
+
+        // Early stopping rules (min 2, max 6 per topic)
+        if (numAttempts >= 2) {
+          const allCorrect = attempts.every((a) => a.correct);
+          const lastTwoCorrect = attempts.slice(-2).every((a) => a.correct);
+          const reachedHighLevel = attempts.some((a) => a.level >= 4);
+
+          // Clear mastery: all attempts correct (>= 2) or last 2 correct reaching high level (>= 4)
+          if ((allCorrect && numAttempts >= 2) || (lastTwoCorrect && reachedHighLevel)) {
+            return {
+              type: "close_topic",
+              topicId: currentTopic.topicId,
+              status: "mastered",
+            };
+          }
+
+          // Flag for gap if 2 consecutive errors at foundational level 1
+          const lastTwo = attempts.slice(-2);
+          if (lastTwo.length >= 2 && lastTwo.every((a) => !a.correct && a.level === 1)) {
+            return {
+              type: "close_topic",
+              topicId: currentTopic.topicId,
+              status: "gap",
+            };
+          }
+
+          // Max 6 questions per topic stopping rule
+          if (numAttempts >= 6) {
+            const correctCount = attempts.filter((a) => a.correct).length;
+            const finalStatus: TopicStatus = correctCount >= 4 ? "mastered" : correctCount >= 2 ? "developing" : "gap";
+            return {
+              type: "close_topic",
+              topicId: currentTopic.topicId,
+              status: finalStatus,
+            };
+          }
+        }
+
+        // Adaptive step progression:
+        // Correct answer -> next difficulty +1 (max 5)
+        // Wrong or unanswered -> next difficulty -1 (min 1) and probe prerequisite concept from previous grade
+        if (lastAtt.correct) {
+          const nextLevel = Math.min(5, lastAtt.level + 1) as 1 | 2 | 3 | 4 | 5;
+          return {
+            type: "ask",
+            topicId: currentTopic.topicId,
+            conceptId: lastAtt.conceptId,
+            level: nextLevel,
+          };
+        } else {
+          const nextLevel = Math.max(1, lastAtt.level - 1) as 1 | 2 | 3 | 4 | 5;
+          const prereq = getPrerequisiteForConcept(lastAtt.conceptId, lastAtt.errorType);
+          return {
+            type: "ask",
+            topicId: currentTopic.topicId,
+            conceptId: prereq,
+            level: nextLevel,
+          };
+        }
+      }
+
+      // Legacy 2-step fixed staircase (SPEC.md baseline)
       if (attempts.length === 1) {
         const a1 = attempts[0];
         if (a1.correct) {

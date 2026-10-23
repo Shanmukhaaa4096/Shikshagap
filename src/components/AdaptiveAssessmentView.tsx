@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { queueOfflineAction, syncOfflineQueue } from "@/lib/offline/sync";
 import type {
@@ -98,6 +98,8 @@ interface Props {
   isStudentView?: boolean;
   isGuest?: boolean;
   selectedClassId?: string;
+  boardPreference?: BoardPreference;
+  onBoardPreferenceChange?: (newBoard: BoardPreference) => void;
   onClassChange?: (newClassId: string) => void;
   onAssessmentCompleted?: (updatedStudent: DemoStudentData) => void;
   onCancel?: () => void;
@@ -109,6 +111,8 @@ export function AdaptiveAssessmentView({
   isStudentView = false,
   isGuest = false,
   selectedClassId = DEFAULT_CLASS_ID,
+  boardPreference: propBoardPreference,
+  onBoardPreferenceChange,
   onClassChange,
   onAssessmentCompleted,
   onCancel,
@@ -170,7 +174,15 @@ export function AdaptiveAssessmentView({
   const [isBackupQuestion, setIsBackupQuestion] = useState(false);
   const [reportedQuestionId, setReportedQuestionId] = useState<string | null>(null);
   const [isWorksheetOpen, setIsWorksheetOpen] = useState(false);
-  const [boardPreference, setBoardPreference] = useState<BoardPreference>("CBSE");
+  const [internalBoardPreference, setInternalBoardPreference] = useState<BoardPreference>("CBSE");
+  const boardPreference = propBoardPreference || internalBoardPreference;
+
+  const setBoardPreference = useCallback((newBoard: BoardPreference) => {
+    setInternalBoardPreference(newBoard);
+    onBoardPreferenceChange?.(newBoard);
+  }, [onBoardPreferenceChange]);
+
+  const [isEmptyState, setIsEmptyState] = useState<boolean>(false);
   
   // Gappu Mascot & Consecutive Streak Meter State
   const [streak, setStreak] = useState<number>(0);
@@ -251,7 +263,7 @@ export function AdaptiveAssessmentView({
     } catch {
       // Graceful fallback
     }
-  }, [sessionStorageKey]);
+  }, [sessionStorageKey, setBoardPreference]);
 
   // Persist session to sessionStorage and localStorage after every state change/answer
   useEffect(() => {
@@ -583,12 +595,15 @@ export function AdaptiveAssessmentView({
       pseudonymousId,
       gradeVal,
       lang as "en" | "hi" | "te",
-      (currentClassConfig.topics && currentClassConfig.topics.length > 0 ? currentClassConfig.topics : CURRICULUM_TOPICS) as TopicId[]
+      (currentClassConfig.topics && currentClassConfig.topics.length > 0 ? currentClassConfig.topics : CURRICULUM_TOPICS) as TopicId[],
+      3, // Start at class medium band (3)
+      true // Full adaptive staircase mode
     );
     initialMemory.boardPreference = boardPreference;
 
     setIsStarted(true);
     setIsFinished(false);
+    setIsEmptyState(false);
     setRecommendations([]);
     setReportSummary("");
     setFeedback(null);
@@ -608,6 +623,11 @@ export function AdaptiveAssessmentView({
 
         if (res.ok) {
           const data = await res.json();
+          if (data.isEmptyState) {
+            setIsEmptyState(true);
+            setIsEvaluating(false);
+            return;
+          }
           setSessionMemory(data.memory || initialMemory);
           setCurrentQuestion(data.nextQuestion);
           setIsBackupQuestion(false);
@@ -658,8 +678,13 @@ export function AdaptiveAssessmentView({
               lang as Lang
             );
           }
-          if (!q) {
+          if (!q && targetBoard === "CBSE") {
             q = generateUnique(action.conceptId, action.level, fallbackRng, askedIds, lookupClass, { board: targetBoard }, {}, askedTexts);
+          }
+          if (!q) {
+            setIsEmptyState(true);
+            setIsEvaluating(false);
+            return;
           }
           q = syncQuestionProvenance(q, targetBoard);
           const baseId = q.id.split("_s")[0];
@@ -718,6 +743,9 @@ export function AdaptiveAssessmentView({
       correct: isCorrect,
       errorType: !isCorrect ? errorType : undefined,
       sourceStyle: currentQuestion.sourceStyle,
+      board: currentQuestion.board === "ICSE" ? "ICSE" : "CBSE",
+      sourceBook: currentQuestion.meta?.sourceBook || currentQuestion.textbookSource?.textbookTitle,
+      sourceChapter: currentQuestion.meta?.sourceChapter || currentQuestion.textbookSource?.chapterTitle,
     };
 
     let gMessage = "";
@@ -769,6 +797,9 @@ export function AdaptiveAssessmentView({
       correct: false,
       errorType: "dont_know",
       sourceStyle: currentQuestion.sourceStyle,
+      board: currentQuestion.board === "ICSE" ? "ICSE" : "CBSE",
+      sourceBook: currentQuestion.meta?.sourceBook || currentQuestion.textbookSource?.textbookTitle,
+      sourceChapter: currentQuestion.meta?.sourceChapter || currentQuestion.textbookSource?.chapterTitle,
     };
 
     setStreak(0);
@@ -811,6 +842,11 @@ export function AdaptiveAssessmentView({
 
         if (res.ok) {
           const data = await res.json();
+          if (data.isEmptyState) {
+            setIsEmptyState(true);
+            setIsEvaluating(false);
+            return;
+          }
           const updatedMemory: SessionMemory = data.memory;
           setSessionMemory(updatedMemory);
 
@@ -903,7 +939,7 @@ export function AdaptiveAssessmentView({
                 }
               }
 
-              if (!nextQ) {
+              if (!nextQ && targetBoard === "CBSE") {
                 const genQ = generateUnique(
                   currentAdvAction.conceptId,
                   currentAdvAction.level,
@@ -1483,10 +1519,36 @@ export function AdaptiveAssessmentView({
 
   return (
     <div className="w-full max-w-[1200px] mx-auto px-2 sm:px-4 lg:px-6">
-      {/* ============================================================== */}
-      {/* SCREEN 1: PRE-ASSESSMENT SETUP SCREEN                          */}
-      {/* ============================================================== */}
-      {!isStarted ? (
+      {/* Visible Empty State */}
+      {isEmptyState ? (
+        <div className="w-full max-w-lg mx-auto py-12 px-4">
+          <div className="neo-panel p-6 sm:p-8 rounded-[24px] border border-border bg-card text-center space-y-4 shadow-warm">
+            <div className="w-14 h-14 mx-auto rounded-full bg-muted flex items-center justify-center text-muted-foreground">
+              <WarningCircle size={32} weight="bold" />
+            </div>
+            <h2 className="text-xl sm:text-2xl font-bold font-serif text-foreground">
+              Content for this class is being added
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Validated curriculum questions for {classConfig.label} ({boardPreference === "ICSE" ? "ICSE" : boardPreference === "BOTH" ? "Both CBSE & ICSE" : "CBSE (NCERT)"}) are currently being finalized. Please select another class or board.
+            </p>
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  clearSavedSession();
+                  setIsEmptyState(false);
+                  setIsStarted(false);
+                  setIsFinished(false);
+                }}
+                className="neo-btn neo-btn-primary px-6 py-3 rounded-full text-sm font-bold cursor-pointer"
+              >
+                Choose Another Class or Board
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : !isStarted ? (
         <div className="w-full pb-28 lg:pb-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
             {/* Left Column: Grade, Board, Language, Student */}
@@ -1504,10 +1566,10 @@ export function AdaptiveAssessmentView({
                         <span className="text-muted-foreground text-xs">•</span>
                         <span className="text-xs font-mono font-bold text-foreground">
                           {boardPreference === "ICSE"
-                            ? "ICSE (CISCE syllabus)"
+                            ? "ICSE"
                             : boardPreference === "BOTH"
-                            ? "NCERT (CBSE) & ICSE (Balanced)"
-                            : "NCERT (CBSE)"}
+                            ? "Both (CBSE & ICSE)"
+                            : "CBSE (NCERT)"}
                         </span>
                       </div>
                       <h1 className="editorial-title text-2xl sm:text-3xl text-foreground mt-1 font-serif font-black">
@@ -1515,10 +1577,10 @@ export function AdaptiveAssessmentView({
                       </h1>
                       <p className="text-sm text-foreground/80 mt-1 leading-relaxed max-w-2xl">
                         {lang === "hi"
-                          ? "गणित के कौशल की एक सरल और शांत जांच। आराम से सोचकर उत्तर दें।"
+                          ? `${classConfig.label} गणित के कौशल की एक शांत और सरल जांच (${boardPreference === "ICSE" ? "ICSE" : boardPreference === "BOTH" ? "CBSE और ICSE" : "CBSE (NCERT)"})। आराम से सोचकर उत्तर दें।`
                           : lang === "te"
-                          ? "మీ గణిత నైపుణ్యాలను పరిశీలించే సరళమైన పరీక్ష. నిదానంగా ఆలోచించి సమాధానం ఇవ్వండి."
-                          : "A calm, child-friendly check of foundational maths skills. Take your time and choose the best answer."}
+                          ? `${classConfig.label} గణిత నైపుణ్యాల సమగ్ర పరిశీలన (${boardPreference === "ICSE" ? "ICSE" : boardPreference === "BOTH" ? "CBSE మరియు ICSE" : "CBSE (NCERT)"}). నిదానంగా ఆలోచించి సమాధానం ఇవ్వండి.`
+                          : `A calm check of foundational maths skills for ${classConfig.label} (${boardPreference === "ICSE" ? "ICSE" : boardPreference === "BOTH" ? "Both CBSE & ICSE" : "CBSE (NCERT)"}). Take your time and choose the best answer.`}
                       </p>
                     </div>
                   </div>
@@ -1560,36 +1622,28 @@ export function AdaptiveAssessmentView({
                   <div className="space-y-2">
                     <div className="flex items-center justify-between flex-wrap gap-1">
                       <span className="editorial-meta text-foreground">SELECT CLASS</span>
-                      <span className="text-xs font-mono text-muted-foreground">Classes 3 to 5 live • Others coming soon</span>
+                      <span className="text-xs font-mono text-muted-foreground">Classes 1 to 10 ready</span>
                     </div>
                     <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5">
                       {SUPPORTED_CLASSES.map((c) => (
                         <button
                           key={c.id}
                           type="button"
-                          disabled={!c.enabled}
                           onClick={() => {
-                            if (c.enabled) {
-                              clearSavedSession();
-                              onClassChange?.(c.id);
-                            }
+                            clearSavedSession();
+                            setIsEmptyState(false);
+                            onClassChange?.(c.id);
                           }}
-                          title={
-                            c.enabled
-                              ? `Select ${c.label} for scored ${boardPreference === "ICSE" ? "ICSE" : boardPreference === "BOTH" ? "NCERT (CBSE) & ICSE" : "NCERT (CBSE)"} assessment`
-                              : `${c.label}: ${boardPreference === "ICSE" ? "ICSE" : "NCERT (CBSE)"} curriculum preview. Coming soon.`
-                          }
-                          className={`min-h-[44px] px-2 py-2 text-xs font-bold font-mono rounded-[16px] border flex flex-col items-center justify-center ${
+                          title={`Select ${c.label} for ${boardPreference === "ICSE" ? "ICSE" : boardPreference === "BOTH" ? "Both (CBSE & ICSE)" : "CBSE (NCERT)"} assessment`}
+                          className={`min-h-[44px] px-2 py-2 text-xs font-bold font-mono rounded-[16px] border flex flex-col items-center justify-center cursor-pointer ${
                             selectedClassId === c.id
                               ? "bg-primary text-primary-foreground border-primary"
-                              : c.enabled
-                              ? "bg-card text-foreground border-border hover:bg-muted cursor-pointer"
-                              : "bg-muted/30 text-muted-foreground/60 border-border/50 cursor-not-allowed opacity-60"
+                              : "bg-card text-foreground border-border hover:bg-muted"
                           }`}
                         >
                           <span>{c.label}</span>
                           <span className="text-[12px] font-normal opacity-85 leading-none">
-                            {c.enabled ? (c.stage === "foundational" ? "Found" : c.stage === "preparatory" ? "Primary" : c.stage === "middle" ? "Middle" : "High") : "Coming soon"}
+                            {c.stage === "foundational" ? "Found" : c.stage === "preparatory" ? "Primary" : c.stage === "middle" ? "Middle" : "High"}
                           </span>
                         </button>
                       ))}
@@ -1621,7 +1675,7 @@ export function AdaptiveAssessmentView({
                   <div className="space-y-2">
                     <div className="flex items-center justify-between flex-wrap gap-1">
                       <span className="editorial-meta text-foreground">CURRICULUM BOARD</span>
-                      <span className="text-xs font-mono text-muted-foreground">NCERT (CBSE) or ICSE</span>
+                      <span className="text-xs font-mono text-muted-foreground">CBSE (NCERT), ICSE or Both</span>
                     </div>
                     <div className="grid grid-cols-3 gap-2 max-w-md">
                       {(["CBSE", "ICSE", "BOTH"] as const).map((b) => (
@@ -1637,20 +1691,20 @@ export function AdaptiveAssessmentView({
                         >
                           <span>
                             {b === "CBSE"
-                              ? "NCERT (CBSE)"
+                              ? "CBSE (NCERT)"
                               : b === "ICSE"
                               ? "ICSE"
-                              : "Both (Balanced)"}
+                              : "Both"}
                           </span>
                         </button>
                       ))}
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {boardPreference === "CBSE"
-                        ? "Questions strictly aligned to NCERT (CBSE) curriculum and textbooks."
+                        ? "Questions strictly aligned to CBSE (NCERT) curriculum and textbooks."
                         : boardPreference === "ICSE"
                         ? "Questions strictly aligned to ICSE (CISCE) curriculum and textbooks."
-                        : "Balanced selection between NCERT (CBSE) and ICSE questions with explicit source badges on each question."}
+                        : "Balanced selection between CBSE (NCERT) and ICSE questions with explicit source badges on each question."}
                     </p>
                   </div>
                 </div>
@@ -1668,12 +1722,12 @@ export function AdaptiveAssessmentView({
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {(classConfig.topics || CURRICULUM_TOPICS).map((tId: TopicId) => (
+                  {(classConfig.topics && classConfig.topics.length > 0 ? classConfig.topics : CURRICULUM_TOPICS).map((tId: TopicId) => (
                     <span
                       key={tId}
                       className="px-3 py-1.5 bg-card border border-border text-xs font-mono font-bold text-foreground rounded-[16px]"
                     >
-                      {TOPIC_DISPLAY_NAMES[tId]?.en || tId}
+                      {TOPIC_DISPLAY_NAMES[tId]?.[lang] || TOPIC_DISPLAY_NAMES[tId]?.en || tId}
                     </span>
                   ))}
                 </div>
@@ -2297,21 +2351,42 @@ export function AdaptiveAssessmentView({
                         </div>
                       )}
 
-                      {/* Source Styles Encountered */}
-                      {sourcesEncountered.length > 0 && (
-                        <div className="flex items-center gap-1.5 flex-wrap text-xs font-mono pt-1">
-                          <span className="text-muted-foreground">Sources:</span>
-                          {sourcesEncountered.map((s) => (
+                      {/* Source Styles and Board Encountered */}
+                      <div className="flex items-center gap-1.5 flex-wrap text-xs font-mono pt-1">
+                        <span className="text-muted-foreground font-semibold">Sources:</span>
+                        {boardPreference === "BOTH" ? (
+                          attempts.map((a: Attempt, aIdx: number) => (
                             <span
-                              key={s}
-                              className="px-2 py-0.5 rounded bg-muted/70 border border-border text-foreground"
-                              title={SOURCE_STYLE_METADATA[s]?.description}
+                              key={aIdx}
+                              className={`px-2 py-0.5 rounded font-bold border ${
+                                a.board === "ICSE"
+                                  ? "bg-purple-100 text-purple-900 dark:bg-purple-950/70 dark:text-purple-200 border-purple-300 dark:border-purple-800"
+                                  : "bg-blue-100 text-blue-900 dark:bg-blue-950/70 dark:text-blue-200 border-blue-300 dark:border-blue-800"
+                              }`}
+                              title={a.sourceBook ? `${a.sourceBook}${a.sourceChapter ? ` (${a.sourceChapter})` : ""}` : undefined}
                             >
-                              {SOURCE_STYLE_METADATA[s]?.label || s}
+                              Q{aIdx + 1}: {a.board === "ICSE" ? "ICSE" : "CBSE"}{a.sourceBook ? ` (${a.sourceBook})` : ""}
                             </span>
-                          ))}
-                        </div>
-                      )}
+                          ))
+                        ) : (
+                          <>
+                            {sourcesEncountered.map((s) => (
+                              <span
+                                key={s}
+                                className="px-2 py-0.5 rounded bg-muted/70 border border-border text-foreground"
+                                title={SOURCE_STYLE_METADATA[s]?.description}
+                              >
+                                {SOURCE_STYLE_METADATA[s]?.label || s}
+                              </span>
+                            ))}
+                            {attempts.some((a) => a.sourceBook) && (
+                              <span className="text-muted-foreground">
+                                ({Array.from(new Set(attempts.map((a) => a.sourceBook).filter(Boolean))).join(", ")})
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
@@ -2582,6 +2657,8 @@ export function AdaptiveAssessmentView({
           {activeStudent && (
             <WorksheetModal
               data={activeStudent}
+              targetClass={getClassConfig(selectedClassId).grade}
+              targetBoard={boardPreference === "ICSE" ? "ICSE" : "CBSE"}
               isOpen={isWorksheetOpen}
               onClose={() => setIsWorksheetOpen(false)}
             />

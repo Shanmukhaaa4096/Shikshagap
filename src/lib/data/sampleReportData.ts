@@ -62,8 +62,14 @@ export function getSampleReportData(): SampleReportData {
   const plan = generateRemediationPlan("sample_student_00", rootCause);
 
   const rng = makeRng(42);
-  const q1 = generateQuestion(rootConceptId, 1, rng, 3, { board: "CBSE" });
-  const q2 = generateQuestion(rootConceptId, 2, rng, 3, { board: "CBSE" });
+  let q1 = generateQuestion(rootConceptId, 2, rng, 3, { board: "CBSE" });
+  while (Number(q1.meta?.a ?? 0) % 10 >= Number(q1.meta?.b ?? 0) % 10) {
+    q1 = generateQuestion(rootConceptId, 2, rng, 3, { board: "CBSE" });
+  }
+  let q2 = generateQuestion(rootConceptId, 2, rng, 3, { board: "CBSE" });
+  while (Number(q2.meta?.a ?? 0) % 10 >= Number(q2.meta?.b ?? 0) % 10 || q2.meta?.a === q1.meta?.a) {
+    q2 = generateQuestion(rootConceptId, 2, rng, 3, { board: "CBSE" });
+  }
 
   const backtrackingTrail: SampleReportNode[] = [
     {

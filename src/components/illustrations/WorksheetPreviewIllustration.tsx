@@ -27,12 +27,12 @@ export function WorksheetPreviewIllustration({ className = '' }: { className?: s
 
       <line x1="40" y1="82" x2="145" y2="82" stroke="#36151E" strokeWidth="2" strokeDasharray="3 3" />
       <text x="42" y="98" fill="#36151E" fontFamily="ui-monospace, monospace" fontSize="11" fontWeight="bold">
-        24 / 4 = 6
+        64 - 38 = ?
       </text>
 
       <line x1="40" y1="112" x2="145" y2="112" stroke="#36151E" strokeWidth="2" strokeDasharray="3 3" />
       <text x="42" y="128" fill="#A2999E" fontFamily="ui-monospace, monospace" fontSize="11" fontWeight="bold">
-        3/4 &gt; 1/2
+        83 - 49 = ?
       </text>
 
       <line x1="40" y1="142" x2="145" y2="142" stroke="#36151E" strokeWidth="2" strokeDasharray="3 3" />

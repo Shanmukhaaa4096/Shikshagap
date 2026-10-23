@@ -370,3 +370,74 @@ test("Question-Memory RAG 6: Fallback to current generation when store throws or
   // Reset override
   setQuestionStoreOverride(null);
 });
+
+test("Question-Memory RAG 7: Server-only Supabase client throws when service role credentials are missing", async () => {
+  const { getRequiredSupabaseAdmin } = await import("../src/lib/server/supabase.ts");
+  const origUrl = process.env.SUPABASE_URL;
+  const origKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const origKeyAlt = process.env.SUPABASE_SERVICE_KEY;
+
+  try {
+    process.env.SUPABASE_URL = "https://example.supabase.co";
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    delete process.env.SUPABASE_SERVICE_KEY;
+
+    assert.throws(
+      () => getRequiredSupabaseAdmin(),
+      /Missing required server-only environment variable: SUPABASE_SERVICE_ROLE_KEY/
+    );
+  } finally {
+    if (origUrl) process.env.SUPABASE_URL = origUrl;
+    else delete process.env.SUPABASE_URL;
+    if (origKey) process.env.SUPABASE_SERVICE_ROLE_KEY = origKey;
+    if (origKeyAlt) process.env.SUPABASE_SERVICE_KEY = origKeyAlt;
+  }
+});
+
+test("Question-Memory RAG 8: Server-only Supabase client rejects public anon key as service role key", async () => {
+  const { getRequiredSupabaseAdmin } = await import("../src/lib/server/supabase.ts");
+  const origUrl = process.env.SUPABASE_URL;
+  const origKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const origAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  try {
+    process.env.SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-anon-key-123456";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "test-anon-key-123456";
+
+    assert.throws(
+      () => getRequiredSupabaseAdmin(),
+      /SECURITY MISCONFIGURATION: SUPABASE_SERVICE_ROLE_KEY was set to the public anon key/
+    );
+  } finally {
+    if (origUrl) process.env.SUPABASE_URL = origUrl;
+    else delete process.env.SUPABASE_URL;
+    if (origKey) process.env.SUPABASE_SERVICE_ROLE_KEY = origKey;
+    else delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (origAnon) process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = origAnon;
+    else delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  }
+});
+
+test("Question-Memory RAG 9: getQuestionStore fails loudly in production when Supabase is not configured", async () => {
+  const { getQuestionStore } = await import("../src/lib/db/questionStore.ts");
+  const origNodeEnv = process.env.NODE_ENV;
+  const origKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const origKeyAlt = process.env.SUPABASE_SERVICE_KEY;
+
+  try {
+    process.env.NODE_ENV = "production";
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    delete process.env.SUPABASE_SERVICE_KEY;
+
+    assert.throws(
+      () => getQuestionStore(),
+      /FATAL CONFIG ERROR in production: Supabase question store is not configured/
+    );
+  } finally {
+    process.env.NODE_ENV = origNodeEnv;
+    if (origKey) process.env.SUPABASE_SERVICE_ROLE_KEY = origKey;
+    if (origKeyAlt) process.env.SUPABASE_SERVICE_KEY = origKeyAlt;
+  }
+});
+

@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import { generateUnique } from "@/lib/questions/generator";
-import { enhanceQuestionWithHybridWording } from "@/lib/questions/hybridGenerator";
-import { getVerifiedTextbookQuestion } from "@/lib/questions/textbookBank";
-import { validateQuestionStrict } from "@/lib/questions/validator";
-import { makeRng } from "@/lib/rng";
+import { NextRequest, NextResponse } from "next/server.js";
+import { generateUnique } from "../../../../lib/questions/generator.ts";
+import { enhanceQuestionWithHybridWording } from "../../../../lib/questions/hybridGenerator.ts";
+import { getVerifiedTextbookQuestion } from "../../../../lib/questions/textbookBank.ts";
+import { validateQuestionStrict } from "../../../../lib/questions/validator.ts";
+import { makeRng } from "../../../../lib/rng.ts";
 import {
   getNextStaircaseAction,
   applyAttemptToMemory,
@@ -11,10 +11,10 @@ import {
   normalizeQuestionText,
   getQuestionText,
   type StaircaseAction,
-} from "@/lib/agents/staircase";
-import { runExaminerStep } from "@/lib/agents/examiner";
-import { analyzeErrors } from "@/lib/agents/errorAnalyst";
-import { evaluateStoppingRule } from "@/lib/engine/stoppingRule";
+} from "../../../../lib/agents/staircase.ts";
+import { runExaminerStep } from "../../../../lib/agents/examiner.ts";
+import { analyzeErrors } from "../../../../lib/agents/errorAnalyst.ts";
+import { evaluateStoppingRule } from "../../../../lib/engine/stoppingRule.ts";
 import type {
   Attempt,
   Question,
@@ -22,22 +22,22 @@ import type {
   ConceptId,
   Difficulty,
   QuestionFormat,
-} from "@/lib/types";
+} from "../../../../lib/types.ts";
 
-import { getMultiBoardQuestion } from "@/lib/questions/multiBoardBank";
-import { syncQuestionProvenance } from "@/lib/questions/provenance";
-import { getCurriculumConcept } from "@/data/curriculum";
-import { rotateSourceStyle, type SourceStyle, type DifficultyLevel, calibrateDifficultyWithEmpiricalData } from "@/lib/agents/adaptiveEngine";
+import { getMultiBoardQuestion } from "../../../../lib/questions/multiBoardBank.ts";
+import { syncQuestionProvenance } from "../../../../lib/questions/provenance.ts";
+import { getCurriculumConcept } from "../../../../data/curriculum/index.ts";
+import { rotateSourceStyle, type SourceStyle, type DifficultyLevel, calibrateDifficultyWithEmpiricalData } from "../../../../lib/agents/adaptiveEngine.ts";
 import { z } from "zod";
-import { guardRequest, createGuardResponse } from "@/lib/server/guard";
-import { getClientIp } from "@/lib/server/security";
-import { retrieve } from "@/lib/rag/retrieve.ts";
+import { guardRequest, createGuardResponse } from "../../../../lib/server/guard.ts";
+import { getClientIp } from "../../../../lib/server/security.ts";
+import { retrieve } from "../../../../lib/rag/retrieve.ts";
 import {
   getQuestionStore,
   retrieveSimilarQuestionsSafe,
   embedQuestionText,
-} from "@/lib/db/questionStore";
-import { computeQuestionFingerprint } from "@/lib/questions/fingerprint";
+} from "../../../../lib/db/questionStore.ts";
+import { computeQuestionFingerprint } from "../../../../lib/questions/fingerprint.ts";
 
 const AssessmentAgentSchema = z.object({
   memory: z.object({
@@ -61,6 +61,8 @@ const AssessmentAgentSchema = z.object({
     sessionSeed: z.number().int().optional(),
     stepCount: z.number().int().optional(),
     boardPreference: z.enum(["CBSE", "ICSE", "BOTH"]).optional(),
+    initialDifficulty: z.number().int().min(1).max(5).optional(),
+    adaptiveMode: z.boolean().optional(),
   }),
   lastAttempt: z
     .object({
@@ -133,7 +135,12 @@ export async function POST(req: NextRequest) {
       // Update aggregate counters in QuestionStore (strictly aggregate, no student PII or session id)
       if (lastAttempt.questionId) {
         const store = getQuestionStore();
-        store.incrementStats(lastAttempt.questionId, lastAttempt.correct).catch(() => {});
+        store.incrementStats(lastAttempt.questionId, lastAttempt.correct).catch((err) => {
+          console.error("[QuestionStore] incrementStats failed:", {
+            error: err instanceof Error ? err.message : err,
+            questionId: lastAttempt.questionId,
+          });
+        });
       }
 
       // 2. If a topic closed as developing or gap, run Error Analyst
@@ -365,8 +372,8 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // 5. Fallback: generate and enhance with Gemini hybrid generator
-      if (!nextQuestion) {
+      // 5. Fallback: generate and enhance with Gemini hybrid generator (CBSE only, never mask CBSE as ICSE)
+      if (!nextQuestion && targetBoard === "CBSE") {
         for (let attempt = 0; attempt < 3; attempt++) {
           const baseQuestion = generateUnique(
             nextAction.conceptId,
@@ -432,11 +439,15 @@ export async function POST(req: NextRequest) {
     }
 
     if (nextAction.type !== "ask" || !nextQuestion) {
+      // If we could not find any question on the very first step, signal empty state
+      const isInitialStep = (currentMemory.stepCount ?? 0) === 0;
       return NextResponse.json({
         memory: currentMemory,
-        isFinished: true,
+        isFinished: !isInitialStep,
         nextQuestion: null,
         action: nextAction,
+        isEmptyState: isInitialStep,
+        emptyStateMessage: "Content for this class is being added",
         sources: [],
       });
     }
@@ -512,11 +523,15 @@ export async function POST(req: NextRequest) {
         flagged: false,
       });
 
-      if (!saveRes.saved && saveRes.reason !== "duplicate_fingerprint" && saveRes.reason !== "duplicate_similarity") {
-        console.warn(`[QuestionStore] Served question save failed (${saveRes.reason}): id=${baseId}`);
+      if (!saveRes.saved) {
+        if (saveRes.reason === "database_error") {
+          console.error(`[QuestionStore] FAILED(${saveRes.error || "database_error"}) id=${baseId} class=${questionClass}`);
+        }
       }
     } catch (saveErr) {
-      console.warn(`[QuestionStore] Served question save caught error:`, saveErr instanceof Error ? saveErr.message : saveErr);
+      const errMessage = saveErr instanceof Error ? saveErr.message : String(saveErr);
+      const questionClass = nextQuestion.meta?.class || currentMemory.grade;
+      console.error(`[QuestionStore] FAILED(${errMessage}) id=${baseId} class=${questionClass}`);
     }
 
     currentMemory.askedQuestionIds = Array.from(askedIds);

@@ -12,7 +12,7 @@ import { WorksheetModal } from '@/components/WorksheetModal';
 import { TeacherProfileModal } from '@/components/TeacherProfileModal';
 import { loadStudents, saveStudents, resetDemoData, type DemoStudentData } from '@/lib/data/demo';
 
-import { DEFAULT_CLASS_ID } from '@/lib/curriculum/classes';
+import { DEFAULT_CLASS_ID, getClassConfig } from '@/lib/curriculum/classes';
 
 function AuthenticatedApp() {
   const router = useRouter();
@@ -203,6 +203,7 @@ function AuthenticatedApp() {
       {/* Printable Worksheet Modal */}
       <WorksheetModal
         data={worksheetStudent}
+        targetClass={getClassConfig(selectedClassId).grade}
         isOpen={isWorksheetOpen}
         onClose={() => setIsWorksheetOpen(false)}
       />
