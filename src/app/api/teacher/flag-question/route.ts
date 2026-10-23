@@ -40,8 +40,13 @@ export async function POST(req: NextRequest) {
     }
 
     const { questionId, reason } = parsed.data;
-    const store = getQuestionStore();
-    const flagged = await store.flagQuestion(questionId, reason);
+    let flagged = false;
+    try {
+      const store = getQuestionStore();
+      flagged = await store.flagQuestion(questionId, reason);
+    } catch (storeErr) {
+      console.warn("[FlagQuestionRoute] Store unconfigured in production:", storeErr);
+    }
 
     // Also update legacy memory store if present
     await reportQuestion(questionId, reason).catch(() => {});

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getQuestionStore, isSupabaseConfigured } from "@/lib/db/questionStore";
+import { getQuestionStore, isSupabaseConfigured, type QuestionStore } from "@/lib/db/questionStore";
 import { getSupabaseAdmin } from "@/lib/server/supabase";
 import { guardRequest, createGuardResponse } from "@/lib/server/guard";
 import { getServerSession } from "@/lib/auth/session";
@@ -31,8 +31,14 @@ export async function GET(req: NextRequest) {
     }
 
     const supabaseConfigured = isSupabaseConfigured();
-    const store = getQuestionStore();
-    const storeName = store.constructor.name;
+    let store: QuestionStore | null = null;
+    let storeName = "Unconfigured";
+    try {
+      store = getQuestionStore();
+      storeName = store.constructor.name;
+    } catch {
+      storeName = "Unconfigured (missing Supabase credentials)";
+    }
 
     if (supabaseConfigured) {
       const supabase = getSupabaseAdmin();

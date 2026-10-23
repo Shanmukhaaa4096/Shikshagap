@@ -10,6 +10,7 @@ import {
   getQuestionStore,
   embedQuestionText,
   type QuestionMemoryItem,
+  type QuestionStore,
 } from "../../../lib/db/questionStore.ts";
 import { computeQuestionFingerprint } from "../../../lib/questions/fingerprint.ts";
 import { guardRequest, createGuardResponse } from "../../../lib/server/guard.ts";
@@ -61,21 +62,28 @@ export async function POST(req: NextRequest) {
       seed,
     } = parsed.data;
 
-    const store = getQuestionStore();
+    let store: QuestionStore | null = null;
+    try {
+      store = getQuestionStore();
+    } catch (storeInitErr) {
+      console.warn("[WorksheetAPI] Persistent question store unconfigured in production:", storeInitErr);
+    }
 
     // 1. Query existing questions from question_memory filtered in SQL
     let storedQuestions: QuestionMemoryItem[] = [];
-    try {
-      storedQuestions = await store.queryQuestions({
-        class: classNum,
-        board: board === "Both" ? undefined : board,
-        conceptId: skill,
-        excludeIds,
-        limit: count,
-      });
-    } catch (queryErr) {
-      console.warn("[WorksheetAPI] Stored question retrieval fallback:", queryErr);
-      storedQuestions = [];
+    if (store) {
+      try {
+        storedQuestions = await store.queryQuestions({
+          class: classNum,
+          board: board === "Both" ? undefined : board,
+          conceptId: skill,
+          excludeIds,
+          limit: count,
+        });
+      } catch (queryErr) {
+        console.warn("[WorksheetAPI] Stored question retrieval fallback:", queryErr);
+        storedQuestions = [];
+      }
     }
 
     // 2. Generate structured worksheet combining stored questions and deterministic parametric generation
@@ -100,37 +108,39 @@ export async function POST(req: NextRequest) {
     );
 
     let newlySavedCount = 0;
-    for (const item of itemsToSave) {
-      try {
-        const fingerprint = item.fingerprint || computeQuestionFingerprint(item.prompt, item.operands || []);
-        const embedding = await embedQuestionText(item.prompt, {
-          conceptId: item.topic,
-          board: item.board,
-        });
+    if (store) {
+      for (const item of itemsToSave) {
+        try {
+          const fingerprint = item.fingerprint || computeQuestionFingerprint(item.prompt, item.operands || []);
+          const embedding = await embedQuestionText(item.prompt, {
+            conceptId: item.topic,
+            board: item.board,
+          });
 
-        const saveRes = await store.saveQuestion({
-          board: item.board,
-          class: item.classNum,
-          concept_id: item.topic,
-          lang: language,
-          difficulty: item.difficulty,
-          question_text: item.prompt,
-          answer_value: item.correctAnswer,
-          answer_format: item.options ? "multiple_choice" : "numeric",
-          template_or_source: "hybrid",
-          fingerprint,
-          embedding,
-          times_served: 1,
-          times_correct: 0,
-          flagged: false,
-        });
+          const saveRes = await store.saveQuestion({
+            board: item.board,
+            class: item.classNum,
+            concept_id: item.topic,
+            lang: language,
+            difficulty: item.difficulty,
+            question_text: item.prompt,
+            answer_value: item.correctAnswer,
+            answer_format: item.options ? "multiple_choice" : "numeric",
+            template_or_source: "hybrid",
+            fingerprint,
+            embedding,
+            times_served: 1,
+            times_correct: 0,
+            flagged: false,
+          });
 
-        if (saveRes.saved) {
-          newlySavedCount++;
+          if (saveRes.saved) {
+            newlySavedCount++;
+          }
+        } catch (saveErr) {
+          // Log without crashing the worksheet delivery
+          console.warn("[WorksheetAPI] Failed to persist generated question to memory:", saveErr);
         }
-      } catch (saveErr) {
-        // Log without crashing the worksheet delivery
-        console.warn("[WorksheetAPI] Failed to persist generated question to memory:", saveErr);
       }
     }
 

@@ -841,6 +841,18 @@ export function getQuestionStore(): QuestionStore {
 }
 
 /**
+ * Safe version of getQuestionStore that returns null instead of throwing
+ * if the store is unconfigured in production or fails initialization.
+ */
+export function getQuestionStoreSafe(): QuestionStore | null {
+  try {
+    return getQuestionStore();
+  } catch {
+    return null;
+  }
+}
+
+/**
  * High-level retrieveSimilarQuestions wrapper with timeout and fallback protection.
  * Resolves within ~800ms. If it times out or errors, returns [] without throwing.
  */
@@ -848,7 +860,10 @@ export async function retrieveSimilarQuestionsSafe(
   params: RetrieveQuestionParams,
   timeoutMs = 800
 ): Promise<Array<QuestionMemoryItem & { similarity: number }>> {
-  const store = getQuestionStore();
+  const store = getQuestionStoreSafe();
+  if (!store) {
+    return [];
+  }
 
   const fetchPromise = store.retrieveSimilarQuestions(params);
   const timeoutPromise = new Promise<Array<QuestionMemoryItem & { similarity: number }>>((resolve) =>

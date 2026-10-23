@@ -134,13 +134,20 @@ export async function POST(req: NextRequest) {
 
       // Update aggregate counters in QuestionStore (strictly aggregate, no student PII or session id)
       if (lastAttempt.questionId) {
-        const store = getQuestionStore();
-        store.incrementStats(lastAttempt.questionId, lastAttempt.correct).catch((err) => {
-          console.error("[QuestionStore] incrementStats failed:", {
-            error: err instanceof Error ? err.message : err,
+        try {
+          const store = getQuestionStore();
+          store.incrementStats(lastAttempt.questionId, lastAttempt.correct).catch((err) => {
+            console.error("[QuestionStore] incrementStats failed:", {
+              error: err instanceof Error ? err.message : err,
+              questionId: lastAttempt.questionId,
+            });
+          });
+        } catch (storeErr) {
+          console.warn("[QuestionStore] incrementStats skipped (store unconfigured in production):", {
+            error: storeErr instanceof Error ? storeErr.message : storeErr,
             questionId: lastAttempt.questionId,
           });
-        });
+        }
       }
 
       // 2. If a topic closed as developing or gap, run Error Analyst

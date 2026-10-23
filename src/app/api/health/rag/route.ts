@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server.js";
 import { getSupabaseAdmin } from "../../../../lib/server/supabase.ts";
-import { getQuestionStore } from "../../../../lib/db/questionStore.ts";
+import { getQuestionStore, type QuestionStore } from "../../../../lib/db/questionStore.ts";
 
 export const dynamic = "force-dynamic";
 
@@ -71,8 +71,20 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     });
   }
 
-  // Fallback to local store if Supabase is not configured
-  const localStore = getQuestionStore();
+  // Fallback to local store if Supabase is not configured (in dev/test)
+  let localStore: QuestionStore | null = null;
+  try {
+    localStore = getQuestionStore();
+  } catch (_err) {
+    return NextResponse.json({
+      status: "degraded",
+      store: "unconfigured",
+      error: "Supabase question store is not configured in production serverless.",
+      total: 0,
+      by_class_and_board: {},
+      by_difficulty: {},
+    });
+  }
   const allQuestions: Array<{ class: number; board: string; difficulty: number }> = [];
 
   for (let c = 1; c <= 10; c++) {

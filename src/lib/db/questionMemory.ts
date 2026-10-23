@@ -13,7 +13,7 @@
  */
 
 import { computeDeterministicQueryEmbedding, cosineSimilarity } from "../agents/resourceAdvisor.ts";
-import { getQuestionStore } from "./questionStore.ts";
+import { getQuestionStore, type QuestionStore } from "./questionStore.ts";
 
 export * from "./questionStore.ts";
 
@@ -381,7 +381,12 @@ export async function processAnonymousSession(payload: AnonymousSessionPayload):
   let correctCount = 0;
 
   // 1. Update questions stats and misconception tallies
-  const persistentStore = getQuestionStore();
+  let persistentStore: QuestionStore | null = null;
+  try {
+    persistentStore = getQuestionStore();
+  } catch {
+    // Unconfigured in production serverless
+  }
   for (const qAttempt of payload.questions) {
     if (qAttempt.correct) correctCount++;
 
@@ -392,7 +397,9 @@ export async function processAnonymousSession(payload: AnonymousSessionPayload):
     memoryStore.questionStats.set(qAttempt.questionId, currStat);
 
     // Update persistent QuestionStore (Supabase / LocalJson)
-    persistentStore.incrementStats(qAttempt.questionId, qAttempt.correct).catch(() => {});
+    if (persistentStore) {
+      persistentStore.incrementStats(qAttempt.questionId, qAttempt.correct).catch(() => {});
+    }
 
     const qRecord = memoryStore.questions.get(qAttempt.questionId);
     if (qRecord) {
