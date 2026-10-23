@@ -144,5 +144,7 @@ export interface ValidationResult {
     | "UNVERIFIED_SOURCE"
     | "INVALID_ANSWER"
     | "BELOW_GRADE_FLOOR"
-    | "BOARD_MISMATCH";
+    | "BOARD_MISMATCH"
+    | "INVALID_DISTRACTOR"
+    | "DISTRACTOR_EQUALS_ANSWER";
 }

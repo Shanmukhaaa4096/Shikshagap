@@ -72,6 +72,7 @@ import { getClassConfig, DEFAULT_CLASS_ID, SUPPORTED_CLASSES } from "@/lib/curri
 import { getVerifiedTextbookQuestion } from "@/lib/questions/textbookBank";
 import { getMultiBoardQuestion } from "@/lib/questions/multiBoardBank";
 import { syncQuestionProvenance } from "@/lib/questions/provenance";
+import { shuffleQuestionOptionsForServe } from "@/lib/questions/optionShuffler";
 import { getCurriculumConcept } from "@/data/curriculum";
 import {
   SOURCE_STYLE_METADATA,
@@ -687,6 +688,8 @@ export function AdaptiveAssessmentView({
             return;
           }
           q = syncQuestionProvenance(q, targetBoard);
+          const shuffleRes = shuffleQuestionOptionsForServe(q, sessionSeed, 0, []);
+          q = shuffleRes.question;
           const baseId = q.id.split("_s")[0];
           const normText = normalizeQuestionText(getQuestionText(q, lang as Lang));
           askedIds.add(baseId);
@@ -700,6 +703,7 @@ export function AdaptiveAssessmentView({
             seenSignatures: Array.from(askedIds),
             usedFormats: [q.format],
             stepCount: 1,
+            optionPositionHistory: [shuffleRes.correctPosition],
           });
           setCurrentQuestion(q);
         }
@@ -712,26 +716,61 @@ export function AdaptiveAssessmentView({
   };
 
   // Submit Student Answer
-  const handleSubmit = (answerValue: string) => {
+  const handleSubmit = async (answerValue: string) => {
     if (!currentQuestion || !sessionMemory || isEvaluating || Boolean(feedback)) return;
 
     const trimmed = answerValue.trim();
     if (!trimmed) return;
 
-    const isCorrect = areAnswersEquivalent(trimmed, currentQuestion.answer);
+    setIsEvaluating(true);
+    let isCorrect = false;
+    let errorType: string | undefined = undefined;
+
+    // Verify answer server-side if verificationToken is present
+    if (currentQuestion.verificationToken) {
+      try {
+        const verifyRes = await fetch("/api/assessment/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            questionId: currentQuestion.id,
+            studentAnswer: trimmed,
+            token: currentQuestion.verificationToken,
+          }),
+        });
+        if (verifyRes.ok) {
+          const verifyData = await verifyRes.json();
+          isCorrect = Boolean(verifyData.correct);
+          if (verifyData.errorType) {
+            errorType = verifyData.errorType;
+          }
+        } else if (currentQuestion.answer !== undefined) {
+          isCorrect = areAnswersEquivalent(trimmed, currentQuestion.answer);
+        }
+      } catch {
+        if (currentQuestion.answer !== undefined) {
+          isCorrect = areAnswersEquivalent(trimmed, currentQuestion.answer);
+        }
+      }
+    } else if (currentQuestion.answer !== undefined) {
+      isCorrect = areAnswersEquivalent(trimmed, currentQuestion.answer);
+    }
+
+    setIsEvaluating(false);
 
     const normTrimmed = normalizeAnswer(trimmed);
-    let errorType: string | undefined = undefined;
-    if (!isCorrect && currentQuestion.meta.bugs) {
-      if (currentQuestion.meta.bugs[trimmed]) {
-        errorType = currentQuestion.meta.bugs[trimmed];
-      } else if (currentQuestion.meta.bugs[normTrimmed]) {
-        errorType = currentQuestion.meta.bugs[normTrimmed];
-      } else {
+    if (!errorType) {
+      if (!isCorrect && currentQuestion.meta?.bugs) {
+        if (currentQuestion.meta.bugs[trimmed]) {
+          errorType = currentQuestion.meta.bugs[trimmed];
+        } else if (currentQuestion.meta.bugs[normTrimmed]) {
+          errorType = currentQuestion.meta.bugs[normTrimmed];
+        } else {
+          errorType = "slip";
+        }
+      } else if (!isCorrect) {
         errorType = "slip";
       }
-    } else if (!isCorrect) {
-      errorType = "slip";
     }
 
     const newAttempt: Attempt = {
@@ -742,6 +781,7 @@ export function AdaptiveAssessmentView({
       studentAnswer: trimmed,
       correct: isCorrect,
       errorType: !isCorrect ? errorType : undefined,
+      verificationToken: currentQuestion.verificationToken,
       sourceStyle: currentQuestion.sourceStyle,
       board: currentQuestion.board === "ICSE" ? "ICSE" : "CBSE",
       sourceBook: currentQuestion.meta?.sourceBook || currentQuestion.textbookSource?.textbookTitle,
@@ -966,6 +1006,14 @@ export function AdaptiveAssessmentView({
               setSessionMemory(currentAdvMem);
               completeAssessment(currentAdvMem);
             } else {
+              const shuffleRes = shuffleQuestionOptionsForServe(
+                nextQ,
+                sessionSeed,
+                step + 1,
+                currentAdvMem.optionPositionHistory || []
+              );
+              nextQ = shuffleRes.question;
+
               const baseId = nextQ.id.split("_s")[0];
               const normText = normalizeQuestionText(getQuestionText(nextQ, lang as Lang));
               askedIds.add(baseId);
@@ -980,6 +1028,10 @@ export function AdaptiveAssessmentView({
                 seenSignatures: Array.from(askedIds),
                 usedFormats: [...usedFormats, nextQ.format],
                 stepCount: step + 1,
+                optionPositionHistory: [
+                  ...(currentAdvMem.optionPositionHistory || []),
+                  shuffleRes.correctPosition,
+                ],
               });
               setCurrentQuestion(nextQ);
             }

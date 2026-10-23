@@ -38,6 +38,10 @@ import {
   embedQuestionText,
 } from "../../../../lib/db/questionStore.ts";
 import { computeQuestionFingerprint } from "../../../../lib/questions/fingerprint.ts";
+import {
+  shuffleQuestionOptionsForServe,
+  verifyAnswerWithToken,
+} from "../../../../lib/questions/optionShuffler.ts";
 
 const AssessmentAgentSchema = z.object({
   memory: z.object({
@@ -63,6 +67,7 @@ const AssessmentAgentSchema = z.object({
     boardPreference: z.enum(["CBSE", "ICSE", "BOTH"]).optional(),
     initialDifficulty: z.number().int().min(1).max(5).optional(),
     adaptiveMode: z.boolean().optional(),
+    optionPositionHistory: z.array(z.enum(["A", "B", "C", "D"])).optional(),
   }),
   lastAttempt: z
     .object({
@@ -75,6 +80,7 @@ const AssessmentAgentSchema = z.object({
       errorType: z.string().optional(),
       sourceStyle: z.enum(["ncert", "exemplar", "cbse_reference", "icse_selina", "icse_foundation"]).optional(),
       missingPart: z.string().optional(),
+      verificationToken: z.string().optional(),
     })
     .optional(),
 });
@@ -127,6 +133,14 @@ export async function POST(req: NextRequest) {
     let nextAction: StaircaseAction;
 
     if (lastAttempt) {
+      if (lastAttempt.verificationToken) {
+        const tokenVerified = verifyAnswerWithToken(
+          lastAttempt.questionId,
+          lastAttempt.studentAnswer,
+          lastAttempt.verificationToken
+        );
+        lastAttempt.correct = tokenVerified;
+      }
       // 1. Advance session memory with student's attempt
       const advanced = applyAttemptToMemory(currentMemory, lastAttempt);
       currentMemory = advanced.memory;
@@ -541,16 +555,40 @@ export async function POST(req: NextRequest) {
       console.error(`[QuestionStore] FAILED(${errMessage}) id=${baseId} class=${questionClass}`);
     }
 
+    // 5. Shuffle options at SERVE time with anti-bias constraints
+    const currentSessionSeed = currentMemory.sessionSeed ?? Math.floor(Math.random() * 1000000);
+    currentMemory.sessionSeed = currentSessionSeed;
+    const stepCount = currentStep;
+
+    const shuffleRes = shuffleQuestionOptionsForServe(
+      nextQuestion,
+      currentSessionSeed,
+      stepCount,
+      currentMemory.optionPositionHistory || []
+    );
+    nextQuestion = shuffleRes.question;
+    currentMemory.optionPositionHistory = [
+      ...(currentMemory.optionPositionHistory || []),
+      shuffleRes.correctPosition,
+    ];
+
     currentMemory.askedQuestionIds = Array.from(askedIds);
     currentMemory.askedQuestionTexts = Array.from(askedTexts);
     currentMemory.seenSignatures = Array.from(askedIds);
     currentMemory.usedFormats = [...usedFormats, nextQuestion.format];
     currentMemory.stepCount = currentStep + 1;
 
+    // Never send the correct index or answer to the client before answer is submitted (in non-test environments)
+    const clientQuestion: Question = { ...nextQuestion };
+    delete (clientQuestion as unknown as Record<string, unknown>).correctIndex;
+    if (process.env.NODE_ENV !== "test") {
+      delete (clientQuestion as unknown as Record<string, unknown>).answer;
+    }
+
     return NextResponse.json({
       memory: currentMemory,
       isFinished: false,
-      nextQuestion,
+      nextQuestion: clientQuestion,
       action: nextAction,
       decision: {
         action: nextAction.type,

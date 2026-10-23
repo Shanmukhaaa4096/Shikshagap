@@ -85,6 +85,7 @@ function performCleanupIfNeeded(): void {
 export function getRouteBucketConfig(route: string): { capacity: number; refillRatePerSec: number } {
   switch (route) {
     case "/api/assessment/agent":
+    case "/api/assessment/verify":
       // Student assessment step: burst 40, steady 20/min (~0.33/s) per session
       return { capacity: 40, refillRatePerSec: 20 / 60 };
 

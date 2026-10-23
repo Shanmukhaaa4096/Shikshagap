@@ -232,6 +232,8 @@ export interface Question {
   ragSources?: Array<{ id: string; title: string }>;
   /** Provenance title of the curriculum chunk used for hint grounding */
   hintSource?: string;
+  /** Cryptographic HMAC verification token for server-side evaluation */
+  verificationToken?: string;
 }
 
 export type Classification = "correct" | ErrorType;
@@ -526,6 +528,7 @@ export interface Attempt {
   board?: "CBSE" | "ICSE";
   sourceBook?: string;
   sourceChapter?: string;
+  verificationToken?: string;
 }
 
 export interface TopicMemory {
@@ -561,6 +564,8 @@ export interface SessionMemory {
   askedQuestionIds?: string[];
   /** List of normalized question texts in this session to safeguard against duplicate prompts */
   askedQuestionTexts?: string[];
+  /** History of correct answer option positions ('A', 'B', 'C', 'D') served in this session */
+  optionPositionHistory?: Array<"A" | "B" | "C" | "D">;
 }
 
 export interface EducationalResource {

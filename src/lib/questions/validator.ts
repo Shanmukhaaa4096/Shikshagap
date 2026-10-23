@@ -301,14 +301,14 @@ export function validateQuestionStrict(
       }
     }
 
-    // Verify correct answer matches at least one option
-    const answerInOptions = question.options.some(
+    // Verify correct answer matches EXACTLY ONE option
+    const matchingOptions = question.options.filter(
       (opt) =>
         opt.value === question.answer ||
         areAnswersEquivalent(opt.value, question.answer)
     );
 
-    if (!answerInOptions) {
+    if (matchingOptions.length === 0) {
       return {
         valid: false,
         errors: [
@@ -318,6 +318,41 @@ export function validateQuestionStrict(
         ],
         code: "ANSWER_NOT_IN_OPTIONS",
       };
+    }
+
+    if (matchingOptions.length > 1) {
+      return {
+        valid: false,
+        errors: [
+          `Multiple options match the correct answer "${question.answer}". Multiple choice must have exactly one correct answer.`,
+        ],
+        code: "DUPLICATE_OPTIONS",
+      };
+    }
+
+    // Distractor quality check: every wrong option must be plausible, unique, and not equal to the correct answer
+    const distractors = question.options.filter((opt) => opt !== matchingOptions[0]);
+    for (let dIdx = 0; dIdx < distractors.length; dIdx++) {
+      const dist = distractors[dIdx];
+      const distVal = dist.value.trim();
+
+      if (!distVal || distVal === "NaN" || distVal === "undefined" || distVal === "null") {
+        return {
+          valid: false,
+          errors: [`Distractor option ${dIdx} has invalid/empty value "${dist.value}"`],
+          code: "INVALID_DISTRACTOR",
+        };
+      }
+
+      if (distVal === question.answer || areAnswersEquivalent(distVal, question.answer)) {
+        return {
+          valid: false,
+          errors: [
+            `Distractor option "${distVal}" is mathematically equivalent to the correct answer "${question.answer}". Distractors must be distinct and incorrect.`,
+          ],
+          code: "DISTRACTOR_EQUALS_ANSWER",
+        };
+      }
     }
   } else if (question.answerKind === "choice") {
     return {
