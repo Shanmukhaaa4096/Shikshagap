@@ -32,10 +32,8 @@ import { allConceptsMap } from "../../data/curriculum/index.ts";
 import {
   evaluateStoppingRule,
   MIN_TOTAL_QUESTIONS,
-  MAX_TOTAL_QUESTIONS,
   MIN_QUESTIONS_PER_PROBED_CONCEPT,
   MIN_QUESTIONS_ROOT_GAP,
-  ROOT_GAP_CONFIDENCE_THRESHOLD,
 } from "../engine/stoppingRule.ts";
 
 /**

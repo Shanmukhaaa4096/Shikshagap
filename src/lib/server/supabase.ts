@@ -1,5 +1,4 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import crypto from 'crypto';
 import {
   createStudentShareToken,
   getRawShareToken,

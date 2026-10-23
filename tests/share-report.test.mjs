@@ -12,7 +12,6 @@ import {
   generateShareToken,
   createStudentShareToken,
   getShareToken,
-  getRawShareToken,
   getShareTokenStatus,
   revokeStudentShareToken,
   recordAssessmentSessionCompletion,
@@ -22,7 +21,6 @@ import {
 import {
   insertSharedReport,
   getSharedReport,
-  revokeSharedReport,
   isReportExpired,
 } from '../src/lib/server/supabase.ts';
 

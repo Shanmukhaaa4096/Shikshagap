@@ -2,8 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { LIVE_CLASSES } from "../src/lib/coverage.ts";
-import { generateQuestion, generateUnique } from "../src/lib/questions/generator.ts";
-import { getMultiBoardQuestion } from "../src/lib/questions/multiBoardBank.ts";
+import { generateQuestion } from "../src/lib/questions/generator.ts";
 import { makeRng } from "../src/lib/rng.ts";
 import { SUPPORTED_CLASSES } from "../src/lib/curriculum/classes.ts";
 import {

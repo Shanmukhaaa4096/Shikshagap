@@ -25,6 +25,19 @@ interface PageProps {
   params: Promise<{ token: string }> | { token: string };
 }
 
+function isTokenExpired(expiresAtMs: number, expiresAtIso: string): boolean {
+  return Date.now() > expiresAtMs || isReportExpired(expiresAtIso);
+}
+
+interface SharedReportData {
+  skillsUnlocked?: Array<{ id: string; name: string }>;
+  skillsSleeping?: Array<{ id: string; name: string; prereqRoot?: string }>;
+  prescribedPlan?: Array<{ step: number; title: string; desc: string }>;
+  totalQuestions?: number;
+  confidence?: number;
+  isProvisional?: boolean;
+}
+
 async function ReportLoader({ params }: PageProps) {
   const resolvedParams = await Promise.resolve(params);
   const token = resolvedParams?.token;
@@ -90,7 +103,7 @@ async function ReportLoader({ params }: PageProps) {
     ? report.expires_at
     : new Date(report.expires_at).toISOString();
 
-  if (report.expires_at && (Date.now() > expiresAtMs || isReportExpired(expiresAtIso))) {
+  if (report.expires_at && isTokenExpired(expiresAtMs, expiresAtIso)) {
     return renderErrorCard({
       title: 'Report Link Expired',
       titleHi: 'रिपोर्ट लिंक समाप्त हो चुका है',
@@ -115,7 +128,7 @@ async function ReportLoader({ params }: PageProps) {
   });
 
   const cleanFirstName = (report.first_name || 'Learner').trim().split(/\s+/)[0] || 'Learner';
-  const reportData = (report.report_data || {}) as Record<string, any>;
+  const reportData = (report.report_data || {}) as SharedReportData;
 
   return (
     <ReportClientView

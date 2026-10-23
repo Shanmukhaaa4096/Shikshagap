@@ -17,7 +17,7 @@
  * 8. Never repeats a question or near-duplicate in a session.
  */
 
-import type { ConceptId, Attempt, SessionMemory, TopicId } from "../types.ts";
+import type { ConceptId, Attempt, SessionMemory } from "../types.ts";
 import { getPrerequisiteForConcept } from "../agents/staircase.ts";
 
 // ==============================================================================

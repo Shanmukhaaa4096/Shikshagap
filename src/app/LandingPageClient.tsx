@@ -15,20 +15,12 @@ import {
   Sparkle
 } from '@phosphor-icons/react';
 import { useI18n, LanguageProvider } from '@/lib/i18n/context';
-import type { ConceptId, Lang } from '@/lib/types';
-import { CONCEPTS } from '@/lib/concepts/graph';
-import { 
-  getClassConfig, 
-  DEFAULT_CLASS_ID 
-} from '@/lib/curriculum/classes';
+import type { Lang } from '@/lib/types';
 import { 
   getComputedStats, 
-  LIVE_CLASS_RANGE_LABEL, 
-  LIVE_CLASS_SUMMARY 
+  LIVE_CLASS_RANGE_LABEL 
 } from '@/lib/coverage';
 import { siteConfig } from '@/config/site';
-import { generateQuestion } from '@/lib/questions/generator';
-import { makeRng } from '@/lib/rng';
 import { motion } from 'motion/react';
 import { LuminousType } from '@/components/LuminousType';
 import { BlinkingDots } from '@/components/BlinkingDots';
@@ -80,7 +72,6 @@ export default function PublicLandingPage() {
 
 function PublicLandingPageContent() {
   const { lang, setLang, dict } = useI18n();
-  const selectedClassId = DEFAULT_CLASS_ID;
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('shikshagap_theme') || localStorage.getItem('theme');
@@ -91,9 +82,6 @@ function PublicLandingPageContent() {
     return false;
   });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // Dynamic class configuration
-  const activeClassConfig = getClassConfig(selectedClassId);
 
   const toggleTheme = () => {
     const next = !isDark;

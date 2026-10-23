@@ -6,13 +6,10 @@ import {
   getNextStaircaseAction,
   applyAttemptToMemory,
   DEFAULT_TOPICS,
-  getPrerequisiteForConcept,
 } from '../src/lib/agents/staircase.ts';
 
 import {
   evaluateStoppingRule,
-  identifyCandidateRootGap,
-  evaluateAllConceptsMastery,
   MIN_TOTAL_QUESTIONS,
   MAX_TOTAL_QUESTIONS,
   ROOT_GAP_CONFIDENCE_THRESHOLD,
@@ -146,8 +143,6 @@ test('Simulation: Student who gets first 3 right does NOT stop early before 8 qu
 });
 
 test('Simulation: Student who gets first answer wrong does NOT receive instant gap verdict', () => {
-  const rng = createPrng(99999);
-
   for (let i = 0; i < 50; i++) {
     const memory = createSessionMemory(`wrong_first_${i}`, 5, 'en', DEFAULT_TOPICS);
     const action1 = getNextStaircaseAction(memory);

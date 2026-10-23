@@ -101,7 +101,11 @@ test("E2E Assessment Smoke Test: Multi-Class & Multi-Board Complete Flows", asyn
       }
 
       // Wait for question options to be visible
-      const optionButtons = page.locator('.grid button.neo-btn-secondary');
+      const optionButtons = page
+        .locator('button[data-testid="option-button"], .grid-cols-1 button.neo-btn-secondary, button.neo-btn-secondary')
+        .filter({ hasNotText: "Back to Home" })
+        .filter({ hasNotText: "Back to Dashboard" })
+        .filter({ hasNotText: "Home" });
       try {
         await optionButtons.first().waitFor({ state: "visible", timeout: 8000 });
       } catch {
@@ -112,13 +116,17 @@ test("E2E Assessment Smoke Test: Multi-Class & Multi-Board Complete Flows", asyn
 
       const optCount = await optionButtons.count();
       if (optCount > 0) {
-        // Click the first option
+        // Click the first visible option
         await optionButtons.first().click();
         questionsAnswered++;
         await page.waitForTimeout(200);
 
-        // Click "Next Question" button
-        const nextBtn = page.locator('button:has-text("Next Question")').first();
+        // Click "Next Question" / "Continue" button
+        const nextBtn = page
+          .locator('button:has-text("Next Question")')
+          .or(page.locator('button:has-text("Continue")'))
+          .or(page.locator('[data-testid="mobile-sticky-next-btn"]'))
+          .first();
         try {
           await nextBtn.waitFor({ state: "visible", timeout: 4000 });
           await nextBtn.click();
@@ -154,8 +162,8 @@ test("E2E Assessment Smoke Test: Multi-Class & Multi-Board Complete Flows", asyn
 
     console.log("[E2E] ✓ Verified Results screen with Adaptive Difficulty Path and Learning Summary.");
 
-    // 4. Test Class 10 ICSE Assessment start
-    console.log("[E2E] Testing Class 10 ICSE Assessment Start...");
+    // 4. Test Class 4 ICSE Assessment start
+    console.log("[E2E] Testing Class 4 ICSE Assessment Start...");
     const resetBtn = page.locator('button:has-text("Try Another Check")').or(page.locator('button:has-text("Check Another Student")')).first();
     if (await resetBtn.isVisible()) {
       await resetBtn.scrollIntoViewIfNeeded();
@@ -166,26 +174,32 @@ test("E2E Assessment Smoke Test: Multi-Class & Multi-Board Complete Flows", asyn
     }
     await page.waitForTimeout(500);
 
+    // Verify Class 10 state (coming soon per coverage.ts)
     const class10Btn = page.locator('button:has-text("Class 10")').first();
-    await class10Btn.click();
+    const isClass10Disabled = await class10Btn.isDisabled();
+    console.log(`[E2E] Class 10 disabled state: ${isClass10Disabled}`);
+
+    // Test Class 4 ICSE
+    const class4Btn = page.locator('button:has-text("Class 4")').first();
+    await class4Btn.click();
     await page.waitForTimeout(200);
 
     const icseBoardBtn = page.locator('button:has-text("ICSE")').first();
     await icseBoardBtn.click();
     await page.waitForTimeout(200);
 
-    const startBtn10 = page.locator('button:has-text("Start Practice")').or(page.locator('button:has-text("START ASSESSMENT")')).first();
-    await startBtn10.click();
+    const startBtn4 = page.locator('button:has-text("Start Practice")').or(page.locator('button:has-text("START ASSESSMENT")')).first();
+    await startBtn4.click();
 
-    // Verify Class 10 ICSE question loads
+    // Verify Class 4 ICSE question loads
     const questionEyebrow = page.locator('text="Question 1"');
     await questionEyebrow.waitFor({ state: "visible", timeout: 15000 });
-    assert.ok(await questionEyebrow.isVisible(), "Class 10 ICSE Question 1 must render");
+    assert.ok(await questionEyebrow.isVisible(), "Class 4 ICSE Question 1 must render");
 
     const boardBadge = page.locator('[data-testid="question-board-badge"]').first();
     const boardBadgeText = await boardBadge.textContent();
     assert.equal(boardBadgeText.trim(), "ICSE", "Question board badge must display ICSE");
-    console.log("[E2E] ✓ Class 10 ICSE Question 1 rendered with ICSE board badge verified.");
+    console.log("[E2E] ✓ Class 4 ICSE Question 1 rendered with ICSE board badge verified.");
 
   } finally {
     await page.close();

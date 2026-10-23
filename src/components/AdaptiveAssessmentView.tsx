@@ -82,9 +82,6 @@ import {
 } from "@/lib/agents/adaptiveEngine";
 import {
   evaluateStoppingRule,
-  MIN_TOTAL_QUESTIONS,
-  MAX_TOTAL_QUESTIONS,
-  ROOT_GAP_CONFIDENCE_THRESHOLD,
   type StoppingEvaluationResult,
 } from "@/lib/engine/stoppingRule";
 
@@ -3052,6 +3049,7 @@ export function AdaptiveAssessmentView({
                           <button
                             key={opt.id}
                             type="button"
+                            data-testid="option-button"
                             onClick={() => handleSubmit(opt.value)}
                             disabled={isEvaluating || Boolean(feedback)}
                             className="w-full neo-btn neo-btn-secondary min-h-[56px] sm:min-h-[64px] p-4 text-left text-[18px] sm:text-xl font-bold flex items-center gap-3.5 rounded-[20px] group leading-relaxed shadow-warm-sm hover:shadow-warm transition-all cursor-pointer"
